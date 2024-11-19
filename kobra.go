@@ -6,6 +6,8 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/hex"
+	"errors"
+	"fmt"
 	"io"
 	"math/big"
 	"net/netip"
@@ -13,6 +15,7 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+	"unicode/utf8"
 )
 
 // Run runs a command.
@@ -345,6 +348,74 @@ func Path(ctx context.Context, name string) string {
 // Count returns the count variable from the context.
 func Count(ctx context.Context, name string) int {
 	return Get[int](ctx, name)
+}
+
+// OnErr is the on error handling option type.
+type OnErr uint8
+
+// On error handling options.
+const (
+	OnErrExit OnErr = iota
+	OnErrContinue
+	OnErrPanic
+)
+
+// apply satisfies the [Option] interface.
+func (e OnErr) apply(val any) error {
+	if v, ok := val.(*Command); ok {
+		v.OnErr = e
+		return nil
+	}
+	return ErrOptionAppliedToInvalidType
+}
+
+// Handle handles an error.
+func (e OnErr) Handle(ctx context.Context, err error) {
+	switch {
+	case errors.Is(err, ErrExit), e == OnErrContinue:
+	case e == OnErrExit:
+		fmt.Fprintln(Stderr(ctx), "error:", err)
+		os.Exit(1)
+	case e == OnErrPanic:
+		panic(err)
+	}
+}
+
+// RunError is a run error.
+type RunError struct {
+	Desc string
+	Err  error
+}
+
+// newCommandError creates a command error.
+func newCommandError(name string, err error) error {
+	return &RunError{
+		Desc: "command " + name,
+		Err:  err,
+	}
+}
+
+// newFlagError creates a flag error.
+func newFlagError(arg string, err error) error {
+	desc := "--"
+	if utf8.RuneCountInString(arg) == 1 {
+		desc = "-"
+	}
+	desc += arg
+	return &RunError{
+		Desc: desc,
+		Err:  err,
+	}
+}
+
+// Error satisfies the [error] interface.
+func (err *RunError) Error() string {
+	return err.Desc + ": " + err.Err.Error()
+}
+
+// Unwrap satisfies the [errors.Unwrap] interface.
+func (err *RunError) Unwrap() error {
+	return err.Err
 }
 
 // Error is a package error.

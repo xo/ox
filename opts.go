@@ -95,39 +95,41 @@ func Alias(name, usage string) Option {
 	}
 }
 
-// Args is a command option to the set the range of a command's minimum/maximum
-// arg count.
-func Args(minimum, maximum int) Option {
+// ArgsFunc is a command option to set the command's argument validation funcs.
+func ArgsFunc(funcs ...func([]string) error) Option {
 	return option{
 		command: func(c *Command) error {
-			c.Args = append(c.Args, func(v []string) error {
-				switch n := len(v); {
-				case minimum != 0 && n < minimum,
-					maximum != 0 && n > maximum:
-					return ErrInvalidArgCount
-				}
-				return nil
-			})
+			c.Args = append(c.Args, funcs...)
 			return nil
 		},
 	}
 }
 
-// ArgValues is command option to the set allowed values for an argument.
-func ArgValues(args ...string) Option {
-	return option{
-		command: func(c *Command) error {
-			c.Args = append(c.Args, func(v []string) error {
-				for _, arg := range v {
-					if !slices.Contains(args, arg) {
-						return ErrInvalidArgValue
-					}
+// Args is a command option to the set the range of a command's minimum/maximum
+// arg count and allowed arg values. A minimum/maximum < 0 means no
+// minimum/maximum.
+func Args(minimum, maximum int, values ...string) Option {
+	return ArgsFunc(func(args []string) error {
+		switch n := len(args); {
+		case minimum < 0 && maximum < 0:
+		case minimum == 0 && maximum == 0 && n != 0:
+			return fmt.Errorf("%w: takes no args", ErrInvalidArgCount)
+		case minimum <= 0 && maximum < n:
+			return fmt.Errorf("%w: takes max %d arg(s)", ErrInvalidArgCount, maximum)
+		case maximum <= 0 && n < minimum:
+			return fmt.Errorf("%w: takes min %d arg(s)", ErrInvalidArgCount, minimum)
+		case 0 <= minimum && 1 <= maximum && (n < minimum || maximum < n):
+			return fmt.Errorf("%w: takes %d-%d args", ErrInvalidArgCount, minimum, maximum)
+		}
+		if len(values) != 0 {
+			for i, arg := range args {
+				if !slices.Contains(values, arg) {
+					return fmt.Errorf("%w: arg %d (%q) is not an allowed value", ErrInvalidArgValue, i, arg)
 				}
-				return nil
-			})
-			return nil
-		},
-	}
+			}
+		}
+		return nil
+	})
 }
 
 // UserConfigFile is a command option to load a config file from the user's

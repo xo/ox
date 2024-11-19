@@ -214,12 +214,7 @@ func testDump(t *testing.T, name string) func(ctx context.Context, args []string
 		_, _ = fmt.Fprintln(Stdout(ctx), "root:", RootName(ctx))
 		cmd := Cmd(ctx)
 		_, _ = fmt.Fprintln(Stdout(ctx), "name:", cmd.Descs[0].Name)
-		var v []string
-		for c := cmd; c != nil; {
-			v, c = append(v, c.Descs[0].Name), c.Parent
-		}
-		slices.Reverse(v)
-		_, _ = fmt.Fprintln(Stdout(ctx), "tree:", v)
+		_, _ = fmt.Fprintln(Stdout(ctx), "tree:", cmd.Tree())
 		_, _ = fmt.Fprintln(Stdout(ctx), "args:", args)
 		vars, _ := VarsOK(ctx)
 		_, _ = fmt.Fprint(Stdout(ctx), "vars: [")

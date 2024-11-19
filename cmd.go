@@ -2,8 +2,6 @@ package kobra
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
@@ -306,13 +304,23 @@ func NewCommand(f func(context.Context, []string) error, opts ...Option) (*Comma
 			return nil, err
 		}
 	}
-	switch n := len(c.Descs[0].Name); {
-	case n == 0 && c.Parent == nil:
+	switch noName := c.Descs[0].Name == ""; {
+	case noName && c.Parent == nil:
 		c.Descs[0].Name = filepath.Base(os.Args[0])
-	case n == 0:
+	case noName:
 		return nil, ErrCommandUsageNotSet
 	}
 	return c, nil
+}
+
+// Tree returns the parents of the command.
+func (cmd *Command) Tree() []string {
+	var v []string
+	for c := cmd; c != nil; {
+		v, c = append(v, c.Descs[0].Name), c.Parent
+	}
+	slices.Reverse(v)
+	return v
 }
 
 // Run executes the command with the context, validating passed arguments.
@@ -320,7 +328,7 @@ func (cmd *Command) Run(ctx context.Context, args []string) error {
 	// validate args
 	for _, f := range cmd.Args {
 		if err := f(args); err != nil {
-			return err
+			return newCommandError(cmd.Descs[0].Name, err)
 		}
 	}
 	return cmd.Exec(ctx, args)
@@ -431,17 +439,17 @@ func parseLong(ctx context.Context, cmd *Command, s string, args []string, vars 
 	g := cmd.Flag(arg)
 	switch {
 	case g == nil:
-		return nil, newFlagError(arg, false, ErrUnknownFlag)
+		return nil, newFlagError(arg, ErrUnknownFlag)
 	case ok: // --arg=v
 	case g.NoArg: // --arg
 		value = toBoolString(g.Def)
 	case len(args) != 0: // --arg v
 		value, args = args[0], args[1:]
 	default: // missing argument to --arg
-		return nil, newFlagError(arg, false, ErrMissingArgument)
+		return nil, newFlagError(arg, ErrMissingArgument)
 	}
 	if err := vars.Set(ctx, g, value); err != nil {
-		return nil, newFlagError(arg, false, err)
+		return nil, newFlagError(arg, err)
 	}
 	return args, nil
 }
@@ -452,7 +460,7 @@ func parseShort(ctx context.Context, cmd *Command, s string, args []string, vars
 		arg := string(v[0])
 		switch g, n := cmd.Flag(arg), len(v[1:]); {
 		case g == nil:
-			return nil, newFlagError(arg, true, ErrUnknownFlag)
+			return nil, newFlagError(arg, ErrUnknownFlag)
 		case g.NoArg: // -a
 			var value string
 			if slices.Index(v, '=') == 1 {
@@ -461,21 +469,21 @@ func parseShort(ctx context.Context, cmd *Command, s string, args []string, vars
 				value = toBoolString(g.Def)
 			}
 			if err := vars.Set(ctx, g, value); err != nil {
-				return nil, newFlagError(arg, true, err)
+				return nil, newFlagError(arg, err)
 			}
 		case n == 0 && len(args) == 0: // missing argument to -a
-			return nil, newFlagError(arg, true, ErrMissingArgument)
+			return nil, newFlagError(arg, ErrMissingArgument)
 		case n != 0: // -a=, -a=v, -av
 			if slices.Index(v, '=') == 1 {
 				v = v[1:]
 			}
 			if err := vars.Set(ctx, g, string(v[1:])); err != nil {
-				return nil, newFlagError(arg, true, err)
+				return nil, newFlagError(arg, err)
 			}
 			return args, nil
 		default: // -a v
 			if err := vars.Set(ctx, g, args[0]); err != nil {
-				return nil, newFlagError(arg, true, err)
+				return nil, newFlagError(arg, err)
 			}
 			return args[1:], nil
 		}
@@ -504,64 +512,4 @@ func (d Desc) apply(val any) error {
 		return ErrOptionAppliedToInvalidType
 	}
 	return nil
-}
-
-// FlagError is a flag parse error.
-type FlagError struct {
-	Arg   string
-	Short bool
-	Err   error
-}
-
-// newFlagError creates a flag error.
-func newFlagError(arg string, short bool, err error) error {
-	return &FlagError{
-		Arg:   arg,
-		Short: short,
-		Err:   err,
-	}
-}
-
-// Error satisfies the [error] interface.
-func (err *FlagError) Error() string {
-	if err.Short {
-		return "-" + err.Arg + ": " + err.Err.Error()
-	}
-	return "--" + err.Arg + ": " + err.Err.Error()
-}
-
-// Unwrap satisfies the [errors.Unwrap] interface.
-func (err *FlagError) Unwrap() error {
-	return err.Err
-}
-
-// OnErr is the on error handling option type.
-type OnErr uint8
-
-// On error handling options.
-const (
-	OnErrExit OnErr = iota
-	OnErrContinue
-	OnErrPanic
-)
-
-// apply satisfies the [Option] interface.
-func (e OnErr) apply(val any) error {
-	if v, ok := val.(*Command); ok {
-		v.OnErr = e
-		return nil
-	}
-	return ErrOptionAppliedToInvalidType
-}
-
-// Handle handles an error.
-func (e OnErr) Handle(ctx context.Context, err error) {
-	switch {
-	case errors.Is(err, ErrExit), e == OnErrContinue:
-	case e == OnErrExit:
-		fmt.Fprintln(Stderr(ctx), "error:", err)
-		os.Exit(1)
-	case e == OnErrPanic:
-		panic(err)
-	}
 }
