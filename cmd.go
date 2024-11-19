@@ -454,7 +454,13 @@ func parseShort(ctx context.Context, cmd *Command, s string, args []string, vars
 		case g == nil:
 			return nil, newFlagError(arg, true, ErrUnknownFlag)
 		case g.NoArg: // -a
-			if err := vars.Set(ctx, g, toBoolString(g.Def)); err != nil {
+			var value string
+			if slices.Index(v, '=') == 1 {
+				value, v = string(v[2:]), v[len(v)-1:]
+			} else {
+				value = toBoolString(g.Def)
+			}
+			if err := vars.Set(ctx, g, value); err != nil {
 				return nil, newFlagError(arg, true, err)
 			}
 		case n == 0 && len(args) == 0: // missing argument to -a

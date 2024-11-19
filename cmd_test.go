@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"maps"
 	"slices"
 	"strconv"
 	"strings"
@@ -81,13 +82,50 @@ func parseTests() []parseTest {
 				"vars: [foo:[a b c]]",
 			},
 		},
-		/*
-			{ss("a//--m=A=100//--m//FOO=200//one//two")},
-			{ss("a//--m=A=100//--m//FOO=200//one//two")},
-			{ss("a//--b//one//--b=false//two//--b=t//three//--b=1")},
-			{ss("a//--inc//one//--inc//--inc//two//--inc//three")},
-			{ss("a//-fa=b//-iiib//one//two//-bbb//three")},
-		*/
+		{
+			ss("a//--m=A=100//--m//FOO=200//one//two"),
+			[]string{
+				"exec: two",
+				"root: cmd",
+				"name: two",
+				"tree: [cmd one two]",
+				"args: []",
+				"vars: [map:[A:100 FOO:200]]",
+			},
+		},
+		{
+			ss("a//-b//one//-b=false//two//-b=t//three//--b=1"),
+			[]string{
+				"exec: three",
+				"root: cmd",
+				"name: three",
+				"tree: [cmd one two three]",
+				"args: []",
+				"vars: [bvar:true]",
+			},
+		},
+		{
+			ss("a//--inc//one//--inc//--inc//two//--inc//three"),
+			[]string{
+				"exec: three",
+				"root: cmd",
+				"name: three",
+				"tree: [cmd one two three]",
+				"args: []",
+				"vars: [inc:4]",
+			},
+		},
+		{
+			ss("a//-fa=b//-iiib//one//two//-bbb//three"),
+			[]string{
+				"exec: three",
+				"root: cmd",
+				"name: three",
+				"tree: [cmd one two three]",
+				"args: []",
+				"vars: [bvar:true foo:[a=b] inc:3]",
+			},
+		},
 	}
 }
 
@@ -149,19 +187,17 @@ func testDump(t *testing.T, name string) func(ctx context.Context, args []string
 		_, _ = fmt.Fprintln(Stdout(ctx), "args:", args)
 		vars, _ := VarsOK(ctx)
 		_, _ = fmt.Fprint(Stdout(ctx), "vars: [")
-		var i int
-		for k, val := range vars {
+		for i, k := range slices.Sorted(maps.Keys(vars)) {
 			if i != 0 {
 				_, _ = fmt.Fprint(Stdout(ctx), " ")
 			}
 			var s string
-			if v, ok := val.Var.(interface{ String() string }); ok {
+			if v, ok := vars[k].Var.(interface{ String() string }); ok {
 				s = v.String()
 			} else {
-				s, _ = val.Var.Get()
+				s, _ = vars[k].Var.Get()
 			}
 			_, _ = fmt.Fprint(Stdout(ctx), k+":"+s)
-			i++
 		}
 		_, _ = fmt.Fprintln(Stdout(ctx), "]")
 		return nil
