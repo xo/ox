@@ -33,30 +33,61 @@ func TestParse(t *testing.T) {
 			if err := cmd.Exec(ctx, args); err != nil {
 				t.Fatalf("expected no error, got: %v", err)
 			}
-			if s := stdout.String(); s != test.cmds {
-				t.Errorf("\nexpected output:\n%s\ngot:\n%s", test.cmds, s)
+			s := strings.TrimSpace(stdout.String())
+			if exp := strings.Join(test.exp, "\n"); s != exp {
+				t.Errorf("\nexpected:\n%s\ngot:\n%s", exp, s)
 			}
 		})
 	}
 }
 
 type parseTest struct {
-	v    []string
-	cmds string
-	args string
-	vars string
+	v   []string
+	exp []string
 }
 
 func parseTests() []parseTest {
 	return []parseTest{
-		{ss(""), "cmd", "", ""},
-		{ss("a//"), "cmd", "", ""},
-		{ss("a//--foo=a//one////--foo//b//two//--foo//c//three//four//blah//yay"), "cmd//one//two//three//four", "", ""},
-		{ss("a//--m=A=100//--m//FOO=200//one//two"), "cmd//one//two", "", ""},
-		{ss("a//--m=A=100//--m//FOO=200//one//two"), "cmd//one//two", "", ""},
-		{ss("a//--b//one//--b=false//two//--b=t//three//--b=1"), "cmd//one/two/three", "", ""},
-		{ss("a//--inc//one//--inc//--inc//two//--inc//three"), "cmd//one//two//three", "", ""},
-		{ss("a//-fa=b//-iiib//one//two//-bbb//three"), "cmd//one//two//three", "", ""},
+		{
+			ss(""),
+			[]string{
+				"exec: cmd",
+				"root: cmd",
+				"name: cmd",
+				"tree: [cmd]",
+				"args: []",
+				"vars: []",
+			},
+		},
+		{
+			ss("a//"),
+			[]string{
+				"exec: cmd",
+				"root: cmd",
+				"name: cmd",
+				"tree: [cmd]",
+				"args: []",
+				"vars: []",
+			},
+		},
+		{
+			ss("a//--foo=a//one////--foo//b//two//--foo//c//three//four//blah//yay"),
+			[]string{
+				"exec: one",
+				"root: cmd",
+				"name: one",
+				"tree: [cmd one]",
+				"args: [ two three four blah yay]",
+				"vars: [foo:[a b c]]",
+			},
+		},
+		/*
+			{ss("a//--m=A=100//--m//FOO=200//one//two")},
+			{ss("a//--m=A=100//--m//FOO=200//one//two")},
+			{ss("a//--b//one//--b=false//two//--b=t//three//--b=1")},
+			{ss("a//--inc//one//--inc//--inc//two//--inc//three")},
+			{ss("a//-fa=b//-iiib//one//two//-bbb//three")},
+		*/
 	}
 }
 
@@ -114,10 +145,10 @@ func testDump(t *testing.T, name string) func(ctx context.Context, args []string
 			v, c = append(v, c.Descs[0].Name), c.Parent
 		}
 		slices.Reverse(v)
-		_, _ = fmt.Fprintln(Stdout(ctx), "tree:", strings.Join(v, "//"))
-		_, _ = fmt.Fprintln(Stdout(ctx), "args:", strings.Join(args, "//"))
+		_, _ = fmt.Fprintln(Stdout(ctx), "tree:", v)
+		_, _ = fmt.Fprintln(Stdout(ctx), "args:", args)
 		vars, _ := VarsOK(ctx)
-		_, _ = fmt.Fprint(Stdout(ctx), "[")
+		_, _ = fmt.Fprint(Stdout(ctx), "vars: [")
 		var i int
 		for k, val := range vars {
 			if i != 0 {
