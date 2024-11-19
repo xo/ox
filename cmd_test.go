@@ -126,6 +126,39 @@ func parseTests() []parseTest {
 				"vars: [bvar:true foo:[a=b] inc:3]",
 			},
 		},
+		{
+			ss("a//one//two//four//-b"),
+			[]string{
+				"exec: two",
+				"root: cmd",
+				"name: two",
+				"tree: [cmd one two]",
+				"args: [four]",
+				"vars: [bvar:true]",
+			},
+		},
+		{
+			ss("a//one//four//-iii//--inc//fun"),
+			[]string{
+				"exec: four",
+				"root: cmd",
+				"name: four",
+				"tree: [cmd one four]",
+				"args: [fun]",
+				"vars: [inc:4]",
+			},
+		},
+		{
+			ss("a//five//-u//file:a//-ufile:b//-c=1.2.3.4/24//--cidr//2.4.6.8/0//foo//bar"),
+			[]string{
+				"exec: five",
+				"root: cmd",
+				"name: five",
+				"tree: [cmd five]",
+				"args: [foo bar]",
+				"vars: [cidr:[1.2.3.4/24 2.4.6.8/0] url:[file:a file:b]]",
+			},
+		},
 	}
 }
 
@@ -163,6 +196,9 @@ func testCommand(t *testing.T) *Command {
 		Sub(
 			testDump(t, "five"),
 			Usage("five", ""),
+			Flags().
+				Slice("cidr", "", Short("c"), CIDRT).
+				Slice("url", "", Short("u"), URLT),
 		),
 	)
 	if err != nil {
