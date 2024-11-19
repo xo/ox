@@ -1,6 +1,7 @@
 package kobra
 
 import (
+	"context"
 	"errors"
 	"net/netip"
 	"net/url"
@@ -10,20 +11,30 @@ import (
 func TestTypeNew(t *testing.T) {
 	for _, tt := range typeTests(t) {
 		for _, test := range tt.tests {
-			t.Run(tt.typ.String()+"/"+toString(test.v), func(t *testing.T) {
+			t.Run(tt.typ.String()+"/"+toString(test.s), func(t *testing.T) {
 				expErr, ok := test.exp.(error)
 				switch v, err := tt.typ.New(); {
-				case err != nil && ok && !errors.Is(err, expErr):
-					t.Errorf("expected error %v, got: %v", expErr, err)
-				case err != nil && !ok:
-					t.Errorf("expected no error, got: %v", err)
+				case err != nil:
+					t.Fatalf("expected no error, got: %v", err)
 				default:
-					t.Logf("type: %T", v)
-					s, err := v.Get()
-					if err != nil {
-						t.Fatalf("expected no error, got: %v", err)
+					switch err := v.Set(context.Background(), toString(test.s)); {
+					case err != nil && ok && !errors.Is(err, expErr):
+						t.Errorf("expected error %v, got: %v", expErr, err)
+					case err != nil && !ok:
+						t.Errorf("expected no error, got: %v", expErr)
+					case err == nil && ok:
+						t.Errorf("expected error %v, got: nil", expErr)
+					default:
+						t.Logf("type: %T", v)
+						s, err := v.Get()
+						if err != nil {
+							t.Fatalf("expected no error, got: %v", err)
+						}
+						t.Logf("val: %s", s)
+						if exp := toString(test.exp); s != exp {
+							t.Errorf("expected %q, got: %q", exp, s)
+						}
 					}
-					t.Logf("val: %s", s)
 				}
 			})
 		}
@@ -41,7 +52,7 @@ func typeTests(t *testing.T) []typeTest {
 				{int64(20), "20"},
 				{[]rune("foo"), "foo"},
 				{[]byte("bar"), "bar"},
-				{float64(0.0), "0.0"},
+				{float64(0.0), "0"},
 			},
 		},
 		{
@@ -75,33 +86,76 @@ func typeTests(t *testing.T) []typeTest {
 		{
 			URLT, []test{
 				{"", mustURL(t, "")},
-				{"https://google.com", mustURL(t, "https://www.google.com")},
+				{"https://www.google.com", mustURL(t, "https://www.google.com")},
 				{"file:test", mustURL(t, "file:test")},
 			},
 		},
 		{
-			AddrT, []test{
+			AddrT,
+			[]test{
 				{"", nil},
 				{"0.0.0.0", mustAddr(t, "0.0.0.0")},
 				{"127.0.0.1", mustAddr(t, "127.0.0.1")},
 				{"::ffff:192.168.140.255", mustAddr(t, "::ffff:192.168.140.255")},
+				{"foo", ErrInvalidValue},
+			},
+		},
+		{
+			AddrPortT,
+			[]test{
+				{"1.2.3.4:80", mustAddrPort(t, "1.2.3.4:80")},
+				{"[::]:80", mustAddrPort(t, "[::]:80")},
+				{"[1::CAFE]:80", mustAddrPort(t, "[1::cafe]:80")},
+				{"[1::CAFE%en0]:80", mustAddrPort(t, "[1::cafe%en0]:80")},
+				{"[::FFFF:192.168.140.255]:80", mustAddrPort(t, "[::ffff:192.168.140.255]:80")},
+				{"[::FFFF:192.168.140.255%en0]:80", mustAddrPort(t, "[::ffff:192.168.140.255%en0]:80")},
+				{"foo", ErrInvalidValue},
+			},
+		},
+		{
+			CIDRT,
+			[]test{
+				{"1.2.3.4/24", mustPrefix(t, "1.2.3.4/24")},
+				{"fd7a:115c:a1e0:ab12:4843:cd96:626b:430b/118", mustPrefix(t, "fd7a:115c:a1e0:ab12:4843:cd96:626b:430b/118")},
+				{"::ffff:c000:0280/96", mustPrefix(t, "::ffff:192.0.2.128/96")},
+				{"::ffff:192.168.140.255/8", mustPrefix(t, "::ffff:192.168.140.255/8")},
+				{"1.2.3.4/24", mustPrefix(t, "1.2.3.4/24")},
+				{"foo", ErrInvalidValue},
 			},
 		},
 	}
 }
 
-func mustURL(t *testing.T, urlstr string) *url.URL {
+func mustURL(t *testing.T, s string) *url.URL {
 	t.Helper()
-	u, err := url.Parse(urlstr)
+	u, err := url.Parse(s)
 	if err != nil {
 		t.Fatalf("expected no error, got: %v", err)
 	}
 	return u
 }
 
-func mustAddr(t *testing.T, addrstr string) netip.Addr {
+func mustAddr(t *testing.T, s string) netip.Addr {
 	t.Helper()
-	a, err := netip.ParseAddr(addrstr)
+	a, err := netip.ParseAddr(s)
+	if err != nil {
+		t.Fatalf("expected no error, got: %v", err)
+	}
+	return a
+}
+
+func mustAddrPort(t *testing.T, s string) netip.AddrPort {
+	t.Helper()
+	a, err := netip.ParseAddrPort(s)
+	if err != nil {
+		t.Fatalf("expected no error, got: %v", err)
+	}
+	return a
+}
+
+func mustPrefix(t *testing.T, s string) netip.Prefix {
+	t.Helper()
+	a, err := netip.ParsePrefix(s)
 	if err != nil {
 		t.Fatalf("expected no error, got: %v", err)
 	}
@@ -114,6 +168,6 @@ type typeTest struct {
 }
 
 type test struct {
-	v   any
+	s   any
 	exp any
 }
