@@ -1,0 +1,276 @@
+package kobra
+
+import (
+	"context"
+	"fmt"
+	"slices"
+)
+
+// parent is a command option to set the parent for the command.
+func parent(parent *Command) Option {
+	return option{
+		command: func(c *Command) error {
+			c.Parent, c.OnErr = parent, parent.OnErr
+			return nil
+		},
+	}
+}
+
+// Version is a command option to hook --version with version output.
+func Version(version string, opts ...Option) Option {
+	return Hook(func(ctx context.Context) error {
+		_, _ = fmt.Fprintf(Stdout(ctx), "%s %s\n", RootName(ctx), version)
+		return ErrExit
+	},
+		prepend(opts, Usage("version", "display version and exit"))...,
+	)
+}
+
+// Help is a command option to hook --help with help output.
+func Help(opts ...Option) Option {
+	return Hook(func(ctx context.Context) error {
+		_, _ = fmt.Fprintf(Stdout(ctx), "%s help!\n", RootName(ctx))
+		return ErrExit
+	},
+		prepend(opts, Usage("help", "display help and exit"))...,
+	)
+}
+
+// Comp is a command option to enable command completion.
+func Comp() Option {
+	return option{
+		command: func(c *Command) error {
+			if c.Parent != nil {
+				return ErrOptionCanOnlyBeUsedWithRootCommand
+			}
+			return nil
+		},
+	}
+}
+
+// Usage is a command and flag option to set the command/flag's name and usage.
+func Usage(name, usage string) Option {
+	return option{
+		command: func(c *Command) error {
+			c.Descs[0].Name, c.Descs[0].Usage = name, usage
+			return nil
+		},
+		flag: func(g *Flag) error {
+			g.Descs[0].Name, g.Descs[0].Usage = name, usage
+			return nil
+		},
+	}
+}
+
+// Short is a flag option to set the short name for a flag.
+func Short(name string) Option {
+	return option{
+		flag: func(g *Flag) error {
+			if len(name) != 1 {
+				return ErrInvalidShortName
+			}
+			g.Descs = append(g.Descs, Desc{Name: name})
+			return nil
+		},
+	}
+}
+
+// Alias is a command/flag option to set the command/flag's alias.
+func Alias(name, usage string) Option {
+	return option{
+		command: func(c *Command) error {
+			c.Descs = append(c.Descs, Desc{
+				Name:  name,
+				Usage: usage,
+			})
+			return nil
+		},
+		flag: func(g *Flag) error {
+			g.Descs = append(g.Descs, Desc{
+				Name:  name,
+				Usage: usage,
+			})
+			return nil
+		},
+	}
+}
+
+// Args is a command option to the set the range of a command's minimum/maximum
+// arg count.
+func Args(minimum, maximum int) Option {
+	return option{
+		command: func(c *Command) error {
+			c.Args = append(c.Args, func(v []string) error {
+				switch n := len(v); {
+				case minimum != 0 && n < minimum,
+					maximum != 0 && n > maximum:
+					return ErrInvalidArgCount
+				}
+				return nil
+			})
+			return nil
+		},
+	}
+}
+
+// ArgValues is command option to the set allowed values for an argument.
+func ArgValues(args ...string) Option {
+	return option{
+		command: func(c *Command) error {
+			c.Args = append(c.Args, func(v []string) error {
+				for _, arg := range v {
+					if !slices.Contains(args, arg) {
+						return ErrInvalidArgValue
+					}
+				}
+				return nil
+			})
+			return nil
+		},
+	}
+}
+
+// UserConfigFile is a command option to load a config file from the user's
+// config directory.
+func UserConfigFile() Option {
+	return option{
+		command: func(c *Command) error {
+			if c.Parent != nil {
+				return ErrUserConfigFileCannotBeUsedWithSubCommand
+			}
+			dir, err := userConfigDir()
+			if err != nil {
+				return err
+			}
+			dir = dir
+			return nil
+		},
+	}
+}
+
+// Sub is a command option to create a sub command.
+func Sub(f func(context.Context, []string) error, opts ...Option) Option {
+	return option{
+		command: func(c *Command) error {
+			return c.Sub(f, opts...)
+		},
+	}
+}
+
+// Default is a flag option to set the flag's default value.
+func Default(def any) Option {
+	return option{
+		flag: func(g *Flag) error {
+			g.Def = def
+			return nil
+		},
+	}
+}
+
+// NoArg is a flag option to set that the flag expects no argument.
+func NoArg(noArg bool) Option {
+	return option{
+		flag: func(g *Flag) error {
+			g.NoArg = noArg
+			return nil
+		},
+	}
+}
+
+// Key is a flag option to set the flag's lookup key in a config file.
+func Key(typ, key string) Option {
+	return option{
+		flag: func(g *Flag) error {
+			if g.Keys == nil {
+				g.Keys = make(map[string]string)
+			}
+			g.Keys[typ] = key
+			return nil
+		},
+	}
+}
+
+// Hook is a option to set a hook for a flag, that exits normally.
+func Hook(f func(context.Context) error, opts ...Option) Option {
+	return option{
+		command: func(c *Command) error {
+			_ = c.Flags.Hook("", "", f, opts...)
+			return nil
+		},
+		flag: func(g *Flag) error {
+			g.Type, g.Def = HookT, f
+			return nil
+		},
+	}
+}
+
+// HookDump is an option to set a hook for a flag that Fprint's s and v to the
+// set standard out and then exits normally.
+func HookDump(s string, v ...any) Option {
+	return Hook(func(ctx context.Context) error {
+		_, _ = fmt.Fprintf(Stdout(ctx), s, v...)
+		return ErrExit
+	})
+}
+
+// Layout is a option to set the parsing layout for a time value.
+func Layout(layout string) Option {
+	return option{
+		time: func(t *timeVal) error {
+			t.layout = layout
+			return nil
+		},
+	}
+}
+
+/*
+// MustExist is a option to indicate that a path value must exist on disk.
+func MustExist(mustExist bool) Option {
+	return option{
+		flag: func(g *Flag) error {
+			return nil
+		},
+	}
+}
+
+// Relative is a option to indacet that a path value is relative to the base
+// path.
+func Relative(dir string) Option {
+	return option{
+		flag: func(g *Flag) error {
+			return nil
+		},
+	}
+}
+*/
+
+// Option is a option.
+type Option interface {
+	apply(any) error
+}
+
+// option wraps an option.
+type option struct {
+	command func(*Command) error
+	flag    func(*Flag) error
+	time    func(*timeVal) error
+}
+
+// apply satisfies the [Option] interface.
+func (opt option) apply(val any) error {
+	switch v := val.(type) {
+	case *Command:
+		if opt.command != nil {
+			return opt.command(v)
+		}
+	case *Flag:
+		if opt.flag != nil {
+			return opt.flag(v)
+		}
+	case *timeVal:
+		if opt.time != nil {
+			return opt.time(v)
+		}
+	}
+	return ErrOptionAppliedToInvalidType
+}
