@@ -21,10 +21,10 @@ func TestTypeNew(t *testing.T) {
 					case err != nil && ok && !errors.Is(err, expErr):
 						t.Errorf("expected error %v, got: %v", expErr, err)
 					case err != nil && !ok:
-						t.Errorf("expected no error, got: %v", expErr)
+						t.Errorf("expected no error, got: %v", err)
 					case err == nil && ok:
 						t.Errorf("expected error %v, got: nil", expErr)
-					default:
+					case !ok:
 						t.Logf("type: %T", v)
 						s, err := v.Get()
 						if err != nil {

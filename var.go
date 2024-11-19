@@ -558,7 +558,7 @@ func (val *marshalVal) Val() any {
 func (val *marshalVal) Get() (string, error) {
 	b, err := val.marshal()
 	if err != nil {
-		return "", err
+		return "", errors.Join(ErrInvalidValue, err)
 	}
 	return string(b), nil
 }
@@ -580,7 +580,10 @@ func (val *marshalVal) UnmarshalBinary(b []byte) error {
 }
 
 func (val *marshalVal) Set(_ context.Context, s string) error {
-	return val.unmarshal([]byte(s))
+	if err := val.unmarshal([]byte(s)); err != nil {
+		return errors.Join(ErrInvalidValue, err)
+	}
+	return nil
 }
 
 // countVal is a count value.
