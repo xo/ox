@@ -311,6 +311,36 @@ func asComplex128(val any) (complex128, bool) {
 	return 0, false
 }
 
+// asBool converts the value to a bool.
+func asBool(val any) (bool, bool) {
+	if v, ok := val.(bool); ok {
+		return v, true
+	}
+	if v, ok := val.(interface{ Bool() bool }); ok {
+		return v.Bool(), true
+	}
+	if v, ok := asInt64(val); ok {
+		return 0 < v, true
+	}
+	if v, ok := asUint64(val); ok {
+		return 0 < v, true
+	}
+	if v, ok := asFloat64(val); ok {
+		return 0 < v, true
+	}
+	if v, ok := asString(val); ok {
+		switch strings.TrimSpace(strings.ToLower(v)) {
+		case "true", "t", "1":
+			return true, true
+		case "false", "f", "0", "":
+			return false, true
+		}
+	}
+	// NOTE: probably should do more conversions here
+	// NOTE: AsComplex128, AsBigInt, AsBigFloat, ...
+	return false, false
+}
+
 // toBytes converts a value to []byte.
 func toBytes(val any) []byte {
 	if v, ok := asBytes(val); ok {
@@ -347,30 +377,8 @@ func toString(val any) string {
 
 // toBool converts the value to a bool.
 func toBool(val any) bool {
-	if v, ok := val.(bool); ok {
-		return v
-	}
-	if v, ok := val.(interface{ Bool() bool }); ok {
-		return v.Bool()
-	}
-	if v, ok := asInt64(val); ok {
-		return 0 < v
-	}
-	if v, ok := asUint64(val); ok {
-		return v != 0
-	}
-	if v, ok := asFloat64(val); ok {
-		return 0 < v
-	}
-	if v, ok := asString(val); ok {
-		switch strings.TrimSpace(strings.ToLower(v)) {
-		case "true", "t", "1":
-			return true
-		}
-	}
-	// NOTE: probably should do more conversions here
-	// NOTE: AsComplex128, AsBigInt, AsBigFloat, ...
-	return false
+	b, _ := asBool(val)
+	return b
 }
 
 // toBoolString converts the value to either a "true" or "false" string.

@@ -54,12 +54,12 @@ func (val *stringVal) Set(_ context.Context, s string) error {
 	case Base64T:
 		var err error
 		if val.v, err = base64.StdEncoding.DecodeString(s); err != nil {
-			return err
+			return errors.Join(ErrInvalidValue, err)
 		}
 	case HexT:
 		var err error
 		if val.v, err = hex.DecodeString(s); err != nil {
-			return err
+			return errors.Join(ErrInvalidValue, err)
 		}
 	default:
 		val.v = []byte(s)
@@ -131,7 +131,7 @@ func (val *runeVal) Rune() rune {
 func (val *runeVal) Set(_ context.Context, s string) error {
 	n, b := 0, []byte(s)
 	if val.v, n = utf8.DecodeRune(b); val.v == utf8.RuneError || n != len(b) {
-		return ErrInvalidRune
+		return errors.Join(ErrInvalidValue, ErrInvalidRune)
 	}
 	return nil
 }
@@ -178,9 +178,8 @@ func (val *boolVal) Set(_ context.Context, s string) error {
 		val.v = false
 		return nil
 	}
-	var err error
-	b, err := strconv.ParseBool(s)
-	if err != nil {
+	b, ok := asBool(s)
+	if !ok {
 		return ErrInvalidValue
 	}
 	val.v = b
