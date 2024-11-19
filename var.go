@@ -832,6 +832,21 @@ func (val *mapVal) String() string {
 // Vars is the type for storing variables in the context.
 type Vars map[string]*VarSet
 
+// String satisfies the [fmt.Stringer] interfaec.
+func (vars Vars) String() string {
+	var v []string
+	for _, k := range slices.Sorted(maps.Keys(vars)) {
+		if val, ok := vars[k].Var.(interface{ String() string }); ok {
+			v = append(v, k+":"+val.String())
+		} else {
+			if s, err := vars[k].Var.Get(); err == nil {
+				v = append(v, k+":"+s)
+			}
+		}
+	}
+	return "[" + strings.Join(v, " ") + "]"
+}
+
 // Set sets a variable in the vars.
 func (vars Vars) Set(ctx context.Context, g *Flag, value string) error {
 	// fmt.Fprintf(os.Stdout, "SETTING: %q (%s/%s): %q\n", g.Descs[0].Name, g.Type, g.Sub, value)

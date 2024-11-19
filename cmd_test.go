@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"maps"
-	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -217,20 +215,7 @@ func testDump(t *testing.T, name string) func(ctx context.Context, args []string
 		_, _ = fmt.Fprintln(Stdout(ctx), "tree:", cmd.Tree())
 		_, _ = fmt.Fprintln(Stdout(ctx), "args:", args)
 		vars, _ := VarsOK(ctx)
-		_, _ = fmt.Fprint(Stdout(ctx), "vars: [")
-		for i, k := range slices.Sorted(maps.Keys(vars)) {
-			if i != 0 {
-				_, _ = fmt.Fprint(Stdout(ctx), " ")
-			}
-			var s string
-			if v, ok := vars[k].Var.(interface{ String() string }); ok {
-				s = v.String()
-			} else {
-				s, _ = vars[k].Var.Get()
-			}
-			_, _ = fmt.Fprint(Stdout(ctx), k+":"+s)
-		}
-		_, _ = fmt.Fprintln(Stdout(ctx), "]")
+		_, _ = fmt.Fprintln(Stdout(ctx), "vars:", vars)
 		return nil
 	}
 }
