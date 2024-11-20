@@ -14,9 +14,9 @@ func main() {
 		arg     string
 		u       *url.URL
 		urlSet  bool
-		strings []string
 		ints    []int
-		m       map[string]string
+		strings []string
+		m       map[int]int
 	)
 	k.Run(context.Background(),
 		func(ctx context.Context, args []string) error {
@@ -35,7 +35,7 @@ func main() {
 		k.Flags().
 			String("arg", "an arg", k.Bind(&arg)).
 			URL("url", "a url", k.Short("u"), k.BindSet(&u, &urlSet)).
-			Slice("str", "a string", k.Short("s"), k.Bind(&strings), k.Bind(&ints)).
-			Map("map", "a map", k.Short("m"), k.Bind(&m)),
+			Slice("str", "a string", k.Short("s"), k.Bind(&strings), k.Bind(&ints), k.Uint64T).
+			Map("map", "a map", k.Short("m"), k.Bind(&m), k.IntT, k.MapKey(k.IntT)),
 	)
 }

@@ -149,24 +149,29 @@ func convValue(v reflect.Value, val any) (ok bool) {
 	switch v = v.Elem(); v.Kind() {
 	case reflect.String:
 		v.SetString(toString(val))
+		return true
 	case reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8, reflect.Int:
-		if i := toInt[int64](val); !v.OverflowInt(i) {
+		if i, ok := asInt64(val); ok && !v.OverflowInt(i) {
 			v.SetInt(i)
+			return true
 		}
 	case reflect.Uint64, reflect.Uint32, reflect.Uint16, reflect.Uint8, reflect.Uint:
-		if u := toUint[uint64](val); !v.OverflowUint(u) {
+		if u, ok := asUint64(val); ok && !v.OverflowUint(u) {
 			v.SetUint(u)
+			return true
 		}
 	case reflect.Float64, reflect.Float32:
-		if f := toFloat[float64](val); !v.OverflowFloat(f) {
+		if f, ok := asFloat64(val); ok && !v.OverflowFloat(f) {
 			v.SetFloat(f)
+			return true
 		}
 	case reflect.Complex128, reflect.Complex64:
-		if c := toComplex[complex128](val); !overflowComplex(v, c) {
+		if c, ok := asComplex128(val); ok && !overflowComplex(v, c) {
 			v.SetComplex(c)
+			return true
 		}
 	}
-	return true
+	return false
 }
 
 // unmarshalTextValue creates a new value and unmarshals the value to it.
@@ -305,6 +310,11 @@ func asInt64(val any) (int64, bool) {
 	case interface{ Int() int }:
 		return int64(v.Int()), true
 	}
+	if s, ok := asString(val); ok {
+		if i, err := strconv.ParseInt(s, 10, 64); err == nil {
+			return i, true
+		}
+	}
 	return 0, false
 }
 
@@ -332,6 +342,11 @@ func asUint64(val any) (uint64, bool) {
 	case interface{ Uint() uint }:
 		return uint64(v.Uint()), true
 	}
+	if s, ok := asString(val); ok {
+		if u, err := strconv.ParseUint(s, 10, 64); err == nil {
+			return u, true
+		}
+	}
 	return 0, false
 }
 
@@ -347,6 +362,11 @@ func asFloat64(val any) (float64, bool) {
 	case interface{ Float32() float32 }:
 		return float64(v.Float32()), true
 	}
+	if s, ok := asString(val); ok {
+		if f, err := strconv.ParseFloat(s, 64); err == nil {
+			return f, true
+		}
+	}
 	return 0, false
 }
 
@@ -361,6 +381,11 @@ func asComplex128(val any) (complex128, bool) {
 		return v.Complex128(), true
 	case interface{ Complex64() complex64 }:
 		return complex128(v.Complex64()), true
+	}
+	if s, ok := asString(val); ok {
+		if c, err := strconv.ParseComplex(s, 128); err == nil {
+			return c, true
+		}
 	}
 	return 0, false
 }
@@ -451,9 +476,6 @@ func toInt[T inti](val any) T {
 	if v, ok := asUint64(val); ok {
 		return T(v)
 	}
-	if v, err := strconv.ParseInt(toString(val), 10, 64); err == nil {
-		return T(v)
-	}
 	var v T
 	return v
 }
@@ -466,9 +488,6 @@ func toUint[T uinti](val any) T {
 	if v, ok := asInt64(val); ok {
 		return T(v)
 	}
-	if v, err := strconv.ParseUint(toString(val), 10, 64); err == nil {
-		return T(v)
-	}
 	var v T
 	return v
 }
@@ -478,9 +497,6 @@ func toFloat[T floati](val any) T {
 	if v, ok := asFloat64(val); ok {
 		return T(v)
 	}
-	if v, err := strconv.ParseFloat(toString(val), 64); err == nil {
-		return T(v)
-	}
 	var v T
 	return v
 }
@@ -488,9 +504,6 @@ func toFloat[T floati](val any) T {
 // toComplex converts the value to a complex.
 func toComplex[T complexi](val any) T {
 	if v, ok := asComplex128(val); ok {
-		return T(v)
-	}
-	if v, err := strconv.ParseComplex(toString(val), 128); err == nil {
 		return T(v)
 	}
 	var v T

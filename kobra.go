@@ -486,6 +486,8 @@ const (
 	ErrMissingArgument Error = "missing argument"
 	// ErrInvalidValue is the invalid value error.
 	ErrInvalidValue Error = "invalid value"
+	// ErrInvalidKeyConversion is the invalid key conversion error.
+	ErrInvalidKeyConversion Error = "invalid key conversion"
 	// ErrInvalidConversion is the invalid conversion error.
 	ErrInvalidConversion Error = "invalid conversion"
 	// ErrTypeMismatch is the type mismatch error.

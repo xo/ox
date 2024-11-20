@@ -734,7 +734,7 @@ func (val *bindVal[T, E]) Val() any {
 	return val.v
 }
 
-func (val *bindVal[T, E]) Set(ctx context.Context, s string) error {
+func (val *bindVal[T, E]) Set(_ context.Context, s string) error {
 	switch reflect.TypeOf(*val.v).Kind() {
 	case reflect.Slice:
 		return val.sliceSet(s)
@@ -769,6 +769,28 @@ func (val *bindVal[T, E]) sliceSet(s string) error {
 }
 
 func (val *bindVal[T, E]) mapSet(s string) error {
+	k, value, ok := strings.Cut(s, "=")
+	if !ok {
+		return ErrInvalidMapValue
+	}
+	m := reflect.ValueOf(val.v).Elem()
+	// create map if nil
+	if m.IsNil() {
+		m.Set(reflect.MakeMap(m.Type()))
+		var ok bool
+		if *val.v, ok = m.Interface().(E); !ok {
+			return ErrInvalidConversion
+		}
+	}
+	key := reflect.New(m.Type().Key())
+	if !convValue(key, k) {
+		return ErrInvalidKeyConversion
+	}
+	v := reflect.New(m.Type().Elem())
+	if !convValue(v, value) {
+		return ErrInvalidValue
+	}
+	m.SetMapIndex(reflect.Indirect(key), reflect.Indirect(v))
 	return nil
 }
 
@@ -839,6 +861,7 @@ func (val *sliceVal) Len() int {
 // mapVal is a map value.
 type mapVal struct {
 	typ Type
+	sub Type
 	v   map[string]*VarSet
 }
 
@@ -847,6 +870,7 @@ func NewMap(opts ...Option) func() (Value, error) {
 	return func() (Value, error) {
 		val := &mapVal{
 			typ: StringT,
+			sub: StringT,
 		}
 		for _, o := range opts {
 			if err := o.apply(val); err != nil {
@@ -858,7 +882,7 @@ func NewMap(opts ...Option) func() (Value, error) {
 }
 
 func (val *mapVal) Type() Type {
-	return "map[string]" + val.typ
+	return "map[" + val.sub + "]" + val.typ
 }
 
 func (val *mapVal) Val() any {
@@ -866,7 +890,7 @@ func (val *mapVal) Val() any {
 }
 
 func (val *mapVal) Get() (string, error) {
-	return string(val.Type()), nil
+	return "", nil
 }
 
 func (val *mapVal) Set(ctx context.Context, s string) error {
@@ -924,9 +948,9 @@ func (vars Vars) Set(ctx context.Context, g *Flag, value string, wasSet bool) er
 	if err != nil {
 		return err
 	}
-	for _, val := range g.Binds {
+	for i, val := range g.Binds {
 		if err := val.Set(ctx, value); err != nil {
-			return fmt.Errorf("cannot bind %s to %T: %w", g.Name(), val.Val(), err)
+			return fmt.Errorf("flag %s: bind %d (%T): cannot set %q: %w", g.Name(), i, val.Val(), value, err)
 		}
 	}
 	vars[name] = vs

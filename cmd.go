@@ -255,6 +255,7 @@ func (fs *FlagSet) Hook(name, desc string, f func(context.Context) error, opts .
 type Flag struct {
 	Type  Type
 	Sub   Type
+	Key   Type
 	Descs []Desc
 	Def   any
 	NoArg bool

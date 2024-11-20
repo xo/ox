@@ -232,7 +232,7 @@ func registerMarshaler(f func() (any, error), m map[reflect.Type]marshalDesc, op
 		New: f,
 	}
 	for _, o := range opts {
-		o.apply(&d)
+		_ = o.apply(&d)
 	}
 	m[typ] = d
 }

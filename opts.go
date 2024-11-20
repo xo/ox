@@ -179,11 +179,22 @@ func Sub(f func(context.Context, []string) error, opts ...Option) Option {
 	}
 }
 
+// MapKey is a flag option to set the map key type.
+func MapKey(opts ...Option) Option {
+	return option{
+		flag: func(g *Flag) error {
+			if g.Type == MapT {
+			}
+			return nil
+		},
+	}
+}
+
 // BindSet is a flag option to set a binding variable and a set flag.
 func BindSet[T *E, E any](v T, b *bool) Option {
 	return option{
 		flag: func(g *Flag) error {
-			val, err := newBind[T](v, b)
+			val, err := newBind(v, b)
 			if err != nil {
 				return err
 			}
@@ -195,7 +206,7 @@ func BindSet[T *E, E any](v T, b *bool) Option {
 
 // Bind is a flag option to set a binding variable.
 func Bind[T *E, E any](v T) Option {
-	return BindSet[T](v, nil)
+	return BindSet(v, nil)
 }
 
 // Default is a flag option to set the flag's default value.
