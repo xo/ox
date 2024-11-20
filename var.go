@@ -769,7 +769,7 @@ func (val *bindVal[T, E]) sliceSet(s string) error {
 }
 
 func (val *bindVal[T, E]) mapSet(s string) error {
-	k, value, ok := strings.Cut(s, "=")
+	key, value, ok := strings.Cut(s, "=")
 	if !ok {
 		return ErrInvalidMapValue
 	}
@@ -782,15 +782,17 @@ func (val *bindVal[T, E]) mapSet(s string) error {
 			return ErrInvalidConversion
 		}
 	}
-	key := reflect.New(m.Type().Key())
-	if !convValue(key, k) {
+	// convert key
+	k := reflect.New(m.Type().Key())
+	if !convValue(k, key) {
 		return ErrInvalidKeyConversion
 	}
+	// convert value
 	v := reflect.New(m.Type().Elem())
 	if !convValue(v, value) {
 		return ErrInvalidValue
 	}
-	m.SetMapIndex(reflect.Indirect(key), reflect.Indirect(v))
+	m.SetMapIndex(reflect.Indirect(k), reflect.Indirect(v))
 	return nil
 }
 
