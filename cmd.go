@@ -418,14 +418,14 @@ func (cmd *Command) Name() string {
 
 // Parse parses the command-line arguments into vars.
 func Parse(ctx context.Context, root *Command, args []string, vars Vars) (*Command, []string, error) {
-	switch {
-	case root.Parent != nil:
+	if root.Parent != nil {
 		return nil, nil, ErrParseCanOnlyBeUsedWithRootCommand
-	case len(args) == 0:
-		return root, nil, nil
 	}
 	if err := root.Populate(ctx, false, false, vars); err != nil {
 		return nil, nil, newCommandError(root.Name(), err)
+	}
+	if len(args) == 0 {
+		return root, nil, nil
 	}
 	return parse(ctx, root, args, vars)
 }
