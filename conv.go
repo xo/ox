@@ -428,7 +428,7 @@ func toFloat[T floati](val any) T {
 		return T(v)
 	}
 	var v T
-	return T(v)
+	return v
 }
 
 // toComplex converts the value to a complex.
@@ -440,7 +440,7 @@ func toComplex[T complexi](val any) T {
 		return T(v)
 	}
 	var v T
-	return T(v)
+	return v
 }
 
 // toTime converts the value to a [time.Time].
