@@ -410,18 +410,18 @@ func (err Error) Error() string {
 
 // Errors.
 const (
+	// ErrUsageNotSet is the usage not set error.
+	ErrUsageNotSet Error = "usage not set"
+	// ErrCanOnlyBeUsedWithRootCommand is the can only be used with root command error.
+	ErrCanOnlyBeUsedWithRootCommand Error = "can only be used with root command"
 	// ErrAppliedToInvalidType is the applied to invalid type error.
 	ErrAppliedToInvalidType Error = "applied to invalid type"
 	// ErrInvalidArgCount is the invalid arg count error.
 	ErrInvalidArgCount Error = "invalid arg count"
-	// ErrUsageNotSet is the usage not set error.
-	ErrUsageNotSet Error = "usage not set"
 	// ErrInvalidFlagName is the invalid flag name error.
 	ErrInvalidFlagName Error = "invalid flag name"
 	// ErrInvalidShortName is the invalid short name error.
 	ErrInvalidShortName Error = "invalid short name"
-	// ErrCanOnlyBeUsedWithRootCommand is the can only be used with root command error.
-	ErrCanOnlyBeUsedWithRootCommand Error = "can only be used with root command"
 	// ErrCouldNotCreateValue is the could not create value error.
 	ErrCouldNotCreateValue Error = "could not create value"
 	// ErrUnknownFlag is the unknown flag error.
@@ -434,8 +434,8 @@ const (
 	ErrInvalidArg Error = "invalid arg"
 	// ErrInvalidConversion is the invalid conversion error.
 	ErrInvalidConversion Error = "invalid conversion"
-	// ErrCannotBeNil is the cannot be nil error.
-	ErrCannotBeNil Error = "cannot be nil"
+	// ErrIsNil is the is nil error.
+	ErrIsNil Error = "is nil"
 	// ErrTypeMismatch is the type mismatch error.
 	ErrTypeMismatch Error = "type mismatch"
 	// ErrExit is the exit error.

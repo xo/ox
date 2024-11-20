@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"slices"
+	"strings"
+	"unicode/utf8"
 )
 
 // parent is a command option to set the parent for the command.
@@ -24,7 +26,7 @@ func reflectTo[T *E, E any](val T) Option {
 		name: "reflectTo",
 		set: func(fs *FlagSet) error {
 			if val == nil {
-				return ErrCannotBeNil
+				return fmt.Errorf("%T: %w", val, ErrIsNil)
 			}
 			return nil
 		},
@@ -68,7 +70,7 @@ func Comp() Option {
 		name: "Comp",
 		cmd: func(c *Command) error {
 			if c.Parent != nil {
-				return fmt.Errorf("Comp: %w", ErrCanOnlyBeUsedWithRootCommand)
+				return ErrCanOnlyBeUsedWithRootCommand
 			}
 			return nil
 		},
@@ -95,8 +97,8 @@ func Short(name string) Option {
 	return option{
 		name: "Short",
 		flag: func(g *Flag) error {
-			if len(name) != 1 {
-				return ErrInvalidShortName
+			if utf8.RuneCountInString(name) != 1 {
+				return fmt.Errorf("%w: %q", ErrInvalidShortName, name)
 			}
 			g.Descs = append(g.Descs, Desc{Name: name})
 			return nil
@@ -140,27 +142,38 @@ func ArgsFunc(funcs ...func([]string) error) Option {
 // arg count and allowed arg values. A minimum/maximum < 0 means no
 // minimum/maximum.
 func Args(minimum, maximum int, values ...string) Option {
-	return ArgsFunc(func(args []string) error {
-		switch n := len(args); {
-		case minimum < 0 && maximum < 0:
-		case minimum == 0 && maximum == 0 && n != 0:
-			return fmt.Errorf("%w: takes no args", ErrInvalidArgCount)
-		case minimum <= 0 && maximum < n:
-			return fmt.Errorf("%w: takes max %d arg(s)", ErrInvalidArgCount, maximum)
-		case maximum <= 0 && n < minimum:
-			return fmt.Errorf("%w: takes min %d arg(s)", ErrInvalidArgCount, minimum)
-		case 0 <= minimum && 1 <= maximum && (n < minimum || maximum < n):
-			return fmt.Errorf("%w: takes %d-%d args", ErrInvalidArgCount, minimum, maximum)
-		}
-		if len(values) != 0 {
-			for i, arg := range args {
-				if !slices.Contains(values, arg) {
-					return fmt.Errorf("%w: %q (%d) not any of %v", ErrInvalidArg, arg, i, values)
+	return option{
+		name: "Args",
+		cmd: func(c *Command) error {
+			for i, s := range values {
+				if s == "" {
+					return fmt.Errorf("arg %q (%d) is %w", s, i, ErrInvalidValue)
 				}
 			}
-		}
-		return nil
-	})
+			c.Args = append(c.Args, func(args []string) error {
+				switch n := len(args); {
+				case minimum < 0 && maximum < 0:
+				case minimum == 0 && maximum == 0 && n != 0:
+					return fmt.Errorf("%w: takes no args", ErrInvalidArgCount)
+				case minimum <= 0 && maximum < n:
+					return fmt.Errorf("%w: takes max %d arg(s)", ErrInvalidArgCount, maximum)
+				case maximum <= 0 && n < minimum:
+					return fmt.Errorf("%w: takes min %d arg(s)", ErrInvalidArgCount, minimum)
+				case 0 <= minimum && 1 <= maximum && (n < minimum || maximum < n):
+					return fmt.Errorf("%w: takes %d-%d args", ErrInvalidArgCount, minimum, maximum)
+				}
+				if len(values) != 0 {
+					for i, arg := range args {
+						if !slices.Contains(values, arg) {
+							return fmt.Errorf("%w: %q (%d) not any of %s", ErrInvalidArg, arg, i, strings.Join(values, ", "))
+						}
+					}
+				}
+				return nil
+			})
+			return nil
+		},
+	}
 }
 
 // UserConfigFile is a command option to load a config file from the user's
@@ -170,7 +183,7 @@ func UserConfigFile() Option {
 		name: "UserConfigFile",
 		cmd: func(c *Command) error {
 			if c.Parent != nil {
-				return fmt.Errorf("UserConfigFile: %w", ErrCanOnlyBeUsedWithRootCommand)
+				return ErrCanOnlyBeUsedWithRootCommand
 			}
 			dir, err := userConfigDir()
 			if err != nil {
@@ -345,24 +358,29 @@ type option struct {
 
 // apply satisfies the [Option] interface.
 func (opt option) apply(val any) error {
+	var err error
 	switch v := val.(type) {
 	case *Command:
 		if opt.cmd != nil {
-			return opt.cmd(v)
+			err = opt.cmd(v)
 		}
 	case *Flag:
 		if opt.flag != nil {
-			return opt.flag(v)
+			err = opt.flag(v)
 		}
 	case *timeVal:
 		if opt.time != nil {
-			return opt.time(v)
+			err = opt.time(v)
 		}
 	case *runOpts:
 		if opt.run != nil {
-			return opt.run(v)
+			err = opt.run(v)
 		}
-		return nil
+	default:
+		err = ErrAppliedToInvalidType
 	}
-	return fmt.Errorf("%s: %w", opt.name, ErrAppliedToInvalidType)
+	if err != nil {
+		return fmt.Errorf("%s: %w", opt.name, err)
+	}
+	return nil
 }

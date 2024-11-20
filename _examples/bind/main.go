@@ -37,7 +37,7 @@ func main() {
 		k.Flags().
 			String("arg", "an arg", k.Bind(&arg)).
 			URL("url", "a url", k.Short("u"), k.BindSet(&u, &urlSet)).
-			Slice("int", "a slice of ints", k.Short("i"), k.Bind(&strings), k.Bind(&ints), k.Uint64T).
+			Slice("int", "a slice of ints", k.Short("i"), k.Uint64T, k.Bind(&ints), k.Bind(&strings)).
 			Map("map", "a map", k.Short("m"), k.Bind(&m), k.IntT, k.MapKey(k.IntT)),
 	)
 }
