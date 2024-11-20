@@ -5,7 +5,9 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"maps"
+	"reflect"
 	"slices"
 	"strconv"
 	"strings"
@@ -515,7 +517,7 @@ func newMarshalValue(v any, marshal func() ([]byte, error), unmarshal func([]byt
 // NewText creates a value for a type that supports [encoding.TextMarshaler]
 // and [enoding.TextUnmarshaler].
 func NewText(f func() (any, error), opts ...Option) func() (Value, error) {
-	registerMarshaler(f, textNew)
+	registerMarshaler(f, textNew, opts...)
 	return func() (Value, error) {
 		v, err := f()
 		if err != nil {
@@ -532,7 +534,7 @@ func NewText(f func() (any, error), opts ...Option) func() (Value, error) {
 // NewBinary creates a value for a type that supports [encoding.BinaryMarshaler]
 // and [enoding.BinaryUnmarshaler].
 func NewBinary(f func() (any, error), opts ...Option) func() (Value, error) {
-	registerMarshaler(f, binaryNew)
+	registerMarshaler(f, binaryNew, opts...)
 	return func() (Value, error) {
 		v, err := f()
 		if err != nil {
@@ -710,6 +712,70 @@ func (val *hookVal) Set(ctx context.Context, _ string) error {
 	return val.v(ctx)
 }
 
+// bindVal is a bind value.
+type bindVal[T *E, E any] struct {
+	v T
+	b *bool
+}
+
+// newBind creates a bind value.
+func newBind[T *E, E any](v T, b *bool) (Value, error) {
+	return &bindVal[T, E]{
+		v: v,
+		b: b,
+	}, nil
+}
+
+func (val *bindVal[T, E]) Type() Type {
+	return toType(*val.v)
+}
+
+func (val *bindVal[T, E]) Val() any {
+	return val.v
+}
+
+func (val *bindVal[T, E]) Set(ctx context.Context, s string) error {
+	switch reflect.TypeOf(*val.v).Kind() {
+	case reflect.Slice:
+		return val.sliceSet(s)
+	case reflect.Map:
+		return val.mapSet(s)
+	}
+	v, err := conv[E](s)
+	if err != nil {
+		return err
+	}
+	var ok bool
+	if *val.v, ok = v.(E); !ok {
+		return ErrInvalidConversion
+	}
+	if val.b != nil {
+		*val.b = true
+	}
+	return nil
+}
+
+func (val *bindVal[T, E]) sliceSet(s string) error {
+	v := reflect.ValueOf(*val.v)
+	z := reflect.New(v.Type().Elem())
+	if convValue(z, s) {
+		v = reflect.Append(v, reflect.Indirect(z))
+	}
+	var ok bool
+	if *val.v, ok = v.Interface().(E); !ok {
+		return ErrInvalidConversion
+	}
+	return nil
+}
+
+func (val *bindVal[T, E]) mapSet(s string) error {
+	return nil
+}
+
+func (val *bindVal[T, E]) Get() (string, error) {
+	return fmt.Sprint(val.v), nil
+}
+
 // sliceVal is a slice value.
 type sliceVal struct {
 	typ Type
@@ -857,6 +923,11 @@ func (vars Vars) Set(ctx context.Context, g *Flag, value string, wasSet bool) er
 	vs, err := vars[name].Set(ctx, g.Type, g.Sub, value, wasSet)
 	if err != nil {
 		return err
+	}
+	for _, val := range g.Binds {
+		if err := val.Set(ctx, value); err != nil {
+			return fmt.Errorf("cannot bind %s to %T: %w", g.Name(), val.Val(), err)
+		}
 	}
 	vars[name] = vs
 	return nil

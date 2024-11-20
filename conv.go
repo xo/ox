@@ -22,6 +22,60 @@ func As[T any](val Value) (T, error) {
 	return z, nil
 }
 
+// toType returns the corresponding type for a value.
+func toType(val any) Type {
+	switch v := val.(type) {
+	case interface{ Type() Type }:
+		return v.Type()
+	case []byte:
+		return BytesT
+	case string:
+		return StringT
+	case []rune:
+		return RunesT
+	case time.Time:
+		return TimeT
+	case time.Duration:
+		return DurationT
+	case int64:
+		return Int64T
+	case int32:
+		return Int32T
+	case int16:
+		return Int16T
+	case int8:
+		return Int8T
+	case int:
+		return IntT
+	case uint64:
+		return Uint64T
+	case uint32:
+		return Uint32T
+	case uint16:
+		return Uint16T
+	case uint8:
+		return Uint8T
+	case uint:
+		return UintT
+	case float64:
+		return Float64T
+	case float32:
+		return Float32T
+	case complex128:
+		return Complex128T
+	case interface{ Val() any }:
+		return toType(v.Val())
+	}
+	typ := reflect.TypeOf(val)
+	if v, ok := textNew[typ]; ok {
+		return v.Type
+	}
+	if v, ok := binaryNew[typ]; ok {
+		return v.Type
+	}
+	return Type(typ.Kind().String())
+}
+
 // conv converts a value.
 func conv[T any](val any) (any, error) {
 	var res T
@@ -78,20 +132,20 @@ func conv[T any](val any) (any, error) {
 			return z, nil
 		}
 	}
-	if z, ok := reflectConv[T](val); ok {
-		return z, nil
+	if convValue(reflect.ValueOf(&res), val) {
+		return res, nil
 	}
 	return nil, ErrInvalidConversion
 }
 
-// reflectConv attempts to convert using reflect.
-func reflectConv[T any](val any) (res T, ok bool) {
+// convValue attempts to convert using reflect -- expects:
+// reflect.Value(&<target>).
+func convValue(v reflect.Value, val any) (ok bool) {
 	defer func() {
 		if err := recover(); err != nil {
 			ok = false
 		}
 	}()
-	v := reflect.ValueOf(&res)
 	switch v = v.Elem(); v.Kind() {
 	case reflect.String:
 		v.SetString(toString(val))
@@ -112,17 +166,17 @@ func reflectConv[T any](val any) (res T, ok bool) {
 			v.SetComplex(c)
 		}
 	}
-	return res, true
+	return true
 }
 
 // unmarshalTextValue creates a new value and unmarshals the value to it.
 func unmarshalTextValue[T any](val any) (T, error) {
 	var res T
-	f, ok := textNew[reflect.TypeOf(res)]
+	d, ok := textNew[reflect.TypeOf(res)]
 	if !ok {
 		return res, ErrInvalidTextType
 	}
-	v, err := f()
+	v, err := d.New()
 	if err != nil {
 		return res, err
 	}
@@ -142,11 +196,11 @@ func unmarshalTextValue[T any](val any) (T, error) {
 // unmarshalBinaryValue creates a new value and unmarshals the value to it.
 func unmarshalBinaryValue[T any](val any) (T, error) {
 	var res T
-	f, ok := binaryNew[reflect.TypeOf(res)]
+	d, ok := binaryNew[reflect.TypeOf(res)]
 	if !ok {
 		return res, ErrInvalidBinaryType
 	}
-	v, err := f()
+	v, err := d.New()
 	if err != nil {
 		return res, err
 	}

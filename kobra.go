@@ -490,6 +490,8 @@ const (
 	ErrInvalidConversion Error = "invalid conversion"
 	// ErrTypeMismatch is the type mismatch error.
 	ErrTypeMismatch Error = "type mismatch"
+	// ErrBindValueMustBePointer is the bind value must be pointer error.
+	ErrBindValueMustBePointer Error = "bind value must be pointer"
 	// ErrExit is the exit error.
 	ErrExit Error = "exit"
 )

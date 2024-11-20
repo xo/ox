@@ -16,6 +16,16 @@ func parent(parent *Command) Option {
 	}
 }
 
+// reflectTo is a flag set option to set various options on each flag based on
+// val.
+func reflectTo(val any) Option {
+	return option{
+		set: func(fs *FlagSet) error {
+			return nil
+		},
+	}
+}
+
 // RunArgs is a [Run] option to set the command-line arguments to use.
 func RunArgs(args []string) Option {
 	return option{
@@ -169,6 +179,25 @@ func Sub(f func(context.Context, []string) error, opts ...Option) Option {
 	}
 }
 
+// BindSet is a flag option to set a binding variable and a set flag.
+func BindSet[T *E, E any](v T, b *bool) Option {
+	return option{
+		flag: func(g *Flag) error {
+			val, err := newBind[T](v, b)
+			if err != nil {
+				return err
+			}
+			g.Binds = append(g.Binds, val)
+			return nil
+		},
+	}
+}
+
+// Bind is a flag option to set a binding variable.
+func Bind[T *E, E any](v T) Option {
+	return BindSet[T](v, nil)
+}
+
 // Default is a flag option to set the flag's default value.
 func Default(def any) Option {
 	return option{
@@ -264,6 +293,7 @@ type Option interface {
 // option wraps an option.
 type option struct {
 	command func(*Command) error
+	set     func(*FlagSet) error
 	flag    func(*Flag) error
 	time    func(*timeVal) error
 	run     func(*runOpts) error

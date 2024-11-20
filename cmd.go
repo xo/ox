@@ -13,11 +13,19 @@ import (
 // FlagSet is a set of command-line flag definitions.
 type FlagSet struct {
 	Flags []*Flag
+	Opts  []Option
 }
 
 // Flags creates a new flag set from the options.
-func Flags() *FlagSet {
-	return new(FlagSet)
+func Flags(opts ...Option) *FlagSet {
+	return &FlagSet{
+		Opts: opts,
+	}
+}
+
+// FlagsFrom creates a new flag set from args using reflection.
+func FlagsFrom(val any) *FlagSet {
+	return Flags(reflectTo(val))
 }
 
 // apply satisfies the [Option] interface.
@@ -250,6 +258,7 @@ type Flag struct {
 	Descs []Desc
 	Def   any
 	NoArg bool
+	Binds []Value
 	Keys  map[string]string
 }
 

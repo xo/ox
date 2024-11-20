@@ -65,6 +65,8 @@ func (typ Type) apply(val any) error {
 		} else {
 			v.Sub = typ
 		}
+	case *marshalDesc:
+		v.Type = typ
 	case *stringVal:
 		v.typ = typ
 	case *runeVal:
@@ -140,14 +142,14 @@ func (typ Type) String() string {
 var types map[Type]TypeDesc
 
 // textNew are the new text funcs.
-var textNew map[reflect.Type]func() (any, error)
+var textNew map[reflect.Type]marshalDesc
 
 // binaryNew are the new binary funcs.
-var binaryNew map[reflect.Type]func() (any, error)
+var binaryNew map[reflect.Type]marshalDesc
 
 func init() {
-	textNew = make(map[reflect.Type]func() (any, error))
-	binaryNew = make(map[reflect.Type]func() (any, error))
+	textNew = make(map[reflect.Type]marshalDesc)
+	binaryNew = make(map[reflect.Type]marshalDesc)
 	types = map[Type]TypeDesc{
 		BytesT:      NewTypeDesc(NewString(BytesT)),
 		StringT:     NewTypeDesc(NewString()),
@@ -210,8 +212,14 @@ func NewTypeDesc(f func() (Value, error), opts ...Option) TypeDesc {
 	}
 }
 
+// marshalDesc is a marshaler description.
+type marshalDesc struct {
+	Type Type
+	New  func() (any, error)
+}
+
 // registerMarshaler registers a type marshaler.
-func registerMarshaler(f func() (any, error), m map[reflect.Type]func() (any, error)) {
+func registerMarshaler(f func() (any, error), m map[reflect.Type]marshalDesc, opts ...Option) {
 	v, err := f()
 	if err != nil {
 		return
@@ -220,5 +228,11 @@ func registerMarshaler(f func() (any, error), m map[reflect.Type]func() (any, er
 	if _, ok := m[typ]; ok {
 		return
 	}
-	m[typ] = f
+	d := marshalDesc{
+		New: f,
+	}
+	for _, o := range opts {
+		o.apply(&d)
+	}
+	m[typ] = d
 }
