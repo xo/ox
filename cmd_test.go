@@ -14,7 +14,8 @@ func TestParse(t *testing.T) {
 	for i, test := range parseTests() {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			ctx := WithRoot(context.Background(), root)
-			cmd, args, vars, err := Parse(ctx, root, test.v[1:])
+			vars := make(Vars)
+			cmd, args, err := Parse(ctx, root, test.v[1:], vars)
 			switch {
 			case err != nil:
 				t.Fatalf("expected no error, got: %v", err)
@@ -154,7 +155,7 @@ func parseTests() []parseTest {
 				"name: five",
 				"tree: [cmd five]",
 				"args: [foo bar]",
-				"vars: [cidr:[1.2.3.4/24 2.4.6.8/0] url:[file:a file:b]]",
+				"vars: [cidr:[1.2.3.4/24 2.4.6.8/0] url:[file:a file:b] val:125]",
 			},
 		},
 	}
@@ -195,6 +196,7 @@ func testCommand(t *testing.T) *Command {
 			testDump(t, "five"),
 			Usage("five", ""),
 			Flags().
+				String("val", "", Short("l"), Default(125)).
 				Slice("cidr", "", Short("c"), CIDRT).
 				Slice("url", "", Short("u"), URLT),
 		),

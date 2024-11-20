@@ -25,8 +25,9 @@ func Run(ctx context.Context, f func(context.Context, []string) error, opts ...O
 		OnErrExit.Handle(ctx, err)
 		return
 	}
+	vars := make(Vars)
 	ctx = WithRoot(ctx, root)
-	cmd, args, vars, err := Parse(ctx, root, os.Args[1:])
+	cmd, args, err := Parse(ctx, root, os.Args[1:], vars)
 	if err != nil {
 		root.OnErr.Handle(ctx, err)
 		return

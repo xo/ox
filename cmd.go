@@ -2,10 +2,12 @@ package kobra
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
+	"unicode/utf8"
 )
 
 // FlagSet is a set of command-line flag definitions.
@@ -262,7 +264,7 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 			return nil, err
 		}
 	}
-	if len(g.Descs) == 0 || len(g.Descs[0].Name) == 0 {
+	if g.Name() == "" {
 		return nil, ErrInvalidFlagName
 	}
 	// NOTE: forgive me linus, for i have hacked...
@@ -272,6 +274,27 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 		}
 	}
 	return g, nil
+}
+
+// Name returns the flag's primary name.
+func (g *Flag) Name() string {
+	if len(g.Descs) != 0 {
+		return g.Descs[0].Name
+	}
+	return ""
+}
+
+// Short returns the flag's first short alias, and whether or not a short alias
+// was found.
+func (g *Flag) Short() (string, bool) {
+	if 1 < len(g.Descs) {
+		for _, d := range g.Descs[1:] {
+			if utf8.RuneCountInString(d.Name) == 1 {
+				return d.Name, true
+			}
+		}
+	}
+	return "", false
 }
 
 // Command is a command.
@@ -297,7 +320,7 @@ type Command struct {
 func NewCommand(f func(context.Context, []string) error, opts ...Option) (*Command, error) {
 	c := &Command{
 		Exec:  f,
-		Descs: []Desc{{}},
+		Descs: make([]Desc, 1),
 	}
 	for _, o := range opts {
 		if err := o.apply(c); err != nil {
@@ -313,22 +336,12 @@ func NewCommand(f func(context.Context, []string) error, opts ...Option) (*Comma
 	return c, nil
 }
 
-// Tree returns the parents of the command.
-func (cmd *Command) Tree() []string {
-	var v []string
-	for c := cmd; c != nil; {
-		v, c = append(v, c.Descs[0].Name), c.Parent
-	}
-	slices.Reverse(v)
-	return v
-}
-
 // Run executes the command with the context, validating passed arguments.
 func (cmd *Command) Run(ctx context.Context, args []string) error {
 	// validate args
 	for _, f := range cmd.Args {
 		if err := f(args); err != nil {
-			return newCommandError(cmd.Descs[0].Name, err)
+			return newCommandError(cmd.Name(), err)
 		}
 	}
 	return cmd.Exec(ctx, args)
@@ -385,17 +398,63 @@ func (cmd *Command) Get(name string) *Command {
 	return nil
 }
 
-// Parse parses the command-line arguments, adding to the context.
-func Parse(ctx context.Context, root *Command, args []string) (*Command, []string, Vars, error) {
+// Tree returns the parents of the command.
+func (cmd *Command) Tree() []string {
+	var v []string
+	for c := cmd; c != nil; {
+		v, c = append(v, c.Name()), c.Parent
+	}
+	slices.Reverse(v)
+	return v
+}
+
+// Name returns the command's primary name.
+func (cmd *Command) Name() string {
+	if len(cmd.Descs) != 0 {
+		return cmd.Descs[0].Name
+	}
+	return ""
+}
+
+// Parse parses the command-line arguments into vars.
+func Parse(ctx context.Context, root *Command, args []string, vars Vars) (*Command, []string, error) {
 	switch {
 	case root.Parent != nil:
-		return nil, nil, nil, ErrParseCanOnlyBeUsedWithRootCommand
+		return nil, nil, ErrParseCanOnlyBeUsedWithRootCommand
 	case len(args) == 0:
-		return root, nil, Vars{}, nil
+		return root, nil, nil
 	}
-	vars := make(Vars)
-	cmd, args, err := parse(ctx, root, args, vars)
-	return cmd, args, vars, err
+	if err := root.Populate(ctx, false, false, vars); err != nil {
+		return nil, nil, newCommandError(root.Name(), err)
+	}
+	return parse(ctx, root, args, vars)
+}
+
+// Populate populates vars with all the command's flags values, and overwriting
+// if applicable. When all is true, all flag values will be populated,
+// otherwise only flags with default values will be. When overwrite is true,
+// existing vars will be set to either to flag's empty or default value.
+func (cmd *Command) Populate(ctx context.Context, all, overwrite bool, vars Vars) error {
+	if cmd.Flags == nil {
+		return nil
+	}
+	for _, g := range cmd.Flags.Flags {
+		name := g.Name()
+		if _, ok := vars[name]; ok && overwrite {
+			delete(vars, name)
+		}
+		value := ""
+		switch {
+		case g.Type == HookT, g.Def == nil && !all:
+			continue
+		case g.Def != nil:
+			value = toString(g.Def)
+		}
+		if err := vars.Set(ctx, g, value); err != nil {
+			return fmt.Errorf("cannot set %s to %q: %w", name, value, err)
+		}
+	}
+	return nil
 }
 
 // parse parses the args into m based on the flags on the command.
@@ -414,6 +473,9 @@ func parse(ctx context.Context, cmd *Command, args []string, vars Vars) (*Comman
 				c = cmd.Command(s)
 			}
 			if c != nil {
+				if err := c.Populate(ctx, false, false, vars); err != nil {
+					return nil, nil, newCommandError(c.Name(), err)
+				}
 				cmd = c
 			} else {
 				v = append(v, s)
