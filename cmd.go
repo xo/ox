@@ -24,7 +24,7 @@ func Flags(opts ...Option) *FlagSet {
 }
 
 // FlagsFrom creates a new flag set from args using reflection.
-func FlagsFrom(val any) *FlagSet {
+func FlagsFrom[T *E, E any](val T) *FlagSet {
 	return Flags(reflectTo(val))
 }
 

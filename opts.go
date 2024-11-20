@@ -18,9 +18,12 @@ func parent(parent *Command) Option {
 
 // reflectTo is a flag set option to set various options on each flag based on
 // val.
-func reflectTo(val any) Option {
+func reflectTo[T *E, E any](val T) Option {
 	return option{
 		set: func(fs *FlagSet) error {
+			if val == nil {
+				return ErrValueCannotBeNil
+			}
 			return nil
 		},
 	}

@@ -18,24 +18,26 @@ func main() {
 		strings []string
 		m       map[int]int
 	)
-	k.Run(context.Background(),
-		func(ctx context.Context, args []string) error {
-			fmt.Println("arg:", arg)
-			if urlSet {
-				fmt.Println("u:", u)
-			} else {
-				fmt.Println("u: not set")
-			}
-			fmt.Println("strings:", strings)
-			fmt.Println("ints:", ints)
-			fmt.Println("map:", m)
-			return nil
-		},
+	run := func(ctx context.Context, args []string) error {
+		fmt.Println("arg:", arg)
+		if urlSet {
+			fmt.Println("u:", u)
+		} else {
+			fmt.Println("u: not set")
+		}
+		fmt.Println("ints:", ints)
+		fmt.Println("strings:", strings)
+		fmt.Println("map:", m)
+		return nil
+	}
+	k.Run(
+		context.Background(),
+		run,
 		k.Usage("bind", "demonstrates using kobra's binds"),
 		k.Flags().
 			String("arg", "an arg", k.Bind(&arg)).
 			URL("url", "a url", k.Short("u"), k.BindSet(&u, &urlSet)).
-			Slice("str", "a string", k.Short("s"), k.Bind(&strings), k.Bind(&ints), k.Uint64T).
+			Slice("int", "a slice of ints", k.Short("i"), k.Bind(&strings), k.Bind(&ints), k.Uint64T).
 			Map("map", "a map", k.Short("m"), k.Bind(&m), k.IntT, k.MapKey(k.IntT)),
 	)
 }

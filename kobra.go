@@ -490,6 +490,8 @@ const (
 	ErrInvalidKeyConversion Error = "invalid key conversion"
 	// ErrInvalidConversion is the invalid conversion error.
 	ErrInvalidConversion Error = "invalid conversion"
+	// ErrValueCannotBeNil is the value cannot be nil error.
+	ErrValueCannotBeNil Error = "value cannot be nil"
 	// ErrTypeMismatch is the type mismatch error.
 	ErrTypeMismatch Error = "type mismatch"
 	// ErrBindValueMustBePointer is the bind value must be pointer error.
