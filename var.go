@@ -849,12 +849,16 @@ func (vars Vars) String() string {
 
 // Set sets a variable in the vars.
 func (vars Vars) Set(ctx context.Context, g *Flag, value string, wasSet bool) error {
-	// fmt.Fprintf(os.Stdout, "SETTING: %q (%s/%s): %q\n", g.Descs[0].Name, g.Type, g.Sub, value)
-	vs, err := vars[g.Descs[0].Name].Set(ctx, g.Type, g.Sub, value, wasSet)
+	// fmt.Fprintf(os.Stdout, "SETTING: %q (%s/%s): %q\n", g.Name(), g.Type, g.Sub, value)
+	name := g.Name()
+	if name == "" {
+		return ErrInvalidFlagName
+	}
+	vs, err := vars[name].Set(ctx, g.Type, g.Sub, value, wasSet)
 	if err != nil {
 		return err
 	}
-	vars[g.Descs[0].Name] = vs
+	vars[name] = vs
 	return nil
 }
 

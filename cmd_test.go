@@ -22,7 +22,7 @@ func TestParse(t *testing.T) {
 			case cmd == nil:
 				t.Fatal("cmd is nil")
 			}
-			t.Logf("cmd: %s", cmd.Descs[0].Name)
+			t.Logf("cmd: %s", cmd.Name())
 			t.Logf("args: %q", args)
 			t.Logf("vars: %v", args)
 			var stdout, stderr bytes.Buffer

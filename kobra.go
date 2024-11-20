@@ -85,8 +85,8 @@ func Root(ctx context.Context) *Command {
 
 // RootName returns the root command name from the context.
 func RootName(ctx context.Context) string {
-	if root := Root(ctx); root != nil && len(root.Descs) > 0 {
-		return root.Descs[0].Name
+	if root := Root(ctx); root != nil {
+		return root.Name()
 	}
 	return filepath.Base(os.Args[0])
 }
