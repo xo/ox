@@ -119,19 +119,20 @@ func VarsOK(ctx context.Context) (Vars, bool) {
 	return vars, ok
 }
 
-// AnyOK returns a variable and whether or not it was set from the context.
-func AnyOK(ctx context.Context, name string) (Value, bool) {
+// AnyOK returns a variable, its set status, and if it was defined from the
+// context.
+func AnyOK(ctx context.Context, name string) (Value, bool, bool) {
 	if vars, ok := VarsOK(ctx); ok {
 		if vs, ok := vars[name]; ok {
-			return vs.Var, vs.WasSet
+			return vs.Var, vs.WasSet, true
 		}
 	}
-	return nil, false
+	return nil, false, false
 }
 
 // GetOK returns a variable.
 func GetOK[T any](ctx context.Context, name string) (T, bool) {
-	if val, ok := AnyOK(ctx, name); ok {
+	if val, _, ok := AnyOK(ctx, name); ok {
 		if v, err := As[T](val); err == nil {
 			return v, true
 		}
@@ -162,7 +163,7 @@ func All[T any](ctx context.Context) map[string]T {
 // Slice returns the slice variable from the context.
 func Slice[T any](ctx context.Context, name string) []T {
 	var s []T
-	if val, ok := AnyOK(ctx, name); ok {
+	if val, _, ok := AnyOK(ctx, name); ok {
 		if v, ok := val.(*sliceVal); ok {
 			sl := make([]T, len(v.v))
 			for i := range v.v {
@@ -179,7 +180,7 @@ func Slice[T any](ctx context.Context, name string) []T {
 // Map returns the map variable from the context.
 func Map[T any](ctx context.Context, name string) map[string]T {
 	m := make(map[string]T)
-	if val, ok := AnyOK(ctx, name); ok {
+	if val, _, ok := AnyOK(ctx, name); ok {
 		if v, ok := val.(*mapVal); ok {
 			for k := range v.v {
 				if v, err := As[T](v.v[k].Var); err == nil {

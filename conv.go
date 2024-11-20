@@ -391,25 +391,55 @@ func toBoolString(val any) string {
 
 // toInt converts the value to a int.
 func toInt[T inti](val any) T {
-	v, _ := asInt64(val)
-	return T(v)
+	if v, ok := asInt64(val); ok {
+		return T(v)
+	}
+	if v, ok := asUint64(val); ok {
+		return T(v)
+	}
+	if v, err := strconv.ParseInt(toString(val), 10, 64); err == nil {
+		return T(v)
+	}
+	var v T
+	return v
 }
 
 // toUint converts the value to a uint.
 func toUint[T uinti](val any) T {
-	v, _ := asUint64(val)
-	return T(v)
+	if v, ok := asUint64(val); ok {
+		return T(v)
+	}
+	if v, ok := asInt64(val); ok {
+		return T(v)
+	}
+	if v, err := strconv.ParseUint(toString(val), 10, 64); err == nil {
+		return T(v)
+	}
+	var v T
+	return v
 }
 
 // toFloat converts the value to a float.
 func toFloat[T floati](val any) T {
-	v, _ := asFloat64(val)
+	if v, ok := asFloat64(val); ok {
+		return T(v)
+	}
+	if v, err := strconv.ParseFloat(toString(val), 64); err == nil {
+		return T(v)
+	}
+	var v T
 	return T(v)
 }
 
 // toComplex converts the value to a complex.
 func toComplex[T complexi](val any) T {
-	v, _ := asComplex128(val)
+	if v, ok := asComplex128(val); ok {
+		return T(v)
+	}
+	if v, err := strconv.ParseComplex(toString(val), 128); err == nil {
+		return T(v)
+	}
+	var v T
 	return T(v)
 }
 

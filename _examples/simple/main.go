@@ -91,6 +91,10 @@ func sub(ctx context.Context, args []string) error {
 	paramA := k.Get[string](ctx, "param-a")
 	fmt.Println("paramA:", paramA)
 
+	// convert param-b (int) into a uint32
+	paramB := k.Uint32(ctx, "param-b")
+	fmt.Println("paramB:", paramB)
+
 	// the floats param is available, as this is a sub command
 	floats := k.Slice[float64](ctx, "floats")
 	fmt.Println("floats:", floats)
