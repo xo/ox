@@ -18,8 +18,17 @@ import (
 	"unicode/utf8"
 )
 
-// Run runs a command.
+// Run runs a command. See [RunArgs] if needing to specify the arguments.
 func Run(ctx context.Context, f func(context.Context, []string) error, opts ...Option) {
+	runOpts := runOpts{
+		args: os.Args[1:],
+	}
+	for _, o := range opts {
+		if err := o.apply(&runOpts); err != nil {
+			OnErrExit.Handle(ctx, err)
+			return
+		}
+	}
 	root, err := NewCommand(f, opts...)
 	if err != nil {
 		OnErrExit.Handle(ctx, err)
@@ -27,7 +36,7 @@ func Run(ctx context.Context, f func(context.Context, []string) error, opts ...O
 	}
 	vars := make(Vars)
 	ctx = WithRoot(ctx, root)
-	cmd, args, err := Parse(ctx, root, os.Args[1:], vars)
+	cmd, args, err := Parse(ctx, root, runOpts.args, vars)
 	if err != nil {
 		root.OnErr.Handle(ctx, err)
 		return
@@ -38,6 +47,11 @@ func Run(ctx context.Context, f func(context.Context, []string) error, opts ...O
 		cmd.OnErr.Handle(ctx, err)
 		return
 	}
+}
+
+// runOpts are run options.
+type runOpts struct {
+	args []string
 }
 
 // contextKey is the context key types.
@@ -364,11 +378,13 @@ const (
 
 // apply satisfies the [Option] interface.
 func (e OnErr) apply(val any) error {
-	if v, ok := val.(*Command); ok {
+	switch v := val.(type) {
+	case *Command:
 		v.OnErr = e
-		return nil
+	default:
+		return ErrOptionAppliedToInvalidType
 	}
-	return ErrOptionAppliedToInvalidType
+	return nil
 }
 
 // Handle handles an error.

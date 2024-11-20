@@ -16,6 +16,16 @@ func parent(parent *Command) Option {
 	}
 }
 
+// RunArgs is a [Run] option to set the command-line arguments to use.
+func RunArgs(args []string) Option {
+	return option{
+		run: func(opts *runOpts) error {
+			opts.args = args
+			return nil
+		},
+	}
+}
+
 // Version is a command option to hook --version with version output.
 func Version(version string, opts ...Option) Option {
 	return Hook(func(ctx context.Context) error {
@@ -256,6 +266,7 @@ type option struct {
 	command func(*Command) error
 	flag    func(*Flag) error
 	time    func(*timeVal) error
+	run     func(*runOpts) error
 }
 
 // apply satisfies the [Option] interface.
@@ -273,6 +284,11 @@ func (opt option) apply(val any) error {
 		if opt.time != nil {
 			return opt.time(v)
 		}
+	case *runOpts:
+		if opt.run != nil {
+			return opt.run(v)
+		}
+		return nil
 	}
 	return ErrOptionAppliedToInvalidType
 }

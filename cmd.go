@@ -21,12 +21,15 @@ func Flags() *FlagSet {
 }
 
 // apply satisfies the [Option] interface.
-func (fs *FlagSet) apply(v any) error {
-	if cmd, ok := v.(*Command); ok {
-		cmd.Flags = fs
-		return nil
+func (fs *FlagSet) apply(val any) error {
+	switch v := val.(type) {
+	case *Command:
+		v.Flags = fs
+	case *runOpts:
+	default:
+		return ErrOptionAppliedToInvalidType
 	}
-	return ErrOptionAppliedToInvalidType
+	return nil
 }
 
 // Var adds a variable to the flag set.
