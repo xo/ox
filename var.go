@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"maps"
 	"reflect"
@@ -56,12 +55,12 @@ func (val *stringVal) Set(_ context.Context, s string) error {
 	case Base64T:
 		var err error
 		if val.v, err = base64.StdEncoding.DecodeString(s); err != nil {
-			return errors.Join(ErrInvalidValue, err)
+			return fmt.Errorf("%w: %w", ErrInvalidValue, err)
 		}
 	case HexT:
 		var err error
 		if val.v, err = hex.DecodeString(s); err != nil {
-			return errors.Join(ErrInvalidValue, err)
+			return fmt.Errorf("%w: %w", ErrInvalidValue, err)
 		}
 	default:
 		val.v = []byte(s)
@@ -133,7 +132,7 @@ func (val *runeVal) Rune() rune {
 func (val *runeVal) Set(_ context.Context, s string) error {
 	n, b := 0, []byte(s)
 	if val.v, n = utf8.DecodeRune(b); val.v == utf8.RuneError || n != len(b) {
-		return errors.Join(ErrInvalidValue, ErrInvalidRune)
+		return fmt.Errorf("%w: bad rune", ErrInvalidValue)
 	}
 	return nil
 }
@@ -521,11 +520,11 @@ func NewText(f func() (any, error), opts ...Option) func() (Value, error) {
 	return func() (Value, error) {
 		v, err := f()
 		if err != nil {
-			return nil, errors.Join(ErrInvalidValue, err)
+			return nil, fmt.Errorf("%w: %w", ErrInvalidValue, err)
 		}
 		i, ok := v.(texti)
 		if !ok {
-			return nil, ErrInvalidTextType
+			return nil, fmt.Errorf("%w: %T->encoding.TextUnmarshaler", ErrInvalidConversion, v)
 		}
 		return newMarshalValue(v, i.MarshalText, i.UnmarshalText, true, prepend(opts, Option(StringT))...)
 	}
@@ -538,11 +537,11 @@ func NewBinary(f func() (any, error), opts ...Option) func() (Value, error) {
 	return func() (Value, error) {
 		v, err := f()
 		if err != nil {
-			return nil, errors.Join(ErrInvalidValue, err)
+			return nil, fmt.Errorf("%w: %w", ErrInvalidValue, err)
 		}
 		i, ok := v.(binaryi)
 		if !ok {
-			return nil, ErrInvalidBinaryType
+			return nil, fmt.Errorf("%w: %T->encoding.BinaryUnmarshaler", ErrInvalidConversion, v)
 		}
 		return newMarshalValue(v, i.MarshalBinary, i.UnmarshalBinary, false, prepend(opts, Option(StringT))...)
 	}
@@ -559,7 +558,7 @@ func (val *marshalVal) Val() any {
 func (val *marshalVal) Get() (string, error) {
 	b, err := val.marshal()
 	if err != nil {
-		return "", errors.Join(ErrInvalidValue, err)
+		return "", fmt.Errorf("%w: %w", ErrInvalidValue, err)
 	}
 	return string(b), nil
 }
@@ -582,7 +581,7 @@ func (val *marshalVal) UnmarshalBinary(b []byte) error {
 
 func (val *marshalVal) Set(_ context.Context, s string) error {
 	if err := val.unmarshal([]byte(s)); err != nil {
-		return errors.Join(ErrInvalidValue, err)
+		return fmt.Errorf("%w: %w", ErrInvalidValue, err)
 	}
 	return nil
 }
@@ -747,7 +746,7 @@ func (val *bindVal[T, E]) Set(_ context.Context, s string) error {
 	}
 	var ok bool
 	if *val.v, ok = v.(E); !ok {
-		return ErrInvalidConversion
+		return fmt.Errorf("%w: %T->%T", ErrInvalidConversion, v, *val.v)
 	}
 	if val.b != nil {
 		*val.b = true
@@ -763,15 +762,15 @@ func (val *bindVal[T, E]) sliceSet(s string) error {
 	}
 	var ok bool
 	if *val.v, ok = v.Interface().(E); !ok {
-		return ErrInvalidConversion
+		return fmt.Errorf("%w: %T->%T", ErrInvalidConversion, v, *val.v)
 	}
 	return nil
 }
 
 func (val *bindVal[T, E]) mapSet(s string) error {
 	key, value, ok := strings.Cut(s, "=")
-	if !ok {
-		return ErrInvalidMapValue
+	if !ok || key == "" {
+		return fmt.Errorf("%w: %s", ErrInvalidValue, "bad map key")
 	}
 	m := reflect.ValueOf(val.v).Elem()
 	// create map if nil
@@ -779,18 +778,18 @@ func (val *bindVal[T, E]) mapSet(s string) error {
 		m.Set(reflect.MakeMap(m.Type()))
 		var ok bool
 		if *val.v, ok = m.Interface().(E); !ok {
-			return ErrInvalidConversion
+			return fmt.Errorf("%w: %T->%T", ErrInvalidConversion, m.Interface(), *val.v)
 		}
 	}
 	// convert key
 	k := reflect.New(m.Type().Key())
 	if !convValue(k, key) {
-		return ErrInvalidKeyConversion
+		return fmt.Errorf("%w (key): %T->%T", ErrInvalidConversion, key, k.Interface())
 	}
 	// convert value
 	v := reflect.New(m.Type().Elem())
 	if !convValue(v, value) {
-		return ErrInvalidValue
+		return fmt.Errorf("%w (value): %T->%T", ErrInvalidConversion, value, v.Interface())
 	}
 	m.SetMapIndex(reflect.Indirect(k), reflect.Indirect(v))
 	return nil
@@ -899,16 +898,16 @@ func (val *mapVal) Set(ctx context.Context, s string) error {
 	if val.v == nil {
 		val.v = make(map[string]*VarSet)
 	}
-	k, value, ok := strings.Cut(s, "=")
-	if !ok {
-		return ErrInvalidMapValue
+	key, value, ok := strings.Cut(s, "=")
+	if !ok || key == "" {
+		return fmt.Errorf("%w: %s", ErrInvalidValue, "bad map key")
 	}
 	var vs *VarSet
 	vs, err := vs.Set(ctx, val.typ, "", value, true)
 	if err != nil {
 		return err
 	}
-	val.v[k] = vs
+	val.v[key] = vs
 	return nil
 }
 
@@ -979,7 +978,7 @@ func (vs *VarSet) Set(ctx context.Context, typ, sub Type, value string, wasSet b
 	if vs.Var == nil {
 		var err error
 		if vs.Var, err = typ.New(); err != nil {
-			return nil, errors.Join(ErrCouldNotCreateValue, err)
+			return nil, fmt.Errorf("%w: %w", ErrCouldNotCreateValue, err)
 		}
 		if sub != "" {
 			if err := sub.apply(vs.Var); err != nil {

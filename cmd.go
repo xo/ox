@@ -588,3 +588,16 @@ func (d Desc) apply(val any) error {
 	}
 	return nil
 }
+
+// newFlagError creates a flag error.
+func newFlagError(name string, err error) error {
+	if utf8.RuneCountInString(name) == 1 {
+		return fmt.Errorf("-%s: %w", name, err)
+	}
+	return fmt.Errorf("--%s: %w", name, err)
+}
+
+// newCommandError creates a command error.
+func newCommandError(name string, err error) error {
+	return fmt.Errorf("command %s: %w", name, err)
+}

@@ -2,6 +2,7 @@ package kobra
 
 import (
 	"encoding"
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -17,7 +18,7 @@ func As[T any](val Value) (T, error) {
 	}
 	z, ok := v.(T)
 	if !ok {
-		return z, ErrInvalidConversion
+		return z, fmt.Errorf("%w: %T->%T", ErrInvalidConversion, v, z)
 	}
 	return z, nil
 }
@@ -123,19 +124,19 @@ func conv[T any](val any) (any, error) {
 	// type could be both text and binary unmarshaler, but the new func
 	// should only be registered for either text or binary
 	if _, ok := v.(interface{ UnmarshalText([]byte) error }); ok {
-		if z, err := unmarshalTextValue[T](val); err == nil {
+		if z, err := convUnmarshalText[T](val); err == nil {
 			return z, nil
 		}
 	}
 	if _, ok := v.(interface{ UnmarshalBinary([]byte) error }); ok {
-		if z, err := unmarshalBinaryValue[T](val); err == nil {
+		if z, err := convUnmarshalBinary[T](val); err == nil {
 			return z, nil
 		}
 	}
 	if convValue(reflect.ValueOf(&res), val) {
 		return res, nil
 	}
-	return nil, ErrInvalidConversion
+	return nil, fmt.Errorf("%w: %T->%T", ErrInvalidConversion, val, res)
 }
 
 // convValue attempts to convert using reflect -- expects:
@@ -174,12 +175,12 @@ func convValue(v reflect.Value, val any) (ok bool) {
 	return false
 }
 
-// unmarshalTextValue creates a new value and unmarshals the value to it.
-func unmarshalTextValue[T any](val any) (T, error) {
+// convUnmarshalText creates a new value and unmarshals the value to it.
+func convUnmarshalText[T any](val any) (T, error) {
 	var res T
 	d, ok := textNew[reflect.TypeOf(res)]
 	if !ok {
-		return res, ErrInvalidTextType
+		return res, fmt.Errorf("%w: no new text marshaler func", ErrInvalidConversion)
 	}
 	v, err := d.New()
 	if err != nil {
@@ -187,23 +188,23 @@ func unmarshalTextValue[T any](val any) (T, error) {
 	}
 	z, ok := v.(interface{ UnmarshalText([]byte) error })
 	if !ok {
-		return res, ErrInvalidTextType
+		return res, fmt.Errorf("%w: %T->encoding.TextUnmarshaler", ErrInvalidConversion, v)
 	}
 	if err := z.UnmarshalText([]byte(toString(val))); err != nil {
 		return res, err
 	}
 	if res, ok = v.(T); !ok {
-		return res, ErrInvalidTextType
+		return res, fmt.Errorf("%w: %T->%T", ErrInvalidConversion, v, res)
 	}
 	return res, nil
 }
 
-// unmarshalBinaryValue creates a new value and unmarshals the value to it.
-func unmarshalBinaryValue[T any](val any) (T, error) {
+// convUnmarshalBinary creates a new value and unmarshals the value to it.
+func convUnmarshalBinary[T any](val any) (T, error) {
 	var res T
 	d, ok := binaryNew[reflect.TypeOf(res)]
 	if !ok {
-		return res, ErrInvalidBinaryType
+		return res, fmt.Errorf("%w: no new binary marshaler func", ErrInvalidConversion)
 	}
 	v, err := d.New()
 	if err != nil {
@@ -211,13 +212,13 @@ func unmarshalBinaryValue[T any](val any) (T, error) {
 	}
 	z, ok := v.(interface{ UnmarshalBinary([]byte) error })
 	if !ok {
-		return res, ErrInvalidBinaryType
+		return res, fmt.Errorf("%w: %T->encoding.BinaryUnmarshaler", ErrInvalidConversion, v)
 	}
 	if err := z.UnmarshalBinary([]byte(toString(val))); err != nil {
 		return res, err
 	}
 	if res, ok = v.(T); !ok {
-		return res, ErrInvalidBinaryType
+		return res, fmt.Errorf("%w: %T->%T", ErrInvalidConversion, v, res)
 	}
 	return res, nil
 }

@@ -155,7 +155,7 @@ func Args(minimum, maximum int, values ...string) Option {
 		if len(values) != 0 {
 			for i, arg := range args {
 				if !slices.Contains(values, arg) {
-					return fmt.Errorf("%w: arg %d (%q) is not an allowed value", ErrInvalidArgValue, i, arg)
+					return fmt.Errorf("%w: %q (%d) not any of %v", ErrInvalidArg, arg, i, values)
 				}
 			}
 		}

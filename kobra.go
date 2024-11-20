@@ -17,7 +17,6 @@ import (
 	"os"
 	"path/filepath"
 	"time"
-	"unicode/utf8"
 )
 
 // Run runs a command. See [RunArgs] if needing to specify the arguments.
@@ -401,43 +400,6 @@ func (e OnErr) Handle(ctx context.Context, err error) {
 	}
 }
 
-// RunError is a run error.
-type RunError struct {
-	Desc string
-	Err  error
-}
-
-// newCommandError creates a command error.
-func newCommandError(name string, err error) error {
-	return &RunError{
-		Desc: "command " + name,
-		Err:  err,
-	}
-}
-
-// newFlagError creates a flag error.
-func newFlagError(arg string, err error) error {
-	desc := "--"
-	if utf8.RuneCountInString(arg) == 1 {
-		desc = "-"
-	}
-	desc += arg
-	return &RunError{
-		Desc: desc,
-		Err:  err,
-	}
-}
-
-// Error satisfies the [error] interface.
-func (err *RunError) Error() string {
-	return err.Desc + ": " + err.Err.Error()
-}
-
-// Unwrap satisfies the [errors.Unwrap] interface.
-func (err *RunError) Unwrap() error {
-	return err.Err
-}
-
 // Error is a package error.
 type Error string
 
@@ -452,40 +414,24 @@ const (
 	ErrAppliedToInvalidType Error = "applied to invalid type"
 	// ErrInvalidArgCount is the invalid arg count error.
 	ErrInvalidArgCount Error = "invalid arg count"
-	// ErrInvalidArgValue is the invalid arg value error.
-	ErrInvalidArgValue Error = "invalid arg value"
 	// ErrUsageNotSet is the usage not set error.
 	ErrUsageNotSet Error = "usage not set"
-	// ErrTypeNotDefined is the type not defined error.
-	ErrTypeNotDefined Error = "type not defined"
-	// ErrInvalidRune is the invalid rune error.
-	ErrInvalidRune Error = "invalid rune"
-	// ErrInvalidTextType is the invalid text type error.
-	ErrInvalidTextType Error = "invalid text type"
-	// ErrInvalidBinaryType is the invalid binary type error.
-	ErrInvalidBinaryType Error = "invalid binary type"
 	// ErrInvalidFlagName is the invalid flag name error.
 	ErrInvalidFlagName Error = "invalid flag name"
 	// ErrInvalidShortName is the invalid short name error.
 	ErrInvalidShortName Error = "invalid short name"
-	// ErrInvalidMapValue is the invalid map value error.
-	ErrInvalidMapValue Error = "invalid map value"
-	// ErrTypeMarshalerAlreadyDefined is the type marshaler alreday defined error.
-	ErrTypeMarshalerAlreadyDefined Error = "type marshaler already defined"
 	// ErrCanOnlyBeUsedWithRootCommand is the can only be used with root command error.
 	ErrCanOnlyBeUsedWithRootCommand Error = "can only be used with root command"
 	// ErrCouldNotCreateValue is the could not create value error.
 	ErrCouldNotCreateValue Error = "could not create value"
-	// ErrCouldNotSetValue is the could not set value error.
-	ErrCouldNotSetValue Error = "could not set value"
 	// ErrUnknownFlag is the unknown flag error.
 	ErrUnknownFlag Error = "unknown flag"
 	// ErrMissingArgument is the missing argument error.
 	ErrMissingArgument Error = "missing argument"
 	// ErrInvalidValue is the invalid value error.
 	ErrInvalidValue Error = "invalid value"
-	// ErrInvalidKeyConversion is the invalid key conversion error.
-	ErrInvalidKeyConversion Error = "invalid key conversion"
+	// ErrInvalidArg is the invalid arg error.
+	ErrInvalidArg Error = "invalid arg"
 	// ErrInvalidConversion is the invalid conversion error.
 	ErrInvalidConversion Error = "invalid conversion"
 	// ErrCannotBeNil is the cannot be nil error.

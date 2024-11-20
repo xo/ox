@@ -129,7 +129,7 @@ func (typ Type) New() (Value, error) {
 	}
 	h, ok := types[typ]
 	if !ok {
-		return nil, ErrTypeNotDefined
+		return nil, fmt.Errorf("%w: type not registered", ErrCouldNotCreateValue)
 	}
 	return h.New()
 }
