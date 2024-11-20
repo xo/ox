@@ -213,7 +213,7 @@ func testDump(t *testing.T, name string) func(ctx context.Context, args []string
 		_, _ = fmt.Fprintln(Stdout(ctx), "exec:", name)
 		_, _ = fmt.Fprintln(Stdout(ctx), "root:", RootName(ctx))
 		cmd := Cmd(ctx)
-		_, _ = fmt.Fprintln(Stdout(ctx), "name:", cmd.Descs[0].Name)
+		_, _ = fmt.Fprintln(Stdout(ctx), "name:", cmd.Name())
 		_, _ = fmt.Fprintln(Stdout(ctx), "tree:", cmd.Tree())
 		_, _ = fmt.Fprintln(Stdout(ctx), "args:", args)
 		vars, _ := VarsOK(ctx)

@@ -318,22 +318,22 @@ type Command struct {
 
 // NewCommand creates a new command.
 func NewCommand(f func(context.Context, []string) error, opts ...Option) (*Command, error) {
-	c := &Command{
+	cmd := &Command{
 		Exec:  f,
 		Descs: make([]Desc, 1),
 	}
 	for _, o := range opts {
-		if err := o.apply(c); err != nil {
+		if err := o.apply(cmd); err != nil {
 			return nil, err
 		}
 	}
-	switch noName := c.Descs[0].Name == ""; {
-	case noName && c.Parent == nil:
-		c.Descs[0].Name = filepath.Base(os.Args[0])
+	switch noName := cmd.Name() == ""; {
+	case noName && cmd.Parent == nil:
+		cmd.Descs[0].Name = filepath.Base(os.Args[0])
 	case noName:
 		return nil, ErrCommandUsageNotSet
 	}
-	return c, nil
+	return cmd, nil
 }
 
 // Run executes the command with the context, validating passed arguments.
@@ -349,20 +349,20 @@ func (cmd *Command) Run(ctx context.Context, args []string) error {
 
 // Sub creates a sub command.
 func (cmd *Command) Sub(f func(context.Context, []string) error, opts ...Option) error {
-	c, err := NewCommand(f, prepend(opts, parent(cmd))...)
+	sub, err := NewCommand(f, prepend(opts, parent(cmd))...)
 	if err != nil {
 		return err
 	}
-	cmd.Commands = append(cmd.Commands, c)
+	cmd.Commands = append(cmd.Commands, sub)
 	return nil
 }
 
 // Command returns the sub command with the name.
 func (cmd *Command) Command(name string) *Command {
-	for _, c := range cmd.Commands {
-		for _, d := range c.Descs {
+	for _, sub := range cmd.Commands {
+		for _, d := range sub.Descs {
 			if d.Name == name {
-				return c
+				return sub
 			}
 		}
 	}
@@ -388,10 +388,10 @@ func (cmd *Command) Flag(name string) *Flag {
 
 // Get returns a sub command.
 func (cmd *Command) Get(name string) *Command {
-	for _, c := range cmd.Commands {
-		for _, d := range c.Descs {
+	for _, sub := range cmd.Commands {
+		for _, d := range sub.Descs {
 			if d.Name == name {
-				return c
+				return sub
 			}
 		}
 	}
@@ -408,7 +408,7 @@ func (cmd *Command) Tree() []string {
 	return v
 }
 
-// Name returns the command's primary name.
+// Name returns the command's name.
 func (cmd *Command) Name() string {
 	if len(cmd.Descs) != 0 {
 		return cmd.Descs[0].Name
