@@ -745,7 +745,7 @@ func (val *sliceVal) Get() (string, error) {
 
 func (val *sliceVal) Set(ctx context.Context, s string) error {
 	var vs *VarSet
-	vs, err := vs.Set(ctx, val.typ, "", s)
+	vs, err := vs.Set(ctx, val.typ, "", s, true)
 	if err != nil {
 		return err
 	}
@@ -812,7 +812,7 @@ func (val *mapVal) Set(ctx context.Context, s string) error {
 		return ErrInvalidMapValue
 	}
 	var vs *VarSet
-	vs, err := vs.Set(ctx, val.typ, "", value)
+	vs, err := vs.Set(ctx, val.typ, "", value, true)
 	if err != nil {
 		return err
 	}
@@ -848,9 +848,9 @@ func (vars Vars) String() string {
 }
 
 // Set sets a variable in the vars.
-func (vars Vars) Set(ctx context.Context, g *Flag, value string) error {
+func (vars Vars) Set(ctx context.Context, g *Flag, value string, wasSet bool) error {
 	// fmt.Fprintf(os.Stdout, "SETTING: %q (%s/%s): %q\n", g.Descs[0].Name, g.Type, g.Sub, value)
-	vs, err := vars[g.Descs[0].Name].Set(ctx, g.Type, g.Sub, value)
+	vs, err := vars[g.Descs[0].Name].Set(ctx, g.Type, g.Sub, value, wasSet)
 	if err != nil {
 		return err
 	}
@@ -866,7 +866,7 @@ type VarSet struct {
 }
 
 // Set sets a var.
-func (vs *VarSet) Set(ctx context.Context, typ, sub Type, value string) (*VarSet, error) {
+func (vs *VarSet) Set(ctx context.Context, typ, sub Type, value string, wasSet bool) (*VarSet, error) {
 	if vs == nil {
 		vs = &VarSet{
 			Type: typ,
@@ -889,7 +889,7 @@ func (vs *VarSet) Set(ctx context.Context, typ, sub Type, value string) (*VarSet
 	if err := vs.Var.Set(ctx, value); err != nil {
 		return nil, err
 	}
-	vs.WasSet = true
+	vs.WasSet = wasSet
 	return vs, nil
 }
 

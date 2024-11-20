@@ -450,7 +450,7 @@ func (cmd *Command) Populate(ctx context.Context, all, overwrite bool, vars Vars
 		case g.Def != nil:
 			value = toString(g.Def)
 		}
-		if err := vars.Set(ctx, g, value); err != nil {
+		if err := vars.Set(ctx, g, value, false); err != nil {
 			return fmt.Errorf("cannot set %s to %q: %w", name, value, err)
 		}
 	}
@@ -510,7 +510,7 @@ func parseLong(ctx context.Context, cmd *Command, s string, args []string, vars 
 	default: // missing argument to --arg
 		return nil, newFlagError(arg, ErrMissingArgument)
 	}
-	if err := vars.Set(ctx, g, value); err != nil {
+	if err := vars.Set(ctx, g, value, true); err != nil {
 		return nil, newFlagError(arg, err)
 	}
 	return args, nil
@@ -530,7 +530,7 @@ func parseShort(ctx context.Context, cmd *Command, s string, args []string, vars
 			} else {
 				value = toBoolString(g.Def)
 			}
-			if err := vars.Set(ctx, g, value); err != nil {
+			if err := vars.Set(ctx, g, value, true); err != nil {
 				return nil, newFlagError(arg, err)
 			}
 		case n == 0 && len(args) == 0: // missing argument to -a
@@ -539,12 +539,12 @@ func parseShort(ctx context.Context, cmd *Command, s string, args []string, vars
 			if slices.Index(v, '=') == 1 {
 				v = v[1:]
 			}
-			if err := vars.Set(ctx, g, string(v[1:])); err != nil {
+			if err := vars.Set(ctx, g, string(v[1:]), true); err != nil {
 				return nil, newFlagError(arg, err)
 			}
 			return args, nil
 		default: // -a v
-			if err := vars.Set(ctx, g, args[0]); err != nil {
+			if err := vars.Set(ctx, g, args[0], true); err != nil {
 				return nil, newFlagError(arg, err)
 			}
 			return args[1:], nil
