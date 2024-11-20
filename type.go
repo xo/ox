@@ -1,6 +1,7 @@
 package kobra
 
 import (
+	"fmt"
 	"math/big"
 	"net/netip"
 	"net/url"
@@ -116,7 +117,7 @@ func (typ Type) apply(val any) error {
 	case *sliceVal:
 		v.typ = typ
 	default:
-		return ErrOptionAppliedToInvalidType
+		return fmt.Errorf("Type(%s) as option: %w", typ, ErrAppliedToInvalidType)
 	}
 	return nil
 }

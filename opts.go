@@ -9,7 +9,8 @@ import (
 // parent is a command option to set the parent for the command.
 func parent(parent *Command) Option {
 	return option{
-		command: func(c *Command) error {
+		name: "parent",
+		cmd: func(c *Command) error {
 			c.Parent, c.OnErr = parent, parent.OnErr
 			return nil
 		},
@@ -20,9 +21,10 @@ func parent(parent *Command) Option {
 // val.
 func reflectTo[T *E, E any](val T) Option {
 	return option{
+		name: "reflectTo",
 		set: func(fs *FlagSet) error {
 			if val == nil {
-				return ErrValueCannotBeNil
+				return ErrCannotBeNil
 			}
 			return nil
 		},
@@ -32,6 +34,7 @@ func reflectTo[T *E, E any](val T) Option {
 // RunArgs is a [Run] option to set the command-line arguments to use.
 func RunArgs(args []string) Option {
 	return option{
+		name: "RunArgs",
 		run: func(opts *runOpts) error {
 			opts.args = args
 			return nil
@@ -62,9 +65,10 @@ func Help(opts ...Option) Option {
 // Comp is a command option to enable command completion.
 func Comp() Option {
 	return option{
-		command: func(c *Command) error {
+		name: "Comp",
+		cmd: func(c *Command) error {
 			if c.Parent != nil {
-				return ErrOptionCanOnlyBeUsedWithRootCommand
+				return fmt.Errorf("Comp: %w", ErrCanOnlyBeUsedWithRootCommand)
 			}
 			return nil
 		},
@@ -74,7 +78,8 @@ func Comp() Option {
 // Usage is a command and flag option to set the command/flag's name and usage.
 func Usage(name, usage string) Option {
 	return option{
-		command: func(c *Command) error {
+		name: "Usage",
+		cmd: func(c *Command) error {
 			c.Descs[0].Name, c.Descs[0].Usage = name, usage
 			return nil
 		},
@@ -88,6 +93,7 @@ func Usage(name, usage string) Option {
 // Short is a flag option to set the short name for a flag.
 func Short(name string) Option {
 	return option{
+		name: "Short",
 		flag: func(g *Flag) error {
 			if len(name) != 1 {
 				return ErrInvalidShortName
@@ -101,7 +107,8 @@ func Short(name string) Option {
 // Alias is a command/flag option to set the command/flag's alias.
 func Alias(name, usage string) Option {
 	return option{
-		command: func(c *Command) error {
+		name: "Alias",
+		cmd: func(c *Command) error {
 			c.Descs = append(c.Descs, Desc{
 				Name:  name,
 				Usage: usage,
@@ -121,7 +128,8 @@ func Alias(name, usage string) Option {
 // ArgsFunc is a command option to set the command's argument validation funcs.
 func ArgsFunc(funcs ...func([]string) error) Option {
 	return option{
-		command: func(c *Command) error {
+		name: "ArgsFunc",
+		cmd: func(c *Command) error {
 			c.Args = append(c.Args, funcs...)
 			return nil
 		},
@@ -159,9 +167,10 @@ func Args(minimum, maximum int, values ...string) Option {
 // config directory.
 func UserConfigFile() Option {
 	return option{
-		command: func(c *Command) error {
+		name: "UserConfigFile",
+		cmd: func(c *Command) error {
 			if c.Parent != nil {
-				return ErrUserConfigFileCannotBeUsedWithSubCommand
+				return fmt.Errorf("UserConfigFile: %w", ErrCanOnlyBeUsedWithRootCommand)
 			}
 			dir, err := userConfigDir()
 			if err != nil {
@@ -176,7 +185,8 @@ func UserConfigFile() Option {
 // Sub is a command option to create a sub command.
 func Sub(f func(context.Context, []string) error, opts ...Option) Option {
 	return option{
-		command: func(c *Command) error {
+		name: "Sub",
+		cmd: func(c *Command) error {
 			return c.Sub(f, opts...)
 		},
 	}
@@ -185,6 +195,7 @@ func Sub(f func(context.Context, []string) error, opts ...Option) Option {
 // MapKey is a flag option to set the map key type.
 func MapKey(opts ...Option) Option {
 	return option{
+		name: "MapKey",
 		flag: func(g *Flag) error {
 			if g.Type == MapT {
 			}
@@ -196,6 +207,7 @@ func MapKey(opts ...Option) Option {
 // BindSet is a flag option to set a binding variable and a set flag.
 func BindSet[T *E, E any](v T, b *bool) Option {
 	return option{
+		name: "BindSet",
 		flag: func(g *Flag) error {
 			val, err := newBind(v, b)
 			if err != nil {
@@ -209,12 +221,23 @@ func BindSet[T *E, E any](v T, b *bool) Option {
 
 // Bind is a flag option to set a binding variable.
 func Bind[T *E, E any](v T) Option {
-	return BindSet(v, nil)
+	return option{
+		name: "Bind",
+		flag: func(g *Flag) error {
+			val, err := newBind(v, nil)
+			if err != nil {
+				return err
+			}
+			g.Binds = append(g.Binds, val)
+			return nil
+		},
+	}
 }
 
 // Default is a flag option to set the flag's default value.
 func Default(def any) Option {
 	return option{
+		name: "Default",
 		flag: func(g *Flag) error {
 			g.Def = def
 			return nil
@@ -225,6 +248,7 @@ func Default(def any) Option {
 // NoArg is a flag option to set that the flag expects no argument.
 func NoArg(noArg bool) Option {
 	return option{
+		name: "NoArg",
 		flag: func(g *Flag) error {
 			g.NoArg = noArg
 			return nil
@@ -235,6 +259,7 @@ func NoArg(noArg bool) Option {
 // Key is a flag option to set the flag's lookup key in a config file.
 func Key(typ, key string) Option {
 	return option{
+		name: "Key",
 		flag: func(g *Flag) error {
 			if g.Keys == nil {
 				g.Keys = make(map[string]string)
@@ -248,7 +273,8 @@ func Key(typ, key string) Option {
 // Hook is a option to set a hook for a flag, that exits normally.
 func Hook(f func(context.Context) error, opts ...Option) Option {
 	return option{
-		command: func(c *Command) error {
+		name: "Hook",
+		cmd: func(c *Command) error {
 			_ = c.Flags.Hook("", "", f, opts...)
 			return nil
 		},
@@ -271,6 +297,7 @@ func HookDump(s string, v ...any) Option {
 // Layout is a option to set the parsing layout for a time value.
 func Layout(layout string) Option {
 	return option{
+		name: "Layout",
 		time: func(t *timeVal) error {
 			t.layout = layout
 			return nil
@@ -282,6 +309,7 @@ func Layout(layout string) Option {
 // MustExist is a option to indicate that a path value must exist on disk.
 func MustExist(mustExist bool) Option {
 	return option{
+		name: "MustExist",
 		flag: func(g *Flag) error {
 			return nil
 		},
@@ -292,6 +320,7 @@ func MustExist(mustExist bool) Option {
 // path.
 func Relative(dir string) Option {
 	return option{
+		name: "Relative",
 		flag: func(g *Flag) error {
 			return nil
 		},
@@ -306,19 +335,20 @@ type Option interface {
 
 // option wraps an option.
 type option struct {
-	command func(*Command) error
-	set     func(*FlagSet) error
-	flag    func(*Flag) error
-	time    func(*timeVal) error
-	run     func(*runOpts) error
+	name string
+	cmd  func(*Command) error
+	set  func(*FlagSet) error
+	flag func(*Flag) error
+	time func(*timeVal) error
+	run  func(*runOpts) error
 }
 
 // apply satisfies the [Option] interface.
 func (opt option) apply(val any) error {
 	switch v := val.(type) {
 	case *Command:
-		if opt.command != nil {
-			return opt.command(v)
+		if opt.cmd != nil {
+			return opt.cmd(v)
 		}
 	case *Flag:
 		if opt.flag != nil {
@@ -334,5 +364,5 @@ func (opt option) apply(val any) error {
 		}
 		return nil
 	}
-	return ErrOptionAppliedToInvalidType
+	return fmt.Errorf("%s: %w", opt.name, ErrAppliedToInvalidType)
 }

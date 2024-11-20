@@ -35,7 +35,7 @@ func (fs *FlagSet) apply(val any) error {
 		v.Flags = fs
 	case *runOpts:
 	default:
-		return ErrOptionAppliedToInvalidType
+		return fmt.Errorf("FlagSet option: %w", ErrAppliedToInvalidType)
 	}
 	return nil
 }
@@ -344,7 +344,7 @@ func NewCommand(f func(context.Context, []string) error, opts ...Option) (*Comma
 	case noName && cmd.Parent == nil:
 		cmd.Descs[0].Name = filepath.Base(os.Args[0])
 	case noName:
-		return nil, ErrCommandUsageNotSet
+		return nil, fmt.Errorf("command: %w", ErrUsageNotSet)
 	}
 	return cmd, nil
 }
@@ -432,7 +432,7 @@ func (cmd *Command) Name() string {
 // Parse parses the command-line arguments into vars.
 func Parse(ctx context.Context, root *Command, args []string, vars Vars) (*Command, []string, error) {
 	if root.Parent != nil {
-		return nil, nil, ErrParseCanOnlyBeUsedWithRootCommand
+		return nil, nil, fmt.Errorf("Parse: %w", ErrCanOnlyBeUsedWithRootCommand)
 	}
 	if err := root.Populate(ctx, false, false, vars); err != nil {
 		return nil, nil, newCommandError(root.Name(), err)
@@ -584,7 +584,7 @@ func (d Desc) apply(val any) error {
 	case *Flag:
 		v.Descs = append(v.Descs, d)
 	default:
-		return ErrOptionAppliedToInvalidType
+		return fmt.Errorf("Desc option: %w", ErrAppliedToInvalidType)
 	}
 	return nil
 }

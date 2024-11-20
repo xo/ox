@@ -2,6 +2,8 @@
 // compatible) command-line flag and argument parsing library.
 package kobra
 
+//go:generate stringer -type OnErr
+
 import (
 	"context"
 	"encoding/base64"
@@ -382,7 +384,7 @@ func (e OnErr) apply(val any) error {
 	case *Command:
 		v.OnErr = e
 	default:
-		return ErrOptionAppliedToInvalidType
+		return fmt.Errorf("%s option: %w", e, ErrAppliedToInvalidType)
 	}
 	return nil
 }
@@ -446,14 +448,14 @@ func (err Error) Error() string {
 
 // Errors.
 const (
-	// ErrOptionAppliedToInvalidType is the option applied to invalid type error.
-	ErrOptionAppliedToInvalidType Error = "option applied to invalid type"
+	// ErrAppliedToInvalidType is the applied to invalid type error.
+	ErrAppliedToInvalidType Error = "applied to invalid type"
 	// ErrInvalidArgCount is the invalid arg count error.
 	ErrInvalidArgCount Error = "invalid arg count"
 	// ErrInvalidArgValue is the invalid arg value error.
 	ErrInvalidArgValue Error = "invalid arg value"
-	// ErrCommandUsageNotSet is the command usage not set error.
-	ErrCommandUsageNotSet Error = "command usage not set"
+	// ErrUsageNotSet is the usage not set error.
+	ErrUsageNotSet Error = "usage not set"
 	// ErrTypeNotDefined is the type not defined error.
 	ErrTypeNotDefined Error = "type not defined"
 	// ErrInvalidRune is the invalid rune error.
@@ -470,12 +472,8 @@ const (
 	ErrInvalidMapValue Error = "invalid map value"
 	// ErrTypeMarshalerAlreadyDefined is the type marshaler alreday defined error.
 	ErrTypeMarshalerAlreadyDefined Error = "type marshaler already defined"
-	// ErrUserConfigFileCannotBeUsedWithSubCommand is the user config file cannot be used with sub command error.
-	ErrUserConfigFileCannotBeUsedWithSubCommand Error = "UserConfigFile cannot be used with sub command"
-	// ErrParseCanOnlyBeUsedWithRootCommand is the parse can only be used with root command error.
-	ErrParseCanOnlyBeUsedWithRootCommand Error = "Parse can only be used with root command"
-	// ErrOptionCanOnlyBeUsedWithRootCommand is the option can only be used with root command error.
-	ErrOptionCanOnlyBeUsedWithRootCommand Error = "option can only be used with root command"
+	// ErrCanOnlyBeUsedWithRootCommand is the can only be used with root command error.
+	ErrCanOnlyBeUsedWithRootCommand Error = "can only be used with root command"
 	// ErrCouldNotCreateValue is the could not create value error.
 	ErrCouldNotCreateValue Error = "could not create value"
 	// ErrCouldNotSetValue is the could not set value error.
@@ -490,12 +488,10 @@ const (
 	ErrInvalidKeyConversion Error = "invalid key conversion"
 	// ErrInvalidConversion is the invalid conversion error.
 	ErrInvalidConversion Error = "invalid conversion"
-	// ErrValueCannotBeNil is the value cannot be nil error.
-	ErrValueCannotBeNil Error = "value cannot be nil"
+	// ErrCannotBeNil is the cannot be nil error.
+	ErrCannotBeNil Error = "cannot be nil"
 	// ErrTypeMismatch is the type mismatch error.
 	ErrTypeMismatch Error = "type mismatch"
-	// ErrBindValueMustBePointer is the bind value must be pointer error.
-	ErrBindValueMustBePointer Error = "bind value must be pointer"
 	// ErrExit is the exit error.
 	ErrExit Error = "exit"
 )
