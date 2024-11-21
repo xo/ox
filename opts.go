@@ -88,7 +88,7 @@ func Comp() Option {
 // Name is a command and flag option to set the command/flag's name.
 func Name(name string) Option {
 	return option{
-		name: "Usage",
+		name: "Name",
 		cmd: func(c *Command) error {
 			c.Descs[0].Name = name
 			return nil
