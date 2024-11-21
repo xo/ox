@@ -619,19 +619,6 @@ func (d Desc) apply(val any) error {
 	return nil
 }
 
-// newFlagError creates a flag error.
-func newFlagError(name string, err error) error {
-	if utf8.RuneCountInString(name) == 1 {
-		return fmt.Errorf("-%s: %w", name, err)
-	}
-	return fmt.Errorf("--%s: %w", name, err)
-}
-
-// newCommandError creates a command error.
-func newCommandError(name string, err error) error {
-	return fmt.Errorf("command %s: %w", name, err)
-}
-
 // buildFlagOpts builds flag options for v from the passed struct tag values.
 func buildFlagOpts(typ reflect.Type, val reflect.Value, name string, s []string) ([]Option, error) {
 	var b *bool
@@ -639,6 +626,8 @@ func buildFlagOpts(typ reflect.Type, val reflect.Value, name string, s []string)
 	for _, opt := range s {
 		key, value, _ := strings.Cut(opt, ":")
 		switch key {
+		case "name":
+			opts = append(opts, Name(value))
 		case "usage":
 			name, usage, _ := strings.Cut(value, "|")
 			opts = append(opts, Usage(name, usage))
@@ -666,4 +655,17 @@ func buildFlagOpts(typ reflect.Type, val reflect.Value, name string, s []string)
 	}
 	// prepend bind to opt
 	return prepend(opts, BindValue(val, b)), nil
+}
+
+// newFlagError creates a flag error.
+func newFlagError(name string, err error) error {
+	if utf8.RuneCountInString(name) == 1 {
+		return fmt.Errorf("-%s: %w", name, err)
+	}
+	return fmt.Errorf("--%s: %w", name, err)
+}
+
+// newCommandError creates a command error.
+func newCommandError(name string, err error) error {
+	return fmt.Errorf("command %s: %w", name, err)
 }
