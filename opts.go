@@ -3,7 +3,6 @@ package ox
 import (
 	"context"
 	"fmt"
-	"os"
 	"reflect"
 	"slices"
 	"strings"
@@ -229,7 +228,6 @@ func BindValue(value reflect.Value, b *bool) Option {
 	return option{
 		name: "BindValue",
 		flag: func(g *Flag) error {
-			fmt.Fprintf(os.Stdout, "bind %v\n", value.Type())
 			val, err := newRef(value, b)
 			if err != nil {
 				return err
