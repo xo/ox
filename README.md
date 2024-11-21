@@ -1,6 +1,6 @@
 # xo/ox
 
-`ox` is a Go and TinyGo package for command-line argument and flag parsing,
+`xo/ox` is a Go and TinyGo package for command-line argument and flag parsing,
 designed for [context based][context] applications.
 
 [Using][] | [Example][] | [About][]
