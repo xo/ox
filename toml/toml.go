@@ -1,4 +1,4 @@
-// Package toml provides a toml config reader for kobra.
+// Package toml provides a toml config reader for ox.
 package toml
 
 import (
@@ -6,11 +6,11 @@ import (
 	"io"
 
 	"github.com/pelletier/go-toml/v2"
-	"github.com/xo/kobra"
+	"github.com/xo/ox"
 )
 
 func init() {
-	kobra.RegisterConfigFileType("toml", func(opts ...any) (kobra.ConfigDecoder, error) {
+	ox.RegisterConfigFileType("toml", func(opts ...any) (ox.ConfigDecoder, error) {
 		d := new(decoder)
 		for _, opt := range opts {
 			if o, ok := opt.(func(*toml.Decoder)); ok {
@@ -25,7 +25,7 @@ type decoder struct {
 	opts []func(*toml.Decoder)
 }
 
-// Decode satisfies the [kobra.ConfigDecoder] interface.
+// Decode satisfies the [ox.ConfigDecoder] interface.
 func (d *decoder) Decode(_ context.Context, r io.Reader, v any) error {
 	dec := toml.NewDecoder(r)
 	for _, o := range d.opts {

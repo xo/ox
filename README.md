@@ -1,6 +1,6 @@
-# kobra
+# xo/ox
 
-`kobra` is a Go and TinyGo package for command-line argument and flag parsing,
+`ox` is a Go and TinyGo package for command-line argument and flag parsing,
 designed for [context based][context] applications.
 
 [Using][] | [Example][] | [About][]
@@ -9,14 +9,14 @@ designed for [context based][context] applications.
 [Example]: #example "Example"
 [About]: #about "About"
 
-[![Unit Tests][kobra-ci-status]][kobra-ci]
-[![Go Reference][goref-kobra-status]][goref-kobra]
+[![Unit Tests][ox-ci-status]][ox-ci]
+[![Go Reference][goref-ox-status]][goref-ox]
 [![Discord Discussion][discord-status]][discord]
 
-[kobra-ci]: https://github.com/xo/kobra/actions/workflows/test.yml
-[kobra-ci-status]: https://github.com/xo/kobra/actions/workflows/test.yml/badge.svg
-[goref-kobra]: https://pkg.go.dev/github.com/xo/kobra
-[goref-kobra-status]: https://pkg.go.dev/badge/github.com/xo/kobra.svg
+[ox-ci]: https://github.com/xo/ox/actions/workflows/test.yml
+[ox-ci-status]: https://github.com/xo/ox/actions/workflows/test.yml/badge.svg
+[goref-ox]: https://pkg.go.dev/github.com/xo/ox
+[goref-ox-status]: https://pkg.go.dev/badge/github.com/xo/ox.svg
 [discord]: https://discord.gg/yJKEzc7prt "Discord Discussion"
 [discord-status]: https://img.shields.io/discord/829150509658013727.svg?label=Discord&logo=Discord&colorB=7289da&style=flat-square "Discord Discussion"
 
@@ -25,7 +25,7 @@ designed for [context based][context] applications.
 Add to a Go project in the usual way:
 
 ```sh
-$ go get -u github.com/xo/kobra@latest
+$ go get -u github.com/xo/ox@latest
 ```
 
 ## Example
@@ -40,16 +40,16 @@ import (
 	"net/url"
 	"reflect"
 
-	k "github.com/xo/kobra"
-	_ "github.com/xo/kobra/toml"
-	_ "github.com/xo/kobra/yaml"
+	k "github.com/xo/ox"
+	_ "github.com/xo/ox/toml"
+	_ "github.com/xo/ox/yaml"
 )
 
 func main() {
 	k.Run(
 		context.Background(),
 		run,
-		k.Usage("simple", "a simple demo of the kobra api"),
+		k.Usage("simple", "a simple demo of the ox api"),
 		k.Version("0.0.0-dev"),
 		k.Help(),
 		k.Comp(),
@@ -159,11 +159,11 @@ application's source trees for additional, real-world examples.
 
 ## About
 
-`kobra` was built to address limitations with the popular [`cobra`][cobra]/
+`ox` was built to address limitations with the popular [`cobra`][cobra]/
 [`pflag`][pflag]/[`viper`][viper] package, and similar limitations of the
 [`kingpin`][kingpin] and [`urfave/cli`][urfave] packages.
 
-Specific design goals of the `kobra` package:
+Specific design goals of the `ox` package:
 
 - Context based
 - Work with TinyGo out of the box

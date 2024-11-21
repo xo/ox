@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/url"
 
-	k "github.com/xo/kobra"
+	"github.com/xo/ox"
 )
 
 func main() {
@@ -30,14 +30,14 @@ func main() {
 		fmt.Println("map:", m)
 		return nil
 	}
-	k.Run(
+	ox.Run(
 		context.Background(),
 		run,
-		k.Usage("bind", "demonstrates using kobra's binds"),
-		k.Flags().
-			String("arg", "an arg", k.Bind(&arg)).
-			URL("url", "a url", k.Short("u"), k.BindSet(&u, &urlSet)).
-			Slice("int", "a slice of ints", k.Short("i"), k.Uint64T, k.Bind(&ints), k.Bind(&strings)).
-			Map("map", "a map", k.Short("m"), k.Bind(&m), k.IntT, k.MapKey(k.IntT)),
+		ox.Usage("bind", "demonstrates using ox's binds"),
+		ox.Flags().
+			String("arg", "an arg", ox.Bind(&arg)).
+			URL("url", "a url", ox.Short("u"), ox.BindSet(&u, &urlSet)).
+			Slice("int", "a slice of ints", ox.Short("i"), ox.Uint64T, ox.Bind(&ints), ox.Bind(&strings)).
+			Map("map", "a map", ox.Short("m"), ox.Bind(&m), ox.IntT, ox.MapKey(ox.IntT)),
 	)
 }

@@ -1,6 +1,6 @@
 //go:build tinygo
 
-package kobra
+package ox
 
 // copied from the go source tree
 

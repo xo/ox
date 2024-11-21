@@ -6,26 +6,26 @@ import (
 	"fmt"
 	"net/url"
 
-	k "github.com/xo/kobra"
+	"github.com/xo/ox"
 )
 
 type args struct {
-	Arg     string      `kobra:"an argument,short:a"`
-	URL     *url.URL    `kobra:"a url,short:u,set:URLSet"`
+	Arg     string      `ox:"an argument,short:a"`
+	URL     *url.URL    `ox:"a url,short:u,set:URLSet"`
 	URLSet  bool        ``
-	Ints    []int       `kobra:"a slice of ints,short:i"`
-	Strings []string    `kobra:"a slice of strings,short:s"`
-	Map     map[int]int `kobra:"a map of ints,short:m"`
-	Other   []*url.URL  `kobra:"a slice of urls,short:z"`
+	Ints    []int       `ox:"a slice of ints,short:i"`
+	Strings []string    `ox:"a slice of strings,short:s"`
+	Map     map[int]int `ox:"a map of ints,short:m"`
+	Other   []*url.URL  `ox:"a slice of urls,short:z"`
 }
 
 func main() {
 	args := new(args)
-	k.Run(
+	ox.Run(
 		context.Background(),
 		run(args),
-		k.Usage("reflect", "demonstrates using kobra's From with struct tags"),
-		k.From(args),
+		ox.Usage("reflect", "demonstrates using ox's From with struct tags"),
+		ox.From(args),
 	)
 }
 

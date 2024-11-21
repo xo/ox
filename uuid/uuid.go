@@ -1,20 +1,20 @@
-// Package uuid provides a kobra type for uuid processing.
+// Package uuid provides a ox type for uuid processing.
 package uuid
 
 import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/xo/kobra"
+	"github.com/xo/ox"
 )
 
 func init() {
-	kobra.RegisterType(kobra.UUIDT, kobra.NewTypeDesc(kobra.NewText(func() (any, error) {
+	ox.RegisterType(ox.UUIDT, ox.NewTypeDesc(ox.NewText(func() (any, error) {
 		return new(uuid.UUID), nil
-	}, kobra.UUIDT)))
+	}, ox.UUIDT)))
 }
 
 // UUID returns the uuid var from the context.
 func UUID(ctx context.Context, name string) *uuid.UUID {
-	return kobra.Get[*uuid.UUID](ctx, name)
+	return ox.Get[*uuid.UUID](ctx, name)
 }

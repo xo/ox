@@ -5,20 +5,20 @@ import (
 	"testing"
 
 	"github.com/kenshaw/colors"
-	"github.com/xo/kobra"
+	"github.com/xo/ox"
 )
 
 func TestColor(t *testing.T) {
 	for _, test := range colorTests() {
 		t.Run(test.s, func(t *testing.T) {
-			v, err := kobra.ColorT.New()
+			v, err := ox.ColorT.New()
 			if err != nil {
 				t.Fatalf("expected no error, got: %v", err)
 			}
 			if err := v.Set(context.Background(), test.s); err != nil {
 				t.Fatalf("expected no error, got: %v", err)
 			}
-			c, err := kobra.As[*colors.Color](v)
+			c, err := ox.As[*colors.Color](v)
 			if err != nil {
 				t.Fatalf("expected no error, got: %v", err)
 			}

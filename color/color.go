@@ -1,4 +1,4 @@
-// Package color provides a color type for kobra.
+// Package color provides a color type for ox.
 package color
 
 import (
@@ -6,20 +6,20 @@ import (
 	"image/color"
 
 	"github.com/kenshaw/colors"
-	"github.com/xo/kobra"
+	"github.com/xo/ox"
 )
 
 // Default is the default color.
 var Default color.Color = colors.Transparent
 
 func init() {
-	kobra.RegisterType(kobra.ColorT, kobra.NewTypeDesc(kobra.NewText(func() (any, error) {
+	ox.RegisterType(ox.ColorT, ox.NewTypeDesc(ox.NewText(func() (any, error) {
 		c := colors.FromColor(Default)
 		return &c, nil
-	}, kobra.ColorT)))
+	}, ox.ColorT)))
 }
 
 // Color retrieves a color from the context.
 func Color(ctx context.Context, name string) *colors.Color {
-	return kobra.Get[*colors.Color](ctx, name)
+	return ox.Get[*colors.Color](ctx, name)
 }

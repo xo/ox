@@ -1,4 +1,4 @@
-module github.com/xo/kobra
+module github.com/xo/ox
 
 go 1.23
 

@@ -1,6 +1,6 @@
 //go:build !tinygo
 
-package kobra
+package ox
 
 import (
 	"os"

@@ -5,20 +5,20 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/xo/kobra"
+	"github.com/xo/ox"
 )
 
 func TestUUID(t *testing.T) {
 	for _, exp := range uuidTests() {
 		t.Run(exp, func(t *testing.T) {
-			v, err := kobra.UUIDT.New()
+			v, err := ox.UUIDT.New()
 			if err != nil {
 				t.Fatalf("expected no error, got: %v", err)
 			}
 			if err := v.Set(context.Background(), exp); err != nil {
 				t.Fatalf("expected no error, got: %v", err)
 			}
-			u, err := kobra.As[*uuid.UUID](v)
+			u, err := ox.As[*uuid.UUID](v)
 			if err != nil {
 				t.Fatalf("expected no error, got: %v", err)
 			}

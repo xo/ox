@@ -1,4 +1,4 @@
-// Package yaml provides a yaml config reader for kobra.
+// Package yaml provides a yaml config reader for ox.
 package yaml
 
 import (
@@ -6,11 +6,11 @@ import (
 	"io"
 
 	"github.com/goccy/go-yaml"
-	"github.com/xo/kobra"
+	"github.com/xo/ox"
 )
 
 func init() {
-	kobra.RegisterConfigFileType("yaml", func(opts ...any) (kobra.ConfigDecoder, error) {
+	ox.RegisterConfigFileType("yaml", func(opts ...any) (ox.ConfigDecoder, error) {
 		d := new(decoder)
 		for _, opt := range opts {
 			if o, ok := opt.(yaml.DecodeOption); ok {
@@ -26,7 +26,7 @@ type decoder struct {
 	opts []yaml.DecodeOption
 }
 
-// Decode satisfies the [kobra.ConfigDecoder] interface.
+// Decode satisfies the [ox.ConfigDecoder] interface.
 func (d *decoder) Decode(_ context.Context, r io.Reader, v any) error {
 	return yaml.NewDecoder(r, d.opts...).Decode(v)
 }

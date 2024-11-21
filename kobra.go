@@ -1,6 +1,6 @@
-// Package kobra is a context-based, minimal dependency Go (and TinyGo
-// compatible) command-line flag and argument parsing library.
-package kobra
+// Package ox is a context-based, minimal dependency Go (and TinyGo compatible)
+// command-line flag and argument parsing library.
+package ox
 
 //go:generate stringer -type OnErr
 
@@ -448,7 +448,7 @@ const (
 
 // StructTagName is the tag name used in [FromFlags] and related func's for
 // reflection.
-var StructTagName = "kobra"
+var StructTagName = "ox"
 
 // prepend is a generic prepend.
 func prepend[S ~[]E, E any](v S, s ...E) S {
