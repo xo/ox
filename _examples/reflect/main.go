@@ -12,10 +12,11 @@ import (
 type args struct {
 	Arg     string      `kobra:"an argument,short:a"`
 	URL     *url.URL    `kobra:"a url,short:u,set:URLSet"`
+	URLSet  bool        ``
 	Ints    []int       `kobra:"a slice of ints,short:i"`
 	Strings []string    `kobra:"a slice of strings,short:s"`
 	Map     map[int]int `kobra:"a map of ints,short:m"`
-	URLSet  bool
+	Other   []*url.URL  `kobra:"a slice of urls,short:z"`
 }
 
 func main() {
@@ -23,8 +24,8 @@ func main() {
 	k.Run(
 		context.Background(),
 		run(args),
-		k.Usage("reflect", "demonstrates using kobra's flags from"),
-		k.FlagsFrom(&args),
+		k.Usage("reflect", "demonstrates using kobra's From with struct tags"),
+		k.From(args),
 	)
 }
 

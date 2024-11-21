@@ -3,6 +3,8 @@ package kobra
 import (
 	"context"
 	"fmt"
+	"os"
+	"reflect"
 	"slices"
 	"strings"
 	"unicode/utf8"
@@ -19,15 +21,22 @@ func parent(parent *Command) Option {
 	}
 }
 
-// reflectTo is a flag set option to set various options on each flag based on
-// val.
-func reflectTo[T *E, E any](val T) Option {
+// From is a command option to build the command's flags from val.
+func From[T *E, E any](val T) Option {
 	return option{
-		name: "reflectTo",
-		set: func(fs *FlagSet) error {
+		name: "From",
+		cmd: func(cmd *Command) error {
 			if val == nil {
-				return fmt.Errorf("%T: %w", val, ErrIsNil)
+				return fmt.Errorf("%T: %w: cannot be nil", val, ErrInvalidValue)
 			}
+			flags, err := FlagsFrom(val)
+			if err != nil {
+				return fmt.Errorf("cannot build flags for %T: %w", val, err)
+			}
+			if cmd.Flags == nil {
+				cmd.Flags = Flags()
+			}
+			cmd.Flags.Flags = append(cmd.Flags.Flags, flags...)
 			return nil
 		},
 	}
@@ -210,8 +219,22 @@ func MapKey(opts ...Option) Option {
 	return option{
 		name: "MapKey",
 		flag: func(g *Flag) error {
-			if g.Type == MapT {
+			return nil
+		},
+	}
+}
+
+// BindValue is a flag option to set a binding variable and a set flag.
+func BindValue(value reflect.Value, b *bool) Option {
+	return option{
+		name: "BindValue",
+		flag: func(g *Flag) error {
+			fmt.Fprintf(os.Stdout, "bind %v\n", value.Type())
+			val, err := newRef(value, b)
+			if err != nil {
+				return err
 			}
+			g.Binds = append(g.Binds, val)
 			return nil
 		},
 	}

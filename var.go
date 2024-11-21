@@ -761,7 +761,7 @@ func (val *bindVal[T, E]) sliceSet(s string) error {
 		v = reflect.Append(v, reflect.Indirect(z))
 	}
 	var ok bool
-	if *val.v, ok = v.Interface().(E); !ok {
+	if *val.v, ok = v.Interface().(E); ok {
 		return fmt.Errorf("%w: %T->%T", ErrInvalidConversion, v, *val.v)
 	}
 	return nil
@@ -796,7 +796,73 @@ func (val *bindVal[T, E]) mapSet(s string) error {
 }
 
 func (val *bindVal[T, E]) Get() (string, error) {
-	return fmt.Sprint(val.v), nil
+	return toString(*val.v), nil
+}
+
+// refVal is a reflected value.
+type refVal struct {
+	v reflect.Value
+	b *bool
+}
+
+// newRef creates a value for a [reflect.Value].
+func newRef(v reflect.Value, b *bool) (Value, error) {
+	switch {
+	case v.Kind() != reflect.Pointer, v.IsNil():
+		return nil, fmt.Errorf("%w: not a pointer or is nil", ErrInvalidValue)
+	}
+	return &refVal{
+		v: v,
+		b: b,
+	}, nil
+}
+
+func (val *refVal) Type() Type {
+	return Type(val.v.Elem().Type().String())
+}
+
+func (val *refVal) Val() any {
+	return val.v.Elem().Interface()
+}
+
+func (val *refVal) Set(_ context.Context, s string) error {
+	typ := val.v.Elem().Type()
+	switch typ.Kind() {
+	case reflect.Slice:
+		if val.sliceSet(s) {
+			return nil
+		}
+	case reflect.Map:
+		if val.mapSet(s) {
+			return nil
+		}
+	default:
+		if convValue(val.v, s) {
+			return nil
+		}
+		if v, err := convUnmarshal(typ, s); err == nil {
+			reflect.Indirect(val.v).Set(reflect.ValueOf(v))
+			return nil
+		}
+	}
+	return fmt.Errorf("%w: cannot convert %T->%s", ErrInvalidConversion, s, typ)
+}
+
+func (val *refVal) sliceSet(s string) bool {
+	z := reflect.New(val.v.Elem().Type().Elem())
+	if !convValue(z, s) {
+		return false
+	}
+	val.v.Elem().Set(reflect.Append(val.v.Elem(), reflect.Indirect(z)))
+	return true
+}
+
+func (val *refVal) mapSet(s string) bool {
+	return false
+}
+
+func (val *refVal) Get() (string, error) {
+	return toString(val.v.Elem().Interface()), nil
 }
 
 // sliceVal is a slice value.

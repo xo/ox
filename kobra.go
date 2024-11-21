@@ -428,6 +428,10 @@ const (
 	ErrUnknownFlag Error = "unknown flag"
 	// ErrMissingArgument is the missing argument error.
 	ErrMissingArgument Error = "missing argument"
+	// ErrInvalidType is the invalid type error.
+	ErrInvalidType Error = "invalid type"
+	// ErrUnknownTagOption is the unknown tag option error.
+	ErrUnknownTagOption Error = "unknown tag option"
 	// ErrInvalidValue is the invalid value error.
 	ErrInvalidValue Error = "invalid value"
 	// ErrInvalidArg is the invalid arg error.
@@ -435,12 +439,16 @@ const (
 	// ErrInvalidConversion is the invalid conversion error.
 	ErrInvalidConversion Error = "invalid conversion"
 	// ErrIsNil is the is nil error.
-	ErrIsNil Error = "is nil"
+	// ErrIsNil Error = "is nil"
 	// ErrTypeMismatch is the type mismatch error.
 	ErrTypeMismatch Error = "type mismatch"
 	// ErrExit is the exit error.
 	ErrExit Error = "exit"
 )
+
+// StructTagName is the tag name used in [FromFlags] and related func's for
+// reflection.
+var StructTagName = "kobra"
 
 // prepend is a generic prepend.
 func prepend[S ~[]E, E any](v S, s ...E) S {

@@ -5,27 +5,21 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"slices"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 )
 
 // FlagSet is a set of command-line flag definitions.
 type FlagSet struct {
 	Flags []*Flag
-	Opts  []Option
 }
 
 // Flags creates a new flag set from the options.
 func Flags(opts ...Option) *FlagSet {
-	return &FlagSet{
-		Opts: opts,
-	}
-}
-
-// FlagsFrom creates a new flag set from args using reflection.
-func FlagsFrom[T *E, E any](val T) *FlagSet {
-	return Flags(reflectTo(val))
+	return new(FlagSet)
 }
 
 // apply satisfies the [Option] interface.
@@ -287,6 +281,43 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 		}
 	}
 	return g, nil
+}
+
+// FlagFrom creates flags for the value.
+func FlagsFrom[T *E, E any](val T) ([]*Flag, error) {
+	v := reflect.ValueOf(val).Elem()
+	if v.Kind() != reflect.Struct {
+		return nil, fmt.Errorf("%w: not a *struct", ErrInvalidType)
+	}
+	typ := v.Type()
+	var flags []*Flag
+	for i := range typ.NumField() {
+		// make sure the field is exported
+		f := typ.Field(i)
+		if r := []rune(f.Name); !unicode.IsUpper(r[0]) {
+			continue
+		}
+		s, ok := f.Tag.Lookup(StructTagName)
+		if !ok {
+			continue
+		}
+		tag := strings.Split(s, ",")
+		if len(tag) == 0 || tag[0] == "-" {
+			continue
+		}
+		// build flag opts
+		opts, err := buildFlagOpts(typ, v.Field(i).Addr(), f.Name, tag[1:])
+		if err != nil {
+			return nil, fmt.Errorf("field %s: %w", f.Name, err)
+		}
+		g, err := NewFlag(strings.ToLower(f.Name), tag[0], opts...)
+		if err != nil {
+			return nil, fmt.Errorf("field %s: cannot create flag: %w", f.Name, err)
+		}
+		flags = append(flags, g)
+	}
+	fmt.Printf("flags: %d\n", len(flags))
+	return flags, nil
 }
 
 // Name returns the flag's primary name.
@@ -600,4 +631,40 @@ func newFlagError(name string, err error) error {
 // newCommandError creates a command error.
 func newCommandError(name string, err error) error {
 	return fmt.Errorf("command %s: %w", name, err)
+}
+
+// buildFlagOpts builds flag options for v from the passed struct tag values.
+func buildFlagOpts(typ reflect.Type, val reflect.Value, name string, s []string) ([]Option, error) {
+	var b *bool
+	var opts []Option
+	for _, opt := range s {
+		key, value, _ := strings.Cut(opt, ":")
+		switch key {
+		case "usage":
+			name, usage, _ := strings.Cut(value, "|")
+			opts = append(opts, Usage(name, usage))
+		case "short":
+			opts = append(opts, Short(value))
+		case "alias":
+			name, usage, _ := strings.Cut(value, "|")
+			opts = append(opts, Alias(name, usage))
+		case "default":
+			opts = append(opts, Default(value))
+		case "key":
+			typ, key, _ := strings.Cut(value, "|")
+			opts = append(opts, Key(typ, key))
+		case "set":
+			for i := range typ.NumField() {
+				field := typ.Field(i)
+				if field.Name == name || field.Name != value {
+					continue
+				}
+				break
+			}
+		default:
+			return nil, fmt.Errorf("%w: %q", ErrUnknownTagOption, key)
+		}
+	}
+	// prepend bind to opt
+	return prepend(opts, BindValue(val, b)), nil
 }
