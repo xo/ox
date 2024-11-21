@@ -29,7 +29,7 @@ func (fs *FlagSet) apply(val any) error {
 		v.Flags = fs
 	case *runOpts:
 	default:
-		return fmt.Errorf("FlagSet option: %w", ErrAppliedToInvalidType)
+		return fmt.Errorf("FlagSet: %w", ErrAppliedToInvalidType)
 	}
 	return nil
 }
@@ -316,7 +316,6 @@ func FlagsFrom[T *E, E any](val T) ([]*Flag, error) {
 		}
 		flags = append(flags, g)
 	}
-	fmt.Printf("flags: %d\n", len(flags))
 	return flags, nil
 }
 

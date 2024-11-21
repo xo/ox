@@ -3,7 +3,6 @@ package ox
 import (
 	"encoding"
 	"fmt"
-	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -171,7 +170,6 @@ func convValue(v reflect.Value, val any) (ok bool) {
 
 // convUnmarshal creates a new value and unmarshals the value to it.
 func convUnmarshal(typ reflect.Type, val any) (any, error) {
-	fmt.Fprintf(os.Stdout, "type: %s\n", typ.String())
 	text := true
 	d, ok := textNew[typ]
 	if !ok {
