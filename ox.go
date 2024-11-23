@@ -15,7 +15,7 @@ import (
 )
 
 // Run creates a [Command] for f using [os.Args] by default, unless arguments
-// were specified using a [Option] such as [RunArgs].
+// were specified using a [RunOption].
 func Run[T ExecFunc](f T, opts ...Option) {
 	ctx := &RunContext{
 		Stdin:  os.Stdin,

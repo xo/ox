@@ -29,7 +29,7 @@ type anyVal[T any] struct {
 	set   bool
 }
 
-// NewVal creates a value.
+// NewVal returns a [Value] func.
 func NewVal[T any](opts ...Option) func() (Value, error) {
 	return func() (Value, error) {
 		typ := typeType[T]()

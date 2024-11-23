@@ -79,7 +79,17 @@ func (typ Type) apply(val any) error {
 	return nil
 }
 
-// New creates a new value for the registered type.
+// String satisfies the [fmt.Stringer] interface.
+func (typ Type) String() string {
+	return string(typ)
+}
+
+// Layout returns the type's registered [time.Time.Format] [time.Layout].
+func (typ Type) Layout() string {
+	return layouts[typ]
+}
+
+// New creates a new [Value] for the registered type.
 func (typ Type) New() (Value, error) {
 	if typ == HookT {
 		return nil, nil
@@ -95,29 +105,19 @@ func (typ Type) New() (Value, error) {
 	return v, nil
 }
 
-// Layout returns the time layout for the type.
-func (typ Type) Layout() string {
-	return layouts[typ]
-}
-
-// String satisfies the [fmt.Stringer] interface.
-func (typ Type) String() string {
-	return string(typ)
-}
-
 // types are registered type descriptions.
 var types map[Type]func() (Value, error)
 
-// typeNames are the type name lookups.
+// typeNames are type name lookups for registered types.
 var typeNames map[string]Type
 
-// layouts are time time layouts.
+// layouts are [time.Time] parsing layouts.
 var layouts map[Type]string
 
-// text holds new text types.
+// text holds new text funcs.
 var text map[Type]func() (any, error)
 
-// binary holds new binary types.
+// binary holds new binary funcs.
 var binary map[Type]func() (any, error)
 
 func init() {
@@ -189,6 +189,13 @@ func init() {
 	})
 }
 
+// RegisterTypeName registers a type name.
+func RegisterTypeName(typ Type, names ...string) {
+	for _, name := range names {
+		typeNames[name] = typ
+	}
+}
+
 // RegisterLayout registers a time layout for the type.
 func RegisterLayout(typ Type, layout string) {
 	layouts[typ] = layout
@@ -202,13 +209,6 @@ func RegisterTextType[T TextMarshaler](f func() (T, error)) {
 // RegisterBinaryType registers a new binary type.
 func RegisterBinaryType[T BinaryMarshaler](f func() (T, error)) {
 	registerMarshaler[T](func() (any, error) { return f() }, binary)
-}
-
-// RegisterTypeName registers a type name.
-func RegisterTypeName(typ Type, names ...string) {
-	for _, name := range names {
-		typeNames[name] = typ
-	}
 }
 
 // registerMarshaler registers a type marshaler.

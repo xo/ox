@@ -622,6 +622,8 @@ func buildFlagOpts(typ reflect.Type, val reflect.Value, name string, s []string)
 		switch key {
 		case "name":
 			opts = append(opts, Name(value))
+		case "type":
+			opts = append(opts, Type(value))
 		case "usage":
 			name, usage, _ := strings.Cut(value, "|")
 			opts = append(opts, Usage(name, usage))
@@ -664,7 +666,7 @@ type ExecFunc interface {
 // Exec wraps a exec func.
 type Exec func(context.Context, []string) error
 
-// NewExec creates a new executor.
+// NewExec creates a [Exec] func.
 func NewExec[T ExecFunc](f T) Exec {
 	var v any = f
 	switch f := v.(type) {

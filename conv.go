@@ -109,104 +109,15 @@ func as[T any](val any, layout string) (any, error) {
 	case time.Duration:
 		return asDuration(val)
 	}
-	// type could be both text and binary unmarshaler, but the new func
-	// should only be registered for either text or binary
-	if z, err := asUnmarshal[T](val, layout); err == nil {
-		return z, nil
+	// unmarshal
+	if v, err := asUnmarshal[T](val, layout); err == nil {
+		return v, nil
 	}
-	if convValue(reflect.ValueOf(&res), val, layout) {
+	// reflect
+	if asValue(reflect.ValueOf(&res), val, layout) {
 		return res, nil
 	}
 	return nil, fmt.Errorf("%w: %T->%T", ErrInvalidConversion, val, res)
-}
-
-// convValue attempts to convert using reflect -- expects:
-// reflect.Value(&<target>).
-func convValue(v reflect.Value, val any, layout string) (ok bool) {
-	defer func() {
-		if err := recover(); err != nil {
-			ok = false
-		}
-	}()
-	switch v = v.Elem(); v.Kind() {
-	case reflect.Slice:
-		// []byte/[]rune
-	case reflect.String:
-		if s, err := asString[string](val, layout); err == nil {
-			v.SetString(s)
-			return true
-		}
-	case reflect.Bool:
-		if b, err := asBool(val); err == nil {
-			v.SetBool(b)
-			return true
-		}
-	case reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8, reflect.Int:
-		if i, err := asInt[int64](val); err == nil && !v.OverflowInt(i) {
-			v.SetInt(i)
-			return true
-		}
-	case reflect.Uint64, reflect.Uint32, reflect.Uint16, reflect.Uint8, reflect.Uint:
-		if u, err := asUint[uint64](val); err == nil && !v.OverflowUint(u) {
-			v.SetUint(u)
-			return true
-		}
-	case reflect.Float64, reflect.Float32:
-		if f, err := asFloat[float64](val); err == nil && !v.OverflowFloat(f) {
-			v.SetFloat(f)
-			return true
-		}
-	case reflect.Complex128, reflect.Complex64:
-		if c, err := asComplex[complex128](val); err == nil && !overflowComplex(v, c) {
-			v.SetComplex(c)
-			return true
-		}
-	}
-	return false
-}
-
-// asUnmarshal creates a new value as T, and unmarshals the value to it.
-func asUnmarshal[T any](val any, layout string) (any, error) {
-	buf, err := asString[[]byte](val, layout)
-	if err != nil {
-		return nil, err
-	}
-	v, f, err := unmarshaler(typeType[T]())
-	if err != nil {
-		return nil, err
-	}
-	if err := f(buf); err != nil {
-		return nil, fmt.Errorf("%w: %w", ErrInvalidConversion, err)
-	}
-	return v, nil
-}
-
-// unmarshaler gets the unmarshaler for the type.
-func unmarshaler(typ Type) (any, func([]byte) error, error) {
-	var (
-		f      func() (any, error)
-		ok     bool
-		asText bool
-	)
-	if f, ok = text[typ]; ok {
-		asText = true
-	} else if f, ok = binary[typ]; ok {
-		asText = false
-	}
-	if !ok {
-		return nil, nil, fmt.Errorf("%w (%s): no text/binary marshaler", ErrInvalidConversion, typ)
-	}
-	v, err := f()
-	if err != nil {
-		return nil, nil, fmt.Errorf("%w (%s): %w", ErrCouldNotCreateValue, typ, err)
-	}
-	var u func([]byte) error
-	if asText {
-		u = v.(interface{ UnmarshalText([]byte) error }).UnmarshalText
-	} else {
-		u = v.(interface{ UnmarshalBinary([]byte) error }).UnmarshalBinary
-	}
-	return v, u, nil
 }
 
 // asString converts the value to a string.
@@ -283,10 +194,10 @@ func asString[T stringi](val any, layout string) (T, error) {
 
 // asBool converts the value to a bool.
 func asBool(val any) (bool, error) {
-	if v, ok := val.(bool); ok {
+	switch v := val.(type) {
+	case bool:
 		return v, nil
-	}
-	if v, ok := val.(interface{ Bool() bool }); ok {
+	case interface{ Bool() bool }:
 		return v.Bool(), nil
 	}
 	if v, err := asInt[int64](val); err == nil {
@@ -473,6 +384,100 @@ func asDuration(val any) (time.Duration, error) {
 	return time.ParseDuration(s)
 }
 
+// asUnmarshal creates a new value as T, and unmarshals the value to it.
+func asUnmarshal[T any](val any, layout string) (any, error) {
+	buf, err := asString[[]byte](val, layout)
+	if err != nil {
+		return nil, err
+	}
+	v, f, err := asNew(typeType[T]())
+	if err != nil {
+		return nil, err
+	}
+	if len(buf) == 0 {
+		// as with other types, return the "zero value" when val is ""
+		return v, nil
+	}
+	if err := f(buf); err != nil {
+		return nil, fmt.Errorf("%w: %w", ErrInvalidConversion, err)
+	}
+	return v, nil
+}
+
+// asNew creates a new value for the type, returning the created value and the
+// unmarshal func for the value.
+func asNew(typ Type) (any, func([]byte) error, error) {
+	var (
+		f      func() (any, error)
+		ok     bool
+		asText bool
+	)
+	if f, ok = text[typ]; ok {
+		asText = true
+	} else if f, ok = binary[typ]; ok {
+		asText = false
+	}
+	if !ok {
+		return nil, nil, fmt.Errorf("%w (%s): no text/binary marshaler", ErrInvalidConversion, typ)
+	}
+	v, err := f()
+	if err != nil {
+		return nil, nil, fmt.Errorf("%w (%s): %w", ErrCouldNotCreateValue, typ, err)
+	}
+	var u func([]byte) error
+	if asText {
+		u = v.(interface{ UnmarshalText([]byte) error }).UnmarshalText
+	} else {
+		u = v.(interface{ UnmarshalBinary([]byte) error }).UnmarshalBinary
+	}
+	return v, u, nil
+}
+
+// asValue attempts to convert using reflect -- expects:
+// reflect.Value(&<target>).
+func asValue(v reflect.Value, val any, layout string) (ok bool) {
+	defer func() {
+		if err := recover(); err != nil {
+			ok = false
+		}
+	}()
+	switch v = v.Elem(); v.Kind() {
+	case reflect.Slice:
+		// TODO: implement []byte/[]rune
+	case reflect.String:
+		if s, err := asString[string](val, layout); err == nil {
+			v.SetString(s)
+			return true
+		}
+	case reflect.Bool:
+		if b, err := asBool(val); err == nil {
+			v.SetBool(b)
+			return true
+		}
+	case reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8, reflect.Int:
+		if i, err := asInt[int64](val); err == nil && !v.OverflowInt(i) {
+			v.SetInt(i)
+			return true
+		}
+	case reflect.Uint64, reflect.Uint32, reflect.Uint16, reflect.Uint8, reflect.Uint:
+		if u, err := asUint[uint64](val); err == nil && !v.OverflowUint(u) {
+			v.SetUint(u)
+			return true
+		}
+	case reflect.Float64, reflect.Float32:
+		if f, err := asFloat[float64](val); err == nil && !v.OverflowFloat(f) {
+			v.SetFloat(f)
+			return true
+		}
+	case reflect.Complex128, reflect.Complex64:
+		if c, err := asComplex[complex128](val); err == nil && !overflowComplex(v, c) {
+			v.SetComplex(c)
+			return true
+		}
+	}
+	return false
+}
+
 // toString converts a value to string.
 func toString[T stringi](val any, layout string) T {
 	v, _ := asString[T](val, layout)
@@ -485,8 +490,8 @@ func toBool(val any) bool {
 	return v
 }
 
-// toBoolString converts the value to a string, returning "true" when the value
-// is nil.
+// toBoolString returns the value to a string, with a special case of returning
+// "true" when value is nil.
 func toBoolString(val any) string {
 	if val != nil {
 		return strconv.FormatBool(toBool(val))

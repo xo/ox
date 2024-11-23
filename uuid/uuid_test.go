@@ -21,6 +21,12 @@ func TestUUID(t *testing.T) {
 			if err != nil {
 				t.Fatalf("expected no error, got: %v", err)
 			}
+			if u == nil {
+				t.Fatalf("expected non-nil value")
+			}
+			if exp == "" {
+				exp = "00000000-0000-0000-0000-000000000000"
+			}
 			if s := u.String(); s != exp {
 				t.Errorf("expected %s, got: %s", exp, s)
 			}
@@ -31,6 +37,7 @@ func TestUUID(t *testing.T) {
 
 func uuidTests() []string {
 	return []string{
+		"",
 		"f47ac10b-58cc-0372-8567-0e02b2c3d479",
 		"f47ac10b-58cc-1372-8567-0e02b2c3d479",
 		"f47ac10b-58cc-2372-8567-0e02b2c3d479",

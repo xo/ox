@@ -36,6 +36,7 @@ type colorTest struct {
 
 func colorTests() []colorTest {
 	return []colorTest{
+		{"", "transparent"},
 		{"red", "red"},
 		{"BLACK", "black"},
 		{"rgb(0,255,0)", "lime"},
