@@ -2,6 +2,8 @@ package ox
 
 import (
 	"cmp"
+	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"maps"
 	"reflect"
@@ -65,13 +67,28 @@ func (val *anyVal[T]) Val() any {
 }
 
 func (val *anyVal[T]) Set(s string) error {
-	v, err := conv[T](s, val.layout)
+	var value any = s
+	switch val.typ {
+	case Base64T:
+		b, err := base64.StdEncoding.DecodeString(s)
+		if err != nil {
+			return fmt.Errorf("%w: %w", ErrInvalidValue, err)
+		}
+		value = b
+	case HexT:
+		b, err := hex.DecodeString(s)
+		if err != nil {
+			return fmt.Errorf("%w: %w", ErrInvalidValue, err)
+		}
+		value = b
+	}
+	v, err := conv[T](value, val.layout)
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrInvalidValue, err)
 	}
 	var ok bool
 	if val.v, ok = v.(T); !ok {
-		return fmt.Errorf("%w: %T->%T", ErrInvalidConversion, v, val.v)
+		return fmt.Errorf("%w: %T->%T", ErrInvalidConversion, value, val.v)
 	}
 	return nil
 }
