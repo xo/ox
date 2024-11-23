@@ -116,6 +116,25 @@ func varType(val any) (Type, bool) {
 	return typeRef(val), false
 }
 
+// bitSize returns the bitsize for the type.
+func bitSize[T inti | uinti | floati | complexi]() int {
+	var res T
+	var v any = res
+	switch v.(type) {
+	case complex128:
+		return 128
+	case int64, uint64, float64, complex64:
+		return 64
+	case int32, uint32, float32:
+		return 32
+	case int16, uint16:
+		return 16
+	case int8, uint8:
+		return 8
+	}
+	return 0
+}
+
 // typeRef returns the type for val.
 func typeRef(val any) Type {
 	switch val.(type) {
@@ -186,10 +205,6 @@ var text map[Type]newDesc
 
 // binary holds new binary types.
 var binary map[Type]newDesc
-
-var typeValues map[Type]func() (Value, error)
-
-var typeNew map[Type]func() (any, error)
 
 func init() {
 	text = make(map[Type]newDesc)

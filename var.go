@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"maps"
+	"os"
 	"reflect"
 	"slices"
 	"strings"
@@ -67,6 +68,7 @@ func (val *anyVal[T]) Val() any {
 }
 
 func (val *anyVal[T]) Set(s string) error {
+	fmt.Fprintf(os.Stdout, ">>> %s\n", typeType[T]())
 	var value any = s
 	switch val.typ {
 	case Base64T:
@@ -82,7 +84,7 @@ func (val *anyVal[T]) Set(s string) error {
 		}
 		value = b
 	}
-	v, err := conv[T](value, val.layout)
+	v, err := as[T](value, val.layout)
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrInvalidValue, err)
 	}

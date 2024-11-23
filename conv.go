@@ -18,13 +18,16 @@ func As[T any](val any) (T, error) {
 	if v, ok := val.(Value); ok {
 		val = v.Val()
 	}
-	if v, err := conv[T](val, layout); err == nil {
-		if value, ok := v.(T); ok {
-			return value, nil
-		}
-	}
 	var res T
-	return res, fmt.Errorf("%w: %T->%T", ErrInvalidConversion, val, res)
+	v, err := as[T](val, layout)
+	if err != nil {
+		return res, err
+	}
+	var ok bool
+	if res, ok = v.(T); !ok {
+		return res, fmt.Errorf("%w: %T->%T", ErrInvalidConversion, v, res)
+	}
+	return res, nil
 }
 
 // SliceAs converts a value to a slice.
@@ -60,58 +63,62 @@ func MapAs[K cmp.Ordered, T any](val Value) (map[K]T, error) {
 	return nil, ErrInvalidConversion
 }
 
-// conv converts a value.
-func conv[T any](val any, layout string) (any, error) {
+// as converts a value.
+func as[T any](val any, layout string) (any, error) {
 	var res T
 	var v any = res
 	switch v.(type) {
 	case []byte:
-		return toBytes(val, layout), nil
+		return asString[[]byte](val, layout)
 	case string:
-		return toString(val, layout), nil
+		return asString[string](val, layout)
 	case []rune:
-		return []rune(toString(val, layout)), nil
-	case time.Time:
-		return toTime(val), nil
-	case time.Duration:
-		return toDuration(val), nil
+		return asString[[]rune](val, layout)
+	case bool:
+		return asBool(val)
 	case int64:
-		return toInt[int64](val), nil
+		return asInt[int64](val)
 	case int32:
-		return toInt[int32](val), nil
+		return asInt[int32](val)
 	case int16:
-		return toInt[int16](val), nil
+		return asInt[int16](val)
 	case int8:
-		return toInt[int8](val), nil
+		return asInt[int8](val)
 	case int:
-		return toInt[int](val), nil
+		return asInt[int](val)
 	case uint64:
-		return toUint[uint64](val), nil
+		return asUint[uint64](val)
 	case uint32:
-		return toUint[uint32](val), nil
+		return asUint[uint32](val)
 	case uint16:
-		return toUint[uint16](val), nil
+		return asUint[uint16](val)
 	case uint8:
-		return toUint[uint8](val), nil
+		return asUint[uint8](val)
 	case uint:
-		return toUint[uint](val), nil
+		return asUint[uint](val)
 	case float64:
-		return toFloat[float64](val), nil
+		return asFloat[float64](val)
 	case float32:
-		return toFloat[float32](val), nil
+		return asFloat[float32](val)
 	case complex128:
-		return toComplex[complex128](val), nil
+		return asComplex[complex128](val)
 	case complex64:
-		return toComplex[complex64](val), nil
+		return asComplex[complex64](val)
+	case time.Time:
+		return asTime(val, layout)
+	case time.Duration:
+		return asDuration(val)
 	}
-	// type could be both text and binary unmarshaler, but the new func
-	// should only be registered for either text or binary
-	if z, err := convUnmarshal(reflect.TypeOf(val), val, layout); err == nil {
-		return z, nil
-	}
-	if convValue(reflect.ValueOf(&res), val, layout) {
-		return res, nil
-	}
+	/*
+		// type could be both text and binary unmarshaler, but the new func
+		// should only be registered for either text or binary
+		if z, err := convUnmarshal(reflect.TypeOf(val), val, layout); err == nil {
+			return z, nil
+		}
+		if convValue(reflect.ValueOf(&res), val, layout) {
+			return res, nil
+		}
+	*/
 	return nil, fmt.Errorf("%w: %T->%T", ErrInvalidConversion, val, res)
 }
 
@@ -124,26 +131,35 @@ func convValue(v reflect.Value, val any, layout string) (ok bool) {
 		}
 	}()
 	switch v = v.Elem(); v.Kind() {
+	case reflect.Slice:
+		// []byte/[]rune
 	case reflect.String:
-		v.SetString(toString(val, layout))
-		return true
+		if s, err := asString[string](val, layout); err == nil {
+			v.SetString(s)
+			return true
+		}
+	case reflect.Bool:
+		if b, err := asBool(val); err == nil {
+			v.SetBool(b)
+			return true
+		}
 	case reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8, reflect.Int:
-		if i, ok := asInt64(val); ok && !v.OverflowInt(i) {
+		if i, err := asInt[int64](val); err == nil && !v.OverflowInt(i) {
 			v.SetInt(i)
 			return true
 		}
 	case reflect.Uint64, reflect.Uint32, reflect.Uint16, reflect.Uint8, reflect.Uint:
-		if u, ok := asUint64(val); ok && !v.OverflowUint(u) {
+		if u, err := asUint[uint64](val); err == nil && !v.OverflowUint(u) {
 			v.SetUint(u)
 			return true
 		}
 	case reflect.Float64, reflect.Float32:
-		if f, ok := asFloat64(val); ok && !v.OverflowFloat(f) {
+		if f, err := asFloat[float64](val); err == nil && !v.OverflowFloat(f) {
 			v.SetFloat(f)
 			return true
 		}
 	case reflect.Complex128, reflect.Complex64:
-		if c, ok := asComplex128(val); ok && !overflowComplex(v, c) {
+		if c, err := asComplex[complex128](val); err == nil && !overflowComplex(v, c) {
 			v.SetComplex(c)
 			return true
 		}
@@ -184,318 +200,319 @@ func convUnmarshal(typ reflect.Type, val any, layout string) (any, error) {
 	return nil, nil
 }
 
-// asBytes converts the value to a []byte.
-func asBytes(val any, layout string) ([]byte, bool) {
-	switch v := val.(type) {
-	case []byte:
-		return v, true
-	case string:
-		return []byte(v), true
-	case []rune:
-		return []byte(string(v)), true
-	case time.Time:
-		return []byte(v.Format(layout)), true
-	case interface{ MarshalBinary() ([]byte, error) }:
-		if b, err := v.MarshalBinary(); err == nil {
-			return b, true
-		}
-	case interface{ MarshalText() ([]byte, error) }:
-		if b, err := v.MarshalText(); err == nil {
-			return b, true
-		}
-	case interface{ Bytes() []byte }:
-		return v.Bytes(), true
-	case interface{ String() string }:
-		return []byte(v.String()), true
-	case interface{ Runes() []rune }:
-		return []byte(string(v.Runes())), true
-	case interface{ Rune() rune }:
-		return []byte(string(v.Rune())), true
-	case interface{ Byte() byte }:
-		return []byte{v.Byte()}, true
-	}
-	return nil, false
-}
-
 // asString converts the value to a string.
-func asString(val any, layout string) (string, bool) {
+func asString[T stringi](val any, layout string) (T, error) {
 	switch v := val.(type) {
 	case string:
-		return v, true
+		return T(v), nil
 	case []byte:
-		return string(v), true
+		return T(string(v)), nil
 	case []rune:
-		return string(v), true
+		return T(string(v)), nil
 	case bool:
-		return strconv.FormatBool(v), true
+		return T(strconv.FormatBool(v)), nil
+	case int64:
+		return T(strconv.FormatInt(v, 10)), nil
+	case int32:
+		return T(strconv.FormatInt(int64(v), 10)), nil
+	case int16:
+		return T(strconv.FormatInt(int64(v), 10)), nil
+	case int8:
+		return T(strconv.FormatInt(int64(v), 10)), nil
+	case int:
+		return T(strconv.FormatInt(int64(v), 10)), nil
+	case uint64:
+		return T(strconv.FormatUint(v, 10)), nil
+	case uint32:
+		return T(strconv.FormatUint(uint64(v), 10)), nil
+	case uint16:
+		return T(strconv.FormatUint(uint64(v), 10)), nil
+	case uint8:
+		return T(strconv.FormatUint(uint64(v), 10)), nil
+	case uint:
+		return T(strconv.FormatUint(uint64(v), 10)), nil
+	case float64:
+		return T(strconv.FormatFloat(v, 'f', -1, bitSize[float64]())), nil
+	case float32:
+		return T(strconv.FormatFloat(float64(v), 'f', -1, bitSize[float32]())), nil
+	case complex128:
+		return T(strconv.FormatComplex(v, 'f', -1, bitSize[complex128]())), nil
+	case complex64:
+		return T(strconv.FormatComplex(complex128(v), 'f', -1, bitSize[complex64]())), nil
 	case time.Time:
-		return v.Format(layout), true
+		return T(v.Format(layout)), nil
+	case time.Duration:
+		return T(v.String()), nil
 	case interface{ MarshalText() ([]byte, error) }:
 		if b, err := v.MarshalText(); err == nil {
-			return string(b), true
+			return T(string(b)), nil
 		}
 	case interface{ MarshalBinary() ([]byte, error) }:
 		if b, err := v.MarshalBinary(); err == nil {
-			return string(b), true
+			return T(string(b)), nil
 		}
 	case interface{ String() string }:
-		return v.String(), true
+		return T(v.String()), nil
 	case interface{ Bytes() []byte }:
-		return string(v.Bytes()), true
+		return T(string(v.Bytes())), nil
 	case interface{ Runes() []rune }:
-		return string(v.Runes()), true
+		return T(string(v.Runes())), nil
 	case interface{ Rune() rune }:
-		return string(v.Rune()), true
+		return T(string(v.Rune())), nil
 	case interface{ Byte() byte }:
-		return string(v.Byte()), true
+		return T(string(v.Byte())), nil
 	}
-	return "", false
-}
-
-// asInt64 converts the value to a int64.
-func asInt64(val any) (int64, bool) {
-	switch v := val.(type) {
-	case int64:
-		return v, true
-	case int32:
-		return int64(v), true
-	case int16:
-		return int64(v), true
-	case int8:
-		return int64(v), true
-	case int:
-		return int64(v), true
-	case interface{ Int64() int64 }:
-		return v.Int64(), true
-	case interface{ Int32() int32 }:
-		return int64(v.Int32()), true
-	case interface{ Int16() int16 }:
-		return int64(v.Int16()), true
-	case interface{ Int8() int8 }:
-		return int64(v.Int8()), true
-	case interface{ Int() int }:
-		return int64(v.Int()), true
-	}
-	if s, ok := asString(val, ""); ok {
-		if i, err := strconv.ParseInt(s, 10, 64); err == nil {
-			return i, true
-		}
-	}
-	return 0, false
-}
-
-// asUint64 converts the value to a uint64.
-func asUint64(val any) (uint64, bool) {
-	switch v := val.(type) {
-	case uint64:
-		return v, true
-	case uint32:
-		return uint64(v), true
-	case uint16:
-		return uint64(v), true
-	case uint8:
-		return uint64(v), true
-	case uint:
-		return uint64(v), true
-	case interface{ Uint64() uint64 }:
-		return v.Uint64(), true
-	case interface{ Uint32() uint32 }:
-		return uint64(v.Uint32()), true
-	case interface{ Uint16() uint16 }:
-		return uint64(v.Uint16()), true
-	case interface{ Uint8() uint8 }:
-		return uint64(v.Uint8()), true
-	case interface{ Uint() uint }:
-		return uint64(v.Uint()), true
-	}
-	if s, ok := asString(val, ""); ok {
-		if u, err := strconv.ParseUint(s, 10, 64); err == nil {
-			return u, true
-		}
-	}
-	return 0, false
-}
-
-// asFloat64 converts the value to a float64.
-func asFloat64(val any) (float64, bool) {
-	switch v := val.(type) {
-	case float64:
-		return v, true
-	case float32:
-		return float64(v), true
-	case interface{ Float64() float64 }:
-		return v.Float64(), true
-	case interface{ Float32() float32 }:
-		return float64(v.Float32()), true
-	}
-	if s, ok := asString(val, ""); ok {
-		if f, err := strconv.ParseFloat(s, 64); err == nil {
-			return f, true
-		}
-	}
-	return 0, false
-}
-
-// asComplex128 converts the value to a complex128.
-func asComplex128(val any) (complex128, bool) {
-	switch v := val.(type) {
-	case complex128:
-		return v, true
-	case complex64:
-		return complex128(v), true
-	case interface{ Complex128() complex128 }:
-		return v.Complex128(), true
-	case interface{ Complex64() complex64 }:
-		return complex128(v.Complex64()), true
-	}
-	if s, ok := asString(val, ""); ok {
-		if c, err := strconv.ParseComplex(s, 128); err == nil {
-			return c, true
-		}
-	}
-	return 0, false
+	var res T
+	return res, ErrInvalidConversion
 }
 
 // asBool converts the value to a bool.
-func asBool(val any) (bool, bool) {
+func asBool(val any) (bool, error) {
 	if v, ok := val.(bool); ok {
-		return v, true
+		return v, nil
 	}
 	if v, ok := val.(interface{ Bool() bool }); ok {
-		return v.Bool(), true
+		return v.Bool(), nil
 	}
-	if v, ok := asInt64(val); ok {
-		return 0 < v, true
+	if v, err := asInt[int64](val); err == nil {
+		return 0 < v, nil
 	}
-	if v, ok := asUint64(val); ok {
-		return 0 < v, true
+	if v, err := asUint[uint64](val); err == nil {
+		return 0 < v, nil
 	}
-	if v, ok := asFloat64(val); ok {
-		return 0 < v, true
+	if v, err := asFloat[float64](val); err == nil {
+		return 0 < v, nil
 	}
-	if v, ok := asString(val, ""); ok {
+	// NOTE: not doing asComplex here
+	if v, err := asString[string](val, ""); err == nil {
 		switch strings.TrimSpace(strings.ToLower(v)) {
 		case "true", "t", "1":
-			return true, true
+			return true, nil
 		case "false", "f", "0", "":
-			return false, true
+			return false, nil
 		}
 	}
-	// NOTE: probably should do more conversions here
-	// NOTE: AsComplex128, AsBigInt, AsBigFloat, ...
-	return false, false
+	return false, ErrInvalidConversion
+}
+
+// asInt converts the value to a int64.
+func asInt[T inti](val any) (T, error) {
+	switch v := val.(type) {
+	case int64:
+		return T(v), nil
+	case int32:
+		return T(v), nil
+	case int16:
+		return T(v), nil
+	case int8:
+		return T(v), nil
+	case int:
+		return T(v), nil
+	case interface{ Int64() int64 }:
+		return T(v.Int64()), nil
+	case interface{ Int32() int32 }:
+		return T(v.Int32()), nil
+	case interface{ Int16() int16 }:
+		return T(v.Int16()), nil
+	case interface{ Int8() int8 }:
+		return T(v.Int8()), nil
+	case interface{ Int() int }:
+		return T(v.Int()), nil
+	}
+	s, err := asString[string](val, "")
+	if err != nil {
+		return 0, err
+	}
+	v, err := strconv.ParseInt(s, 10, bitSize[T]())
+	if err != nil {
+		return 0, err
+	}
+	return T(v), nil
+}
+
+// asUint converts the value to a uint64.
+func asUint[T uinti](val any) (T, error) {
+	switch v := val.(type) {
+	case uint64:
+		return T(v), nil
+	case uint32:
+		return T(v), nil
+	case uint16:
+		return T(v), nil
+	case uint8:
+		return T(v), nil
+	case uint:
+		return T(v), nil
+	case interface{ Uint64() uint64 }:
+		return T(v.Uint64()), nil
+	case interface{ Uint32() uint32 }:
+		return T(v.Uint32()), nil
+	case interface{ Uint16() uint16 }:
+		return T(v.Uint16()), nil
+	case interface{ Uint8() uint8 }:
+		return T(v.Uint8()), nil
+	case interface{ Uint() uint }:
+		return T(v.Uint()), nil
+	}
+	s, err := asString[string](val, "")
+	if err != nil {
+		return 0, err
+	}
+	v, err := strconv.ParseUint(s, 10, bitSize[T]())
+	if err != nil {
+		return 0, err
+	}
+	return T(v), nil
+}
+
+// asFloat converts the value to a float64.
+func asFloat[T floati](val any) (T, error) {
+	switch v := val.(type) {
+	case float64:
+		return T(v), nil
+	case float32:
+		return T(v), nil
+	case interface{ Float64() float64 }:
+		return T(v.Float64()), nil
+	case interface{ Float32() float32 }:
+		return T(v.Float32()), nil
+	}
+	s, err := asString[string](val, "")
+	if err != nil {
+		return 0, err
+	}
+	v, err := strconv.ParseFloat(s, bitSize[T]())
+	if err != nil {
+		return 0, err
+	}
+	return T(v), nil
+}
+
+// asComplex converts the value to a complex128.
+func asComplex[T complexi](val any) (T, error) {
+	switch v := val.(type) {
+	case complex128:
+		return T(v), nil
+	case complex64:
+		return T(v), nil
+	case interface{ Complex128() complex128 }:
+		return T(v.Complex128()), nil
+	case interface{ Complex64() complex64 }:
+		return T(v.Complex64()), nil
+	}
+	s, err := asString[string](val, "")
+	if err != nil {
+		return 0, err
+	}
+	v, err := strconv.ParseComplex(s, bitSize[T]())
+	if err != nil {
+		return 0, err
+	}
+	return T(v), nil
+}
+
+// asTime converts the value to a [time.Time].
+func asTime(val any, layout string) (time.Time, error) {
+	switch v := val.(type) {
+	case time.Time:
+		return v, nil
+	case interface{ Time() time.Time }:
+		return v.Time(), nil
+	}
+	s, err := asString[string](val, layout)
+	if err != nil {
+		return time.Time{}, err
+	}
+	return time.Parse(layout, s)
+}
+
+// asDuration converts the value to a [time.Duration].
+func asDuration(val any) (time.Duration, error) {
+	switch v := val.(type) {
+	case time.Duration:
+		return v, nil
+	case interface{ Duration() time.Duration }:
+		return v.Duration(), nil
+	}
+	s, err := asString[string](val, "")
+	if err != nil {
+		return time.Duration(0), err
+	}
+	return time.ParseDuration(s)
 }
 
 // toBytes converts a value to []byte.
 func toBytes(val any, layout string) []byte {
-	if v, ok := asBytes(val, layout); ok {
-		return v
-	}
-	if v, ok := asString(val, layout); ok {
-		return []byte(v)
-	}
-	return nil
+	v, _ := asString[[]byte](val, layout)
+	return v
 }
 
 // toString converts a value to string.
 func toString(val any, layout string) string {
-	if v, ok := asString(val, layout); ok {
-		return v
-	}
-	if v, ok := asBytes(val, layout); ok {
-		return string(v)
-	}
-	if v, ok := asInt64(val); ok {
-		return strconv.FormatInt(v, 10)
-	}
-	if v, ok := asUint64(val); ok {
-		return strconv.FormatUint(v, 10)
-	}
-	if v, ok := asFloat64(val); ok {
-		return strconv.FormatFloat(v, 'f', -1, 64)
-	}
-	if v, ok := asComplex128(val); ok {
-		return strconv.FormatComplex(v, 'f', -1, 128)
-	}
-	return ""
+	v, _ := asString[string](val, layout)
+	return v
+}
+
+// toRunes converts a value to a []rune.
+func toRunes(val any, layout string) []rune {
+	v, _ := asString[[]rune](val, layout)
+	return v
 }
 
 // toBool converts the value to a bool.
 func toBool(val any) bool {
-	b, _ := asBool(val)
-	return b
+	v, _ := asBool(val)
+	return v
 }
 
-// toBoolString converts the value to either a "true" or "false" string.
+// toBoolString converts the value to a string, returning "true" when the value
+// is nil.
 func toBoolString(val any) string {
-	if val == nil {
-		return "true"
+	if val != nil {
+		return strconv.FormatBool(toBool(val))
 	}
-	return strconv.FormatBool(toBool(val))
+	return "true"
 }
 
 // toInt converts the value to a int.
 func toInt[T inti](val any) T {
-	if v, ok := asInt64(val); ok {
-		return T(v)
-	}
-	if v, ok := asUint64(val); ok {
-		return T(v)
-	}
-	var v T
+	v, _ := asInt[T](val)
 	return v
 }
 
 // toUint converts the value to a uint.
 func toUint[T uinti](val any) T {
-	if v, ok := asUint64(val); ok {
-		return T(v)
-	}
-	if v, ok := asInt64(val); ok {
-		return T(v)
-	}
-	var v T
+	v, _ := asUint[T](val)
 	return v
 }
 
 // toFloat converts the value to a float.
 func toFloat[T floati](val any) T {
-	if v, ok := asFloat64(val); ok {
-		return T(v)
-	}
-	var v T
+	v, _ := asFloat[T](val)
 	return v
 }
 
 // toComplex converts the value to a complex.
 func toComplex[T complexi](val any) T {
-	if v, ok := asComplex128(val); ok {
-		return T(v)
-	}
-	var v T
+	v, _ := asComplex[T](val)
 	return v
 }
 
 // toTime converts the value to a [time.Time].
-func toTime(val any) time.Time {
-	switch v := val.(type) {
-	case time.Time:
-		return v
-	case interface{ Time() time.Time }:
-		return v.Time()
-	}
-	return time.Time{}
+func toTime(val any, layout string) time.Time {
+	v, _ := asTime(val, layout)
+	return v
 }
 
 // toDuration converts the value to a [time.Duration].
 func toDuration(val any) time.Duration {
-	switch v := val.(type) {
-	case time.Duration:
-		return v
-	case interface{ Duration() time.Duration }:
-		return v.Duration()
-	}
-	return time.Duration(0)
+	v, _ := asDuration(val)
+	return v
+}
+
+// stringi is the string interface.
+type stringi interface {
+	~[]byte | ~string | ~[]rune
 }
 
 // inti is the int inteface.
