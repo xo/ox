@@ -109,16 +109,14 @@ func as[T any](val any, layout string) (any, error) {
 	case time.Duration:
 		return asDuration(val)
 	}
-	/*
-		// type could be both text and binary unmarshaler, but the new func
-		// should only be registered for either text or binary
-		if z, err := convUnmarshal(reflect.TypeOf(val), val, layout); err == nil {
-			return z, nil
-		}
-		if convValue(reflect.ValueOf(&res), val, layout) {
-			return res, nil
-		}
-	*/
+	// type could be both text and binary unmarshaler, but the new func
+	// should only be registered for either text or binary
+	if z, err := asUnmarshal[T](val, layout); err == nil {
+		return z, nil
+	}
+	if convValue(reflect.ValueOf(&res), val, layout) {
+		return res, nil
+	}
 	return nil, fmt.Errorf("%w: %T->%T", ErrInvalidConversion, val, res)
 }
 
@@ -167,37 +165,48 @@ func convValue(v reflect.Value, val any, layout string) (ok bool) {
 	return false
 }
 
-// convUnmarshal creates a new value and unmarshals the value to it.
-func convUnmarshal(typ reflect.Type, val any, layout string) (any, error) {
-	/*
-		d, ok, asText := newDesc{}, false, false
-		if d, ok = text[typ]; ok {
-			asText = true
-		} else if d, ok = binary[typ]; ok {
-			asText = false
-		}
-		if !ok {
-			return nil, fmt.Errorf("%w: no text or binary type registered", ErrInvalidConversion)
-		}
-		v, err := d.New()
-		if err != nil {
-			return nil, fmt.Errorf("%w: %w", ErrCouldNotCreateValue, err)
-		}
-		var unmarshal func([]byte) error
-		var b []byte
-		if asText {
-			z := v.(interface{ UnmarshalText([]byte) error })
-			unmarshal, b = z.UnmarshalText, []byte(toString(val, layout))
-		} else {
-			z := v.(interface{ UnmarshalBinary([]byte) error })
-			unmarshal, b = z.UnmarshalBinary, toBytes(val, layout)
-		}
-		if err := unmarshal(b); err != nil {
-			return nil, fmt.Errorf("%w: %w", ErrInvalidConversion, err)
+// asUnmarshal creates a new value as T, and unmarshals the value to it.
+func asUnmarshal[T any](val any, layout string) (any, error) {
+	buf, err := asString[[]byte](val, layout)
+	if err != nil {
+		return nil, err
+	}
+	v, f, err := unmarshaler(typeType[T]())
+	if err != nil {
+		return nil, err
+	}
+	if err := f(buf); err != nil {
+		return nil, fmt.Errorf("%w: %w", ErrInvalidConversion, err)
+	}
+	return v, nil
+}
 
-		return v, nil
-	*/
-	return nil, nil
+// unmarshaler gets the unmarshaler for the type.
+func unmarshaler(typ Type) (any, func([]byte) error, error) {
+	var (
+		f      func() (any, error)
+		ok     bool
+		asText bool
+	)
+	if f, ok = text[typ]; ok {
+		asText = true
+	} else if f, ok = binary[typ]; ok {
+		asText = false
+	}
+	if !ok {
+		return nil, nil, fmt.Errorf("%w (%s): no text/binary marshaler", ErrInvalidConversion, typ)
+	}
+	v, err := f()
+	if err != nil {
+		return nil, nil, fmt.Errorf("%w (%s): %w", ErrCouldNotCreateValue, typ, err)
+	}
+	var u func([]byte) error
+	if asText {
+		u = v.(interface{ UnmarshalText([]byte) error }).UnmarshalText
+	} else {
+		u = v.(interface{ UnmarshalBinary([]byte) error }).UnmarshalBinary
+	}
+	return v, u, nil
 }
 
 // asString converts the value to a string.

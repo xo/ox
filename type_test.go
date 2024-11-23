@@ -183,7 +183,7 @@ func typeTests(t *testing.T) []typeTest {
 		{
 			AddrT,
 			[]test{
-				{"", nil},
+				{"", "invalid IP"},
 				{"0.0.0.0", mustAddr(t, "0.0.0.0")},
 				{"127.0.0.1", mustAddr(t, "127.0.0.1")},
 				{"::ffff:192.168.140.255", mustAddr(t, "::ffff:192.168.140.255")},

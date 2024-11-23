@@ -32,21 +32,19 @@ type anyVal[T any] struct {
 // NewVal creates a value.
 func NewVal[T any](opts ...Option) func() (Value, error) {
 	return func() (Value, error) {
-		var v T
-		typ, ok := varType(v)
-		if !ok {
-			return nil, fmt.Errorf("%w: %w", ErrInvalidValue, ErrCouldNotCreateValue)
-		}
+		typ := typeType[T]()
 		val := &anyVal[T]{
-			typ: typ,
-			v:   v,
+			typ:   typ,
+			noArg: typ == BoolT,
 		}
 		for _, o := range opts {
 			if err := o.apply(val); err != nil {
 				return nil, err
 			}
 		}
-		val.noArg = typ == BoolT || typ == CountT
+		if typ != val.typ && val.typ == CountT {
+			val.noArg = true
+		}
 		return val, nil
 	}
 }
@@ -104,7 +102,6 @@ func (val *anyVal[T]) Get() (string, error) {
 
 // sliceVal is a slice value.
 type sliceVal struct {
-	d newDesc
 	v []Value
 }
 
@@ -165,7 +162,6 @@ func (val *sliceVal) Len() int {
 
 // mapVal is a map value.
 type mapVal[K cmp.Ordered] struct {
-	d newDesc
 	v map[K]Value
 }
 

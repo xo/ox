@@ -6,7 +6,6 @@ import (
 	"math/big"
 	"net/netip"
 	"net/url"
-	"os"
 	"reflect"
 	"strings"
 	"time"
@@ -116,10 +115,10 @@ var types map[Type]func() (Value, error)
 var layouts map[Type]string
 
 // text holds new text types.
-var text map[Type]newDesc
+var text map[Type]func() (any, error)
 
 // binary holds new binary types.
-var binary map[Type]newDesc
+var binary map[Type]func() (any, error)
 
 func init() {
 	types = map[Type]func() (Value, error){
@@ -162,8 +161,8 @@ func init() {
 		DateT:      time.DateOnly,
 		TimeT:      time.TimeOnly,
 	}
-	text = make(map[Type]newDesc)
 	// text marshal types
+	text = make(map[Type]func() (any, error))
 	RegisterTextType(func() (*big.Int, error) {
 		return big.NewInt(0), nil
 	})
@@ -182,17 +181,11 @@ func init() {
 	RegisterTextType(func() (*netip.Prefix, error) {
 		return new(netip.Prefix), nil
 	})
-	binary = make(map[Type]newDesc)
 	// binary marshal types
+	binary = make(map[Type]func() (any, error))
 	RegisterBinaryType(func() (*url.URL, error) {
 		return new(url.URL), nil
 	})
-}
-
-// newDesc is a new description.
-type newDesc struct {
-	Type Type
-	New  func() (any, error)
 }
 
 // RegisterLayout registers a time layout for the type.
@@ -201,43 +194,25 @@ func RegisterLayout(typ Type, layout string) {
 }
 
 // RegisterTextType registers a new text type.
-func RegisterTextType[T TextMarshaler](f func() (T, error), opts ...Option) {
-	registerMarshaler[T](func() (any, error) { return f() }, text, opts...)
+func RegisterTextType[T TextMarshaler](f func() (T, error)) {
+	registerMarshaler[T](func() (any, error) { return f() }, text)
 }
 
 // RegisterBinaryType registers a new binary type.
-func RegisterBinaryType[T BinaryMarshaler](f func() (T, error), opts ...Option) {
-	registerMarshaler[T](func() (any, error) { return f() }, binary, opts...)
+func RegisterBinaryType[T BinaryMarshaler](f func() (T, error)) {
+	registerMarshaler[T](func() (any, error) { return f() }, binary)
 }
 
 // registerMarshaler registers a type marshaler.
-func registerMarshaler[T any](f func() (any, error), m map[Type]newDesc, opts ...Option) {
+func registerMarshaler[T any](f func() (any, error), descs map[Type]func() (any, error)) {
 	typ := typeType[T]()
-	fmt.Fprintf(os.Stdout, "type: %s\n", typ)
-	/*
-		if _, ok := m[typ]; ok {
-			return
-		}
-		d := newDesc{
-			New: f,
-		}
-		for _, o := range opts {
-			_ = o.apply(&d)
-		}
-		// set type
-		if d.Type == "" {
-			s := typ.String()
-			if i := strings.LastIndex(s, "."); i != -1 {
-				s = s[i+1:]
-			}
-			d.Type = Type(strings.ToLower(s))
-		}
-		fmt.Fprintf(os.Stdout, "type: %s -- %s\n", typ, d.Type)
-		if _, ok := types[d.Type]; d.Type != "" && !ok {
-			types[d.Type] = NewVal[T]()
-		}
-		m[typ] = d
-	*/
+	if _, ok := types[typ]; ok {
+		return
+	}
+	if _, ok := descs[typ]; ok {
+		return
+	}
+	types[typ], descs[typ] = NewVal[T](typ), f
 }
 
 // TextMarshaler is the text marshal interface.

@@ -1,5 +1,5 @@
-// Package ox is a context-based, minimal dependency Go (and TinyGo compatible)
-// command-line flag and argument parsing library.
+// Package ox is a minimal dependency Go (and TinyGo compatible) command-line
+// flag and argument parsing library.
 package ox
 
 //go:generate stringer -type OnErr
