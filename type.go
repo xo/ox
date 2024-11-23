@@ -63,99 +63,6 @@ const (
 	HookT Type = "hook"
 )
 
-// typeType returns the type for T.
-func typeType[T any]() Type {
-	var v T
-	return typeRef(v)
-}
-
-// varType returns the type for v.
-func varType(val any) (Type, bool) {
-	switch val.(type) {
-	case []byte:
-		return BytesT, true
-	case string:
-		return StringT, true
-	case []rune:
-		return RunesT, true
-	case bool:
-		return BoolT, true
-	case int64:
-		return Int64T, true
-	case int32:
-		return Int32T, true
-	case int16:
-		return Int16T, true
-	case int8:
-		return Int8T, true
-	case int:
-		return IntT, true
-	case uint64:
-		return Uint64T, true
-	case uint32:
-		return Uint32T, true
-	case uint16:
-		return Uint16T, true
-	case uint8:
-		return Uint8T, true
-	case uint:
-		return UintT, true
-	case float64:
-		return Float64T, true
-	case float32:
-		return Float32T, true
-	case complex128:
-		return Complex128T, true
-	case complex64:
-		return Complex64T, true
-	case time.Time:
-		return TimestampT, true
-	case time.Duration:
-		return DurationT, true
-	}
-	return typeRef(val), false
-}
-
-// bitSize returns the bitsize for the type.
-func bitSize[T inti | uinti | floati | complexi]() int {
-	var res T
-	var v any = res
-	switch v.(type) {
-	case complex128:
-		return 128
-	case int64, uint64, float64, complex64:
-		return 64
-	case int32, uint32, float32:
-		return 32
-	case int16, uint16:
-		return 16
-	case int8, uint8:
-		return 8
-	}
-	return 0
-}
-
-// typeRef returns the type for val.
-func typeRef(val any) Type {
-	switch val.(type) {
-	case *big.Int:
-		return BigIntT
-	case *big.Float:
-		return BigFloatT
-	case *big.Rat:
-		return BigRatT
-	case *netip.Addr:
-		return AddrT
-	case *netip.AddrPort:
-		return AddrPortT
-	case *netip.Prefix:
-		return CIDRT
-	case *url.URL:
-		return URLT
-	}
-	return Type(reflect.TypeOf(val).String())
-}
-
 // apply satisfies the [Option] interface.
 func (typ Type) apply(val any) error {
 	switch v := val.(type) {
@@ -189,6 +96,11 @@ func (typ Type) New() (Value, error) {
 	return v, nil
 }
 
+// Layout returns the time layout for the type.
+func (typ Type) Layout() string {
+	return layouts[typ]
+}
+
 // String satisfies the [fmt.Stringer] interface.
 func (typ Type) String() string {
 	if i := strings.LastIndex(string(typ), "."); i != -1 {
@@ -200,6 +112,9 @@ func (typ Type) String() string {
 // types are registered type descriptions.
 var types map[Type]func() (Value, error)
 
+// layouts are time time layouts.
+var layouts map[Type]string
+
 // text holds new text types.
 var text map[Type]newDesc
 
@@ -207,8 +122,6 @@ var text map[Type]newDesc
 var binary map[Type]newDesc
 
 func init() {
-	text = make(map[Type]newDesc)
-	binary = make(map[Type]newDesc)
 	types = map[Type]func() (Value, error){
 		BytesT:      NewVal[[]byte](),
 		StringT:     NewVal[string](),
@@ -233,9 +146,9 @@ func init() {
 		Complex128T: NewVal[complex128](),
 		Complex64T:  NewVal[complex64](),
 		TimestampT:  NewVal[time.Time](),
-		DateTimeT:   NewVal[time.Time](DateTimeT, Layout(time.DateTime)),
-		DateT:       NewVal[time.Time](DateT, Layout(time.DateOnly)),
-		TimeT:       NewVal[time.Time](TimeT, Layout(time.TimeOnly)),
+		DateTimeT:   NewVal[time.Time](DateTimeT),
+		DateT:       NewVal[time.Time](DateT),
+		TimeT:       NewVal[time.Time](TimeT),
 		DurationT:   NewVal[time.Duration](),
 		CountT:      NewVal[uint64](CountT),
 		PathT:       NewVal[string](PathT),
@@ -243,6 +156,13 @@ func init() {
 		MapT:        NewMap(),
 		// HookT:       NewTypeDesc(NewHook(), NoArg(true)),
 	}
+	layouts = map[Type]string{
+		TimestampT: time.RFC3339Nano,
+		DateTimeT:  time.DateTime,
+		DateT:      time.DateOnly,
+		TimeT:      time.TimeOnly,
+	}
+	text = make(map[Type]newDesc)
 	// text marshal types
 	RegisterTextType(func() (*big.Int, error) {
 		return big.NewInt(0), nil
@@ -262,6 +182,7 @@ func init() {
 	RegisterTextType(func() (*netip.Prefix, error) {
 		return new(netip.Prefix), nil
 	})
+	binary = make(map[Type]newDesc)
 	// binary marshal types
 	RegisterBinaryType(func() (*url.URL, error) {
 		return new(url.URL), nil
@@ -272,6 +193,11 @@ func init() {
 type newDesc struct {
 	Type Type
 	New  func() (any, error)
+}
+
+// RegisterLayout registers a time layout for the type.
+func RegisterLayout(typ Type, layout string) {
+	layouts[typ] = layout
 }
 
 // RegisterTextType registers a new text type.
@@ -324,4 +250,78 @@ type TextMarshaler interface {
 type BinaryMarshaler interface {
 	encoding.BinaryMarshaler
 	encoding.BinaryUnmarshaler
+}
+
+// varType returns the type for v.
+func varType(val any) (Type, bool) {
+	switch val.(type) {
+	case []byte:
+		return BytesT, true
+	case string:
+		return StringT, true
+	case []rune:
+		return RunesT, true
+	case bool:
+		return BoolT, true
+	case int64:
+		return Int64T, true
+	case int32:
+		return Int32T, true
+	case int16:
+		return Int16T, true
+	case int8:
+		return Int8T, true
+	case int:
+		return IntT, true
+	case uint64:
+		return Uint64T, true
+	case uint32:
+		return Uint32T, true
+	case uint16:
+		return Uint16T, true
+	case uint8:
+		return Uint8T, true
+	case uint:
+		return UintT, true
+	case float64:
+		return Float64T, true
+	case float32:
+		return Float32T, true
+	case complex128:
+		return Complex128T, true
+	case complex64:
+		return Complex64T, true
+	case time.Time:
+		return TimestampT, true
+	case time.Duration:
+		return DurationT, true
+	}
+	return typeRef(val), false
+}
+
+// typeType returns the type for T.
+func typeType[T any]() Type {
+	var v T
+	return typeRef(v)
+}
+
+// typeRef returns the type for val.
+func typeRef(val any) Type {
+	switch val.(type) {
+	case *big.Int:
+		return BigIntT
+	case *big.Float:
+		return BigFloatT
+	case *big.Rat:
+		return BigRatT
+	case *netip.Addr:
+		return AddrT
+	case *netip.AddrPort:
+		return AddrPortT
+	case *netip.Prefix:
+		return CIDRT
+	case *url.URL:
+		return URLT
+	}
+	return Type(reflect.TypeOf(val).String())
 }

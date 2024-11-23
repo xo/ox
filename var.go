@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"maps"
-	"os"
 	"reflect"
 	"slices"
 	"strings"
@@ -16,18 +15,18 @@ import (
 type Value interface {
 	Type() Type
 	Val() any
+	SetSet(bool)
+	WasSet() bool
 	Set(string) error
 	Get() (string, error)
-	WasSet() bool
 }
 
 // anyVal wraps a value.
 type anyVal[T any] struct {
-	typ    Type
-	v      T
-	noArg  bool
-	layout string
-	set    bool
+	typ   Type
+	v     T
+	noArg bool
+	set   bool
 }
 
 // NewVal creates a value.
@@ -42,9 +41,6 @@ func NewVal[T any](opts ...Option) func() (Value, error) {
 			typ: typ,
 			v:   v,
 		}
-		if typ == TimestampT {
-			val.layout = DefaultLayout
-		}
 		for _, o := range opts {
 			if err := o.apply(val); err != nil {
 				return nil, err
@@ -55,10 +51,6 @@ func NewVal[T any](opts ...Option) func() (Value, error) {
 	}
 }
 
-func (val *anyVal[T]) SetType(typ Type) {
-	val.typ = typ
-}
-
 func (val *anyVal[T]) Type() Type {
 	return val.typ
 }
@@ -67,8 +59,19 @@ func (val *anyVal[T]) Val() any {
 	return val.v
 }
 
+func (val *anyVal[T]) SetType(typ Type) {
+	val.typ = typ
+}
+
+func (val *anyVal[T]) SetSet(set bool) {
+	val.set = set
+}
+
+func (val *anyVal[T]) WasSet() bool {
+	return val.set
+}
+
 func (val *anyVal[T]) Set(s string) error {
-	fmt.Fprintf(os.Stdout, ">>> %s\n", typeType[T]())
 	var value any = s
 	switch val.typ {
 	case Base64T:
@@ -84,7 +87,7 @@ func (val *anyVal[T]) Set(s string) error {
 		}
 		value = b
 	}
-	v, err := as[T](value, val.layout)
+	v, err := as[T](value, val.typ.Layout())
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrInvalidValue, err)
 	}
@@ -97,10 +100,6 @@ func (val *anyVal[T]) Set(s string) error {
 
 func (val *anyVal[T]) Get() (string, error) {
 	return As[string](val.v)
-}
-
-func (val *anyVal[T]) WasSet() bool {
-	return val.set
 }
 
 // sliceVal is a slice value.

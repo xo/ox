@@ -240,8 +240,14 @@ func asString[T stringi](val any, layout string) (T, error) {
 	case complex64:
 		return T(strconv.FormatComplex(complex128(v), 'f', -1, bitSize[complex64]())), nil
 	case time.Time:
+		if v.IsZero() {
+			return T(""), nil
+		}
 		return T(v.Format(layout)), nil
 	case time.Duration:
+		if v == 0 {
+			return T(""), nil
+		}
 		return T(v.String()), nil
 	case interface{ String() string }:
 		return T(v.String()), nil
@@ -525,6 +531,25 @@ func toTime(val any, layout string) time.Time {
 func toDuration(val any) time.Duration {
 	v, _ := asDuration(val)
 	return v
+}
+
+// bitSize returns the bitsize for T.
+func bitSize[T inti | uinti | floati | complexi]() int {
+	var res T
+	var v any = res
+	switch v.(type) {
+	case complex128:
+		return 128
+	case int64, uint64, float64, complex64:
+		return 64
+	case int32, uint32, float32:
+		return 32
+	case int16, uint16:
+		return 16
+	case int8, uint8:
+		return 8
+	}
+	return 0
 }
 
 // stringi is the string interface.

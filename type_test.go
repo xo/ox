@@ -68,6 +68,22 @@ func typeTests(t *testing.T) []typeTest {
 			},
 		},
 		{
+			Base64T, []test{
+				{"", ""},
+				{"Zm9v", "foo"},
+				{"Zm9vCg==", "foo\n"},
+				{"---", ErrInvalidValue},
+			},
+		},
+		{
+			HexT, []test{
+				{"", ""},
+				{"666f6f", "foo"},
+				{"666f6f0a", "foo\n"},
+				{"---", ErrInvalidValue},
+			},
+		},
+		{
 			BoolT, []test{
 				{"", false},
 				{"true", true},
@@ -147,6 +163,13 @@ func typeTests(t *testing.T) []typeTest {
 				{"79.99", complex64(79.99)},
 				{complex128(57.33), complex64(57.33)},
 				{float64(54.33), complex64(54.33)},
+				{"foo", ErrInvalidValue},
+			},
+		},
+		{
+			DateT, []test{
+				{"", ""},
+				{"2006-01-02", "2006-01-02"},
 				{"foo", ErrInvalidValue},
 			},
 		},

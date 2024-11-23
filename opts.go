@@ -340,18 +340,6 @@ func HookDump(s string, v ...any) Option {
 	})
 }
 
-// Layout is a [Value] option to set the [time.Layout] parsing format for a
-// time value type.
-func Layout(layout string) Option {
-	return option{
-		name: "Layout",
-		layout: func(v interface{ SetLayout(string) }) error {
-			v.SetLayout(layout)
-			return nil
-		},
-	}
-}
-
 /*
 // MustExist is a option to indicate that a path value must exist on disk.
 func MustExist(mustExist bool) Option {
@@ -382,12 +370,11 @@ type Option interface {
 
 // option wraps an option.
 type option struct {
-	name   string
-	cmd    func(*Command) error
-	set    func(*FlagSet) error
-	flag   func(*Flag) error
-	ctx    func(*RunContext) error
-	layout func(interface{ SetLayout(string) }) error
+	name string
+	cmd  func(*Command) error
+	set  func(*FlagSet) error
+	flag func(*Flag) error
+	ctx  func(*RunContext) error
 }
 
 // apply satisfies the [Option] interface.
@@ -405,10 +392,6 @@ func (opt option) apply(val any) error {
 	case *RunContext:
 		if opt.ctx != nil {
 			err = opt.ctx(v)
-		}
-	case interface{ SetLayout(string) }:
-		if opt.layout != nil {
-			err = opt.layout(v)
 		}
 	default:
 		err = ErrAppliedToInvalidType
