@@ -284,15 +284,14 @@ func asBool(val any) (bool, error) {
 		return 0 < v, nil
 	}
 	// NOTE: not doing asComplex here
-	if v, err := asString[string](val, ""); err == nil {
-		switch strings.TrimSpace(strings.ToLower(v)) {
-		case "true", "t", "1":
-			return true, nil
-		case "false", "f", "0", "":
-			return false, nil
-		}
+	s, err := asString[string](val, "")
+	switch {
+	case err != nil:
+		return false, err
+	case s == "":
+		return false, nil
 	}
-	return false, ErrInvalidConversion
+	return strconv.ParseBool(strings.ToLower(s))
 }
 
 // asInt converts the value to a int64.
@@ -320,8 +319,11 @@ func asInt[T inti](val any) (T, error) {
 		return T(v.Int()), nil
 	}
 	s, err := asString[string](val, "")
-	if err != nil {
+	switch {
+	case err != nil:
 		return 0, err
+	case s == "":
+		return 0, nil
 	}
 	v, err := strconv.ParseInt(s, 10, bitSize[T]())
 	if err != nil {
@@ -355,8 +357,11 @@ func asUint[T uinti](val any) (T, error) {
 		return T(v.Uint()), nil
 	}
 	s, err := asString[string](val, "")
-	if err != nil {
+	switch {
+	case err != nil:
 		return 0, err
+	case s == "":
+		return 0, nil
 	}
 	v, err := strconv.ParseUint(s, 10, bitSize[T]())
 	if err != nil {
@@ -378,8 +383,11 @@ func asFloat[T floati](val any) (T, error) {
 		return T(v.Float32()), nil
 	}
 	s, err := asString[string](val, "")
-	if err != nil {
+	switch {
+	case err != nil:
 		return 0, err
+	case s == "":
+		return 0, nil
 	}
 	v, err := strconv.ParseFloat(s, bitSize[T]())
 	if err != nil {
@@ -401,8 +409,11 @@ func asComplex[T complexi](val any) (T, error) {
 		return T(v.Complex64()), nil
 	}
 	s, err := asString[string](val, "")
-	if err != nil {
+	switch {
+	case err != nil:
 		return 0, err
+	case s == "":
+		return 0, nil
 	}
 	v, err := strconv.ParseComplex(s, bitSize[T]())
 	if err != nil {
@@ -420,8 +431,11 @@ func asTime(val any, layout string) (time.Time, error) {
 		return v.Time(), nil
 	}
 	s, err := asString[string](val, layout)
-	if err != nil {
+	switch {
+	case err != nil:
 		return time.Time{}, err
+	case s == "":
+		return time.Time{}, nil
 	}
 	return time.Parse(layout, s)
 }
@@ -435,8 +449,11 @@ func asDuration(val any) (time.Duration, error) {
 		return v.Duration(), nil
 	}
 	s, err := asString[string](val, "")
-	if err != nil {
-		return time.Duration(0), err
+	switch {
+	case err != nil:
+		return 0, err
+	case s == "":
+		return 0, nil
 	}
 	return time.ParseDuration(s)
 }
