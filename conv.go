@@ -473,21 +473,9 @@ func asDuration(val any) (time.Duration, error) {
 	return time.ParseDuration(s)
 }
 
-// toBytes converts a value to []byte.
-func toBytes(val any, layout string) []byte {
-	v, _ := asString[[]byte](val, layout)
-	return v
-}
-
 // toString converts a value to string.
-func toString(val any, layout string) string {
-	v, _ := asString[string](val, layout)
-	return v
-}
-
-// toRunes converts a value to a []rune.
-func toRunes(val any, layout string) []rune {
-	v, _ := asString[[]rune](val, layout)
+func toString[T stringi](val any, layout string) T {
+	v, _ := asString[T](val, layout)
 	return v
 }
 

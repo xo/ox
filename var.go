@@ -102,30 +102,28 @@ func (val *anyVal[T]) Get() (string, error) {
 
 // sliceVal is a slice value.
 type sliceVal struct {
-	v []Value
+	typ Type
+	v   []Value
 }
 
 // NewSlice creates a slice value of type.
 func NewSlice(opts ...Option) func() (Value, error) {
 	return func() (Value, error) {
-		/*
-			val := &sliceVal{
-				typ: StringT,
+		val := &sliceVal{
+			typ: StringT,
+		}
+		for _, o := range opts {
+			if err := o.apply(val); err != nil {
+				return nil, err
 			}
-			for _, o := range opts {
-				if err := o.apply(val); err != nil {
-					return nil, err
-				}
-			}
-			return val, nil
-		*/
+		}
 		return nil, nil
+		// return val, nil
 	}
 }
 
 func (val *sliceVal) Type() Type {
-	// return "[]" + val.typ
-	return ""
+	return "[]" + val.typ
 }
 
 func (val *sliceVal) Val() any {
@@ -141,14 +139,11 @@ func (val *sliceVal) Set(s string) error {
 }
 
 func (val *sliceVal) String() string {
-	/*
-		s := make([]string, len(val.v))
-		for i, v := range val.v {
-			s[i] = toString(v.Val(), v.layout)
-		}
-		return "[" + strings.Join(s, " ") + "]"
-	*/
-	return ""
+	s := make([]string, len(val.v))
+	for i, v := range val.v {
+		s[i] = toString[string](v, val.typ.Layout())
+	}
+	return "[" + strings.Join(s, " ") + "]"
 }
 
 // Index returns the i'th variable from the slice.

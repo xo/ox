@@ -7,7 +7,6 @@ import (
 	"net/netip"
 	"net/url"
 	"reflect"
-	"strings"
 	"time"
 )
 
@@ -46,9 +45,6 @@ const (
 	CountT      Type = "count"
 	PathT       Type = "path"
 
-	SliceT Type = "slice"
-	MapT   Type = "map"
-
 	BigIntT   Type = "big int"
 	BigFloatT Type = "big float"
 	BigRatT   Type = "big rat"
@@ -56,8 +52,12 @@ const (
 	AddrT     Type = "addr"
 	AddrPortT Type = "addrport"
 	CIDRT     Type = "cidr"
-	UUIDT     Type = "uuid"
-	ColorT    Type = "color"
+
+	UUIDT  Type = "uuid"
+	ColorT Type = "color"
+
+	SliceT Type = "slice"
+	MapT   Type = "map"
 
 	HookT Type = "hook"
 )
@@ -102,14 +102,14 @@ func (typ Type) Layout() string {
 
 // String satisfies the [fmt.Stringer] interface.
 func (typ Type) String() string {
-	if i := strings.LastIndex(string(typ), "."); i != -1 {
-		return strings.ToLower(string(typ[i+1:]))
-	}
 	return string(typ)
 }
 
 // types are registered type descriptions.
 var types map[Type]func() (Value, error)
+
+// typeNames are the type name lookups.
+var typeNames map[string]Type
 
 // layouts are time time layouts.
 var layouts map[Type]string
@@ -161,6 +161,7 @@ func init() {
 		DateT:      time.DateOnly,
 		TimeT:      time.TimeOnly,
 	}
+	typeNames = make(map[string]Type)
 	// text marshal types
 	text = make(map[Type]func() (any, error))
 	RegisterTextType(func() (*big.Int, error) {
@@ -203,6 +204,13 @@ func RegisterBinaryType[T BinaryMarshaler](f func() (T, error)) {
 	registerMarshaler[T](func() (any, error) { return f() }, binary)
 }
 
+// RegisterTypeName registers a type name.
+func RegisterTypeName(typ Type, names ...string) {
+	for _, name := range names {
+		typeNames[name] = typ
+	}
+}
+
 // registerMarshaler registers a type marshaler.
 func registerMarshaler[T any](f func() (any, error), descs map[Type]func() (any, error)) {
 	typ := typeType[T]()
@@ -227,53 +235,6 @@ type BinaryMarshaler interface {
 	encoding.BinaryUnmarshaler
 }
 
-// varType returns the type for v.
-func varType(val any) (Type, bool) {
-	switch val.(type) {
-	case []byte:
-		return BytesT, true
-	case string:
-		return StringT, true
-	case []rune:
-		return RunesT, true
-	case bool:
-		return BoolT, true
-	case int64:
-		return Int64T, true
-	case int32:
-		return Int32T, true
-	case int16:
-		return Int16T, true
-	case int8:
-		return Int8T, true
-	case int:
-		return IntT, true
-	case uint64:
-		return Uint64T, true
-	case uint32:
-		return Uint32T, true
-	case uint16:
-		return Uint16T, true
-	case uint8:
-		return Uint8T, true
-	case uint:
-		return UintT, true
-	case float64:
-		return Float64T, true
-	case float32:
-		return Float32T, true
-	case complex128:
-		return Complex128T, true
-	case complex64:
-		return Complex64T, true
-	case time.Time:
-		return TimestampT, true
-	case time.Duration:
-		return DurationT, true
-	}
-	return typeRef(val), false
-}
-
 // typeType returns the type for T.
 func typeType[T any]() Type {
 	var v T
@@ -283,6 +244,46 @@ func typeType[T any]() Type {
 // typeRef returns the type for val.
 func typeRef(val any) Type {
 	switch val.(type) {
+	case []byte:
+		return BytesT
+	case string:
+		return StringT
+	case []rune:
+		return RunesT
+	case bool:
+		return BoolT
+	case int64:
+		return Int64T
+	case int32:
+		return Int32T
+	case int16:
+		return Int16T
+	case int8:
+		return Int8T
+	case int:
+		return IntT
+	case uint64:
+		return Uint64T
+	case uint32:
+		return Uint32T
+	case uint16:
+		return Uint16T
+	case uint8:
+		return Uint8T
+	case uint:
+		return UintT
+	case float64:
+		return Float64T
+	case float32:
+		return Float32T
+	case complex128:
+		return Complex128T
+	case complex64:
+		return Complex64T
+	case time.Time:
+		return TimestampT
+	case time.Duration:
+		return DurationT
 	case *big.Int:
 		return BigIntT
 	case *big.Float:
@@ -298,5 +299,9 @@ func typeRef(val any) Type {
 	case *url.URL:
 		return URLT
 	}
-	return Type(reflect.TypeOf(val).String())
+	s := reflect.TypeOf(val).String()
+	if typ, ok := typeNames[s]; ok {
+		return typ
+	}
+	return Type(s)
 }

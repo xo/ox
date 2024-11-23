@@ -9,13 +9,15 @@ import (
 	"github.com/xo/ox"
 )
 
+func init() {
+	ox.RegisterTypeName(ox.ColorT, "*colors.Color")
+	ox.RegisterTextType(New)
+}
+
 // Default is the default color.
 var Default color.Color = colors.Transparent
 
-func init() {
-	ox.RegisterTextType[*colors.Color](New)
-}
-
+// New creates a new color.
 func New() (*colors.Color, error) {
 	c := colors.FromColor(Default)
 	return &c, nil

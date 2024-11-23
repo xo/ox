@@ -9,9 +9,11 @@ import (
 )
 
 func init() {
-	ox.RegisterTextType[*uuid.UUID](New)
+	ox.RegisterTypeName(ox.UUIDT, "*uuid.UUID")
+	ox.RegisterTextType(New)
 }
 
+// New creates a new uuid.
 func New() (*uuid.UUID, error) {
 	return new(uuid.UUID), nil
 }
