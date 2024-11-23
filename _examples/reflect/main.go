@@ -38,6 +38,7 @@ func run(args *args) func(context.Context, []string) error {
 			fmt.Println("u: not set")
 		}
 		fmt.Println("strings:", args.Strings)
+		fmt.Println("v:", v)
 		return nil
 	}
 }

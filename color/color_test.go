@@ -1,7 +1,6 @@
 package color
 
 import (
-	"context"
 	"testing"
 
 	"github.com/kenshaw/colors"
@@ -15,7 +14,7 @@ func TestColor(t *testing.T) {
 			if err != nil {
 				t.Fatalf("expected no error, got: %v", err)
 			}
-			if err := v.Set(context.Background(), test.s); err != nil {
+			if err := v.Set(test.s); err != nil {
 				t.Fatalf("expected no error, got: %v", err)
 			}
 			c, err := ox.As[*colors.Color](v)

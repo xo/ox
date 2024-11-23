@@ -13,9 +13,8 @@ func TestParse(t *testing.T) {
 	root := testCommand(t)
 	for i, test := range parseTests() {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			ctx := WithRoot(context.Background(), root)
 			vars := make(Vars)
-			cmd, args, err := Parse(ctx, root, test.v[1:], vars)
+			cmd, args, err := Parse(root, test.v[1:], vars)
 			switch {
 			case err != nil:
 				t.Fatalf("expected no error, got: %v", err)
@@ -26,6 +25,7 @@ func TestParse(t *testing.T) {
 			t.Logf("args: %q", args)
 			t.Logf("vars: %v", args)
 			var stdout, stderr bytes.Buffer
+			ctx := WithRoot(context.Background(), root)
 			ctx = WithStdout(ctx, &stdout)
 			ctx = WithStderr(ctx, &stderr)
 			ctx = WithCmd(ctx, cmd)

@@ -1,7 +1,6 @@
 package uuid
 
 import (
-	"context"
 	"testing"
 
 	"github.com/google/uuid"
@@ -15,7 +14,7 @@ func TestUUID(t *testing.T) {
 			if err != nil {
 				t.Fatalf("expected no error, got: %v", err)
 			}
-			if err := v.Set(context.Background(), exp); err != nil {
+			if err := v.Set(exp); err != nil {
 				t.Fatalf("expected no error, got: %v", err)
 			}
 			u, err := ox.As[*uuid.UUID](v)

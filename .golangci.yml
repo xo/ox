@@ -3,7 +3,6 @@ linters:
   disable:
     - cyclop
     - depguard
-    - execinquery
     - exhaustive
     - exhaustruct
     - exportloopref
@@ -11,7 +10,6 @@ linters:
     - gci
     - gochecknoglobals
     - gochecknoinits
-    - gomnd
     - gosec
     - inamedparam
     - ireturn

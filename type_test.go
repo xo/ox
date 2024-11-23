@@ -1,7 +1,6 @@
 package ox
 
 import (
-	"context"
 	"errors"
 	"net/netip"
 	"net/url"
@@ -11,13 +10,13 @@ import (
 func TestTypeNew(t *testing.T) {
 	for _, tt := range typeTests(t) {
 		for _, test := range tt.tests {
-			t.Run(tt.typ.String()+"/"+toString(test.s), func(t *testing.T) {
+			t.Run(tt.typ.String()+"/"+toString(test.s, DefaultLayout), func(t *testing.T) {
 				expErr, ok := test.exp.(error)
 				switch v, err := tt.typ.New(); {
 				case err != nil:
 					t.Fatalf("expected no error, got: %v", err)
 				default:
-					switch err := v.Set(context.Background(), toString(test.s)); {
+					switch err := v.Set(toString(test.s, DefaultLayout)); {
 					case err != nil && ok && !errors.Is(err, expErr):
 						t.Errorf("expected error %v, got: %v", expErr, err)
 					case err != nil && !ok:
@@ -31,7 +30,7 @@ func TestTypeNew(t *testing.T) {
 							t.Fatalf("expected no error, got: %v", err)
 						}
 						t.Logf("val: %s", s)
-						if exp := toString(test.exp); s != exp {
+						if exp := toString(test.exp, DefaultLayout); s != exp {
 							t.Errorf("expected %q, got: %q", exp, s)
 						}
 					}

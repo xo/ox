@@ -1,11 +1,14 @@
 package ox
 
 import (
+	"encoding"
 	"fmt"
 	"math/big"
 	"net/netip"
 	"net/url"
+	"os"
 	"reflect"
+	"strings"
 	"time"
 )
 
@@ -36,26 +39,103 @@ const (
 	Float32T    Type = "float32"
 	Complex128T Type = "complex128"
 	Complex64T  Type = "complex64"
-	BigIntT     Type = "big int"
-	BigFloatT   Type = "big float"
-	BigRatT     Type = "big rat"
 	TimestampT  Type = "timestamp"
 	DateTimeT   Type = "datetime"
 	DateT       Type = "date"
 	TimeT       Type = "time"
 	DurationT   Type = "duration"
-	URLT        Type = "url"
-	AddrT       Type = "addr"
-	AddrPortT   Type = "addrport"
-	CIDRT       Type = "cidr"
 	CountT      Type = "count"
 	PathT       Type = "path"
-	HookT       Type = "hook"
-	SliceT      Type = "slice"
-	MapT        Type = "map"
-	UUIDT       Type = "uuid"
-	ColorT      Type = "color"
+
+	SliceT Type = "slice"
+	MapT   Type = "map"
+
+	BigIntT   Type = "big int"
+	BigFloatT Type = "big float"
+	BigRatT   Type = "big rat"
+	URLT      Type = "url"
+	AddrT     Type = "addr"
+	AddrPortT Type = "addrport"
+	CIDRT     Type = "cidr"
+	UUIDT     Type = "uuid"
+	ColorT    Type = "color"
+
+	HookT Type = "hook"
 )
+
+// typeType returns the type for T.
+func typeType[T any]() Type {
+	var v T
+	return typeRef(v)
+}
+
+// varType returns the type for v.
+func varType(val any) (Type, bool) {
+	switch val.(type) {
+	case []byte:
+		return BytesT, true
+	case string:
+		return StringT, true
+	case []rune:
+		return RunesT, true
+	case bool:
+		return BoolT, true
+	case int64:
+		return Int64T, true
+	case int32:
+		return Int32T, true
+	case int16:
+		return Int16T, true
+	case int8:
+		return Int8T, true
+	case int:
+		return IntT, true
+	case uint64:
+		return Uint64T, true
+	case uint32:
+		return Uint32T, true
+	case uint16:
+		return Uint16T, true
+	case uint8:
+		return Uint8T, true
+	case uint:
+		return UintT, true
+	case float64:
+		return Float64T, true
+	case float32:
+		return Float32T, true
+	case complex128:
+		return Complex128T, true
+	case complex64:
+		return Complex64T, true
+	case time.Time:
+		return TimestampT, true
+	case time.Duration:
+		return DurationT, true
+	}
+	return typeRef(val), false
+}
+
+// typeRef returns the type for val.
+func typeRef(val any) Type {
+	switch val.(type) {
+	case *big.Int:
+		return BigIntT
+	case *big.Float:
+		return BigFloatT
+	case *big.Rat:
+		return BigRatT
+	case *netip.Addr:
+		return AddrT
+	case *netip.AddrPort:
+		return AddrPortT
+	case *netip.Prefix:
+		return CIDRT
+	case *url.URL:
+		return URLT
+	}
+	return Type(reflect.TypeOf(val).String())
+}
 
 // apply satisfies the [Option] interface.
 func (typ Type) apply(val any) error {
@@ -63,61 +143,13 @@ func (typ Type) apply(val any) error {
 	case *Flag:
 		if v.Type != SliceT && v.Type != MapT && v.Type != HookT {
 			v.Type = typ
-		} else {
+		} else if v.Type != HookT {
 			v.Sub = typ
 		}
-	case *marshalDesc:
-		v.Type = typ
-	case *stringVal:
-		v.typ = typ
-	case *runeVal:
-		v.typ = typ
-	case *boolVal:
-		v.typ = typ
-	case *intVal[int64]:
-		v.typ, v.bitSize = typ, 64
-	case *intVal[int32]:
-		v.typ, v.bitSize = typ, 32
-	case *intVal[int16]:
-		v.typ, v.bitSize = typ, 16
-	case *intVal[int8]:
-		v.typ, v.bitSize = typ, 8
-	case *intVal[int]:
-		v.typ, v.bitSize = typ, 0
-	case *uintVal[uint64]:
-		v.typ, v.bitSize = typ, 64
-	case *uintVal[uint32]:
-		v.typ, v.bitSize = typ, 32
-	case *uintVal[uint16]:
-		v.typ, v.bitSize = typ, 16
-	case *uintVal[uint8]:
-		v.typ, v.bitSize = typ, 8
-	case *uintVal[uint]:
-		v.typ, v.bitSize = typ, 0
-	case *floatVal[float64]:
-		v.typ, v.bitSize = typ, 64
-	case *floatVal[float32]:
-		v.typ, v.bitSize = typ, 32
-	case *complexVal[complex128]:
-		v.typ, v.bitSize = typ, 128
-	case *complexVal[complex64]:
-		v.typ, v.bitSize = typ, 64
-	case *timeVal:
-		v.typ = typ
-	case *durationVal:
-		v.typ = typ
-	case *marshalVal:
-		v.typ = typ
-	case *countVal:
-		v.typ = typ
-	case *pathVal:
-		v.typ = typ
-	case *mapVal:
-		v.typ = typ
-	case *sliceVal:
-		v.typ = typ
+	case interface{ SetType(Type) }:
+		v.SetType(typ)
 	default:
-		return fmt.Errorf("Type(%s) as option: %w", typ, ErrAppliedToInvalidType)
+		return fmt.Errorf("Type(%s) used as option: %w", typ, ErrAppliedToInvalidType)
 	}
 	return nil
 }
@@ -127,113 +159,154 @@ func (typ Type) New() (Value, error) {
 	if typ == HookT {
 		return nil, nil
 	}
-	h, ok := types[typ]
+	f, ok := types[typ]
 	if !ok {
 		return nil, fmt.Errorf("%w: type not registered", ErrCouldNotCreateValue)
 	}
-	return h.New()
+	v, err := f()
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", ErrCouldNotCreateValue, err)
+	}
+	return v, nil
 }
 
 // String satisfies the [fmt.Stringer] interface.
 func (typ Type) String() string {
+	if i := strings.LastIndex(string(typ), "."); i != -1 {
+		return strings.ToLower(string(typ[i+1:]))
+	}
 	return string(typ)
 }
 
 // types are registered type descriptions.
-var types map[Type]TypeDesc
+var types map[Type]func() (Value, error)
 
-// textNew are the new text funcs.
-var textNew map[reflect.Type]marshalDesc
+// text holds new text types.
+var text map[Type]newDesc
 
-// binaryNew are the new binary funcs.
-var binaryNew map[reflect.Type]marshalDesc
+// binary holds new binary types.
+var binary map[Type]newDesc
+
+var typeValues map[Type]func() (Value, error)
+
+var typeNew map[Type]func() (any, error)
 
 func init() {
-	textNew = make(map[reflect.Type]marshalDesc)
-	binaryNew = make(map[reflect.Type]marshalDesc)
-	types = map[Type]TypeDesc{
-		BytesT:      NewTypeDesc(NewString(BytesT)),
-		StringT:     NewTypeDesc(NewString()),
-		RunesT:      NewTypeDesc(NewString(RunesT)),
-		Base64T:     NewTypeDesc(NewString(Base64T)),
-		HexT:        NewTypeDesc(NewString(HexT)),
-		BoolT:       NewTypeDesc(NewBool(), NoArg(true)),
-		ByteT:       NewTypeDesc(NewRune(ByteT)),
-		RuneT:       NewTypeDesc(NewRune()),
-		Int64T:      NewTypeDesc(NewInt[int64](Int64T)),
-		Int32T:      NewTypeDesc(NewInt[int32](Int32T)),
-		Int16T:      NewTypeDesc(NewInt[int16](Int16T)),
-		Int8T:       NewTypeDesc(NewInt[int8](Int8T)),
-		IntT:        NewTypeDesc(NewInt[int]()),
-		Uint64T:     NewTypeDesc(NewUint[uint64](Uint64T)),
-		Uint32T:     NewTypeDesc(NewUint[uint32](Uint32T)),
-		Uint16T:     NewTypeDesc(NewUint[uint16](Uint16T)),
-		Uint8T:      NewTypeDesc(NewUint[uint8](Uint8T)),
-		UintT:       NewTypeDesc(NewUint[uint]()),
-		Float64T:    NewTypeDesc(NewFloat[float64]()),
-		Float32T:    NewTypeDesc(NewFloat[float32](Float32T)),
-		Complex128T: NewTypeDesc(NewComplex[complex128]()),
-		Complex64T:  NewTypeDesc(NewComplex[complex64](Complex64T)),
-		BigIntT:     NewTypeDesc(NewText(func() (any, error) { return big.NewInt(0), nil }, BigIntT)),
-		BigFloatT:   NewTypeDesc(NewText(func() (any, error) { return big.NewFloat(0), nil }, BigFloatT)),
-		BigRatT:     NewTypeDesc(NewText(func() (any, error) { return big.NewRat(0, 1), nil }, BigRatT)),
-		TimestampT:  NewTypeDesc(NewTime()),
-		DateTimeT:   NewTypeDesc(NewTime(DateTimeT, Layout(time.DateTime))),
-		DateT:       NewTypeDesc(NewTime(DateT, Layout(time.DateOnly))),
-		TimeT:       NewTypeDesc(NewTime(TimeT, Layout(time.TimeOnly))),
-		DurationT:   NewTypeDesc(NewDuration()),
-		URLT:        NewTypeDesc(NewBinary(func() (any, error) { return new(url.URL), nil }, URLT)),
-		AddrT:       NewTypeDesc(NewText(func() (any, error) { return new(netip.Addr), nil }, AddrT)),
-		AddrPortT:   NewTypeDesc(NewText(func() (any, error) { return new(netip.AddrPort), nil }, AddrPortT)),
-		CIDRT:       NewTypeDesc(NewText(func() (any, error) { return new(netip.Prefix), nil }, CIDRT)),
-		CountT:      NewTypeDesc(NewCount(), NoArg(true)),
-		PathT:       NewTypeDesc(NewPath()),
-		HookT:       NewTypeDesc(NewHook(), NoArg(true)),
-		SliceT:      NewTypeDesc(NewSlice()),
-		MapT:        NewTypeDesc(NewMap()),
+	text = make(map[Type]newDesc)
+	binary = make(map[Type]newDesc)
+	types = map[Type]func() (Value, error){
+		BytesT:      NewVal[[]byte](),
+		StringT:     NewVal[string](),
+		RunesT:      NewVal[[]rune](),
+		Base64T:     NewVal[[]byte](Base64T),
+		HexT:        NewVal[[]byte](HexT),
+		BoolT:       NewVal[bool](),
+		ByteT:       NewVal[byte](ByteT),
+		RuneT:       NewVal[rune](RuneT),
+		Int64T:      NewVal[int64](),
+		Int32T:      NewVal[int32](),
+		Int16T:      NewVal[int16](),
+		Int8T:       NewVal[int8](),
+		IntT:        NewVal[int](),
+		Uint64T:     NewVal[uint64](),
+		Uint32T:     NewVal[uint32](),
+		Uint16T:     NewVal[uint16](),
+		Uint8T:      NewVal[uint8](),
+		UintT:       NewVal[uint](),
+		Float64T:    NewVal[float64](),
+		Float32T:    NewVal[float32](),
+		Complex128T: NewVal[complex128](),
+		Complex64T:  NewVal[complex64](),
+		TimestampT:  NewVal[time.Time](),
+		DateTimeT:   NewVal[time.Time](DateTimeT, Layout(time.DateTime)),
+		DateT:       NewVal[time.Time](DateT, Layout(time.DateOnly)),
+		TimeT:       NewVal[time.Time](TimeT, Layout(time.TimeOnly)),
+		DurationT:   NewVal[time.Duration](),
+		CountT:      NewVal[uint64](CountT),
+		PathT:       NewVal[string](PathT),
+		SliceT:      NewSlice(),
+		MapT:        NewMap(),
+		// HookT:       NewTypeDesc(NewHook(), NoArg(true)),
 	}
+	// text marshal types
+	RegisterTextType(func() (*big.Int, error) {
+		return big.NewInt(0), nil
+	})
+	RegisterTextType(func() (*big.Float, error) {
+		return big.NewFloat(0), nil
+	})
+	RegisterTextType(func() (*big.Rat, error) {
+		return big.NewRat(0, 1), nil
+	})
+	RegisterTextType(func() (*netip.Addr, error) {
+		return new(netip.Addr), nil
+	})
+	RegisterTextType(func() (*netip.AddrPort, error) {
+		return new(netip.AddrPort), nil
+	})
+	RegisterTextType(func() (*netip.Prefix, error) {
+		return new(netip.Prefix), nil
+	})
+	// binary marshal types
+	RegisterBinaryType(func() (*url.URL, error) {
+		return new(url.URL), nil
+	})
 }
 
-// RegisterType registers a type description.
-func RegisterType(typ Type, h TypeDesc) {
-	types[typ] = h
-}
-
-// TypeDesc is a type description.
-type TypeDesc struct {
-	New  func() (Value, error)
-	Opts []Option
-}
-
-// NewTypeDesc creates a type description.
-func NewTypeDesc(f func() (Value, error), opts ...Option) TypeDesc {
-	return TypeDesc{
-		New:  f,
-		Opts: opts,
-	}
-}
-
-// marshalDesc is a marshaler description.
-type marshalDesc struct {
+// newDesc is a new description.
+type newDesc struct {
 	Type Type
 	New  func() (any, error)
 }
 
+// RegisterTextType registers a new text type.
+func RegisterTextType[T TextMarshaler](f func() (T, error), opts ...Option) {
+	registerMarshaler[T](func() (any, error) { return f() }, text, opts...)
+}
+
+// RegisterBinaryType registers a new binary type.
+func RegisterBinaryType[T BinaryMarshaler](f func() (T, error), opts ...Option) {
+	registerMarshaler[T](func() (any, error) { return f() }, binary, opts...)
+}
+
 // registerMarshaler registers a type marshaler.
-func registerMarshaler(f func() (any, error), m map[reflect.Type]marshalDesc, opts ...Option) {
-	v, err := f()
-	if err != nil {
-		return
-	}
-	typ := reflect.TypeOf(v)
-	if _, ok := m[typ]; ok {
-		return
-	}
-	d := marshalDesc{
-		New: f,
-	}
-	for _, o := range opts {
-		_ = o.apply(&d)
-	}
-	m[typ] = d
+func registerMarshaler[T any](f func() (any, error), m map[Type]newDesc, opts ...Option) {
+	typ := typeType[T]()
+	fmt.Fprintf(os.Stdout, "type: %s\n", typ)
+	/*
+		if _, ok := m[typ]; ok {
+			return
+		}
+		d := newDesc{
+			New: f,
+		}
+		for _, o := range opts {
+			_ = o.apply(&d)
+		}
+		// set type
+		if d.Type == "" {
+			s := typ.String()
+			if i := strings.LastIndex(s, "."); i != -1 {
+				s = s[i+1:]
+			}
+			d.Type = Type(strings.ToLower(s))
+		}
+		fmt.Fprintf(os.Stdout, "type: %s -- %s\n", typ, d.Type)
+		if _, ok := types[d.Type]; d.Type != "" && !ok {
+			types[d.Type] = NewVal[T]()
+		}
+		m[typ] = d
+	*/
+}
+
+// TextMarshaler is the text marshal interface.
+type TextMarshaler interface {
+	encoding.TextMarshaler
+	encoding.TextUnmarshaler
+}
+
+// BinaryMarshaler is the binary marshal interface.
+type BinaryMarshaler interface {
+	encoding.BinaryMarshaler
+	encoding.BinaryUnmarshaler
 }

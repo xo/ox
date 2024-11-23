@@ -1,893 +1,116 @@
 package ox
 
 import (
-	"context"
-	"encoding/base64"
-	"encoding/hex"
+	"cmp"
 	"fmt"
 	"maps"
 	"reflect"
 	"slices"
-	"strconv"
 	"strings"
-	"time"
-	"unicode/utf8"
 )
 
-// DefaultLayout is the default timestamp layout.
-var DefaultLayout = time.RFC3339
-
-// stringVal is a string value.
-type stringVal struct {
-	typ Type
-	v   []byte
+// Value is the value interface.
+type Value interface {
+	Type() Type
+	Val() any
+	Set(string) error
+	Get() (string, error)
+	WasSet() bool
 }
 
-// NewString creates a new string value.
-func NewString(opts ...Option) func() (Value, error) {
-	return func() (Value, error) {
-		val := &stringVal{
-			typ: StringT,
-		}
-		for _, o := range opts {
-			if err := o.apply(val); err != nil {
-				return nil, err
-			}
-		}
-		return val, nil
-	}
-}
-
-func (val *stringVal) Type() Type {
-	return val.typ
-}
-
-func (val *stringVal) Val() any {
-	return val.v
-}
-
-func (val *stringVal) Get() (string, error) {
-	return string(val.v), nil
-}
-
-func (val *stringVal) Set(_ context.Context, s string) error {
-	switch val.typ {
-	case Base64T:
-		var err error
-		if val.v, err = base64.StdEncoding.DecodeString(s); err != nil {
-			return fmt.Errorf("%w: %w", ErrInvalidValue, err)
-		}
-	case HexT:
-		var err error
-		if val.v, err = hex.DecodeString(s); err != nil {
-			return fmt.Errorf("%w: %w", ErrInvalidValue, err)
-		}
-	default:
-		val.v = []byte(s)
-	}
-	return nil
-}
-
-func (val *stringVal) MarshalText() ([]byte, error) {
-	return slices.Clone(val.v), nil
-}
-
-func (val *stringVal) String() string {
-	return string(val.v)
-}
-
-func (val *stringVal) Base64() string {
-	return base64.StdEncoding.EncodeToString(val.v)
-}
-
-func (val *stringVal) Hex() string {
-	return hex.EncodeToString(val.v)
-}
-
-func (val *stringVal) Bytes() []byte {
-	return val.v
-}
-
-func (val *stringVal) Runes() []rune {
-	return []rune(string(val.v))
-}
-
-// runeVal wraps a rune value.
-type runeVal struct {
-	typ Type
-	v   rune
-}
-
-// NewRune creates a rune value.
-func NewRune(opts ...Option) func() (Value, error) {
-	return func() (Value, error) {
-		val := &runeVal{
-			typ: RuneT,
-		}
-		for _, o := range opts {
-			if err := o.apply(val); err != nil {
-				return nil, err
-			}
-		}
-		return val, nil
-	}
-}
-
-func (val *runeVal) Type() Type {
-	return val.typ
-}
-
-func (val *runeVal) Val() any {
-	return val.v
-}
-
-func (val *runeVal) Get() (string, error) {
-	return string(val.v), nil
-}
-
-func (val *runeVal) Rune() rune {
-	return val.v
-}
-
-func (val *runeVal) Set(_ context.Context, s string) error {
-	n, b := 0, []byte(s)
-	if val.v, n = utf8.DecodeRune(b); val.v == utf8.RuneError || n != len(b) {
-		return fmt.Errorf("%w: bad rune", ErrInvalidValue)
-	}
-	return nil
-}
-
-// boolVal wraps a bool value.
-type boolVal struct {
-	typ Type
-	v   bool
-}
-
-// NewBool creates a bool value.
-func NewBool(opts ...Option) func() (Value, error) {
-	return func() (Value, error) {
-		val := &boolVal{
-			typ: BoolT,
-		}
-		for _, o := range opts {
-			if err := o.apply(val); err != nil {
-				return nil, err
-			}
-		}
-		return val, nil
-	}
-}
-
-func (val *boolVal) Type() Type {
-	return val.typ
-}
-
-func (val *boolVal) Val() any {
-	return val.v
-}
-
-func (val *boolVal) Get() (string, error) {
-	return strconv.FormatBool(val.v), nil
-}
-
-func (val *boolVal) Bool() bool {
-	return val.v
-}
-
-func (val *boolVal) Set(_ context.Context, s string) error {
-	if s == "" {
-		val.v = false
-		return nil
-	}
-	b, ok := asBool(s)
-	if !ok {
-		return ErrInvalidValue
-	}
-	val.v = b
-	return nil
-}
-
-// intVal wraps a int value.
-type intVal[T inti] struct {
-	typ     Type
-	bitSize int
-	v       T
-}
-
-// NewInt creates a int value.
-func NewInt[T inti](opts ...Option) func() (Value, error) {
-	return func() (Value, error) {
-		val := &intVal[T]{
-			typ: IntT,
-		}
-		for _, o := range opts {
-			if err := o.apply(val); err != nil {
-				return nil, err
-			}
-		}
-		return val, nil
-	}
-}
-
-func (val *intVal[T]) Type() Type {
-	return val.typ
-}
-
-func (val *intVal[T]) Val() any {
-	return val.v
-}
-
-func (val *intVal[T]) Get() (string, error) {
-	return strconv.FormatInt(int64(val.v), 10), nil
-}
-
-func (val *intVal[T]) Int64() int64 {
-	return int64(val.v)
-}
-
-func (val *intVal[T]) Set(_ context.Context, s string) error {
-	if s == "" {
-		val.v = 0
-		return nil
-	}
-	i, err := strconv.ParseInt(s, 10, val.bitSize)
-	if err != nil {
-		return ErrInvalidValue
-	}
-	val.v = T(i)
-	return nil
-}
-
-// uintVal wraps a uint value.
-type uintVal[T uinti] struct {
-	typ     Type
-	bitSize int
-	v       T
-}
-
-// NewUint creates a uint value.
-func NewUint[T uinti](opts ...Option) func() (Value, error) {
-	return func() (Value, error) {
-		val := &uintVal[T]{
-			typ: UintT,
-		}
-		for _, o := range opts {
-			if err := o.apply(val); err != nil {
-				return nil, err
-			}
-		}
-		return val, nil
-	}
-}
-
-func (val *uintVal[T]) Type() Type {
-	return val.typ
-}
-
-func (val *uintVal[T]) Val() any {
-	return val.v
-}
-
-func (val *uintVal[T]) Get() (string, error) {
-	return strconv.FormatUint(uint64(val.v), 10), nil
-}
-
-func (val *uintVal[T]) Uint64() uint64 {
-	return uint64(val.v)
-}
-
-func (val *uintVal[T]) Set(_ context.Context, s string) error {
-	if s == "" {
-		val.v = 0
-		return nil
-	}
-	u, err := strconv.ParseUint(s, 10, val.bitSize)
-	if err != nil {
-		return err
-	}
-	val.v = T(u)
-	return nil
-}
-
-// floatVal wraps a float value.
-type floatVal[T floati] struct {
-	typ     Type
-	bitSize int
-	v       T
-}
-
-// NewFloat creates a new float value.
-func NewFloat[T floati](opts ...Option) func() (Value, error) {
-	return func() (Value, error) {
-		val := &floatVal[T]{
-			typ:     Float64T,
-			bitSize: 64,
-		}
-		for _, o := range opts {
-			if err := o.apply(val); err != nil {
-				return nil, err
-			}
-		}
-		return val, nil
-	}
-}
-
-func (val *floatVal[T]) Type() Type {
-	return val.typ
-}
-
-func (val *floatVal[T]) Val() any {
-	return val.v
-}
-
-func (val *floatVal[T]) Get() (string, error) {
-	return strconv.FormatFloat(float64(val.v), 'f', -1, val.bitSize), nil
-}
-
-func (val *floatVal[T]) Float64() float64 {
-	return float64(val.v)
-}
-
-func (val *floatVal[T]) Set(_ context.Context, s string) error {
-	if s == "" {
-		val.v = 0.0
-		return nil
-	}
-	f, err := strconv.ParseFloat(s, val.bitSize)
-	if err != nil {
-		return ErrInvalidValue
-	}
-	val.v = T(f)
-	return nil
-}
-
-// complexVal wraps a complex value.
-type complexVal[T complexi] struct {
-	typ     Type
-	bitSize int
-	v       T
-}
-
-// NewComplex creates a complex value.
-func NewComplex[T complexi](opts ...Option) func() (Value, error) {
-	return func() (Value, error) {
-		val := &complexVal[T]{
-			typ:     Complex128T,
-			bitSize: 128,
-		}
-		for _, o := range opts {
-			if err := o.apply(val); err != nil {
-				return nil, err
-			}
-		}
-		return val, nil
-	}
-}
-
-func (val *complexVal[T]) Type() Type {
-	return val.typ
-}
-
-func (val *complexVal[T]) Val() any {
-	return val.v
-}
-
-func (val *complexVal[T]) Get() (string, error) {
-	return strconv.FormatComplex(complex128(val.v), 'f', -1, val.bitSize), nil
-}
-
-func (val *complexVal[T]) Complex128() complex128 {
-	return complex128(val.v)
-}
-
-func (val *complexVal[T]) Set(_ context.Context, s string) error {
-	if s == "" {
-		val.v = 0i
-		return nil
-	}
-	c, err := strconv.ParseComplex(s, val.bitSize)
-	if err != nil {
-		return err
-	}
-	val.v = T(c)
-	return nil
-}
-
-// timeVal wraps a time value.
-type timeVal struct {
+// anyVal wraps a value.
+type anyVal[T any] struct {
 	typ    Type
+	v      T
+	noArg  bool
 	layout string
-	v      time.Time
+	set    bool
 }
 
-// NewTime creates a time value.
-func NewTime(opts ...Option) func() (Value, error) {
+// NewVal creates a value.
+func NewVal[T any](opts ...Option) func() (Value, error) {
 	return func() (Value, error) {
-		val := &timeVal{
-			typ:    TimeT,
-			layout: DefaultLayout,
+		var v T
+		typ, ok := varType(v)
+		if !ok {
+			return nil, fmt.Errorf("%w: %w", ErrInvalidValue, ErrCouldNotCreateValue)
+		}
+		val := &anyVal[T]{
+			typ: typ,
+			v:   v,
+		}
+		if typ == TimestampT {
+			val.layout = DefaultLayout
 		}
 		for _, o := range opts {
 			if err := o.apply(val); err != nil {
 				return nil, err
 			}
 		}
+		val.noArg = typ == BoolT || typ == CountT
 		return val, nil
 	}
 }
 
-func (val *timeVal) Type() Type {
+func (val *anyVal[T]) SetType(typ Type) {
+	val.typ = typ
+}
+
+func (val *anyVal[T]) Type() Type {
 	return val.typ
 }
 
-func (val *timeVal) Val() any {
+func (val *anyVal[T]) Val() any {
 	return val.v
 }
 
-func (val *timeVal) Time() time.Time {
-	return val.v
-}
-
-func (val *timeVal) Get() (string, error) {
-	return val.v.Format(val.layout), nil
-}
-
-func (val *timeVal) Set(_ context.Context, s string) error {
-	if s == "" {
-		val.v = time.Time{}
-		return nil
-	}
-	var err error
-	val.v, err = time.Parse(val.layout, s)
-	return err
-}
-
-// durationVal wraps a [time.Duration] value.
-type durationVal struct {
-	typ Type
-	v   time.Duration
-}
-
-// NewDuration creates a duration value.
-func NewDuration(opts ...Option) func() (Value, error) {
-	return func() (Value, error) {
-		val := &durationVal{
-			typ: DurationT,
-		}
-		for _, o := range opts {
-			if err := o.apply(val); err != nil {
-				return nil, err
-			}
-		}
-		return val, nil
-	}
-}
-
-func (val *durationVal) Type() Type {
-	return val.typ
-}
-
-func (val *durationVal) Val() any {
-	return val.v
-}
-
-func (val *durationVal) Get() (string, error) {
-	return val.v.String(), nil
-}
-
-func (val *durationVal) Duration() time.Duration {
-	return val.v
-}
-
-func (val *durationVal) Set(_ context.Context, s string) error {
-	if s == "" {
-		val.v = 0
-		return nil
-	}
-	var err error
-	val.v, err = time.ParseDuration(s)
-	return err
-}
-
-// marshalVal wraps a marshal value.
-type marshalVal struct {
-	typ       Type
-	v         any
-	marshal   func() ([]byte, error)
-	unmarshal func([]byte) error
-	text      bool
-}
-
-func newMarshalValue(v any, marshal func() ([]byte, error), unmarshal func([]byte) error, text bool, opts ...Option) (Value, error) {
-	val := &marshalVal{
-		v:         v,
-		marshal:   marshal,
-		unmarshal: unmarshal,
-		text:      text,
-	}
-	for _, o := range opts {
-		if err := o.apply(val); err != nil {
-			return nil, err
-		}
-	}
-	return val, nil
-}
-
-// NewText creates a value for a type that supports [encoding.TextMarshaler]
-// and [enoding.TextUnmarshaler].
-func NewText(f func() (any, error), opts ...Option) func() (Value, error) {
-	registerMarshaler(f, textNew, opts...)
-	return func() (Value, error) {
-		v, err := f()
-		if err != nil {
-			return nil, fmt.Errorf("%w: %w", ErrInvalidValue, err)
-		}
-		i, ok := v.(texti)
-		if !ok {
-			return nil, fmt.Errorf("%w: %T->encoding.TextUnmarshaler", ErrInvalidConversion, v)
-		}
-		return newMarshalValue(v, i.MarshalText, i.UnmarshalText, true, prepend(opts, Option(StringT))...)
-	}
-}
-
-// NewBinary creates a value for a type that supports [encoding.BinaryMarshaler]
-// and [enoding.BinaryUnmarshaler].
-func NewBinary(f func() (any, error), opts ...Option) func() (Value, error) {
-	registerMarshaler(f, binaryNew, opts...)
-	return func() (Value, error) {
-		v, err := f()
-		if err != nil {
-			return nil, fmt.Errorf("%w: %w", ErrInvalidValue, err)
-		}
-		i, ok := v.(binaryi)
-		if !ok {
-			return nil, fmt.Errorf("%w: %T->encoding.BinaryUnmarshaler", ErrInvalidConversion, v)
-		}
-		return newMarshalValue(v, i.MarshalBinary, i.UnmarshalBinary, false, prepend(opts, Option(StringT))...)
-	}
-}
-
-func (val *marshalVal) Type() Type {
-	return val.typ
-}
-
-func (val *marshalVal) Val() any {
-	return val.v
-}
-
-func (val *marshalVal) Get() (string, error) {
-	b, err := val.marshal()
+func (val *anyVal[T]) Set(s string) error {
+	v, err := conv[T](s, val.layout)
 	if err != nil {
-		return "", fmt.Errorf("%w: %w", ErrInvalidValue, err)
-	}
-	return string(b), nil
-}
-
-func (val *marshalVal) MarshalText() ([]byte, error) {
-	return val.marshal()
-}
-
-func (val *marshalVal) UnmarshalText(b []byte) error {
-	return val.unmarshal(b)
-}
-
-func (val *marshalVal) MarshalBinary() ([]byte, error) {
-	return val.marshal()
-}
-
-func (val *marshalVal) UnmarshalBinary(b []byte) error {
-	return val.unmarshal(b)
-}
-
-func (val *marshalVal) Set(_ context.Context, s string) error {
-	if err := val.unmarshal([]byte(s)); err != nil {
 		return fmt.Errorf("%w: %w", ErrInvalidValue, err)
 	}
-	return nil
-}
-
-// countVal is a count value.
-type countVal struct {
-	typ Type
-	v   int64
-}
-
-// NewCount creates a count value.
-func NewCount(opts ...Option) func() (Value, error) {
-	return func() (Value, error) {
-		val := &countVal{
-			typ: CountT,
-		}
-		for _, o := range opts {
-			if err := o.apply(val); err != nil {
-				return nil, err
-			}
-		}
-		return val, nil
-	}
-}
-
-func (val *countVal) Type() Type {
-	return val.typ
-}
-
-func (val *countVal) Val() any {
-	return val.v
-}
-
-func (val *countVal) Get() (string, error) {
-	return strconv.FormatInt(val.v, 10), nil
-}
-
-func (val *countVal) Int64() int64 {
-	return val.v
-}
-
-func (val *countVal) Count() int {
-	return int(val.v)
-}
-
-func (val *countVal) Set(context.Context, string) error {
-	val.v++
-	return nil
-}
-
-// pathVal is a path value.
-type pathVal struct {
-	typ Type
-	dir string
-	v   string
-}
-
-// NewPath creates a path value.
-func NewPath(opts ...Option) func() (Value, error) {
-	return func() (Value, error) {
-		val := &pathVal{
-			typ: PathT,
-		}
-		for _, o := range opts {
-			if err := o.apply(val); err != nil {
-				return nil, err
-			}
-		}
-		return val, nil
-	}
-}
-
-func (val *pathVal) Type() Type {
-	return val.typ
-}
-
-func (val *pathVal) Val() any {
-	return val.v
-}
-
-func (val *pathVal) Get() (string, error) {
-	return val.v, nil
-}
-
-func (val *pathVal) Path() string {
-	return val.v
-}
-
-func (val *pathVal) Set(_ context.Context, s string) error {
-	val.v = s
-	return nil
-}
-
-type hookVal struct {
-	typ Type
-	v   func(context.Context) error
-}
-
-// NewHook returns a hook.
-func NewHook(opts ...Option) func() (Value, error) {
-	return func() (Value, error) {
-		val := &hookVal{
-			typ: HookT,
-		}
-		for _, o := range opts {
-			if err := o.apply(val); err != nil {
-				return nil, err
-			}
-		}
-		return val, nil
-	}
-}
-
-func (val *hookVal) Type() Type {
-	return val.typ
-}
-
-func (val *hookVal) Val() any {
-	return val.v
-}
-
-func (val *hookVal) Get() (string, error) {
-	return "hook", nil
-}
-
-func (val *hookVal) Set(ctx context.Context, _ string) error {
-	return val.v(ctx)
-}
-
-// bindVal is a bind value.
-type bindVal[T *E, E any] struct {
-	v T
-	b *bool
-}
-
-// newBind creates a bind value.
-func newBind[T *E, E any](v T, b *bool) (Value, error) {
-	return &bindVal[T, E]{
-		v: v,
-		b: b,
-	}, nil
-}
-
-func (val *bindVal[T, E]) Type() Type {
-	return toType(*val.v)
-}
-
-func (val *bindVal[T, E]) Val() any {
-	return val.v
-}
-
-func (val *bindVal[T, E]) Set(_ context.Context, s string) error {
-	switch reflect.TypeOf(*val.v).Kind() {
-	case reflect.Slice:
-		return val.sliceSet(s)
-	case reflect.Map:
-		return val.mapSet(s)
-	}
-	v, err := conv[E](s)
-	if err != nil {
-		return err
-	}
 	var ok bool
-	if *val.v, ok = v.(E); !ok {
-		return fmt.Errorf("%w: %T->%T", ErrInvalidConversion, v, *val.v)
-	}
-	if val.b != nil {
-		*val.b = true
+	if val.v, ok = v.(T); !ok {
+		return fmt.Errorf("%w: %T->%T", ErrInvalidConversion, v, val.v)
 	}
 	return nil
 }
 
-func (val *bindVal[T, E]) sliceSet(s string) error {
-	v := reflect.ValueOf(*val.v)
-	z := reflect.New(v.Type().Elem())
-	if convValue(z, s) {
-		v = reflect.Append(v, reflect.Indirect(z))
-	}
-	var ok bool
-	if *val.v, ok = v.Interface().(E); ok {
-		return fmt.Errorf("%w: %T->%T", ErrInvalidConversion, v, *val.v)
-	}
-	return nil
+func (val *anyVal[T]) Get() (string, error) {
+	return As[string](val.v)
 }
 
-func (val *bindVal[T, E]) mapSet(s string) error {
-	key, value, ok := strings.Cut(s, "=")
-	if !ok || key == "" {
-		return fmt.Errorf("%w: %s", ErrInvalidValue, "bad map key")
-	}
-	m := reflect.ValueOf(val.v).Elem()
-	// create map if nil
-	if m.IsNil() {
-		m.Set(reflect.MakeMap(m.Type()))
-		var ok bool
-		if *val.v, ok = m.Interface().(E); !ok {
-			return fmt.Errorf("%w: %T->%T", ErrInvalidConversion, m.Interface(), *val.v)
-		}
-	}
-	// convert key
-	k := reflect.New(m.Type().Key())
-	if !convValue(k, key) {
-		return fmt.Errorf("%w (key): %T->%T", ErrInvalidConversion, key, k.Interface())
-	}
-	// convert value
-	v := reflect.New(m.Type().Elem())
-	if !convValue(v, value) {
-		return fmt.Errorf("%w (value): %T->%T", ErrInvalidConversion, value, v.Interface())
-	}
-	m.SetMapIndex(reflect.Indirect(k), reflect.Indirect(v))
-	return nil
-}
-
-func (val *bindVal[T, E]) Get() (string, error) {
-	return toString(*val.v), nil
-}
-
-// refVal is a reflected value.
-type refVal struct {
-	v reflect.Value
-	b *bool
-}
-
-// newRef creates a value for a [reflect.Value].
-func newRef(v reflect.Value, b *bool) (Value, error) {
-	switch {
-	case v.Kind() != reflect.Pointer, v.IsNil():
-		return nil, fmt.Errorf("%w: not a pointer or is nil", ErrInvalidValue)
-	}
-	return &refVal{
-		v: v,
-		b: b,
-	}, nil
-}
-
-func (val *refVal) Type() Type {
-	return Type(val.v.Elem().Type().String())
-}
-
-func (val *refVal) Val() any {
-	return val.v.Elem().Interface()
-}
-
-func (val *refVal) Set(_ context.Context, s string) error {
-	typ := val.v.Elem().Type()
-	switch typ.Kind() {
-	case reflect.Slice:
-		if val.sliceSet(s) {
-			return nil
-		}
-	case reflect.Map:
-		if val.mapSet(s) {
-			return nil
-		}
-	default:
-		if convValue(val.v, s) {
-			return nil
-		}
-		if v, err := convUnmarshal(typ, s); err == nil {
-			reflect.Indirect(val.v).Set(reflect.ValueOf(v))
-			return nil
-		}
-	}
-	return fmt.Errorf("%w: cannot convert %T->%s", ErrInvalidConversion, s, typ)
-}
-
-func (val *refVal) sliceSet(s string) bool {
-	z := reflect.New(val.v.Elem().Type().Elem())
-	if !convValue(z, s) {
-		return false
-	}
-	val.v.Elem().Set(reflect.Append(val.v.Elem(), reflect.Indirect(z)))
-	return true
-}
-
-func (val *refVal) mapSet(s string) bool {
-	return false
-}
-
-func (val *refVal) Get() (string, error) {
-	return toString(val.v.Elem().Interface()), nil
+func (val *anyVal[T]) WasSet() bool {
+	return val.set
 }
 
 // sliceVal is a slice value.
 type sliceVal struct {
-	typ Type
-	v   []*VarSet
+	d newDesc
+	v []Value
 }
 
 // NewSlice creates a slice value of type.
 func NewSlice(opts ...Option) func() (Value, error) {
 	return func() (Value, error) {
-		val := &sliceVal{
-			typ: StringT,
-		}
-		for _, o := range opts {
-			if err := o.apply(val); err != nil {
-				return nil, err
+		/*
+			val := &sliceVal{
+				typ: StringT,
 			}
-		}
-		return val, nil
+			for _, o := range opts {
+				if err := o.apply(val); err != nil {
+					return nil, err
+				}
+			}
+			return val, nil
+		*/
+		return nil, nil
 	}
 }
 
 func (val *sliceVal) Type() Type {
-	return "[]" + val.typ
+	// return "[]" + val.typ
+	return ""
 }
 
 func (val *sliceVal) Val() any {
@@ -898,26 +121,23 @@ func (val *sliceVal) Get() (string, error) {
 	return string(val.Type()), nil
 }
 
-func (val *sliceVal) Set(ctx context.Context, s string) error {
-	var vs *VarSet
-	vs, err := vs.Set(ctx, val.typ, "", s, true)
-	if err != nil {
-		return err
-	}
-	val.v = append(val.v, vs)
+func (val *sliceVal) Set(s string) error {
 	return nil
 }
 
 func (val *sliceVal) String() string {
-	s := make([]string, len(val.v))
-	for i, v := range val.v {
-		s[i] = toString(v.Var.Val())
-	}
-	return "[" + strings.Join(s, " ") + "]"
+	/*
+		s := make([]string, len(val.v))
+		for i, v := range val.v {
+			s[i] = toString(v.Val(), v.layout)
+		}
+		return "[" + strings.Join(s, " ") + "]"
+	*/
+	return ""
 }
 
 // Index returns the i'th variable from the slice.
-func (val *sliceVal) Index(i int) *VarSet {
+func (val *sliceVal) Index(i int) Value {
 	return val.v[i]
 }
 
@@ -926,64 +146,81 @@ func (val *sliceVal) Len() int {
 }
 
 // mapVal is a map value.
-type mapVal struct {
-	typ Type
-	sub Type
-	v   map[string]*VarSet
+type mapVal[K cmp.Ordered] struct {
+	d newDesc
+	v map[K]Value
 }
 
 // NewMap creates a map value of type.
 func NewMap(opts ...Option) func() (Value, error) {
 	return func() (Value, error) {
-		val := &mapVal{
-			typ: StringT,
-			sub: StringT,
-		}
-		for _, o := range opts {
-			if err := o.apply(val); err != nil {
-				return nil, err
+		/*
+			val := &mapVal[string]{}
+			for _, o := range opts {
+				if err := o.apply(val); err != nil {
+					return nil, err
+				}
 			}
-		}
-		return val, nil
+			return val, nil
+		*/
+		return nil, nil
 	}
 }
 
-func (val *mapVal) Type() Type {
-	return "map[" + val.sub + "]" + val.typ
+func (val *mapVal[K]) Type() Type {
+	// return "map[" + val.key + "]" + val.typ
+	return ""
 }
 
-func (val *mapVal) Val() any {
+func (val *mapVal[K]) Val() any {
 	return val.v
 }
 
-func (val *mapVal) Get() (string, error) {
+func (val *mapVal[K]) Get() (string, error) {
 	return "", nil
 }
 
-func (val *mapVal) Set(ctx context.Context, s string) error {
+func (val *mapVal[K]) Set(s string) error {
 	if val.v == nil {
-		val.v = make(map[string]*VarSet)
+		val.v = make(map[K]Value)
 	}
 	key, value, ok := strings.Cut(s, "=")
+	key, value = key, value
 	if !ok || key == "" {
 		return fmt.Errorf("%w: %s", ErrInvalidValue, "bad map key")
 	}
-	var vs *VarSet
-	vs, err := vs.Set(ctx, val.typ, "", value, true)
-	if err != nil {
-		return err
-	}
-	val.v[key] = vs
+	/*
+		k, err := NewValue(val.key, "", "")
+		if err != nil {
+			return err
+		}
+		if err := k.Set(ctx, key); err != nil {
+			return err
+		}
+		v, err := NewValue(val.typ, "", "")
+		if err != nil {
+			return err
+		}
+		if err := v.Set(ctx, value); err != nil {
+			return err
+		}
+		val.v[k] = v
+	*/
 	return nil
 }
 
-func (val *mapVal) String() string {
-	i, s := 0, make([]string, len(val.v))
-	for _, k := range slices.Sorted(maps.Keys(val.v)) {
-		s[i] = k + ":" + toString(val.v[k].Var)
-		i++
-	}
-	return "[" + strings.Join(s, " ") + "]"
+func (val *mapVal[K]) String() string {
+	/*
+		s := make([]string, len(val.v))
+		for i, k := range slices.Sorted(maps.Keys(val.v)) {
+			value, _ := val.v[k].Get()
+			s[i] = toString(k) + ":" + value
+				s[i] = k + ":" + toString(val.v[k].Var)
+				i++
+		}
+		return "[" + strings.Join(s, " ") + "]"
+	*/
+	return ""
 }
 
 // Vars is the type for storing variables in the context.
@@ -1005,22 +242,24 @@ func (vars Vars) String() string {
 }
 
 // Set sets a variable in the vars.
-func (vars Vars) Set(ctx context.Context, g *Flag, value string, wasSet bool) error {
-	// fmt.Fprintf(os.Stdout, "SETTING: %q (%s/%s): %q\n", g.Name(), g.Type, g.Sub, value)
-	name := g.Name()
-	if name == "" {
-		return ErrInvalidFlagName
-	}
-	vs, err := vars[name].Set(ctx, g.Type, g.Sub, value, wasSet)
-	if err != nil {
-		return err
-	}
-	for i, val := range g.Binds {
-		if err := val.Set(ctx, value); err != nil {
-			return fmt.Errorf("flag %s: bind %d (%T): cannot set %q: %w", g.Name(), i, val.Val(), value, err)
+func (vars Vars) Set(g *Flag, value any, wasSet bool) error {
+	/*
+		// fmt.Fprintf(os.Stdout, "SETTING: %q (%s/%s): %q\n", g.Name(), g.Type, g.Sub, value)
+		name := g.Name()
+		if name == "" {
+			return ErrInvalidFlagName
 		}
-	}
-	vars[name] = vs
+		vs, err := vars[name].Set(g.Type, g.Sub, value, wasSet)
+		if err != nil {
+			return err
+		}
+		for i, val := range g.Binds {
+			if err := val.Set(value); err != nil {
+				return fmt.Errorf("flag %s: bind %d (%T): cannot set %q: %w", g.Name(), i, val.Get(), value, err)
+			}
+		}
+		vars[name] = vs
+	*/
 	return nil
 }
 
@@ -1032,7 +271,7 @@ type VarSet struct {
 }
 
 // Set sets a var.
-func (vs *VarSet) Set(ctx context.Context, typ, sub Type, value string, wasSet bool) (*VarSet, error) {
+func (vs *VarSet) Set(typ, sub Type, value string, wasSet bool) (*VarSet, error) {
 	if vs == nil {
 		vs = &VarSet{
 			Type: typ,
@@ -1052,17 +291,175 @@ func (vs *VarSet) Set(ctx context.Context, typ, sub Type, value string, wasSet b
 			}
 		}
 	}
-	if err := vs.Var.Set(ctx, value); err != nil {
+	if err := vs.Var.Set(value); err != nil {
 		return nil, err
 	}
 	vs.WasSet = wasSet
 	return vs, nil
 }
 
-// Value is the value interface.
-type Value interface {
-	Type() Type
-	Set(context.Context, string) error
-	Get() (string, error)
-	Val() any
+// BoundValue is the bound value interface.
+type BoundValue interface {
+	Set(any) error
+	Get() any
+}
+
+// boundVal is a bound value.
+type boundVal[T *E, E any] struct {
+	v T
+	b *bool
+}
+
+// NewBind binds a value.
+func NewBind[T *E, E any](v T, b *bool) (BoundValue, error) {
+	return &boundVal[T, E]{
+		v: v,
+		b: b,
+	}, nil
+}
+
+func (val *boundVal[T, E]) Set(v any) error {
+	typ := reflect.TypeOf(*val.v)
+	switch typ.Kind() {
+	case reflect.Slice:
+		/*
+			if sliceSet(reflect.ValueOf(&val.v), s) {
+				return nil
+			}
+		*/
+	case reflect.Map:
+		/*
+			if mapSet(reflect.ValueOf(&val.v), s) {
+				return nil
+			}
+		*/
+	default:
+		/*
+			if v, err := conv[E](s); err == nil {
+				var ok bool
+				if *val.v, ok = v.(E); ok {
+					if val.b != nil {
+						*val.b = true
+					}
+					return nil
+				}
+			}
+		*/
+	}
+	return fmt.Errorf("%w: %s->%T", ErrInvalidConversion, typ, *val.v)
+}
+
+func (val *boundVal[T, E]) Get() any {
+	return *val.v
+}
+
+// boundRefVal is a value bound with reflection.
+type boundRefVal struct {
+	v reflect.Value
+	b *bool
+}
+
+// NewBindValue binds [reflect.Value] value and its set flag.
+func NewBindValue(value reflect.Value, b *bool) (BoundValue, error) {
+	switch {
+	case value.Kind() != reflect.Pointer, value.IsNil():
+		return nil, fmt.Errorf("%w: not a pointer or is nil", ErrInvalidValue)
+	}
+	return &boundRefVal{
+		v: value,
+		b: b,
+	}, nil
+}
+
+func (val *boundRefVal) Set(v any) error {
+	typ := val.v.Elem().Type()
+	switch typ.Kind() {
+	case reflect.Slice:
+		/*
+			if val.sliceSet(s) {
+				return nil
+			}
+		*/
+	case reflect.Map:
+		/*
+			if val.mapSet(s) {
+				return nil
+			}
+		*/
+	default:
+		/*
+			if convValue(val.v, s) {
+				return nil
+			}
+			if v, err := convUnmarshal(typ, s); err == nil {
+				reflect.Indirect(val.v).Set(reflect.ValueOf(v))
+				return nil
+			}
+		*/
+	}
+	return fmt.Errorf("%w: cannot convert %T->%s", ErrInvalidConversion, v, typ)
+}
+
+func (val *boundRefVal) sliceSet(s string) bool {
+	/*
+		z := reflect.New(val.v.Elem().Type().Elem())
+		fmt.Fprintf(os.Stdout, "type: %s\n", z.Type())
+		if !convValue(z, s) {
+			return false
+		}
+		val.v.Elem().Set(reflect.Append(val.v.Elem(), reflect.Indirect(z)))
+		return true
+	*/
+	return false
+}
+
+func (val *boundRefVal) mapSet(s string) bool {
+	return false
+}
+
+func (val *boundRefVal) Get() any {
+	return val.v.Elem().Interface()
+}
+
+// sliceSet sets a a value on a slice.
+func sliceSet(val reflect.Value, s string) bool {
+	/*
+		z := reflect.New(v.Type().Elem())
+		if convValue(z, s) {
+			v = reflect.Append(v, reflect.Indirect(z))
+		}
+	*/
+	return false
+}
+
+// mapSet sets a value on a map.
+func mapSet(val reflect.Value, s string) bool {
+	return false
+	/*
+		key, value, ok := strings.Cut(s, "=")
+		if !ok || key == "" {
+			return fmt.Errorf("%w: %s", ErrInvalidValue, "bad map key")
+		}
+		m := reflect.ValueOf(val.v).Elem()
+		// create map if nil
+		if m.IsNil() {
+			m.Set(reflect.MakeMap(m.Type()))
+			var ok bool
+			if *val.v, ok = m.Interface().(E); !ok {
+				return fmt.Errorf("%w: %T->%T", ErrInvalidConversion, m.Interface(), *val.v)
+			}
+		}
+		// convert key
+		k := reflect.New(m.Type().Key())
+		if !convValue(k, key) {
+			return fmt.Errorf("%w (key): %T->%T", ErrInvalidConversion, key, k.Interface())
+		}
+		// convert value
+		v := reflect.New(m.Type().Elem())
+		if !convValue(v, value) {
+			return fmt.Errorf("%w (value): %T->%T", ErrInvalidConversion, value, v.Interface())
+		}
+		m.SetMapIndex(reflect.Indirect(k), reflect.Indirect(v))
+		return nil
+	*/
 }

@@ -1,7 +1,7 @@
 package ox
 
 import (
-	"encoding"
+	"cmp"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -10,84 +10,67 @@ import (
 )
 
 // As converts a value.
-func As[T any](val Value) (T, error) {
-	v, err := conv[T](val.Val())
-	if err != nil {
-		var res T
-		return res, err
+func As[T any](val any) (T, error) {
+	var layout string
+	if v, ok := val.(interface{ Layout() string }); ok {
+		layout = v.Layout()
 	}
-	z, ok := v.(T)
-	if !ok {
-		return z, fmt.Errorf("%w: %T->%T", ErrInvalidConversion, v, z)
+	if v, ok := val.(Value); ok {
+		val = v.Val()
 	}
-	return z, nil
+	if v, err := conv[T](val, layout); err == nil {
+		if value, ok := v.(T); ok {
+			return value, nil
+		}
+	}
+	var res T
+	return res, fmt.Errorf("%w: %T->%T", ErrInvalidConversion, val, res)
 }
 
-// toType returns the corresponding type for a value.
-func toType(val any) Type {
-	switch v := val.(type) {
-	case interface{ Type() Type }:
-		return v.Type()
-	case []byte:
-		return BytesT
-	case string:
-		return StringT
-	case []rune:
-		return RunesT
-	case time.Time:
-		return TimeT
-	case time.Duration:
-		return DurationT
-	case int64:
-		return Int64T
-	case int32:
-		return Int32T
-	case int16:
-		return Int16T
-	case int8:
-		return Int8T
-	case int:
-		return IntT
-	case uint64:
-		return Uint64T
-	case uint32:
-		return Uint32T
-	case uint16:
-		return Uint16T
-	case uint8:
-		return Uint8T
-	case uint:
-		return UintT
-	case float64:
-		return Float64T
-	case float32:
-		return Float32T
-	case complex128:
-		return Complex128T
-	case interface{ Val() any }:
-		return toType(v.Val())
-	}
-	typ := reflect.TypeOf(val)
-	if v, ok := textNew[typ]; ok {
-		return v.Type
-	}
-	if v, ok := binaryNew[typ]; ok {
-		return v.Type
-	}
-	return Type(typ.Kind().String())
+// SliceAs converts a value to a slice.
+func SliceAs[T any](val Value) ([]T, error) {
+	/*
+		if v, ok := val.(*sliceVal); ok {
+			s := make([]T, len(v.v))
+			for i := range v.v {
+				if v, err := As[T](v.v[i]); err == nil {
+					s[i] = v
+				}
+			}
+		}
+	*/
+	return nil, ErrInvalidConversion
+}
+
+// MapAs converts a value to a map.
+func MapAs[K cmp.Ordered, T any](val Value) (map[K]T, error) {
+	/*
+		if v, ok := val.(*mapVal[K]); ok {
+			m := make(map[K]T)
+			for key := range v.v {
+				if k, err := As[K](key); err == nil {
+					if v, err := As[T](v.v[key]); err == nil {
+						m[k] = v
+					}
+				}
+			}
+			return m, nil
+		}
+	*/
+	return nil, ErrInvalidConversion
 }
 
 // conv converts a value.
-func conv[T any](val any) (any, error) {
+func conv[T any](val any, layout string) (any, error) {
 	var res T
 	var v any = res
 	switch v.(type) {
 	case []byte:
-		return toBytes(val), nil
+		return toBytes(val, layout), nil
 	case string:
-		return toString(val), nil
+		return toString(val, layout), nil
 	case []rune:
-		return []rune(toString(val)), nil
+		return []rune(toString(val, layout)), nil
 	case time.Time:
 		return toTime(val), nil
 	case time.Duration:
@@ -123,10 +106,10 @@ func conv[T any](val any) (any, error) {
 	}
 	// type could be both text and binary unmarshaler, but the new func
 	// should only be registered for either text or binary
-	if z, err := convUnmarshal(reflect.TypeOf(val), val); err == nil {
+	if z, err := convUnmarshal(reflect.TypeOf(val), val, layout); err == nil {
 		return z, nil
 	}
-	if convValue(reflect.ValueOf(&res), val) {
+	if convValue(reflect.ValueOf(&res), val, layout) {
 		return res, nil
 	}
 	return nil, fmt.Errorf("%w: %T->%T", ErrInvalidConversion, val, res)
@@ -134,7 +117,7 @@ func conv[T any](val any) (any, error) {
 
 // convValue attempts to convert using reflect -- expects:
 // reflect.Value(&<target>).
-func convValue(v reflect.Value, val any) (ok bool) {
+func convValue(v reflect.Value, val any, layout string) (ok bool) {
 	defer func() {
 		if err := recover(); err != nil {
 			ok = false
@@ -142,7 +125,7 @@ func convValue(v reflect.Value, val any) (ok bool) {
 	}()
 	switch v = v.Elem(); v.Kind() {
 	case reflect.String:
-		v.SetString(toString(val))
+		v.SetString(toString(val, layout))
 		return true
 	case reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8, reflect.Int:
 		if i, ok := asInt64(val); ok && !v.OverflowInt(i) {
@@ -169,38 +152,40 @@ func convValue(v reflect.Value, val any) (ok bool) {
 }
 
 // convUnmarshal creates a new value and unmarshals the value to it.
-func convUnmarshal(typ reflect.Type, val any) (any, error) {
-	text := true
-	d, ok := textNew[typ]
-	if !ok {
-		if d, ok = binaryNew[typ]; ok {
-			text = false
+func convUnmarshal(typ reflect.Type, val any, layout string) (any, error) {
+	/*
+		d, ok, asText := newDesc{}, false, false
+		if d, ok = text[typ]; ok {
+			asText = true
+		} else if d, ok = binary[typ]; ok {
+			asText = false
 		}
-	}
-	if !ok {
-		return nil, fmt.Errorf("%w: no marshaler func", ErrInvalidConversion)
-	}
-	v, err := d.New()
-	if err != nil {
-		return nil, fmt.Errorf("%w: %w", ErrCouldNotCreateValue, err)
-	}
-	var unmarshal func([]byte) error
-	var b []byte
-	if text {
-		z := v.(interface{ UnmarshalText([]byte) error })
-		unmarshal, b = z.UnmarshalText, []byte(toString(val))
-	} else {
-		z := v.(interface{ UnmarshalBinary([]byte) error })
-		unmarshal, b = z.UnmarshalBinary, toBytes(val)
-	}
-	if err := unmarshal(b); err != nil {
-		return nil, fmt.Errorf("%w: %w", ErrInvalidConversion, err)
-	}
-	return v, nil
+		if !ok {
+			return nil, fmt.Errorf("%w: no text or binary type registered", ErrInvalidConversion)
+		}
+		v, err := d.New()
+		if err != nil {
+			return nil, fmt.Errorf("%w: %w", ErrCouldNotCreateValue, err)
+		}
+		var unmarshal func([]byte) error
+		var b []byte
+		if asText {
+			z := v.(interface{ UnmarshalText([]byte) error })
+			unmarshal, b = z.UnmarshalText, []byte(toString(val, layout))
+		} else {
+			z := v.(interface{ UnmarshalBinary([]byte) error })
+			unmarshal, b = z.UnmarshalBinary, toBytes(val, layout)
+		}
+		if err := unmarshal(b); err != nil {
+			return nil, fmt.Errorf("%w: %w", ErrInvalidConversion, err)
+
+		return v, nil
+	*/
+	return nil, nil
 }
 
 // asBytes converts the value to a []byte.
-func asBytes(val any) ([]byte, bool) {
+func asBytes(val any, layout string) ([]byte, bool) {
 	switch v := val.(type) {
 	case []byte:
 		return v, true
@@ -208,6 +193,8 @@ func asBytes(val any) ([]byte, bool) {
 		return []byte(v), true
 	case []rune:
 		return []byte(string(v)), true
+	case time.Time:
+		return []byte(v.Format(layout)), true
 	case interface{ MarshalBinary() ([]byte, error) }:
 		if b, err := v.MarshalBinary(); err == nil {
 			return b, true
@@ -231,7 +218,7 @@ func asBytes(val any) ([]byte, bool) {
 }
 
 // asString converts the value to a string.
-func asString(val any) (string, bool) {
+func asString(val any, layout string) (string, bool) {
 	switch v := val.(type) {
 	case string:
 		return v, true
@@ -241,6 +228,8 @@ func asString(val any) (string, bool) {
 		return string(v), true
 	case bool:
 		return strconv.FormatBool(v), true
+	case time.Time:
+		return v.Format(layout), true
 	case interface{ MarshalText() ([]byte, error) }:
 		if b, err := v.MarshalText(); err == nil {
 			return string(b), true
@@ -287,7 +276,7 @@ func asInt64(val any) (int64, bool) {
 	case interface{ Int() int }:
 		return int64(v.Int()), true
 	}
-	if s, ok := asString(val); ok {
+	if s, ok := asString(val, ""); ok {
 		if i, err := strconv.ParseInt(s, 10, 64); err == nil {
 			return i, true
 		}
@@ -319,7 +308,7 @@ func asUint64(val any) (uint64, bool) {
 	case interface{ Uint() uint }:
 		return uint64(v.Uint()), true
 	}
-	if s, ok := asString(val); ok {
+	if s, ok := asString(val, ""); ok {
 		if u, err := strconv.ParseUint(s, 10, 64); err == nil {
 			return u, true
 		}
@@ -339,7 +328,7 @@ func asFloat64(val any) (float64, bool) {
 	case interface{ Float32() float32 }:
 		return float64(v.Float32()), true
 	}
-	if s, ok := asString(val); ok {
+	if s, ok := asString(val, ""); ok {
 		if f, err := strconv.ParseFloat(s, 64); err == nil {
 			return f, true
 		}
@@ -359,7 +348,7 @@ func asComplex128(val any) (complex128, bool) {
 	case interface{ Complex64() complex64 }:
 		return complex128(v.Complex64()), true
 	}
-	if s, ok := asString(val); ok {
+	if s, ok := asString(val, ""); ok {
 		if c, err := strconv.ParseComplex(s, 128); err == nil {
 			return c, true
 		}
@@ -384,7 +373,7 @@ func asBool(val any) (bool, bool) {
 	if v, ok := asFloat64(val); ok {
 		return 0 < v, true
 	}
-	if v, ok := asString(val); ok {
+	if v, ok := asString(val, ""); ok {
 		switch strings.TrimSpace(strings.ToLower(v)) {
 		case "true", "t", "1":
 			return true, true
@@ -398,22 +387,22 @@ func asBool(val any) (bool, bool) {
 }
 
 // toBytes converts a value to []byte.
-func toBytes(val any) []byte {
-	if v, ok := asBytes(val); ok {
+func toBytes(val any, layout string) []byte {
+	if v, ok := asBytes(val, layout); ok {
 		return v
 	}
-	if v, ok := asString(val); ok {
+	if v, ok := asString(val, layout); ok {
 		return []byte(v)
 	}
 	return nil
 }
 
 // toString converts a value to string.
-func toString(val any) string {
-	if v, ok := asString(val); ok {
+func toString(val any, layout string) string {
+	if v, ok := asString(val, layout); ok {
 		return v
 	}
-	if v, ok := asBytes(val); ok {
+	if v, ok := asBytes(val, layout); ok {
 		return string(v)
 	}
 	if v, ok := asInt64(val); ok {
@@ -527,16 +516,4 @@ type floati interface {
 // complexi is the complex interface.
 type complexi interface {
 	~complex128 | ~complex64
-}
-
-// texti is the text marshal interface.
-type texti interface {
-	encoding.TextMarshaler
-	encoding.TextUnmarshaler
-}
-
-// binaryi is the binary marshal interface.
-type binaryi interface {
-	encoding.BinaryMarshaler
-	encoding.BinaryUnmarshaler
 }

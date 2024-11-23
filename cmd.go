@@ -12,6 +12,125 @@ import (
 	"unicode/utf8"
 )
 
+// Command is a command.
+type Command struct {
+	// Exec is the func to be executed.
+	Exec Exec
+	// Descs is the command's name/usage descriptions.
+	Descs []Desc
+	// Parent is the parent command.
+	Parent *Command
+	// Commands are sub commands.
+	Commands []*Command
+	// Flags are the command's flags.
+	Flags *FlagSet
+	// Args are the command's argument validation func's.
+	Args []func([]string) error
+	// OnErr indicates whether to continue, panic, or to error when
+	// flag/argument parsing fails.
+	OnErr OnErr
+}
+
+// NewCommand creates a new command.
+func NewCommand[T ExecFunc](f T, opts ...Option) (*Command, error) {
+	cmd := &Command{
+		Exec:  NewExec(f),
+		Descs: make([]Desc, 1),
+	}
+	for _, o := range opts {
+		if err := o.apply(cmd); err != nil {
+			return nil, err
+		}
+	}
+	switch noName := cmd.Name() == ""; {
+	case noName && cmd.Parent == nil:
+		cmd.Descs[0].Name = filepath.Base(os.Args[0])
+	case noName:
+		return nil, fmt.Errorf("command: %w", ErrUsageNotSet)
+	}
+	return cmd, nil
+}
+
+// Validate validates the passed args.
+func (cmd *Command) Validate(args []string) error {
+	// validate args
+	for _, f := range cmd.Args {
+		if err := f(args); err != nil {
+			return newCommandError(cmd.Name(), err)
+		}
+	}
+	return nil
+}
+
+// Sub creates a sub command.
+func (cmd *Command) Sub(f func(context.Context, []string) error, opts ...Option) error {
+	sub, err := NewCommand(f, prepend(opts, Parent(cmd))...)
+	if err != nil {
+		return err
+	}
+	cmd.Commands = append(cmd.Commands, sub)
+	return nil
+}
+
+// Command returns the sub command with the name.
+func (cmd *Command) Command(name string) *Command {
+	for _, sub := range cmd.Commands {
+		for _, d := range sub.Descs {
+			if d.Name == name {
+				return sub
+			}
+		}
+	}
+	return nil
+}
+
+// Flag finds a flag from the command or the command's parents.
+func (cmd *Command) Flag(name string) *Flag {
+	if cmd.Flags != nil {
+		for _, g := range cmd.Flags.Flags {
+			for _, d := range g.Descs {
+				if d.Name == name {
+					return g
+				}
+			}
+		}
+	}
+	if cmd.Parent != nil {
+		return cmd.Parent.Flag(name)
+	}
+	return nil
+}
+
+// Get returns a sub command.
+func (cmd *Command) Get(name string) *Command {
+	for _, sub := range cmd.Commands {
+		for _, d := range sub.Descs {
+			if d.Name == name {
+				return sub
+			}
+		}
+	}
+	return nil
+}
+
+// Tree returns the parents of the command.
+func (cmd *Command) Tree() []string {
+	var v []string
+	for c := cmd; c != nil; {
+		v, c = append(v, c.Name()), c.Parent
+	}
+	slices.Reverse(v)
+	return v
+}
+
+// Name returns the command's name.
+func (cmd *Command) Name() string {
+	if len(cmd.Descs) != 0 {
+		return cmd.Descs[0].Name
+	}
+	return ""
+}
+
 // FlagSet is a set of command-line flag definitions.
 type FlagSet struct {
 	Flags []*Flag
@@ -27,7 +146,7 @@ func (fs *FlagSet) apply(val any) error {
 	switch v := val.(type) {
 	case *Command:
 		v.Flags = fs
-	case *runOpts:
+	case *RunContext:
 	default:
 		return fmt.Errorf("FlagSet: %w", ErrAppliedToInvalidType)
 	}
@@ -248,12 +367,12 @@ func (fs *FlagSet) Hook(name, desc string, f func(context.Context) error, opts .
 // Flag is a command-line flag variable definition.
 type Flag struct {
 	Type  Type
-	Sub   Type
 	Key   Type
+	Sub   Type
 	Descs []Desc
 	Def   any
 	NoArg bool
-	Binds []Value
+	Binds []BoundValue
 	Keys  map[string]string
 }
 
@@ -274,12 +393,6 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 	if g.Name() == "" {
 		return nil, ErrInvalidFlagName
 	}
-	// NOTE: forgive me linus, for i have hacked...
-	for _, o := range types[g.Type].Opts {
-		if err := o.apply(g); err != nil {
-			return nil, err
-		}
-	}
 	return g, nil
 }
 
@@ -297,7 +410,7 @@ func FlagsFrom[T *E, E any](val T) ([]*Flag, error) {
 		if r := []rune(f.Name); !unicode.IsUpper(r[0]) {
 			continue
 		}
-		s, ok := f.Tag.Lookup(StructTagName)
+		s, ok := f.Tag.Lookup(DefaultTagName)
 		if !ok {
 			continue
 		}
@@ -340,144 +453,25 @@ func (g *Flag) Short() (string, bool) {
 	return "", false
 }
 
-// Command is a command.
-type Command struct {
-	// Exec is the func to be executed.
-	Exec func(context.Context, []string) error
-	// Descs is the command's name and usage descriptions.
-	Descs []Desc
-	// Parent is the parent command.
-	Parent *Command
-	// Commands are sub commands.
-	Commands []*Command
-	// Flags are the command's flags.
-	Flags *FlagSet
-	// Args are the command's argument validation func's.
-	Args []func([]string) error
-	// OnErr indicates whether to continue, panic, or to error when flag
-	// parsing fails.
-	OnErr OnErr
-}
-
-// NewCommand creates a new command.
-func NewCommand(f func(context.Context, []string) error, opts ...Option) (*Command, error) {
-	cmd := &Command{
-		Exec:  f,
-		Descs: make([]Desc, 1),
-	}
-	for _, o := range opts {
-		if err := o.apply(cmd); err != nil {
-			return nil, err
-		}
-	}
-	switch noName := cmd.Name() == ""; {
-	case noName && cmd.Parent == nil:
-		cmd.Descs[0].Name = filepath.Base(os.Args[0])
-	case noName:
-		return nil, fmt.Errorf("command: %w", ErrUsageNotSet)
-	}
-	return cmd, nil
-}
-
-// Run executes the command with the context, validating passed arguments.
-func (cmd *Command) Run(ctx context.Context, args []string) error {
-	// validate args
-	for _, f := range cmd.Args {
-		if err := f(args); err != nil {
-			return newCommandError(cmd.Name(), err)
-		}
-	}
-	return cmd.Exec(ctx, args)
-}
-
-// Sub creates a sub command.
-func (cmd *Command) Sub(f func(context.Context, []string) error, opts ...Option) error {
-	sub, err := NewCommand(f, prepend(opts, parent(cmd))...)
-	if err != nil {
-		return err
-	}
-	cmd.Commands = append(cmd.Commands, sub)
-	return nil
-}
-
-// Command returns the sub command with the name.
-func (cmd *Command) Command(name string) *Command {
-	for _, sub := range cmd.Commands {
-		for _, d := range sub.Descs {
-			if d.Name == name {
-				return sub
-			}
-		}
-	}
-	return nil
-}
-
-// Flag finds a flag from the command or the command's parents.
-func (cmd *Command) Flag(name string) *Flag {
-	if cmd.Flags != nil {
-		for _, g := range cmd.Flags.Flags {
-			for _, d := range g.Descs {
-				if d.Name == name {
-					return g
-				}
-			}
-		}
-	}
-	if cmd.Parent != nil {
-		return cmd.Parent.Flag(name)
-	}
-	return nil
-}
-
-// Get returns a sub command.
-func (cmd *Command) Get(name string) *Command {
-	for _, sub := range cmd.Commands {
-		for _, d := range sub.Descs {
-			if d.Name == name {
-				return sub
-			}
-		}
-	}
-	return nil
-}
-
-// Tree returns the parents of the command.
-func (cmd *Command) Tree() []string {
-	var v []string
-	for c := cmd; c != nil; {
-		v, c = append(v, c.Name()), c.Parent
-	}
-	slices.Reverse(v)
-	return v
-}
-
-// Name returns the command's name.
-func (cmd *Command) Name() string {
-	if len(cmd.Descs) != 0 {
-		return cmd.Descs[0].Name
-	}
-	return ""
-}
-
 // Parse parses the command-line arguments into vars.
-func Parse(ctx context.Context, root *Command, args []string, vars Vars) (*Command, []string, error) {
+func Parse(root *Command, args []string, vars Vars) (*Command, []string, error) {
 	if root.Parent != nil {
 		return nil, nil, fmt.Errorf("Parse: %w", ErrCanOnlyBeUsedWithRootCommand)
 	}
-	if err := root.Populate(ctx, false, false, vars); err != nil {
+	if err := Populate(root, false, false, vars); err != nil {
 		return nil, nil, newCommandError(root.Name(), err)
 	}
 	if len(args) == 0 {
 		return root, nil, nil
 	}
-	return parse(ctx, root, args, vars)
+	return parse(root, args, vars)
 }
 
 // Populate populates vars with all the command's flags values, and overwriting
 // if applicable. When all is true, all flag values will be populated,
 // otherwise only flags with default values will be. When overwrite is true,
 // existing vars will be set to either to flag's empty or default value.
-func (cmd *Command) Populate(ctx context.Context, all, overwrite bool, vars Vars) error {
+func Populate(cmd *Command, all, overwrite bool, vars Vars) error {
 	if cmd.Flags == nil {
 		return nil
 	}
@@ -486,14 +480,14 @@ func (cmd *Command) Populate(ctx context.Context, all, overwrite bool, vars Vars
 		if _, ok := vars[name]; ok && overwrite {
 			delete(vars, name)
 		}
-		value := ""
+		var value any
 		switch {
 		case g.Type == HookT, g.Def == nil && !all:
 			continue
 		case g.Def != nil:
-			value = toString(g.Def)
+			value = g.Def
 		}
-		if err := vars.Set(ctx, g, value, false); err != nil {
+		if err := vars.Set(g, value, false); err != nil {
 			return fmt.Errorf("cannot set %s to %q: %w", name, value, err)
 		}
 	}
@@ -501,7 +495,7 @@ func (cmd *Command) Populate(ctx context.Context, all, overwrite bool, vars Vars
 }
 
 // parse parses the args into m based on the flags on the command.
-func parse(ctx context.Context, cmd *Command, args []string, vars Vars) (*Command, []string, error) {
+func parse(cmd *Command, args []string, vars Vars) (*Command, []string, error) {
 	// fmt.Fprintf(os.Stdout, "args: %q\n", args)
 	var v []string
 	var s string
@@ -516,7 +510,7 @@ func parse(ctx context.Context, cmd *Command, args []string, vars Vars) (*Comman
 				c = cmd.Command(s)
 			}
 			if c != nil {
-				if err := c.Populate(ctx, false, false, vars); err != nil {
+				if err := Populate(c, false, false, vars); err != nil {
 					return nil, nil, newCommandError(c.Name(), err)
 				}
 				cmd = c
@@ -526,11 +520,11 @@ func parse(ctx context.Context, cmd *Command, args []string, vars Vars) (*Comman
 		case s == "--":
 			return cmd, append(v, args...), nil
 		case s[1] == '-':
-			if args, err = parseLong(ctx, cmd, s, args, vars); err != nil {
+			if args, err = parseLong(cmd, s, args, vars); err != nil {
 				return nil, nil, err
 			}
 		default:
-			if args, err = parseShort(ctx, cmd, s, args, vars); err != nil {
+			if args, err = parseShort(cmd, s, args, vars); err != nil {
 				return nil, nil, err
 			}
 		}
@@ -539,7 +533,7 @@ func parse(ctx context.Context, cmd *Command, args []string, vars Vars) (*Comman
 }
 
 // parseLong parses a long flag ('--arg' '--arg v' '--arg k=v' '--arg=' '--arg=v').
-func parseLong(ctx context.Context, cmd *Command, s string, args []string, vars Vars) ([]string, error) {
+func parseLong(cmd *Command, s string, args []string, vars Vars) ([]string, error) {
 	arg, value, ok := strings.Cut(strings.TrimPrefix(s, "--"), "=")
 	g := cmd.Flag(arg)
 	switch {
@@ -553,14 +547,14 @@ func parseLong(ctx context.Context, cmd *Command, s string, args []string, vars 
 	default: // missing argument to --arg
 		return nil, newFlagError(arg, ErrMissingArgument)
 	}
-	if err := vars.Set(ctx, g, value, true); err != nil {
+	if err := vars.Set(g, value, true); err != nil {
 		return nil, newFlagError(arg, err)
 	}
 	return args, nil
 }
 
 // parseShort parses short flags ('-a' '-aaa' '-av' '-a v' '-a=' '-a=v').
-func parseShort(ctx context.Context, cmd *Command, s string, args []string, vars Vars) ([]string, error) {
+func parseShort(cmd *Command, s string, args []string, vars Vars) ([]string, error) {
 	for v := []rune(s[1:]); len(v) != 0; v = v[1:] {
 		arg := string(v[0])
 		switch g, n := cmd.Flag(arg), len(v[1:]); {
@@ -573,7 +567,7 @@ func parseShort(ctx context.Context, cmd *Command, s string, args []string, vars
 			} else {
 				value = toBoolString(g.Def)
 			}
-			if err := vars.Set(ctx, g, value, true); err != nil {
+			if err := vars.Set(g, value, true); err != nil {
 				return nil, newFlagError(arg, err)
 			}
 		case n == 0 && len(args) == 0: // missing argument to -a
@@ -582,12 +576,12 @@ func parseShort(ctx context.Context, cmd *Command, s string, args []string, vars
 			if slices.Index(v, '=') == 1 {
 				v = v[1:]
 			}
-			if err := vars.Set(ctx, g, string(v[1:]), true); err != nil {
+			if err := vars.Set(g, string(v[1:]), true); err != nil {
 				return nil, newFlagError(arg, err)
 			}
 			return args, nil
 		default: // -a v
-			if err := vars.Set(ctx, g, args[0], true); err != nil {
+			if err := vars.Set(g, args[0], true); err != nil {
 				return nil, newFlagError(arg, err)
 			}
 			return args[1:], nil
@@ -657,15 +651,57 @@ func buildFlagOpts(typ reflect.Type, val reflect.Value, name string, s []string)
 	return prepend(opts, BindValue(val, b)), nil
 }
 
+// ExecFunc is the interface for func's that can be used with [Run] and
+// [NewCommand].
+type ExecFunc interface {
+	func(context.Context, []string) error |
+		func([]string) error |
+		func(context.Context) error |
+		func() error |
+		func()
+}
+
+// Exec wraps a exec func.
+type Exec func(context.Context, []string) error
+
+// NewExec creates a new executor.
+func NewExec[T ExecFunc](f T) Exec {
+	var v any = f
+	switch f := v.(type) {
+	case func(context.Context, []string) error:
+		return f
+	case func([]string) error:
+		return func(_ context.Context, args []string) error {
+			return f(args)
+		}
+	case func(context.Context) error:
+		return func(ctx context.Context, _ []string) error {
+			return f(ctx)
+		}
+	case func() error:
+		return func(context.Context, []string) error {
+			return f()
+		}
+	case func():
+		return func(context.Context, []string) error {
+			f()
+			return nil
+		}
+	}
+	return func(context.Context, []string) error {
+		return fmt.Errorf("%w: no exec func", ErrInvalidType)
+	}
+}
+
+// newCommandError creates a command error.
+func newCommandError(name string, err error) error {
+	return fmt.Errorf("command %s: %w", name, err)
+}
+
 // newFlagError creates a flag error.
 func newFlagError(name string, err error) error {
 	if utf8.RuneCountInString(name) == 1 {
 		return fmt.Errorf("-%s: %w", name, err)
 	}
 	return fmt.Errorf("--%s: %w", name, err)
-}
-
-// newCommandError creates a command error.
-func newCommandError(name string, err error) error {
-	return fmt.Errorf("command %s: %w", name, err)
 }

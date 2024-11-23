@@ -13,10 +13,12 @@ import (
 var Default color.Color = colors.Transparent
 
 func init() {
-	ox.RegisterType(ox.ColorT, ox.NewTypeDesc(ox.NewText(func() (any, error) {
-		c := colors.FromColor(Default)
-		return &c, nil
-	}, ox.ColorT)))
+	ox.RegisterTextType[*colors.Color](New)
+}
+
+func New() (*colors.Color, error) {
+	c := colors.FromColor(Default)
+	return &c, nil
 }
 
 // Color retrieves a color from the context.
