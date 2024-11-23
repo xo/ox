@@ -243,14 +243,6 @@ func asString[T stringi](val any, layout string) (T, error) {
 		return T(v.Format(layout)), nil
 	case time.Duration:
 		return T(v.String()), nil
-	case interface{ MarshalText() ([]byte, error) }:
-		if b, err := v.MarshalText(); err == nil {
-			return T(string(b)), nil
-		}
-	case interface{ MarshalBinary() ([]byte, error) }:
-		if b, err := v.MarshalBinary(); err == nil {
-			return T(string(b)), nil
-		}
 	case interface{ String() string }:
 		return T(v.String()), nil
 	case interface{ Bytes() []byte }:
@@ -261,9 +253,17 @@ func asString[T stringi](val any, layout string) (T, error) {
 		return T(string(v.Rune())), nil
 	case interface{ Byte() byte }:
 		return T(string(v.Byte())), nil
+	case interface{ MarshalText() ([]byte, error) }:
+		if b, err := v.MarshalText(); err == nil {
+			return T(string(b)), nil
+		}
+	case interface{ MarshalBinary() ([]byte, error) }:
+		if b, err := v.MarshalBinary(); err == nil {
+			return T(string(b)), nil
+		}
 	}
 	var res T
-	return res, ErrInvalidConversion
+	return res, ErrInvalidValue
 }
 
 // asBool converts the value to a bool.
