@@ -193,6 +193,7 @@ func typeTests(t *testing.T) []typeTest {
 		{
 			AddrPortT,
 			[]test{
+				{"", "invalid AddrPort"},
 				{"1.2.3.4:80", mustAddrPort(t, "1.2.3.4:80")},
 				{"[::]:80", mustAddrPort(t, "[::]:80")},
 				{"[1::CAFE]:80", mustAddrPort(t, "[1::cafe]:80")},
@@ -205,6 +206,7 @@ func typeTests(t *testing.T) []typeTest {
 		{
 			CIDRT,
 			[]test{
+				{"", "invalid Prefix"},
 				{"1.2.3.4/24", mustPrefix(t, "1.2.3.4/24")},
 				{"fd7a:115c:a1e0:ab12:4843:cd96:626b:430b/118", mustPrefix(t, "fd7a:115c:a1e0:ab12:4843:cd96:626b:430b/118")},
 				{"::ffff:c000:0280/96", mustPrefix(t, "::ffff:192.0.2.128/96")},
