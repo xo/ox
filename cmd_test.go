@@ -13,6 +13,7 @@ func TestParse(t *testing.T) {
 	root := testCommand(t)
 	for i, test := range parseTests() {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			t.Logf("invoked: %v", test.v)
 			vars := make(Vars)
 			cmd, args, err := Parse(root, test.v[1:], vars)
 			switch {

@@ -472,9 +472,9 @@ func asNew(typ Type) (any, func([]byte) error, error) {
 		ok     bool
 		asText bool
 	)
-	if f, ok = text[typ]; ok {
+	if f, ok = typeTextNews[typ]; ok {
 		asText = true
-	} else if f, ok = binary[typ]; ok {
+	} else if f, ok = typeBinaryNews[typ]; ok {
 		asText = false
 	}
 	if !ok {

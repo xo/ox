@@ -146,7 +146,7 @@ func (fs *FlagSet) apply(val any) error {
 	switch v := val.(type) {
 	case *Command:
 		v.Flags = fs
-	case *RunContext:
+	case *Context:
 	default:
 		return fmt.Errorf("FlagSet: %w", ErrAppliedToInvalidType)
 	}
@@ -390,6 +390,13 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 			return nil, err
 		}
 	}
+	if opts, ok := typeOpts[g.Type]; ok {
+		for _, o := range opts {
+			if err := o.apply(g); err != nil {
+				return nil, err
+			}
+		}
+	}
 	if g.Name() == "" {
 		return nil, ErrInvalidFlagName
 	}
@@ -480,15 +487,19 @@ func Populate(cmd *Command, all, overwrite bool, vars Vars) error {
 		if _, ok := vars[name]; ok && overwrite {
 			delete(vars, name)
 		}
-		var value any
+		var value string
 		switch {
 		case g.Type == HookT, g.Def == nil && !all:
 			continue
 		case g.Def != nil:
-			value = g.Def
+			s, err := asString[string](g.Def, g.Type.Layout())
+			if err != nil {
+				return err
+			}
+			value = s
 		}
 		if err := vars.Set(g, value, false); err != nil {
-			return fmt.Errorf("cannot set %s to %q: %w", name, value, err)
+			return fmt.Errorf("cannot populate %s with %q: %w", name, value, err)
 		}
 	}
 	return nil

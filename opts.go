@@ -9,11 +9,11 @@ import (
 	"unicode/utf8"
 )
 
-// RunArgs is a [Run] option to set the command-line arguments to use.
-func RunArgs(args []string) RunOption {
+// WithArgs is a [Context] option to set the command-line arguments to use.
+func WithArgs(args []string) ContextOption {
 	return option{
-		name: "RunArgs",
-		ctx: func(opts *RunContext) error {
+		name: "WithArgs",
+		ctx: func(opts *Context) error {
 			opts.Args = args
 			return nil
 		},
@@ -364,13 +364,13 @@ func Relative(dir string) Option {
 */
 
 // Option is the interface for options that can be passed when creating a
-// [RunContext], [Command], or [Flag].
+// [Context], [Command], or [Flag].
 //
-// The [Option] type is aliased as [RunOption], [CommandOption],
+// The [Option] type is aliased as [ContextOption], [CommandOption],
 // [CommandFlagOption], and [FlagOption] and provided for ease-of-use,
 // readibility, and categorization within documentation.
 //
-// A [RunOption] can be applied to a [RunContext] and passed to [Run].
+// A [ContextOption] can be applied to a [Context] and passed to [Run].
 //
 // A [CommandOption] can be applied to a [Command] and passed to [NewCommand].
 //
@@ -386,8 +386,8 @@ type Option interface {
 	apply(any) error
 }
 
-// RunOption are [Option]'s that apply to a [RunContext].
-type RunOption = Option
+// ContextOption are [Option]'s that apply to a [Context].
+type ContextOption = Option
 
 // CommandOption are [Option]'s that apply to a [Command].
 type CommandOption = Option
@@ -401,10 +401,10 @@ type FlagOption = Option
 // option wraps an option.
 type option struct {
 	name string
+	ctx  func(*Context) error
 	cmd  func(*Command) error
 	set  func(*FlagSet) error
 	flag func(*Flag) error
-	ctx  func(*RunContext) error
 }
 
 // apply satisfies the [Option] interface.
@@ -419,7 +419,7 @@ func (opt option) apply(val any) error {
 		if opt.flag != nil {
 			err = opt.flag(v)
 		}
-	case *RunContext:
+	case *Context:
 		if opt.ctx != nil {
 			err = opt.ctx(v)
 		}

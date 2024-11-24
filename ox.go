@@ -15,9 +15,9 @@ import (
 )
 
 // Run creates a [Command] for f using [os.Args] by default, unless arguments
-// were specified using a [RunOption].
+// were specified using a [ContextOption].
 func Run[T ExecFunc](f T, opts ...Option) {
-	ctx := &RunContext{
+	ctx := &Context{
 		Stdin:  os.Stdin,
 		Stdout: os.Stdout,
 		Stderr: os.Stderr,
@@ -47,8 +47,8 @@ func Run[T ExecFunc](f T, opts ...Option) {
 	}
 }
 
-// RunContext are run context options.
-type RunContext struct {
+// Context are run context options.
+type Context struct {
 	Args   []string
 	Stdin  io.Writer
 	Stdout io.Writer
@@ -58,7 +58,7 @@ type RunContext struct {
 }
 
 // Handle handles an error.
-func (ctx *RunContext) Handle(err error) {
+func (ctx *Context) Handle(err error) {
 	var w io.Writer = os.Stderr
 	if ctx.Stderr != nil {
 		w = ctx.Stderr

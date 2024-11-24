@@ -86,7 +86,7 @@ func (typ Type) String() string {
 
 // Layout returns the type's registered [time.Time.Format] [time.Layout].
 func (typ Type) Layout() string {
-	return layouts[typ]
+	return typeLayouts[typ]
 }
 
 // New creates a new [Value] for the registered type.
@@ -94,7 +94,7 @@ func (typ Type) New() (Value, error) {
 	if typ == HookT {
 		return nil, nil
 	}
-	f, ok := types[typ]
+	f, ok := typeNews[typ]
 	if !ok {
 		return nil, fmt.Errorf("%w: type not registered", ErrCouldNotCreateValue)
 	}
@@ -105,23 +105,27 @@ func (typ Type) New() (Value, error) {
 	return v, nil
 }
 
-// types are registered type descriptions.
-var types map[Type]func() (Value, error)
+// typeNews are registered type creation funcs.
+var typeNews map[Type]func() (Value, error)
 
-// typeNames are type name lookups for registered types.
-var typeNames map[string]Type
+// typeOpts are registered type flag options.
+var typeOpts map[Type][]Option
 
-// layouts are [time.Time] parsing layouts.
-var layouts map[Type]string
+// typeLayouts are [time.Time] parsing typeLayouts.
+var typeLayouts map[Type]string
 
-// text holds new text funcs.
-var text map[Type]func() (any, error)
+// reflectTypes are reflect type name lookups for registered types.
+var reflectTypes map[string]Type
 
-// binary holds new binary funcs.
-var binary map[Type]func() (any, error)
+// typeTextNews are registered type creation funcs for text marshalable types.
+var typeTextNews map[Type]func() (any, error)
+
+// typeBinaryNews are registered type creation funcs for binary marshalable
+// types.
+var typeBinaryNews map[Type]func() (any, error)
 
 func init() {
-	types = map[Type]func() (Value, error){
+	typeNews = map[Type]func() (Value, error){
 		BytesT:      NewVal[[]byte](),
 		StringT:     NewVal[string](),
 		RunesT:      NewVal[[]rune](),
@@ -155,15 +159,19 @@ func init() {
 		MapT:        NewMap(),
 		// HookT:       NewTypeDesc(NewHook(), NoArg(true)),
 	}
-	layouts = map[Type]string{
+	typeLayouts = map[Type]string{
 		TimestampT: time.RFC3339Nano,
 		DateTimeT:  time.DateTime,
 		DateT:      time.DateOnly,
 		TimeT:      time.TimeOnly,
 	}
-	typeNames = make(map[string]Type)
+	typeOpts = map[Type][]Option{
+		BoolT:  {NoArg(true)},
+		CountT: {NoArg(true)},
+	}
+	reflectTypes = make(map[string]Type)
 	// text marshal types
-	text = make(map[Type]func() (any, error))
+	typeTextNews = make(map[Type]func() (any, error))
 	RegisterTextType(func() (*big.Int, error) {
 		return big.NewInt(0), nil
 	})
@@ -183,7 +191,7 @@ func init() {
 		return new(netip.Prefix), nil
 	})
 	// binary marshal types
-	binary = make(map[Type]func() (any, error))
+	typeBinaryNews = make(map[Type]func() (any, error))
 	RegisterBinaryType(func() (*url.URL, error) {
 		return new(url.URL), nil
 	})
@@ -192,35 +200,35 @@ func init() {
 // RegisterTypeName registers a type name.
 func RegisterTypeName(typ Type, names ...string) {
 	for _, name := range names {
-		typeNames[name] = typ
+		reflectTypes[name] = typ
 	}
 }
 
 // RegisterLayout registers a time layout for the type.
 func RegisterLayout(typ Type, layout string) {
-	layouts[typ] = layout
+	typeLayouts[typ] = layout
 }
 
 // RegisterTextType registers a new text type.
 func RegisterTextType[T TextMarshaler](f func() (T, error)) {
-	registerMarshaler[T](func() (any, error) { return f() }, text)
+	registerMarshaler[T](func() (any, error) { return f() }, typeTextNews)
 }
 
 // RegisterBinaryType registers a new binary type.
 func RegisterBinaryType[T BinaryMarshaler](f func() (T, error)) {
-	registerMarshaler[T](func() (any, error) { return f() }, binary)
+	registerMarshaler[T](func() (any, error) { return f() }, typeBinaryNews)
 }
 
 // registerMarshaler registers a type marshaler.
 func registerMarshaler[T any](f func() (any, error), descs map[Type]func() (any, error)) {
 	typ := typeType[T]()
-	if _, ok := types[typ]; ok {
+	if _, ok := typeNews[typ]; ok {
 		return
 	}
 	if _, ok := descs[typ]; ok {
 		return
 	}
-	types[typ], descs[typ] = NewVal[T](typ), f
+	typeNews[typ], descs[typ] = NewVal[T](typ), f
 }
 
 // TextMarshaler is the text marshal interface.
@@ -300,7 +308,7 @@ func typeRef(val any) Type {
 		return URLT
 	}
 	s := reflect.TypeOf(val).String()
-	if typ, ok := typeNames[s]; ok {
+	if typ, ok := reflectTypes[s]; ok {
 		return typ
 	}
 	return Type(s)

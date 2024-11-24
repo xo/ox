@@ -95,18 +95,18 @@ func VarsOK(ctx context.Context) (Vars, bool) {
 
 // AnyOK returns a variable, its set status, and if it was defined from the
 // context.
-func AnyOK(ctx context.Context, name string) (Value, bool, bool) {
+func AnyOK(ctx context.Context, name string) (Value, bool) {
 	if vars, ok := VarsOK(ctx); ok {
-		if vs, ok := vars[name]; ok {
-			return vs.Var, vs.WasSet, true
+		if val, ok := vars[name]; ok {
+			return val, true
 		}
 	}
-	return nil, false, false
+	return nil, false
 }
 
 // GetOK returns a variable.
 func GetOK[T any](ctx context.Context, name string) (T, bool) {
-	if val, _, ok := AnyOK(ctx, name); ok {
+	if val, ok := AnyOK(ctx, name); ok {
 		if v, err := As[T](val); err == nil {
 			return v, true
 		}
@@ -123,7 +123,7 @@ func Get[T any](ctx context.Context, name string) T {
 
 // Slice returns the slice variable from the context.
 func Slice[T any](ctx context.Context, name string) []T {
-	if val, _, ok := AnyOK(ctx, name); ok {
+	if val, ok := AnyOK(ctx, name); ok {
 		if v, err := SliceAs[T](val); err == nil {
 			return v
 		}
@@ -133,7 +133,7 @@ func Slice[T any](ctx context.Context, name string) []T {
 
 // Map returns the map variable from the context.
 func Map[K cmp.Ordered, T any](ctx context.Context, name string) map[K]T {
-	if val, _, ok := AnyOK(ctx, name); ok {
+	if val, ok := AnyOK(ctx, name); ok {
 		if m, err := MapAs[K, T](val); err == nil {
 			return m
 		}

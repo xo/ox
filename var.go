@@ -20,31 +20,26 @@ type Value interface {
 	WasSet() bool
 	Set(string) error
 	Get() (string, error)
+	String() string
 }
 
 // anyVal wraps a value.
 type anyVal[T any] struct {
-	typ   Type
-	v     T
-	noArg bool
-	set   bool
+	typ Type
+	v   T
+	set bool
 }
 
 // NewVal returns a [Value] func.
 func NewVal[T any](opts ...Option) func() (Value, error) {
 	return func() (Value, error) {
-		typ := typeType[T]()
 		val := &anyVal[T]{
-			typ:   typ,
-			noArg: typ == BoolT,
+			typ: typeType[T](),
 		}
 		for _, o := range opts {
 			if err := o.apply(val); err != nil {
 				return nil, err
 			}
-		}
-		if typ != val.typ && val.typ == CountT {
-			val.noArg = true
 		}
 		return val, nil
 	}
@@ -128,9 +123,15 @@ func (val *anyVal[T]) Get() (string, error) {
 	return s, nil
 }
 
+func (val *anyVal[T]) String() string {
+	s, _ := val.Get()
+	return s
+}
+
 // sliceVal is a slice value.
 type sliceVal struct {
 	typ Type
+	set bool
 	v   []Value
 }
 
@@ -145,8 +146,7 @@ func NewSlice(opts ...Option) func() (Value, error) {
 				return nil, err
 			}
 		}
-		return nil, nil
-		// return val, nil
+		return val, nil
 	}
 }
 
@@ -159,10 +159,26 @@ func (val *sliceVal) Val() any {
 }
 
 func (val *sliceVal) Get() (string, error) {
-	return string(val.Type()), nil
+	return val.String(), nil
+}
+
+func (val *sliceVal) SetSet(set bool) {
+	val.set = set
+}
+
+func (val *sliceVal) WasSet() bool {
+	return val.set
 }
 
 func (val *sliceVal) Set(s string) error {
+	v, err := val.typ.New()
+	if err != nil {
+		return err
+	}
+	if err := v.Set(s); err != nil {
+		return err
+	}
+	val.v = append(val.v, v)
 	return nil
 }
 
@@ -184,160 +200,190 @@ func (val *sliceVal) Len() int {
 }
 
 // mapVal is a map value.
-type mapVal[K cmp.Ordered] struct {
-	v map[K]Value
+type mapVal struct {
+	key Type
+	typ Type
+	v   mapValue
+	set bool
 }
 
 // NewMap creates a map value of type.
 func NewMap(opts ...Option) func() (Value, error) {
 	return func() (Value, error) {
-		/*
-			val := &mapVal[string]{}
-			for _, o := range opts {
-				if err := o.apply(val); err != nil {
-					return nil, err
-				}
+		val := &mapVal{
+			key: StringT,
+			typ: StringT,
+		}
+		for _, o := range opts {
+			if err := o.apply(val); err != nil {
+				return nil, err
 			}
-			return val, nil
-		*/
-		return nil, nil
+		}
+		var err error
+		if val.v, err = makeMap(val.key, val.typ); err != nil {
+			return nil, err
+		}
+		return val, nil
 	}
 }
 
-func (val *mapVal[K]) Type() Type {
-	// return "map[" + val.key + "]" + val.typ
-	return ""
+func (val *mapVal) Type() Type {
+	return "map[" + val.key + "]" + val.typ
 }
 
-func (val *mapVal[K]) Val() any {
+func (val *mapVal) Val() any {
 	return val.v
 }
 
-func (val *mapVal[K]) Get() (string, error) {
-	return "", nil
+func (val *mapVal) SetSet(set bool) {
+	val.set = set
 }
 
-func (val *mapVal[K]) Set(s string) error {
+func (val *mapVal) WasSet() bool {
+	return val.set
+}
+
+func (val *mapVal) Set(s string) error {
+	return val.v.Set(s)
+}
+
+func (val *mapVal) String() string {
+	return val.v.String()
+}
+
+func (val *mapVal) Get() (string, error) {
+	return val.v.String(), nil
+}
+
+type mapValue interface {
+	Set(s string) error
+	String() string
+}
+
+// makeMap makes a map for the key and type.
+func makeMap(key, typ Type) (mapValue, error) {
+	switch key {
+	case StringT:
+		return newValueMap[string](typ), nil
+	case Int64T:
+		return newValueMap[int64](typ), nil
+	case Int32T:
+		return newValueMap[int32](typ), nil
+	case Int16T:
+		return newValueMap[int16](typ), nil
+	case Int8T:
+		return newValueMap[int8](typ), nil
+	case IntT:
+		return newValueMap[int](typ), nil
+	case Uint64T:
+		return newValueMap[uint64](typ), nil
+	case Uint32T:
+		return newValueMap[uint32](typ), nil
+	case Uint16T:
+		return newValueMap[uint16](typ), nil
+	case Uint8T:
+		return newValueMap[uint8](typ), nil
+	case UintT:
+		return newValueMap[uint](typ), nil
+	}
+	return nil, fmt.Errorf("%w: bad map key type %s", ErrInvalidType, key)
+}
+
+// valueMap wraps a map.
+type valueMap[K cmp.Ordered] struct {
+	typ Type
+	v   map[K]Value
+}
+
+// newValueMap creates a new value map.
+func newValueMap[K cmp.Ordered](typ Type) mapValue {
+	return &valueMap[K]{
+		typ: typ,
+	}
+}
+
+func (val *valueMap[K]) Set(s string) error {
 	if val.v == nil {
 		val.v = make(map[K]Value)
 	}
-	key, value, ok := strings.Cut(s, "=")
-	key, value = key, value
-	if !ok || key == "" {
-		return fmt.Errorf("%w: %s", ErrInvalidValue, "bad map key")
+	keystr, value, ok := strings.Cut(s, "=")
+	if !ok || keystr == "" {
+		return fmt.Errorf("%w: %s", ErrInvalidValue, "missing map key")
 	}
-	/*
-		k, err := NewValue(val.key, "", "")
-		if err != nil {
+	key, err := as[K](keystr, "")
+	if err != nil {
+		return fmt.Errorf("%w: bad map key", err)
+	}
+	k, ok := key.(K)
+	if !ok {
+		return fmt.Errorf("%w: string->%T", ErrInvalidConversion, k)
+	}
+	v, ok := val.v[k]
+	if !ok {
+		if v, err = val.typ.New(); err != nil {
 			return err
 		}
-		if err := k.Set(ctx, key); err != nil {
-			return err
-		}
-		v, err := NewValue(val.typ, "", "")
-		if err != nil {
-			return err
-		}
-		if err := v.Set(ctx, value); err != nil {
-			return err
-		}
-		val.v[k] = v
-	*/
+	}
+	if err := v.Set(value); err != nil {
+		return err
+	}
+	val.v[k] = v
 	return nil
 }
 
-func (val *mapVal[K]) String() string {
-	/*
-		s := make([]string, len(val.v))
-		for i, k := range slices.Sorted(maps.Keys(val.v)) {
-			value, _ := val.v[k].Get()
-			s[i] = toString(k) + ":" + value
-				s[i] = k + ":" + toString(val.v[k].Var)
-				i++
-		}
-		return "[" + strings.Join(s, " ") + "]"
-	*/
-	return ""
+func (val valueMap[K]) String() string {
+	s := make([]string, len(val.v))
+	for i, k := range slices.Sorted(maps.Keys(val.v)) {
+		value, _ := val.v[k].Get()
+		s[i] = toString[string](k, "") + ":" + value
+	}
+	return "[" + strings.Join(s, " ") + "]"
 }
 
 // Vars is the type for storing variables in the context.
-type Vars map[string]*VarSet
+type Vars map[string]Value
 
 // String satisfies the [fmt.Stringer] interfaec.
 func (vars Vars) String() string {
 	var v []string
 	for _, k := range slices.Sorted(maps.Keys(vars)) {
-		if val, ok := vars[k].Var.(interface{ String() string }); ok {
-			v = append(v, k+":"+val.String())
-		} else {
-			if s, err := vars[k].Var.Get(); err == nil {
-				v = append(v, k+":"+s)
-			}
+		if s, err := vars[k].Get(); err == nil {
+			v = append(v, k+":"+s)
 		}
 	}
 	return "[" + strings.Join(v, " ") + "]"
 }
 
 // Set sets a variable in the vars.
-func (vars Vars) Set(g *Flag, value any, wasSet bool) error {
-	/*
-		// fmt.Fprintf(os.Stdout, "SETTING: %q (%s/%s): %q\n", g.Name(), g.Type, g.Sub, value)
-		name := g.Name()
-		if name == "" {
-			return ErrInvalidFlagName
-		}
-		vs, err := vars[name].Set(g.Type, g.Sub, value, wasSet)
-		if err != nil {
+func (vars Vars) Set(g *Flag, s string, set bool) error {
+	// fmt.Fprintf(os.Stdout, "SETTING: %q (%s/%s): %q\n", g.Name(), g.Type, g.Sub, s)
+	name := g.Name()
+	if name == "" {
+		return ErrInvalidFlagName
+	}
+	var err error
+	v, ok := vars[name]
+	if !ok {
+		if v, err = g.Type.New(); err != nil {
 			return err
 		}
-		for i, val := range g.Binds {
-			if err := val.Set(value); err != nil {
-				return fmt.Errorf("flag %s: bind %d (%T): cannot set %q: %w", g.Name(), i, val.Get(), value, err)
-			}
+	}
+	if err := v.Set(s); err != nil {
+		return err
+	}
+	v.SetSet(set)
+	for i, val := range g.Binds {
+		if err := val.Set(s); err != nil {
+			return fmt.Errorf("flag %s: bind %d (%T): cannot set %q: %w", g.Name(), i, val.Get(), s, err)
 		}
-		vars[name] = vs
-	*/
+	}
+	vars[name] = v
 	return nil
-}
-
-// VarSet wraps a variable and its set state.
-type VarSet struct {
-	Type   Type
-	Var    Value
-	WasSet bool
-}
-
-// Set sets a var.
-func (vs *VarSet) Set(typ, sub Type, value string, wasSet bool) (*VarSet, error) {
-	if vs == nil {
-		vs = &VarSet{
-			Type: typ,
-		}
-	}
-	if vs.Type != typ {
-		return nil, ErrTypeMismatch
-	}
-	if vs.Var == nil {
-		var err error
-		if vs.Var, err = typ.New(); err != nil {
-			return nil, fmt.Errorf("%w: %w", ErrCouldNotCreateValue, err)
-		}
-		if sub != "" {
-			if err := sub.apply(vs.Var); err != nil {
-				return nil, err
-			}
-		}
-	}
-	if err := vs.Var.Set(value); err != nil {
-		return nil, err
-	}
-	vs.WasSet = wasSet
-	return vs, nil
 }
 
 // BoundValue is the bound value interface.
 type BoundValue interface {
-	Set(any) error
+	Set(string) error
 	Get() any
 }
 
@@ -355,7 +401,7 @@ func NewBind[T *E, E any](v T, b *bool) (BoundValue, error) {
 	}, nil
 }
 
-func (val *boundVal[T, E]) Set(v any) error {
+func (val *boundVal[T, E]) Set(s string) error {
 	typ := reflect.TypeOf(*val.v)
 	switch typ.Kind() {
 	case reflect.Slice:
@@ -383,7 +429,8 @@ func (val *boundVal[T, E]) Set(v any) error {
 			}
 		*/
 	}
-	return fmt.Errorf("%w: %s->%T", ErrInvalidConversion, typ, *val.v)
+	// return fmt.Errorf("%w: %s->%T", ErrInvalidConversion, typ, *v.v)
+	return ErrInvalidConversion
 }
 
 func (val *boundVal[T, E]) Get() any {
@@ -408,7 +455,7 @@ func NewBindValue(value reflect.Value, b *bool) (BoundValue, error) {
 	}, nil
 }
 
-func (val *boundRefVal) Set(v any) error {
+func (val *boundRefVal) Set(s string) error {
 	typ := val.v.Elem().Type()
 	switch typ.Kind() {
 	case reflect.Slice:
@@ -434,7 +481,7 @@ func (val *boundRefVal) Set(v any) error {
 			}
 		*/
 	}
-	return fmt.Errorf("%w: cannot convert %T->%s", ErrInvalidConversion, v, typ)
+	return fmt.Errorf("%w: cannot convert %T->%s", ErrInvalidConversion, s, typ)
 }
 
 func (val *boundRefVal) sliceSet(s string) bool {
