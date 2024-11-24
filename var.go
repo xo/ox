@@ -84,6 +84,18 @@ func (val *anyVal[T]) Set(s string) error {
 			return fmt.Errorf("%w: %w", ErrInvalidValue, err)
 		}
 		value = b
+	case ByteT:
+		s, err := asByte(s)
+		if err != nil {
+			return fmt.Errorf("%w: %w", ErrInvalidValue, err)
+		}
+		value = s
+	case RuneT:
+		s, err := asRune(s)
+		if err != nil {
+			return fmt.Errorf("%w: %w", ErrInvalidValue, err)
+		}
+		value = s
 	}
 	v, err := as[T](value, val.typ.Layout())
 	if err != nil {
@@ -97,7 +109,15 @@ func (val *anyVal[T]) Set(s string) error {
 }
 
 func (val *anyVal[T]) Get() (string, error) {
-	return As[string](val.v)
+	v, err := as[string](val.v, val.typ.Layout())
+	if err != nil {
+		return "", fmt.Errorf("%w: %w", ErrInvalidConversion, err)
+	}
+	s, ok := v.(string)
+	if !ok {
+		return "", fmt.Errorf("%w: %T->string", ErrInvalidConversion, v)
+	}
+	return s, nil
 }
 
 // sliceVal is a slice value.

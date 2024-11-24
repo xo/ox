@@ -5,6 +5,7 @@ import (
 	"net/netip"
 	"net/url"
 	"testing"
+	"time"
 )
 
 func TestTypeNew(t *testing.T) {
@@ -30,7 +31,7 @@ func TestTypeNew(t *testing.T) {
 							t.Fatalf("expected no error, got: %v", err)
 						}
 						t.Logf("val: %s", s)
-						if exp := toString[string](test.exp, DefaultLayout); s != exp {
+						if exp := toString[string](test.exp, tt.typ.Layout()); s != exp {
 							t.Errorf("expected %q, got: %q", exp, s)
 						}
 					}
@@ -44,6 +45,18 @@ func typeTests(t *testing.T) []typeTest {
 	t.Helper()
 	return []typeTest{
 		{
+			BytesT, []test{
+				{"", []byte("")},
+				{"a", []byte("a")},
+				{15, []byte("15")},
+				{int64(20), []byte("20")},
+				{[]rune("foo"), []byte("foo")},
+				{[]byte("bar"), []byte("bar")},
+				{float64(0.0), []byte("0")},
+				{float64(0.127), []byte("0.127")},
+			},
+		},
+		{
 			StringT, []test{
 				{"", ""},
 				{"a", "a"},
@@ -56,15 +69,15 @@ func typeTests(t *testing.T) []typeTest {
 			},
 		},
 		{
-			BytesT, []test{
-				{"", []byte("")},
-				{"a", []byte("a")},
-				{15, []byte("15")},
-				{int64(20), []byte("20")},
-				{[]rune("foo"), []byte("foo")},
-				{[]byte("bar"), []byte("bar")},
-				{float64(0.0), []byte("0")},
-				{float64(0.127), []byte("0.127")},
+			RunesT, []test{
+				{"", []rune("")},
+				{"a", []rune("a")},
+				{15, []rune("15")},
+				{int64(20), []rune("20")},
+				{[]rune("foo"), []rune("foo")},
+				{[]byte("bar"), []rune("bar")},
+				{float64(0.0), []rune("0")},
+				{float64(0.127), []rune("0.127")},
 			},
 		},
 		{
@@ -100,6 +113,23 @@ func typeTests(t *testing.T) []typeTest {
 				{int64(124), true},
 				{int64(-124), false},
 				{int64(0), false},
+				{"foo", ErrInvalidValue},
+			},
+		},
+		{
+			ByteT, []test{
+				{"", ""},
+				{"a", "a"},
+				{"😀", ErrInvalidValue},
+				{"foo", ErrInvalidValue},
+			},
+		},
+		{
+			RuneT, []test{
+				{"", ""},
+				{"a", "a"},
+				{"😀", "😀"},
+				{"😀😀", ErrInvalidValue},
 				{"foo", ErrInvalidValue},
 			},
 		},
@@ -167,9 +197,16 @@ func typeTests(t *testing.T) []typeTest {
 			},
 		},
 		{
+			TimestampT, []test{
+				{"", ""},
+				{"2024-11-24T07:41:36+07:00", mustTime(t, "2024-11-24T07:41:36+07:00", time.RFC3339)},
+				{"foo", ErrInvalidValue},
+			},
+		},
+		{
 			DateT, []test{
 				{"", ""},
-				{"2006-01-02", "2006-01-02"},
+				{"2006-01-02", mustTime(t, "2006-01-02", time.DateOnly)},
 				{"foo", ErrInvalidValue},
 			},
 		},
@@ -216,6 +253,15 @@ func typeTests(t *testing.T) []typeTest {
 			},
 		},
 	}
+}
+
+func mustTime(t *testing.T, s, layout string) time.Time {
+	t.Helper()
+	v, err := time.Parse(layout, s)
+	if err != nil {
+		t.Fatalf("expected no error, got: %v", err)
+	}
+	return v
 }
 
 func mustURL(t *testing.T, s string) *url.URL {

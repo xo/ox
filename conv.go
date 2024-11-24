@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 )
 
 // As converts a value.
@@ -218,6 +219,56 @@ func asBool(val any) (bool, error) {
 		return false, nil
 	}
 	return strconv.ParseBool(strings.ToLower(s))
+}
+
+// asBytes converts to []byte. It is not like asString, which should be used in
+// general for forcing conversions.
+func asBytes(val any) ([]byte, error) {
+	switch v := val.(type) {
+	case []byte:
+		return v, nil
+	case string:
+		return []byte(v), nil
+	case []rune:
+		return []byte(string(v)), nil
+	case byte:
+		return []byte{v}, nil
+	case rune:
+		return []byte(string(v)), nil
+	}
+	return asString[[]byte](val, "")
+}
+
+// asByte converts the value to a single character string.
+func asByte(val any) (string, error) {
+	b, err := asBytes(val)
+	switch n := len(b); {
+	case err != nil:
+		return "", err
+	case n == 0:
+		return "", nil
+	case n != 1:
+		return "", ErrInvalidValue
+	}
+	return string(b), nil
+}
+
+// asRune converts the value to a single rune string.
+func asRune(val any) (string, error) {
+	b, err := asBytes(val)
+	n := len(b)
+	switch {
+	case err != nil:
+		return "", err
+	case n == 0:
+		return "", nil
+	}
+	r, size := utf8.DecodeRune(b)
+	switch {
+	case r == utf8.RuneError, size != n:
+		return "", ErrInvalidValue
+	}
+	return string(r), nil
 }
 
 // asInt converts the value to a int64.
