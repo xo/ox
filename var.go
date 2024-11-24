@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"slices"
 	"strings"
+	"sync/atomic"
 )
 
 // Value is the value interface.
@@ -97,13 +98,17 @@ func (val *anyVal[T]) Set(s string) error {
 		}
 		value = s
 	}
-	v, err := as[T](value, val.typ.Layout())
-	if err != nil {
-		return fmt.Errorf("%w: %w", ErrInvalidValue, err)
-	}
-	var ok bool
-	if val.v, ok = v.(T); !ok {
-		return fmt.Errorf("%w: %T->%T", ErrInvalidConversion, value, val.v)
+	if val.typ != CountT {
+		v, err := as[T](value, val.typ.Layout())
+		if err != nil {
+			return fmt.Errorf("%w: %w", ErrInvalidValue, err)
+		}
+		var ok bool
+		if val.v, ok = v.(T); !ok {
+			return fmt.Errorf("%w: %T->%T", ErrInvalidConversion, value, val.v)
+		}
+	} else {
+		inc(&val.v, 1)
 	}
 	return nil
 }
@@ -491,4 +496,11 @@ func mapSet(val reflect.Value, s string) bool {
 		m.SetMapIndex(reflect.Indirect(k), reflect.Indirect(v))
 		return nil
 	*/
+}
+
+// inc increments the value.
+func inc(v any, delta uint64) {
+	if u, ok := v.(*uint64); ok {
+		atomic.AddUint64(u, delta)
+	}
 }

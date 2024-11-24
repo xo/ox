@@ -134,6 +134,18 @@ func typeTests(t *testing.T) []typeTest {
 			},
 		},
 		{
+			Int8T, []test{
+				{"", int8(0)},
+				{"0", int8(0)},
+				{0, int8(0)},
+				{21551, ErrInvalidValue},
+				{float64(1.0), int(1)},
+				{"57", int8(57)},
+				{"-10", int8(-10)},
+				{"foo", ErrInvalidValue},
+			},
+		},
+		{
 			IntT, []test{
 				{"", int(0)},
 				{"0", int(0)},
@@ -157,14 +169,11 @@ func typeTests(t *testing.T) []typeTest {
 			},
 		},
 		{
-			Int8T, []test{
-				{"", int8(0)},
-				{"0", int8(0)},
-				{0, int8(0)},
-				{21551, ErrInvalidValue},
-				{float64(1.0), int(1)},
-				{"57", int8(57)},
-				{"-10", int8(-10)},
+			Float64T, []test{
+				{"", float64(0.0)},
+				{"0.0", float64(0.0)},
+				{"79.99", float64(79.99)},
+				{float64(57.33), float64(57.33)},
 				{"foo", ErrInvalidValue},
 			},
 		},
@@ -174,15 +183,6 @@ func typeTests(t *testing.T) []typeTest {
 				{"0.0", float32(0.0)},
 				{"79.99", float32(79.99)},
 				{float64(57.33), float32(57.33)},
-				{"foo", ErrInvalidValue},
-			},
-		},
-		{
-			Float64T, []test{
-				{"", float64(0.0)},
-				{"0.0", float64(0.0)},
-				{"79.99", float64(79.99)},
-				{float64(57.33), float64(57.33)},
 				{"foo", ErrInvalidValue},
 			},
 		},
@@ -208,6 +208,26 @@ func typeTests(t *testing.T) []typeTest {
 				{"", ""},
 				{"2006-01-02", mustTime(t, "2006-01-02", time.DateOnly)},
 				{"foo", ErrInvalidValue},
+			},
+		},
+		{
+			DurationT, []test{
+				{"", ""},
+				{"0", time.Duration(0)},
+				{"1", 1 * time.Second},
+				{"1s", 1 * time.Second},
+				{int(125), 125 * time.Second},
+				{uint(65), "1m5s"},
+				{float64(2.0), 2 * time.Second},
+				{"foo", ErrInvalidValue},
+			},
+		},
+		{
+			CountT, []test{
+				{"", 1},
+				{"a", 1},
+				{"foo", 1},
+				{"bar", "1"},
 			},
 		},
 		{

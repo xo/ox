@@ -425,6 +425,15 @@ func asDuration(val any) (time.Duration, error) {
 	case interface{ Duration() time.Duration }:
 		return v.Duration(), nil
 	}
+	if v, err := asInt[int64](val); err == nil {
+		return time.Duration(v) * time.Second, nil
+	}
+	if v, err := asUint[uint64](val); err == nil {
+		return time.Duration(v) * time.Second, nil
+	}
+	if v, err := asFloat[float64](val); err == nil {
+		return time.Duration(v * float64(time.Second)), nil
+	}
 	s, err := asString[string](val, "")
 	switch {
 	case err != nil:
