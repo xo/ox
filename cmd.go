@@ -51,17 +51,6 @@ func NewCommand[T ExecFunc](f T, opts ...Option) (*Command, error) {
 	return cmd, nil
 }
 
-// Validate validates the passed args.
-func (cmd *Command) Validate(args []string) error {
-	// validate args
-	for _, f := range cmd.Args {
-		if err := f(args); err != nil {
-			return newCommandError(cmd.Name(), err)
-		}
-	}
-	return nil
-}
-
 // Sub creates a sub command.
 func (cmd *Command) Sub(f func(context.Context, []string) error, opts ...Option) error {
 	sub, err := NewCommand(f, prepend(opts, Parent(cmd))...)
@@ -101,13 +90,12 @@ func (cmd *Command) Flag(name string) *Flag {
 	return nil
 }
 
-// Get returns a sub command.
-func (cmd *Command) Get(name string) *Command {
-	for _, sub := range cmd.Commands {
-		for _, d := range sub.Descs {
-			if d.Name == name {
-				return sub
-			}
+// Validate validates the passed args.
+func (cmd *Command) Validate(args []string) error {
+	// validate args
+	for _, f := range cmd.Args {
+		if err := f(args); err != nil {
+			return newCommandError(cmd.Name(), err)
 		}
 	}
 	return nil
@@ -619,7 +607,7 @@ func (d Desc) apply(val any) error {
 	case *Flag:
 		v.Descs = append(v.Descs, d)
 	default:
-		return fmt.Errorf("Desc option: %w", ErrAppliedToInvalidType)
+		return fmt.Errorf("Desc: %w", ErrAppliedToInvalidType)
 	}
 	return nil
 }
