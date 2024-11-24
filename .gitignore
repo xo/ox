@@ -4,4 +4,6 @@
 /_examples/bind/bind.exe
 /_examples/reflect/reflect
 /_examples/reflect/reflect.exe
+/ox.test
+/ox.test.exe
 *.txt
