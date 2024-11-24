@@ -108,8 +108,8 @@ func (typ Type) New() (Value, error) {
 // typeNews are registered type creation funcs.
 var typeNews map[Type]func() (Value, error)
 
-// typeOpts are registered type flag options.
-var typeOpts map[Type][]Option
+// typeFlagOpts are registered type flag options.
+var typeFlagOpts map[Type][]Option
 
 // typeLayouts are [time.Time] parsing typeLayouts.
 var typeLayouts map[Type]string
@@ -159,15 +159,15 @@ func init() {
 		MapT:        NewMap(),
 		// HookT:       NewTypeDesc(NewHook(), NoArg(true)),
 	}
+	typeFlagOpts = map[Type][]Option{
+		BoolT:  {NoArg(true)},
+		CountT: {NoArg(true)},
+	}
 	typeLayouts = map[Type]string{
 		TimestampT: time.RFC3339Nano,
 		DateTimeT:  time.DateTime,
 		DateT:      time.DateOnly,
 		TimeT:      time.TimeOnly,
-	}
-	typeOpts = map[Type][]Option{
-		BoolT:  {NoArg(true)},
-		CountT: {NoArg(true)},
 	}
 	reflectTypes = make(map[string]Type)
 	// text marshal types
@@ -197,16 +197,22 @@ func init() {
 	})
 }
 
-// RegisterTypeName registers a type name.
-func RegisterTypeName(typ Type, names ...string) {
-	for _, name := range names {
-		reflectTypes[name] = typ
-	}
+// RegisterTypeOptions registers [Flag] options used within [NewFlag], used for
+// setting default flag values.
+func RegisterTypeOptions(typ Type, opts ...Option) {
+	typeFlagOpts[typ] = opts
 }
 
 // RegisterLayout registers a time layout for the type.
 func RegisterLayout(typ Type, layout string) {
 	typeLayouts[typ] = layout
+}
+
+// RegisterTypeName registers a type name.
+func RegisterTypeName(typ Type, names ...string) {
+	for _, name := range names {
+		reflectTypes[name] = typ
+	}
 }
 
 // RegisterTextType registers a new text type.
