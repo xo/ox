@@ -363,7 +363,25 @@ func Relative(dir string) Option {
 }
 */
 
-// Option is a option.
+// Option is the interface for options that can be passed when creating a
+// [RunContext], [Command], or [Flag].
+//
+// The [Option] type is aliased as [RunOption], [CommandOption],
+// [CommandFlagOption], and [FlagOption] and provided for ease-of-use,
+// readibility, and categorization within documentation.
+//
+// A [RunOption] can be applied to a [RunContext] and passed to [Run].
+//
+// A [CommandOption] can be applied to a [Command] and passed to [NewCommand].
+//
+// A [CommandFlagOption] can be applied to either a [Command] or [Flag], and
+// can be passed to [NewCommand] and [NewFlag].
+//
+// A [FlagOption] can be applied to a [Flag] and passed to [NewFlag].
+//
+// Additionally, a [OnErr] can be used as a [CommandOption] or in calls to
+// [NewCommand], and a [Type] can be used as a [FlagOption] in calls to
+// [NewFlag].
 type Option interface {
 	apply(any) error
 }
