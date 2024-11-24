@@ -114,6 +114,9 @@ func (val *anyVal[T]) Set(s string) error {
 }
 
 func (val *anyVal[T]) Get() (string, error) {
+	if invalid(val.v) {
+		return "", nil
+	}
 	v, err := as[string](val.v, val.typ.Layout())
 	if err != nil {
 		return "", fmt.Errorf("%w: %w", ErrInvalidConversion, err)
@@ -499,8 +502,17 @@ func mapSet(val reflect.Value, s string) bool {
 }
 
 // inc increments the value.
-func inc(v any, delta uint64) {
-	if u, ok := v.(*uint64); ok {
-		atomic.AddUint64(u, delta)
+func inc(val any, delta uint64) {
+	if v, ok := val.(*uint64); ok {
+		atomic.AddUint64(v, delta)
 	}
+}
+
+// invalid indicates if a value is invalid.
+func invalid(val any) bool {
+	// interface for netip.{Addr,AddrPort,Prefix}
+	if v, ok := val.(interface{ IsValid() bool }); ok {
+		return !v.IsValid()
+	}
+	return false
 }

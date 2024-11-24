@@ -204,9 +204,23 @@ func typeTests(t *testing.T) []typeTest {
 			},
 		},
 		{
+			DateTimeT, []test{
+				{"", ""},
+				{"2024-11-24 7:41:36", mustTime(t, "2024-11-24 7:41:36", time.DateTime)},
+				{"foo", ErrInvalidValue},
+			},
+		},
+		{
 			DateT, []test{
 				{"", ""},
 				{"2006-01-02", mustTime(t, "2006-01-02", time.DateOnly)},
+				{"foo", ErrInvalidValue},
+			},
+		},
+		{
+			TimeT, []test{
+				{"", ""},
+				{"7:41:36", mustTime(t, "7:41:36", time.TimeOnly)},
 				{"foo", ErrInvalidValue},
 			},
 		},
@@ -240,7 +254,7 @@ func typeTests(t *testing.T) []typeTest {
 		{
 			AddrT,
 			[]test{
-				{"", "invalid IP"},
+				{"", ""},
 				{"0.0.0.0", mustAddr(t, "0.0.0.0")},
 				{"127.0.0.1", mustAddr(t, "127.0.0.1")},
 				{"::ffff:192.168.140.255", mustAddr(t, "::ffff:192.168.140.255")},
@@ -250,7 +264,7 @@ func typeTests(t *testing.T) []typeTest {
 		{
 			AddrPortT,
 			[]test{
-				{"", "invalid AddrPort"},
+				{"", ""},
 				{"1.2.3.4:80", mustAddrPort(t, "1.2.3.4:80")},
 				{"[::]:80", mustAddrPort(t, "[::]:80")},
 				{"[1::CAFE]:80", mustAddrPort(t, "[1::cafe]:80")},
@@ -263,7 +277,7 @@ func typeTests(t *testing.T) []typeTest {
 		{
 			CIDRT,
 			[]test{
-				{"", "invalid Prefix"},
+				{"", ""},
 				{"1.2.3.4/24", mustPrefix(t, "1.2.3.4/24")},
 				{"fd7a:115c:a1e0:ab12:4843:cd96:626b:430b/118", mustPrefix(t, "fd7a:115c:a1e0:ab12:4843:cd96:626b:430b/118")},
 				{"::ffff:c000:0280/96", mustPrefix(t, "::ffff:192.0.2.128/96")},
