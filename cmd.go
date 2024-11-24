@@ -390,7 +390,7 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 			return nil, err
 		}
 	}
-	if opts, ok := typeOpts[g.Type]; ok {
+	if opts, ok := typeFlagOpts[g.Type]; ok {
 		for _, o := range opts {
 			if err := o.apply(g); err != nil {
 				return nil, err
