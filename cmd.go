@@ -485,9 +485,9 @@ func (g *Flag) Short() (string, bool) {
 func (g *Flag) New() (Value, error) {
 	switch g.Type {
 	case SliceT:
-		return newSlice(g.Sub), nil
+		return NewSlice(g.Sub), nil
 	case MapT:
-		return newMap(g.Key, g.Sub)
+		return NewMap(g.Key, g.Sub)
 	}
 	return g.Type.New()
 }

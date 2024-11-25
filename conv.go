@@ -110,7 +110,7 @@ func as[T any](val any, layout string) (any, error) {
 		return asComplex[complex128](val)
 	case complex64:
 		return asComplex[complex64](val)
-	case timev:
+	case TimeV:
 		return asTime(val, layout)
 	case time.Time:
 		return asTime(val, layout)
@@ -167,7 +167,7 @@ func asString[T stringi](val any) (T, error) {
 		return T(strconv.FormatComplex(v, 'f', -1, bitSize[complex128]())), nil
 	case complex64:
 		return T(strconv.FormatComplex(complex128(v), 'f', -1, bitSize[complex64]())), nil
-	case timev:
+	case TimeV:
 		return T(v.String()), nil
 	case time.Duration:
 		if v == 0 {
@@ -404,27 +404,27 @@ func asComplex[T complexi](val any) (T, error) {
 }
 
 // asTime converts the value to a [time.Time].
-func asTime(val any, layout string) (timev, error) {
+func asTime(val any, layout string) (TimeV, error) {
 	switch v := val.(type) {
-	case timev:
+	case TimeV:
 		return v, nil
 	case time.Time:
-		return timev{layout: layout, v: v}, nil
+		return TimeV{layout: layout, v: v}, nil
 	case interface{ Time() time.Time }:
-		return timev{layout: layout, v: v.Time()}, nil
+		return TimeV{layout: layout, v: v.Time()}, nil
 	}
 	s, err := asString[string](val)
 	switch {
 	case err != nil:
-		return timev{layout: layout}, err
+		return TimeV{layout: layout}, err
 	case s == "":
-		return timev{layout: layout}, nil
+		return TimeV{layout: layout}, nil
 	}
 	v, err := time.Parse(layout, s)
 	if err != nil {
-		return timev{layout: layout}, err
+		return TimeV{layout: layout}, err
 	}
-	return timev{layout: layout, v: v}, nil
+	return TimeV{layout: layout, v: v}, nil
 }
 
 // asDuration converts the value to a [time.Duration].

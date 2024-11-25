@@ -336,13 +336,13 @@ func typeTests(t *testing.T) []typeTest {
 	}
 }
 
-func mustTime(t *testing.T, s, layout string) timev {
+func mustTime(t *testing.T, s, layout string) TimeV {
 	t.Helper()
 	v, err := time.Parse(layout, s)
 	if err != nil {
 		t.Fatalf("expected no error, got: %v", err)
 	}
-	return timev{layout: layout, v: v}
+	return TimeV{layout: layout, v: v}
 }
 
 func mustURL(t *testing.T, s string) *url.URL {

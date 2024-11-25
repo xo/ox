@@ -317,7 +317,7 @@ func BigRat(ctx context.Context, name string) *big.Rat {
 
 // Time returns the [time.Time] variable from the context.
 func Time(ctx context.Context, name string) time.Time {
-	return Get[time.Time](ctx, name)
+	return Get[TimeV](ctx, name).Time()
 }
 
 // Duration returns the [time.Duration] variable from the context.

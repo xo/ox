@@ -131,9 +131,9 @@ func (val *anyVal[T]) String() string {
 // NewTime returns a Value func for a [time.Time] value.
 func NewTime(typ Type, layout string) func() (Value, error) {
 	return func() (Value, error) {
-		val := &anyVal[timev]{
+		val := &anyVal[TimeV]{
 			typ: typ,
-			v:   timev{layout: layout},
+			v:   TimeV{layout: layout},
 		}
 		if val.typ == "" {
 			val.typ = TimestampT
@@ -152,8 +152,8 @@ type sliceVal struct {
 	set bool
 }
 
-// newSlice creates a slice value of type.
-func newSlice(typ Type) Value {
+// NewSlice creates a slice value of type.
+func NewSlice(typ Type) Value {
 	return &sliceVal{
 		typ: typ,
 	}
@@ -216,8 +216,8 @@ type mapVal struct {
 	v   mapValue
 }
 
-// newMap creates a map value of type.
-func newMap(key, typ Type) (Value, error) {
+// NewMap creates a map value of type.
+func NewMap(key, typ Type) (Value, error) {
 	val := &mapVal{
 		key: key,
 		typ: typ,
@@ -428,32 +428,25 @@ func (val *boundVal[T, E]) Set(s string) error {
 	typ := reflect.TypeOf(*val.v)
 	switch typ.Kind() {
 	case reflect.Slice:
-		/*
-			if sliceSet(reflect.ValueOf(&val.v), s) {
-				return nil
-			}
-		*/
+		if sliceSet(reflect.ValueOf(&val.v), s) {
+			return nil
+		}
 	case reflect.Map:
-		/*
-			if mapSet(reflect.ValueOf(&val.v), s) {
+		if mapSet(reflect.ValueOf(&val.v), s) {
+			return nil
+		}
+	default:
+		if v, err := as[E](s, layout(val.v)); err == nil {
+			var ok bool
+			if *val.v, ok = v.(E); ok {
+				if val.b != nil {
+					*val.b = true
+				}
 				return nil
 			}
-		*/
-	default:
-		/*
-			if v, err := conv[E](s); err == nil {
-				var ok bool
-				if *val.v, ok = v.(E); ok {
-					if val.b != nil {
-						*val.b = true
-					}
-					return nil
-				}
-			}
-		*/
+		}
 	}
-	// return fmt.Errorf("%w: %s->%T", ErrInvalidConversion, typ, *v.v)
-	return ErrInvalidConversion
+	return fmt.Errorf("%w: %s->%T", ErrInvalidConversion, typ, *val.v)
 }
 
 func (val *boundVal[T, E]) Get() any {
@@ -528,14 +521,58 @@ func (val *boundRefVal) Get() any {
 	return val.v.Elem().Interface()
 }
 
+// TimeV wraps a time value with a specific layout.
+type TimeV struct {
+	layout string
+	v      time.Time
+}
+
+// NewTimeV creates a timeV value.
+func NewTimeV(layout string, v time.Time) TimeV {
+	return TimeV{
+		layout: layout,
+		v:      v,
+	}
+}
+
+// Layout returns the layout.
+func (val TimeV) Layout() string {
+	return val.layout
+}
+
+// Time returns the time value.
+func (val TimeV) Time() time.Time {
+	return val.v
+}
+
+// Set sets parses the time value from the string.
+func (val *TimeV) Set(s string) error {
+	var err error
+	val.v, err = time.Parse(val.layout, s)
+	return err
+}
+
+// Format formats the time value as the provided layout.
+func (val TimeV) Format(layout string) string {
+	return val.v.Format(layout)
+}
+
+// String satisfies the [fmt.Stringer] interface.
+func (val TimeV) String() string {
+	return val.v.Format(val.layout)
+}
+
+// IsValid returns true when the time is not zero.
+func (val TimeV) IsValid() bool {
+	return !val.v.IsZero()
+}
+
 // sliceSet sets a a value on a slice.
-func sliceSet(val reflect.Value, s string) bool {
-	/*
-		z := reflect.New(v.Type().Elem())
-		if convValue(z, s) {
-			v = reflect.Append(v, reflect.Indirect(z))
-		}
-	*/
+func sliceSet(value reflect.Value, s string) bool {
+	v := reflect.New(value.Type().Elem())
+	if asValue(v, s) {
+		value = reflect.Append(value, reflect.Indirect(v))
+	}
 	return false
 }
 
@@ -571,33 +608,6 @@ func mapSet(val reflect.Value, s string) bool {
 	*/
 }
 
-type timev struct {
-	layout string
-	v      time.Time
-}
-
-func (val timev) Layout() string {
-	return val.layout
-}
-
-func (val timev) Time() time.Time {
-	return val.v
-}
-
-func (val *timev) Set(s string) error {
-	var err error
-	val.v, err = time.Parse(val.layout, s)
-	return err
-}
-
-func (val timev) String() string {
-	return val.v.Format(val.layout)
-}
-
-func (val timev) IsValid() bool {
-	return !val.v.IsZero()
-}
-
 // invalid indicates if a value is invalid.
 // inc increments the value.
 func inc(val any, delta uint64) {
@@ -615,6 +625,7 @@ func invalid(val any) bool {
 	return false
 }
 
+// layout returns the layout for the value.
 func layout(val any) string {
 	if v, ok := val.(interface{ Layout() string }); ok {
 		return v.Layout()

@@ -2,7 +2,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"net/url"
 
@@ -18,7 +17,7 @@ func main() {
 		strings []string
 		m       map[int]int
 	)
-	run := func(ctx context.Context, args []string) error {
+	run := func(args []string) {
 		fmt.Println("arg:", arg)
 		if urlSet {
 			fmt.Println("u:", u)
@@ -28,11 +27,9 @@ func main() {
 		fmt.Println("ints:", ints)
 		fmt.Println("strings:", strings)
 		fmt.Println("map:", m)
-		return nil
 	}
 	ox.Run(
-		context.Background(),
-		run,
+		ox.Exec(run),
 		ox.Usage("bind", "demonstrates using ox's binds"),
 		ox.Flags().
 			String("arg", "an arg", ox.Bind(&arg)).
