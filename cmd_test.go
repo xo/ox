@@ -160,14 +160,14 @@ func parseTests() []parseTest {
 			},
 		},
 		{
-			ss("a//five//--time//A=07:15:13//a//-d2001-12-25//-d=2002-1-15//--time=B=12:15:32//b"),
+			ss("a//five//--time//A=07:15:13//a//-d2001-12-25//-d=2002-01-15//--time=B=12:15:32//b"),
 			[]string{
 				"exec: five",
 				"root: cmd",
 				"name: five",
 				"tree: [cmd five]",
 				"args: [a b]",
-				"vars: [date:[2001-12-25 2002-1-15] int:15 time:[A:07:15:13 B:12:15:32] val:125]",
+				"vars: [date:[2001-12-25 2002-01-15] int:15 time:[A:07:15:13 B:12:15:32] val:125]",
 			},
 		},
 		{
@@ -182,14 +182,14 @@ func parseTests() []parseTest {
 			},
 		},
 		{
-			ss("a//five//-T//255=07:15:32//-T//128=12:15:20//-C=16.0=A//-iiiC25=J//-C//17=1//--//--//-a//-b=c"),
+			ss("a//five//-T//255=07:15:32//-T//128=12:15:20//-C=16.0=A//-iiiC25=J//-C//16.000=C//-C//17=1//--//--//-a//-b=c"),
 			[]string{
 				"exec: five",
 				"root: cmd",
 				"name: five",
 				"tree: [cmd five]",
 				"args: [-- -a -b=c]",
-				"vars: [countmap:[16.0:A 17:1 25:J] inc:3 int:15 timemap:[128:12:15:20 255:07:15:32] val:125]",
+				"vars: [countmap:[16:2 17:1 25:1] inc:3 int:15 timemap:[128:12:15:20 255:07:15:32] val:125]",
 			},
 		},
 	}

@@ -147,8 +147,8 @@ func init() {
 		DurationT:   NewVal[time.Duration](),
 		CountT:      NewVal[uint64](CountT),
 		PathT:       NewVal[string](PathT),
-		SliceT:      NewSlice(),
-		MapT:        NewMap(),
+		// SliceT:      NewSlice(),
+		// MapT:        NewMap(),
 		// HookT:       NewTypeDesc(NewHook(), NoArg(true)),
 	}
 	typeFlagOpts = map[Type][]Option{

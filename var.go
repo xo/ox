@@ -152,18 +152,10 @@ type sliceVal struct {
 	set bool
 }
 
-// NewSlice creates a slice value of type.
-func NewSlice(opts ...Option) func() (Value, error) {
-	return func() (Value, error) {
-		val := &sliceVal{
-			typ: StringT,
-		}
-		for _, o := range opts {
-			if err := o.apply(val); err != nil {
-				return nil, err
-			}
-		}
-		return val, nil
+// newSlice creates a slice value of type.
+func newSlice(typ Type) Value {
+	return &sliceVal{
+		typ: typ,
 	}
 }
 
@@ -224,24 +216,17 @@ type mapVal struct {
 	v   mapValue
 }
 
-// NewMap creates a map value of type.
-func NewMap(opts ...Option) func() (Value, error) {
-	return func() (Value, error) {
-		val := &mapVal{
-			key: StringT,
-			typ: StringT,
-		}
-		for _, o := range opts {
-			if err := o.apply(val); err != nil {
-				return nil, err
-			}
-		}
-		var err error
-		if val.v, err = makeMap(val.key, val.typ); err != nil {
-			return nil, err
-		}
-		return val, nil
+// newMap creates a map value of type.
+func newMap(key, typ Type) (Value, error) {
+	val := &mapVal{
+		key: key,
+		typ: typ,
 	}
+	var err error
+	if val.v, err = makeMap(val.key, val.typ); err != nil {
+		return nil, err
+	}
+	return val, nil
 }
 
 func (val *mapVal) Type() Type {
@@ -385,7 +370,7 @@ func (vars Vars) Set(g *Flag, s string, set bool) error {
 	var err error
 	v, ok := vars[name]
 	if !ok {
-		if v, err = g.Type.New(); err != nil {
+		if v, err = g.New(); err != nil {
 			return err
 		}
 	}

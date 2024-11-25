@@ -400,6 +400,8 @@ type Flag struct {
 func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 	g := &Flag{
 		Type: StringT,
+		Key:  StringT,
+		Sub:  StringT,
 		Descs: []Desc{{
 			Name:  name,
 			Usage: usage,
@@ -478,6 +480,17 @@ func (g *Flag) Short() (string, bool) {
 		}
 	}
 	return "", false
+}
+
+// New creates a new value for the flag's type.
+func (g *Flag) New() (Value, error) {
+	switch g.Type {
+	case SliceT:
+		return newSlice(g.Sub), nil
+	case MapT:
+		return newMap(g.Key, g.Sub)
+	}
+	return g.Type.New()
 }
 
 // Desc contains a command/flag description.
