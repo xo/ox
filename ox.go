@@ -14,6 +14,15 @@ import (
 	"time"
 )
 
+var (
+	// DefaultTagName is the default struct tag name used in [FromFlags] and
+	// related func's.
+	DefaultTagName = "ox"
+	// DefaultLayout is the default timestamp layout used for formatting and
+	// parsing [TimestampT] values.
+	DefaultLayout = time.RFC3339
+)
+
 // Run creates a [Command] for f using [os.Args] by default, unless arguments
 // were specified using a [ContextOption].
 func Run[T ExecFunc](f T, opts ...Option) {
@@ -138,14 +147,6 @@ const (
 	ErrTypeMismatch Error = "type mismatch"
 	// ErrExit is the exit error.
 	ErrExit Error = "exit"
-)
-
-var (
-	// DefaultLayout is the default timestamp layout.
-	DefaultLayout = time.RFC3339
-	// DefaultTagName is the default struct tag name used in [FromFlags] and
-	// related func's for building flag options.
-	DefaultTagName = "ox"
 )
 
 // ldist is a levenshtein distance implementation.

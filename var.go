@@ -10,6 +10,7 @@ import (
 	"slices"
 	"strings"
 	"sync/atomic"
+	"time"
 )
 
 // Value is the value interface.
@@ -26,11 +27,11 @@ type Value interface {
 // anyVal wraps a value.
 type anyVal[T any] struct {
 	typ Type
-	v   T
 	set bool
+	v   T
 }
 
-// NewVal returns a [Value] func.
+// NewVal returns a [Value] func storing the value as type T.
 func NewVal[T any](opts ...Option) func() (Value, error) {
 	return func() (Value, error) {
 		val := &anyVal[T]{
@@ -92,18 +93,17 @@ func (val *anyVal[T]) Set(s string) error {
 			return fmt.Errorf("%w: %w", ErrInvalidValue, err)
 		}
 		value = s
-	}
-	if val.typ != CountT {
-		v, err := as[T](value, val.typ.Layout())
-		if err != nil {
-			return fmt.Errorf("%w: %w", ErrInvalidValue, err)
-		}
-		var ok bool
-		if val.v, ok = v.(T); !ok {
-			return fmt.Errorf("%w: %T->%T", ErrInvalidConversion, value, val.v)
-		}
-	} else {
+	case CountT:
 		inc(&val.v, 1)
+		return nil
+	}
+	v, err := as[T](value, layout(val.v))
+	if err != nil {
+		return fmt.Errorf("%w: %w", ErrInvalidValue, err)
+	}
+	var ok bool
+	if val.v, ok = v.(T); !ok {
+		return fmt.Errorf("%w: %T->%T", ErrInvalidConversion, value, val.v)
 	}
 	return nil
 }
@@ -112,7 +112,7 @@ func (val *anyVal[T]) Get() (string, error) {
 	if invalid(val.v) {
 		return "", nil
 	}
-	v, err := as[string](val.v, val.typ.Layout())
+	v, err := as[string](val.v, layout(val.v))
 	if err != nil {
 		return "", fmt.Errorf("%w: %w", ErrInvalidConversion, err)
 	}
@@ -128,11 +128,28 @@ func (val *anyVal[T]) String() string {
 	return s
 }
 
+// NewTime returns a Value func for a [time.Time] value.
+func NewTime(typ Type, layout string) func() (Value, error) {
+	return func() (Value, error) {
+		val := &anyVal[timev]{
+			typ: typ,
+			v:   timev{layout: layout},
+		}
+		if val.typ == "" {
+			val.typ = TimestampT
+		}
+		if val.v.layout == "" {
+			val.v.layout = DefaultLayout
+		}
+		return val, nil
+	}
+}
+
 // sliceVal is a slice value.
 type sliceVal struct {
 	typ Type
-	set bool
 	v   []Value
+	set bool
 }
 
 // NewSlice creates a slice value of type.
@@ -185,7 +202,7 @@ func (val *sliceVal) Set(s string) error {
 func (val *sliceVal) String() string {
 	s := make([]string, len(val.v))
 	for i, v := range val.v {
-		s[i] = toString[string](v, val.typ.Layout())
+		s[i] = toString[string](v)
 	}
 	return "[" + strings.Join(s, " ") + "]"
 }
@@ -203,8 +220,8 @@ func (val *sliceVal) Len() int {
 type mapVal struct {
 	key Type
 	typ Type
-	v   mapValue
 	set bool
+	v   mapValue
 }
 
 // NewMap creates a map value of type.
@@ -285,6 +302,10 @@ func makeMap(key, typ Type) (mapValue, error) {
 		return newValueMap[uint8](typ), nil
 	case UintT:
 		return newValueMap[uint](typ), nil
+	case Float64T:
+		return newValueMap[float64](typ), nil
+	case Float32T:
+		return newValueMap[float32](typ), nil
 	}
 	return nil, fmt.Errorf("%w: bad map key type %s", ErrInvalidType, key)
 }
@@ -335,7 +356,7 @@ func (val valueMap[K]) String() string {
 	s := make([]string, len(val.v))
 	for i, k := range slices.Sorted(maps.Keys(val.v)) {
 		value, _ := val.v[k].Get()
-		s[i] = toString[string](k, "") + ":" + value
+		s[i] = toString[string](k) + ":" + value
 	}
 	return "[" + strings.Join(s, " ") + "]"
 }
@@ -548,6 +569,34 @@ func mapSet(val reflect.Value, s string) bool {
 	*/
 }
 
+type timev struct {
+	layout string
+	v      time.Time
+}
+
+func (val timev) Layout() string {
+	return val.layout
+}
+
+func (val timev) Time() time.Time {
+	return val.v
+}
+
+func (val *timev) Set(s string) error {
+	var err error
+	val.v, err = time.Parse(val.layout, s)
+	return err
+}
+
+func (val timev) String() string {
+	return val.v.Format(val.layout)
+}
+
+func (val timev) IsValid() bool {
+	return !val.v.IsZero()
+}
+
+// invalid indicates if a value is invalid.
 // inc increments the value.
 func inc(val any, delta uint64) {
 	if v, ok := val.(*uint64); ok {
@@ -555,11 +604,18 @@ func inc(val any, delta uint64) {
 	}
 }
 
-// invalid indicates if a value is invalid.
+// invalid returns true if the value is invalid.
 func invalid(val any) bool {
-	// interface for netip.{Addr,AddrPort,Prefix}
+	// interface for netip.{Addr,AddrPort,Prefix} and timev
 	if v, ok := val.(interface{ IsValid() bool }); ok {
 		return !v.IsValid()
 	}
 	return false
+}
+
+func layout(val any) string {
+	if v, ok := val.(interface{ Layout() string }); ok {
+		return v.Layout()
+	}
+	return ""
 }

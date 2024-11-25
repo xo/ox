@@ -61,6 +61,56 @@ func (cmd *Command) Sub(f func(context.Context, []string) error, opts ...Option)
 	return nil
 }
 
+// Name returns the command's name.
+func (cmd *Command) Name() string {
+	if len(cmd.Descs) != 0 {
+		return cmd.Descs[0].Name
+	}
+	return ""
+}
+
+// Tree returns the parents of the command.
+func (cmd *Command) Tree() []string {
+	var v []string
+	for c := cmd; c != nil; {
+		v, c = append(v, c.Name()), c.Parent
+	}
+	slices.Reverse(v)
+	return v
+}
+
+// Populate populates vars with all the command's flags values, overwriting any
+// set variables if applicable. When all is true, all flag values will be
+// populated, otherwise only flags with default values will be. When overwrite
+// is true, existing vars will be set to either to flag's empty or default
+// value.
+func (cmd *Command) Populate(all, overwrite bool, vars Vars) error {
+	if cmd.Flags == nil {
+		return nil
+	}
+	for _, g := range cmd.Flags.Flags {
+		name := g.Name()
+		if _, ok := vars[name]; ok && overwrite {
+			delete(vars, name)
+		}
+		var value string
+		switch {
+		case g.Type == HookT, g.Def == nil && !all:
+			continue
+		case g.Def != nil:
+			s, err := asString[string](g.Def)
+			if err != nil {
+				return err
+			}
+			value = s
+		}
+		if err := vars.Set(g, value, false); err != nil {
+			return fmt.Errorf("cannot populate %s with %q: %w", name, value, err)
+		}
+	}
+	return nil
+}
+
 // Command returns the sub command with the name.
 func (cmd *Command) Command(name string) *Command {
 	for _, sub := range cmd.Commands {
@@ -99,24 +149,6 @@ func (cmd *Command) Validate(args []string) error {
 		}
 	}
 	return nil
-}
-
-// Tree returns the parents of the command.
-func (cmd *Command) Tree() []string {
-	var v []string
-	for c := cmd; c != nil; {
-		v, c = append(v, c.Name()), c.Parent
-	}
-	slices.Reverse(v)
-	return v
-}
-
-// Name returns the command's name.
-func (cmd *Command) Name() string {
-	if len(cmd.Descs) != 0 {
-		return cmd.Descs[0].Name
-	}
-	return ""
 }
 
 // FlagSet is a set of command-line flag definitions.
@@ -259,21 +291,6 @@ func (fs *FlagSet) Complex64(name, desc string, opts ...Option) *FlagSet {
 	return fs.Var(name, desc, prepend(opts, Option(Complex64T))...)
 }
 
-// BigInt adds a [math/big.Int] variable to the flag set.
-func (fs *FlagSet) BigInt(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(BigIntT))...)
-}
-
-// BigFloat adds a [math/big.Float] variable to the flag set.
-func (fs *FlagSet) BigFloat(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(BigFloatT))...)
-}
-
-// BigRat adds a [math/big.Rat] variable to the flag set.
-func (fs *FlagSet) BigRat(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(BigRatT))...)
-}
-
 // Timestamp adds a [time.Time] variable to the flag set in the expected format of
 // [time.RFC3339].
 func (fs *FlagSet) Timestamp(name, desc string, opts ...Option) *FlagSet {
@@ -297,9 +314,29 @@ func (fs *FlagSet) Duration(name, desc string, opts ...Option) *FlagSet {
 	return fs.Var(name, desc, prepend(opts, Option(DurationT))...)
 }
 
-// URL adds a [url.URL] variable to the flag set.
-func (fs *FlagSet) URL(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(URLT))...)
+// Path adds a path variable to the flag set.
+func (fs *FlagSet) Path(name, desc string, opts ...Option) *FlagSet {
+	return fs.Var(name, desc, prepend(opts, Option(PathT))...)
+}
+
+// Count adds a count variable to the flag set.
+func (fs *FlagSet) Count(name, desc string, opts ...Option) *FlagSet {
+	return fs.Var(name, desc, prepend(opts, Option(CountT))...)
+}
+
+// BigInt adds a [math/big.Int] variable to the flag set.
+func (fs *FlagSet) BigInt(name, desc string, opts ...Option) *FlagSet {
+	return fs.Var(name, desc, prepend(opts, Option(BigIntT))...)
+}
+
+// BigFloat adds a [math/big.Float] variable to the flag set.
+func (fs *FlagSet) BigFloat(name, desc string, opts ...Option) *FlagSet {
+	return fs.Var(name, desc, prepend(opts, Option(BigFloatT))...)
+}
+
+// BigRat adds a [math/big.Rat] variable to the flag set.
+func (fs *FlagSet) BigRat(name, desc string, opts ...Option) *FlagSet {
+	return fs.Var(name, desc, prepend(opts, Option(BigRatT))...)
 }
 
 // Addr adds a [netip.Addr] variable to the flag set.
@@ -317,14 +354,9 @@ func (fs *FlagSet) CIDR(name, desc string, opts ...Option) *FlagSet {
 	return fs.Var(name, desc, prepend(opts, Option(CIDRT))...)
 }
 
-// Path adds a path variable to the flag set.
-func (fs *FlagSet) Path(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(PathT))...)
-}
-
-// Count adds a count variable to the flag set.
-func (fs *FlagSet) Count(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(CountT))...)
+// URL adds a [url.URL] variable to the flag set.
+func (fs *FlagSet) URL(name, desc string, opts ...Option) *FlagSet {
+	return fs.Var(name, desc, prepend(opts, Option(URLT))...)
 }
 
 // UUID adds a uuid variable to the flag set.
@@ -446,147 +478,6 @@ func (g *Flag) Short() (string, bool) {
 		}
 	}
 	return "", false
-}
-
-// Parse parses the command-line arguments into vars.
-func Parse(root *Command, args []string, vars Vars) (*Command, []string, error) {
-	if root.Parent != nil {
-		return nil, nil, fmt.Errorf("Parse: %w", ErrCanOnlyBeUsedWithRootCommand)
-	}
-	if err := Populate(root, false, false, vars); err != nil {
-		return nil, nil, newCommandError(root.Name(), err)
-	}
-	if len(args) == 0 {
-		return root, nil, nil
-	}
-	return parse(root, args, vars)
-}
-
-// Populate populates vars with all the command's flags values, and overwriting
-// if applicable. When all is true, all flag values will be populated,
-// otherwise only flags with default values will be. When overwrite is true,
-// existing vars will be set to either to flag's empty or default value.
-func Populate(cmd *Command, all, overwrite bool, vars Vars) error {
-	if cmd.Flags == nil {
-		return nil
-	}
-	for _, g := range cmd.Flags.Flags {
-		name := g.Name()
-		if _, ok := vars[name]; ok && overwrite {
-			delete(vars, name)
-		}
-		var value string
-		switch {
-		case g.Type == HookT, g.Def == nil && !all:
-			continue
-		case g.Def != nil:
-			s, err := asString[string](g.Def, g.Type.Layout())
-			if err != nil {
-				return err
-			}
-			value = s
-		}
-		if err := vars.Set(g, value, false); err != nil {
-			return fmt.Errorf("cannot populate %s with %q: %w", name, value, err)
-		}
-	}
-	return nil
-}
-
-// parse parses the args into m based on the flags on the command.
-func parse(cmd *Command, args []string, vars Vars) (*Command, []string, error) {
-	// fmt.Fprintf(os.Stdout, "args: %q\n", args)
-	var v []string
-	var s string
-	var n int
-	var err error
-	for len(args) != 0 {
-		switch s, n, args = args[0], len(args[0]), args[1:]; {
-		case n == 0, n == 1, s[0] != '-':
-			// lookup sub command
-			var c *Command
-			if len(v) == 0 {
-				c = cmd.Command(s)
-			}
-			if c != nil {
-				if err := Populate(c, false, false, vars); err != nil {
-					return nil, nil, newCommandError(c.Name(), err)
-				}
-				cmd = c
-			} else {
-				v = append(v, s)
-			}
-		case s == "--":
-			return cmd, append(v, args...), nil
-		case s[1] == '-':
-			if args, err = parseLong(cmd, s, args, vars); err != nil {
-				return nil, nil, err
-			}
-		default:
-			if args, err = parseShort(cmd, s, args, vars); err != nil {
-				return nil, nil, err
-			}
-		}
-	}
-	return cmd, v, nil
-}
-
-// parseLong parses a long flag ('--arg' '--arg v' '--arg k=v' '--arg=' '--arg=v').
-func parseLong(cmd *Command, s string, args []string, vars Vars) ([]string, error) {
-	arg, value, ok := strings.Cut(strings.TrimPrefix(s, "--"), "=")
-	g := cmd.Flag(arg)
-	switch {
-	case g == nil:
-		return nil, newFlagError(arg, ErrUnknownFlag)
-	case ok: // --arg=v
-	case g.NoArg: // --arg
-		value = toBoolString(g.Def)
-	case len(args) != 0: // --arg v
-		value, args = args[0], args[1:]
-	default: // missing argument to --arg
-		return nil, newFlagError(arg, ErrMissingArgument)
-	}
-	if err := vars.Set(g, value, true); err != nil {
-		return nil, newFlagError(arg, err)
-	}
-	return args, nil
-}
-
-// parseShort parses short flags ('-a' '-aaa' '-av' '-a v' '-a=' '-a=v').
-func parseShort(cmd *Command, s string, args []string, vars Vars) ([]string, error) {
-	for v := []rune(s[1:]); len(v) != 0; v = v[1:] {
-		arg := string(v[0])
-		switch g, n := cmd.Flag(arg), len(v[1:]); {
-		case g == nil:
-			return nil, newFlagError(arg, ErrUnknownFlag)
-		case g.NoArg: // -a
-			var value string
-			if slices.Index(v, '=') == 1 {
-				value, v = string(v[2:]), v[len(v)-1:]
-			} else {
-				value = toBoolString(g.Def)
-			}
-			if err := vars.Set(g, value, true); err != nil {
-				return nil, newFlagError(arg, err)
-			}
-		case n == 0 && len(args) == 0: // missing argument to -a
-			return nil, newFlagError(arg, ErrMissingArgument)
-		case n != 0: // -a=, -a=v, -av
-			if slices.Index(v, '=') == 1 {
-				v = v[1:]
-			}
-			if err := vars.Set(g, string(v[1:]), true); err != nil {
-				return nil, newFlagError(arg, err)
-			}
-			return args, nil
-		default: // -a v
-			if err := vars.Set(g, args[0], true); err != nil {
-				return nil, newFlagError(arg, err)
-			}
-			return args[1:], nil
-		}
-	}
-	return args, nil
 }
 
 // Desc contains a command/flag description.

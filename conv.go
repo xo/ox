@@ -11,16 +11,10 @@ import (
 )
 
 // As converts a value.
-func As[T any](val any) (T, error) {
-	var layout string
-	if v, ok := val.(interface{ Layout() string }); ok {
-		layout = v.Layout()
-	}
-	if v, ok := val.(Value); ok {
-		val = v.Val()
-	}
+func As[T any](value Value) (T, error) {
+	val := value.Val()
 	var res T
-	v, err := as[T](val, layout)
+	v, err := as[T](val, layout(val))
 	if err != nil {
 		return res, err
 	}
@@ -70,11 +64,11 @@ func as[T any](val any, layout string) (any, error) {
 	var v any = res
 	switch v.(type) {
 	case []byte:
-		return asString[[]byte](val, layout)
+		return asString[[]byte](val)
 	case string:
-		return asString[string](val, layout)
+		return asString[string](val)
 	case []rune:
-		return asString[[]rune](val, layout)
+		return asString[[]rune](val)
 	case bool:
 		return asBool(val)
 	case int64:
@@ -105,24 +99,26 @@ func as[T any](val any, layout string) (any, error) {
 		return asComplex[complex128](val)
 	case complex64:
 		return asComplex[complex64](val)
+	case timev:
+		return asTime(val, layout)
 	case time.Time:
 		return asTime(val, layout)
 	case time.Duration:
 		return asDuration(val)
 	}
 	// unmarshal
-	if v, err := asUnmarshal[T](val, layout); err == nil {
+	if v, err := asUnmarshal[T](val); err == nil {
 		return v, nil
 	}
 	// reflect
-	if asValue(reflect.ValueOf(&res), val, layout) {
+	if asValue(reflect.ValueOf(&res), val) {
 		return res, nil
 	}
 	return nil, fmt.Errorf("%w: %T->%T", ErrInvalidConversion, val, res)
 }
 
 // asString converts the value to a string.
-func asString[T stringi](val any, layout string) (T, error) {
+func asString[T stringi](val any) (T, error) {
 	switch v := val.(type) {
 	case string:
 		return T(v), nil
@@ -160,11 +156,8 @@ func asString[T stringi](val any, layout string) (T, error) {
 		return T(strconv.FormatComplex(v, 'f', -1, bitSize[complex128]())), nil
 	case complex64:
 		return T(strconv.FormatComplex(complex128(v), 'f', -1, bitSize[complex64]())), nil
-	case time.Time:
-		if v.IsZero() {
-			return T(""), nil
-		}
-		return T(v.Format(layout)), nil
+	case timev:
+		return T(v.String()), nil
 	case time.Duration:
 		if v == 0 {
 			return T(""), nil
@@ -211,7 +204,7 @@ func asBool(val any) (bool, error) {
 		return 0 < v, nil
 	}
 	// NOTE: not doing asComplex here
-	s, err := asString[string](val, "")
+	s, err := asString[string](val)
 	switch {
 	case err != nil:
 		return false, err
@@ -236,7 +229,7 @@ func asBytes(val any) ([]byte, error) {
 	case rune:
 		return []byte(string(v)), nil
 	}
-	return asString[[]byte](val, "")
+	return asString[[]byte](val)
 }
 
 // asByte converts the value to a single character string.
@@ -295,7 +288,7 @@ func asInt[T inti](val any) (T, error) {
 	case interface{ Int() int }:
 		return T(v.Int()), nil
 	}
-	s, err := asString[string](val, "")
+	s, err := asString[string](val)
 	switch {
 	case err != nil:
 		return 0, err
@@ -333,7 +326,7 @@ func asUint[T uinti](val any) (T, error) {
 	case interface{ Uint() uint }:
 		return T(v.Uint()), nil
 	}
-	s, err := asString[string](val, "")
+	s, err := asString[string](val)
 	switch {
 	case err != nil:
 		return 0, err
@@ -359,7 +352,7 @@ func asFloat[T floati](val any) (T, error) {
 	case interface{ Float32() float32 }:
 		return T(v.Float32()), nil
 	}
-	s, err := asString[string](val, "")
+	s, err := asString[string](val)
 	switch {
 	case err != nil:
 		return 0, err
@@ -385,7 +378,7 @@ func asComplex[T complexi](val any) (T, error) {
 	case interface{ Complex64() complex64 }:
 		return T(v.Complex64()), nil
 	}
-	s, err := asString[string](val, "")
+	s, err := asString[string](val)
 	switch {
 	case err != nil:
 		return 0, err
@@ -400,21 +393,27 @@ func asComplex[T complexi](val any) (T, error) {
 }
 
 // asTime converts the value to a [time.Time].
-func asTime(val any, layout string) (time.Time, error) {
+func asTime(val any, layout string) (timev, error) {
 	switch v := val.(type) {
-	case time.Time:
+	case timev:
 		return v, nil
+	case time.Time:
+		return timev{layout: layout, v: v}, nil
 	case interface{ Time() time.Time }:
-		return v.Time(), nil
+		return timev{layout: layout, v: v.Time()}, nil
 	}
-	s, err := asString[string](val, layout)
+	s, err := asString[string](val)
 	switch {
 	case err != nil:
-		return time.Time{}, err
+		return timev{layout: layout}, err
 	case s == "":
-		return time.Time{}, nil
+		return timev{layout: layout}, nil
 	}
-	return time.Parse(layout, s)
+	v, err := time.Parse(layout, s)
+	if err != nil {
+		return timev{layout: layout}, err
+	}
+	return timev{layout: layout, v: v}, nil
 }
 
 // asDuration converts the value to a [time.Duration].
@@ -434,7 +433,7 @@ func asDuration(val any) (time.Duration, error) {
 	if v, err := asFloat[float64](val); err == nil {
 		return time.Duration(v * float64(time.Second)), nil
 	}
-	s, err := asString[string](val, "")
+	s, err := asString[string](val)
 	switch {
 	case err != nil:
 		return 0, err
@@ -445,8 +444,8 @@ func asDuration(val any) (time.Duration, error) {
 }
 
 // asUnmarshal creates a new value as T, and unmarshals the value to it.
-func asUnmarshal[T any](val any, layout string) (any, error) {
-	buf, err := asString[[]byte](val, layout)
+func asUnmarshal[T any](val any) (any, error) {
+	buf, err := asString[[]byte](val)
 	if err != nil {
 		return nil, err
 	}
@@ -495,7 +494,7 @@ func asNew(typ Type) (any, func([]byte) error, error) {
 
 // asValue attempts to convert using reflect -- expects:
 // reflect.Value(&<target>).
-func asValue(v reflect.Value, val any, layout string) (ok bool) {
+func asValue(v reflect.Value, val any) (ok bool) {
 	defer func() {
 		if err := recover(); err != nil {
 			ok = false
@@ -505,7 +504,7 @@ func asValue(v reflect.Value, val any, layout string) (ok bool) {
 	case reflect.Slice:
 		// TODO: implement []byte/[]rune
 	case reflect.String:
-		if s, err := asString[string](val, layout); err == nil {
+		if s, err := asString[string](val); err == nil {
 			v.SetString(s)
 			return true
 		}
@@ -539,8 +538,8 @@ func asValue(v reflect.Value, val any, layout string) (ok bool) {
 }
 
 // toString converts a value to string.
-func toString[T stringi](val any, layout string) T {
-	v, _ := asString[T](val, layout)
+func toString[T stringi](val any) T {
+	v, _ := asString[T](val)
 	return v
 }
 
@@ -559,6 +558,7 @@ func toBoolString(val any) string {
 	return "true"
 }
 
+/*
 // toInt converts the value to a int.
 func toInt[T inti](val any) T {
 	v, _ := asInt[T](val)
@@ -594,6 +594,7 @@ func toDuration(val any) time.Duration {
 	v, _ := asDuration(val)
 	return v
 }
+*/
 
 // bitSize returns the bitsize for T.
 func bitSize[T inti | uinti | floati | complexi]() int {

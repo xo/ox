@@ -24,7 +24,7 @@ func TestParse(t *testing.T) {
 			}
 			t.Logf("cmd: %s", cmd.Name())
 			t.Logf("args: %q", args)
-			t.Logf("vars: %v", args)
+			t.Logf("vars: %s", vars)
 			var stdout, stderr bytes.Buffer
 			ctx := WithRoot(context.Background(), root)
 			ctx = WithStdout(ctx, &stdout)
@@ -57,7 +57,7 @@ func parseTests() []parseTest {
 				"name: cmd",
 				"tree: [cmd]",
 				"args: []",
-				"vars: []",
+				"vars: [int:15]",
 			},
 		},
 		{
@@ -68,7 +68,7 @@ func parseTests() []parseTest {
 				"name: cmd",
 				"tree: [cmd]",
 				"args: []",
-				"vars: []",
+				"vars: [int:15]",
 			},
 		},
 		{
@@ -79,7 +79,7 @@ func parseTests() []parseTest {
 				"name: one",
 				"tree: [cmd one]",
 				"args: [ two three four blah yay]",
-				"vars: [foo:[a b c]]",
+				"vars: [foo:[a b c] int:15]",
 			},
 		},
 		{
@@ -90,7 +90,7 @@ func parseTests() []parseTest {
 				"name: two",
 				"tree: [cmd one two]",
 				"args: []",
-				"vars: [map:[A:100 FOO:200]]",
+				"vars: [int:15 map:[A:100 FOO:200]]",
 			},
 		},
 		{
@@ -101,7 +101,7 @@ func parseTests() []parseTest {
 				"name: three",
 				"tree: [cmd one two three]",
 				"args: []",
-				"vars: [bvar:true]",
+				"vars: [bvar:true int:15]",
 			},
 		},
 		{
@@ -112,7 +112,7 @@ func parseTests() []parseTest {
 				"name: three",
 				"tree: [cmd one two three]",
 				"args: []",
-				"vars: [inc:4]",
+				"vars: [inc:4 int:15]",
 			},
 		},
 		{
@@ -123,7 +123,7 @@ func parseTests() []parseTest {
 				"name: three",
 				"tree: [cmd one two three]",
 				"args: []",
-				"vars: [bvar:true foo:[a=b] inc:3]",
+				"vars: [bvar:true foo:[a=b] inc:3 int:15]",
 			},
 		},
 		{
@@ -134,7 +134,7 @@ func parseTests() []parseTest {
 				"name: two",
 				"tree: [cmd one two]",
 				"args: [four]",
-				"vars: [bvar:true]",
+				"vars: [bvar:true int:15]",
 			},
 		},
 		{
@@ -145,7 +145,7 @@ func parseTests() []parseTest {
 				"name: four",
 				"tree: [cmd one four]",
 				"args: [fun]",
-				"vars: [inc:4]",
+				"vars: [inc:4 int:15]",
 			},
 		},
 		{
@@ -156,7 +156,40 @@ func parseTests() []parseTest {
 				"name: five",
 				"tree: [cmd five]",
 				"args: [foo bar]",
-				"vars: [cidr:[1.2.3.4/24 2.4.6.8/0] url:[file:a file:b] val:125]",
+				"vars: [cidr:[1.2.3.4/24 2.4.6.8/0] int:15 url:[file:a file:b] val:125]",
+			},
+		},
+		{
+			ss("a//five//--time//A=07:15:13//a//-d2001-12-25//-d=2002-1-15//--time=B=12:15:32//b"),
+			[]string{
+				"exec: five",
+				"root: cmd",
+				"name: five",
+				"tree: [cmd five]",
+				"args: [a b]",
+				"vars: [date:[2001-12-25 2002-1-15] int:15 time:[A:07:15:13 B:12:15:32] val:125]",
+			},
+		},
+		{
+			ss("a//--//five//--a=b"),
+			[]string{
+				"exec: cmd",
+				"root: cmd",
+				"name: cmd",
+				"tree: [cmd]",
+				"args: [five --a=b]",
+				"vars: [int:15]",
+			},
+		},
+		{
+			ss("a//five//-T//255=07:15:32//-T//128=12:15:20//-C=16.0=A//-iiiC25=J//-C//17=1//--//--//-a//-b=c"),
+			[]string{
+				"exec: five",
+				"root: cmd",
+				"name: five",
+				"tree: [cmd five]",
+				"args: [-- -a -b=c]",
+				"vars: [countmap:[16.0:A 17:1 25:J] inc:3 int:15 timemap:[128:12:15:20 255:07:15:32] val:125]",
 			},
 		},
 	}
@@ -176,7 +209,8 @@ func testCommand(t *testing.T) *Command {
 			Bool("bvar", "", Short("b")).
 			Count("inc", "", Short("i")).
 			Map("map", "", RunesT, Short("m")).
-			Slice("foo", "", Short("f")),
+			Slice("foo", "", Short("f")).
+			Int("int", "", Short("n"), Default(float64(15.0))),
 		Sub(
 			testDump(t, "one"),
 			Usage("one", ""),
@@ -199,7 +233,11 @@ func testCommand(t *testing.T) *Command {
 			Flags().
 				String("val", "", Short("l"), Default(125)).
 				Slice("cidr", "", Short("c"), CIDRT).
-				Slice("url", "", Short("u"), URLT),
+				Slice("url", "", Short("u"), URLT).
+				Slice("date", "", Short("d"), DateT).
+				Map("time", "", Short("t"), TimeT).
+				Map("timemap", "", Short("T"), MapKey(Uint64T), TimeT).
+				Map("countmap", "", Short("C"), MapKey(Float64T), CountT),
 		),
 	)
 	if err != nil {

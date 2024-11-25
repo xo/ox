@@ -229,10 +229,11 @@ func Short(name string) FlagOption {
 }
 
 // MapKey is a [Flag] option to set the flag's map key type.
-func MapKey(opts ...Option) FlagOption {
+func MapKey(typ Type) FlagOption {
 	return option{
 		name: "MapKey",
 		flag: func(g *Flag) error {
+			g.Key = typ
 			return nil
 		},
 	}

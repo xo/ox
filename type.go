@@ -84,11 +84,6 @@ func (typ Type) String() string {
 	return string(typ)
 }
 
-// Layout returns the type's registered [time.Time.Format] [time.Layout].
-func (typ Type) Layout() string {
-	return typeLayouts[typ]
-}
-
 // New creates a new [Value] for the registered type.
 func (typ Type) New() (Value, error) {
 	if typ == HookT {
@@ -110,9 +105,6 @@ var typeNews map[Type]func() (Value, error)
 
 // typeFlagOpts are registered type flag options.
 var typeFlagOpts map[Type][]Option
-
-// typeLayouts are [time.Time] parsing typeLayouts.
-var typeLayouts map[Type]string
 
 // reflectTypes are reflect type name lookups for registered types.
 var reflectTypes map[string]Type
@@ -148,10 +140,10 @@ func init() {
 		Float32T:    NewVal[float32](),
 		Complex128T: NewVal[complex128](),
 		Complex64T:  NewVal[complex64](),
-		TimestampT:  NewVal[time.Time](),
-		DateTimeT:   NewVal[time.Time](DateTimeT),
-		DateT:       NewVal[time.Time](DateT),
-		TimeT:       NewVal[time.Time](TimeT),
+		TimestampT:  NewTime(TimestampT, ""),
+		DateTimeT:   NewTime(DateTimeT, time.DateTime),
+		DateT:       NewTime(DateT, time.DateOnly),
+		TimeT:       NewTime(TimeT, time.TimeOnly),
 		DurationT:   NewVal[time.Duration](),
 		CountT:      NewVal[uint64](CountT),
 		PathT:       NewVal[string](PathT),
@@ -162,12 +154,6 @@ func init() {
 	typeFlagOpts = map[Type][]Option{
 		BoolT:  {NoArg(true)},
 		CountT: {NoArg(true)},
-	}
-	typeLayouts = map[Type]string{
-		TimestampT: time.RFC3339Nano,
-		DateTimeT:  time.DateTime,
-		DateT:      time.DateOnly,
-		TimeT:      time.TimeOnly,
 	}
 	reflectTypes = make(map[string]Type)
 	// text marshal types
@@ -201,11 +187,6 @@ func init() {
 // setting default flag values.
 func RegisterTypeOptions(typ Type, opts ...Option) {
 	typeFlagOpts[typ] = opts
-}
-
-// RegisterLayout registers a time layout for the type.
-func RegisterLayout(typ Type, layout string) {
-	typeLayouts[typ] = layout
 }
 
 // RegisterTypeName registers a type name.

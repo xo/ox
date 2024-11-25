@@ -11,13 +11,13 @@ import (
 func TestTypeNew(t *testing.T) {
 	for _, tt := range typeTests(t) {
 		for _, test := range tt.tests {
-			t.Run(tt.typ.String()+"/"+toString[string](test.s, DefaultLayout), func(t *testing.T) {
+			t.Run(tt.typ.String()+"/"+toString[string](test.v), func(t *testing.T) {
 				expErr, ok := test.exp.(error)
 				switch v, err := tt.typ.New(); {
 				case err != nil:
 					t.Fatalf("expected no error, got: %v", err)
 				default:
-					switch err := v.Set(toString[string](test.s, DefaultLayout)); {
+					switch err := v.Set(toString[string](test.v)); {
 					case err != nil && ok && !errors.Is(err, expErr):
 						t.Errorf("expected error %v, got: %v", expErr, err)
 					case err != nil && !ok:
@@ -31,7 +31,7 @@ func TestTypeNew(t *testing.T) {
 							t.Fatalf("expected no error, got: %v", err)
 						}
 						t.Logf("val: %s", s)
-						if exp := toString[string](test.exp, tt.typ.Layout()); s != exp {
+						if exp := toString[string](test.exp); s != exp {
 							t.Errorf("expected %q, got: %q", exp, s)
 						}
 					}
@@ -134,6 +134,18 @@ func typeTests(t *testing.T) []typeTest {
 			},
 		},
 		{
+			Int64T, []test{
+				{"", int8(0)},
+				{"0", int8(0)},
+				{0, int8(0)},
+				{21551, "21551"},
+				{float64(1.0), int(1)},
+				{"57", int8(57)},
+				{"-10", int8(-10)},
+				{"foo", ErrInvalidValue},
+			},
+		},
+		{
 			Int8T, []test{
 				{"", int8(0)},
 				{"0", int8(0)},
@@ -158,11 +170,36 @@ func typeTests(t *testing.T) []typeTest {
 			},
 		},
 		{
+			Uint64T, []test{
+				{"", uint(0)},
+				{"0", uint(0)},
+				{0, uint(0)},
+				{21551, uint(21551)},
+				{-25555, ErrInvalidValue},
+				{float64(1.0), uint(1)},
+				{"foo", ErrInvalidValue},
+				{"-10", ErrInvalidValue},
+			},
+		},
+		{
+			Uint8T, []test{
+				{"", uint(0)},
+				{"0", uint(0)},
+				{0, uint(0)},
+				{21551, ErrInvalidValue},
+				{-25555, ErrInvalidValue},
+				{float64(1.0), uint(1)},
+				{"foo", ErrInvalidValue},
+				{"-10", ErrInvalidValue},
+			},
+		},
+		{
 			UintT, []test{
 				{"", uint(0)},
 				{"0", uint(0)},
 				{0, uint(0)},
 				{21551, uint(21551)},
+				{-25555, ErrInvalidValue},
 				{float64(1.0), uint(1)},
 				{"foo", ErrInvalidValue},
 				{"-10", ErrInvalidValue},
@@ -183,6 +220,16 @@ func typeTests(t *testing.T) []typeTest {
 				{"0.0", float32(0.0)},
 				{"79.99", float32(79.99)},
 				{float64(57.33), float32(57.33)},
+				{"foo", ErrInvalidValue},
+			},
+		},
+		{
+			Complex128T, []test{
+				{"", complex128(0.0)},
+				{"0.0", complex128(0.0)},
+				{"79.99", complex128(79.99)},
+				{complex128(57.33), complex128(57.33)},
+				{float64(54.33), complex128(54.33)},
 				{"foo", ErrInvalidValue},
 			},
 		},
@@ -213,7 +260,7 @@ func typeTests(t *testing.T) []typeTest {
 		{
 			DateT, []test{
 				{"", ""},
-				{"2006-01-02", mustTime(t, "2006-01-02", time.DateOnly)},
+				{"2004-01-02", mustTime(t, "2004-01-02", time.DateOnly)},
 				{"foo", ErrInvalidValue},
 			},
 		},
@@ -242,13 +289,6 @@ func typeTests(t *testing.T) []typeTest {
 				{"a", 1},
 				{"foo", 1},
 				{"bar", "1"},
-			},
-		},
-		{
-			URLT, []test{
-				{"", mustURL(t, "")},
-				{"https://www.google.com", mustURL(t, "https://www.google.com")},
-				{"file:test", mustURL(t, "file:test")},
 			},
 		},
 		{
@@ -286,16 +326,23 @@ func typeTests(t *testing.T) []typeTest {
 				{"foo", ErrInvalidValue},
 			},
 		},
+		{
+			URLT, []test{
+				{"", mustURL(t, "")},
+				{"https://www.google.com", mustURL(t, "https://www.google.com")},
+				{"file:test", mustURL(t, "file:test")},
+			},
+		},
 	}
 }
 
-func mustTime(t *testing.T, s, layout string) time.Time {
+func mustTime(t *testing.T, s, layout string) timev {
 	t.Helper()
 	v, err := time.Parse(layout, s)
 	if err != nil {
 		t.Fatalf("expected no error, got: %v", err)
 	}
-	return v
+	return timev{layout: layout, v: v}
 }
 
 func mustURL(t *testing.T, s string) *url.URL {
@@ -340,6 +387,6 @@ type typeTest struct {
 }
 
 type test struct {
-	s   any
+	v   any
 	exp any
 }
