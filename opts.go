@@ -363,29 +363,6 @@ func HookDump(s string, v ...any) Option {
 	})
 }
 
-/*
-// MustExist is a option to indicate that a path value must exist on disk.
-func MustExist(mustExist bool) Option {
-	return option{
-		name: "MustExist",
-		flag: func(g *Flag) error {
-			return nil
-		},
-	}
-}
-
-// Relative is a option to indacet that a path value is relative to the base
-// path.
-func Relative(dir string) Option {
-	return option{
-		name: "Relative",
-		flag: func(g *Flag) error {
-			return nil
-		},
-	}
-}
-*/
-
 // Option is the interface for options that can be passed when creating a
 // [Context], [Command], or [Flag].
 //
@@ -426,7 +403,6 @@ type option struct {
 	name string
 	ctx  func(*Context) error
 	cmd  func(*Command) error
-	set  func(*FlagSet) error
 	flag func(*Flag) error
 }
 

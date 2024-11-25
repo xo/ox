@@ -567,7 +567,7 @@ func (val TimeV) IsValid() bool {
 	return !val.v.IsZero()
 }
 
-// sliceSet sets a a value on a slice.
+// sliceSet sets a value on a slice.
 func sliceSet(value reflect.Value, s string) bool {
 	v := reflect.New(value.Type().Elem())
 	if asValue(v, s) {

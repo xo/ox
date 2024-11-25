@@ -554,13 +554,13 @@ func toString[T stringi](val any) T {
 	return v
 }
 
+/*
 // toBool converts the value to a bool.
 func toBool(val any) bool {
 	v, _ := asBool(val)
 	return v
 }
 
-/*
 // toInt converts the value to a int.
 func toInt[T inti](val any) T {
 	v, _ := asInt[T](val)

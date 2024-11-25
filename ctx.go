@@ -178,23 +178,6 @@ func Map[K cmp.Ordered, T any](ctx context.Context, name string) map[K]T {
 	return make(map[K]T)
 }
 
-// All returns all variables from the context.
-func All[K cmp.Ordered, T any](ctx context.Context) map[K]T {
-	if vars, ok := VarsOK(ctx); ok {
-		m := make(map[K]T)
-		for k, vs := range vars {
-			/*
-				if v, err := As[T](vs.Var); err == nil {
-					m[k] = v
-				}
-			*/
-			k, vs = k, vs
-		}
-		return m
-	}
-	return make(map[K]T)
-}
-
 // Bytes returns a variable as []byte from the context.
 func Bytes(ctx context.Context, name string) []byte {
 	return Get[[]byte](ctx, name)

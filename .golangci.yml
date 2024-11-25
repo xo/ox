@@ -14,12 +14,14 @@ linters:
     - inamedparam
     - ireturn
     - lll
+    - maintidx
     - mnd
     - nakedret
     - nlreturn
     - nonamedreturns
     - paralleltest
     - prealloc
+    - recvcheck
     - testableexamples
     - testpackage
     - varnamelen
