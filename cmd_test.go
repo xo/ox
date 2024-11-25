@@ -182,14 +182,14 @@ func parseTests() []parseTest {
 			},
 		},
 		{
-			ss("a//five//-T//255=07:15:32//-T//128=12:15:20//-C=16.0=A//-iiiiC25=J//-C//16.000=C//-C//17=1//-C17=//-C//17=//--//--//-a//-b=c"),
+			ss("a//five//-T//255=07:15:32//-T//128=12:15:20//-C=16.1=A//-iiiiC25=J//-C//16.100=C//-C//17=1//-C17=//-C//17=//--//--//-a//-b=c"),
 			[]string{
 				"exec: five",
 				"root: cmd",
 				"name: five",
 				"tree: [cmd five]",
 				"args: [-- -a -b=c]",
-				"vars: [countmap:[16:2 17:3 25:1] inc:4 int:15 timemap:[128:12:15:20 255:07:15:32] val:125]",
+				"vars: [countmap:[16.1:2 17:3 25:1] inc:4 int:15 timemap:[128:12:15:20 255:07:15:32] val:125]",
 			},
 		},
 	}
