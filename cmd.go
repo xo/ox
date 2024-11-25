@@ -97,11 +97,10 @@ func (cmd *Command) Populate(all, overwrite bool, vars Vars) error {
 		case g.Type == HookT, g.Def == nil && !all, g.NoArg && !all:
 			continue
 		case g.Def != nil:
-			s, err := asString[string](g.Def)
-			if err != nil {
+			var err error
+			if value, err = asString[string](g.Def); err != nil {
 				return err
 			}
-			value = s
 		}
 		if err := vars.Set(g, value, false); err != nil {
 			return fmt.Errorf("cannot populate %s with %q: %w", name, value, err)
