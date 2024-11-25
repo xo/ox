@@ -1,7 +1,6 @@
 # xo/ox
 
-`xo/ox` is a Go and TinyGo package for command-line argument and flag parsing,
-designed for [context based][context] applications.
+`xo/ox` is a Go and TinyGo package for command-line argument and flag parsing.
 
 [Using][] | [Example][] | [About][]
 
@@ -37,39 +36,39 @@ package main
 import (
 	"context"
 	"fmt"
+	"math/big"
 	"net/url"
 	"reflect"
 
-	k "github.com/xo/ox"
+	"github.com/xo/ox"
 	_ "github.com/xo/ox/toml"
 	_ "github.com/xo/ox/yaml"
 )
 
 func main() {
-	k.Run(
-		context.Background(),
-		run,
-		k.Usage("simple", "a simple demo of the ox api"),
-		k.Version("0.0.0-dev"),
-		k.Help(),
-		k.Comp(),
-		k.UserConfigFile(),
-		k.Flags().
-			Var("param-a", "parameter a", k.Short("a"), k.Key("", "param-a"), k.Key("yaml", "my_param_a"), k.Key("toml", "paramA")).
-			Int("param-b", "parameter b", k.Short("b"), k.Default(125)).
-			Slice("floats", "a slice of float64", k.Float64T, k.Short("f")).
-			URL("url", "a url", k.Alias("my-url", "other url flag alias"), k.Short("u")).
-			Count("verbose", "verbose", k.Short("v")),
-		k.Sub(
-			sub,
-			k.Usage("sub", "a sub command"),
-			k.Alias("subCommand", "a sub command alias"),
-			k.Flags().
+	ox.Run(
+		ox.Exec(run),
+		ox.Usage("simple", "a simple demo of the ox api"),
+		ox.Version("0.0.0-dev"),
+		ox.Help(),
+		ox.Comp(),
+		ox.UserConfigFile(),
+		ox.Flags().
+			Var("param-a", "parameter a", ox.Short("a"), ox.Key("", "param-a"), ox.Key("yaml", "my_param_a"), ox.Key("toml", "paramA")).
+			Int("param-b", "parameter b", ox.Short("b"), ox.Default(125)).
+			Slice("floats", "a slice of float64", ox.Float64T, ox.Short("f")).
+			URL("url", "a url", ox.Alias("my-url", "other url flag alias"), ox.Short("u")).
+			Count("verbose", "verbose", ox.Short("v")),
+		ox.Sub(
+			ox.Exec(sub),
+			ox.Usage("sub", "a sub command"),
+			ox.Alias("subCommand", "a sub command alias"),
+			ox.Flags().
 				Var("sub", "sub param").
-				Slice("strings", "a slice of strings", k.Short("s")).
-				Slice("urls", "a slice of URLs", k.URLT, k.Short("u")).
-				Map("ints", "a map of integers", k.IntT, k.Short("i")),
-			k.Args(0, 10),
+				Slice("strings", "a slice of strings", ox.Short("s")).
+				Slice("bigint", "a slice of big ints", ox.BigIntT, ox.Short("t")).
+				Map("ints", "a map of integers", ox.IntT, ox.Short("i")),
+			ox.ValidArgs(0, 10),
 		),
 	)
 }
@@ -78,40 +77,40 @@ func run(ctx context.Context, args []string) error {
 	fmt.Println("run args:", args)
 
 	// get param-a
-	paramA := k.Get[string](ctx, "param-a")
+	paramA := ox.Get[string](ctx, "param-a")
 	fmt.Println("paramA:", paramA)
 
 	// convert param-b (int) into a string
-	paramB := k.String(ctx, "param-b")
+	paramB := ox.String(ctx, "param-b")
 	fmt.Println("paramB:", paramB)
 
 	// a slice
-	floats := k.Slice[float64](ctx, "floats")
+	floats := ox.Slice[float64](ctx, "floats")
 	fmt.Println("floats:", floats)
 
 	// convert a slice's values to strings
-	floatStrings := k.Slice[string](ctx, "floats")
+	floatStrings := ox.Slice[string](ctx, "floats")
 	fmt.Println("floatStrings:", floatStrings)
 
 	// sub param is not available in this command, as it was defined on a sub
 	// command and not on the root command
-	sub := k.Get[string](ctx, "sub")
+	sub := ox.Get[string](ctx, "sub")
 	fmt.Println("sub:", sub)
 
 	// a url
-	if u := k.URL(ctx, "url"); u != nil {
+	if u := ox.URL(ctx, "url"); u != nil {
 		// NOTE: this is wrapped in a if block, because when no flag has been
 		// NOTE: passed, tinygo's fmt.Println will panic with a *url.URL(nil),
 		// NOTE: however Go's fmt.Println does not
 		fmt.Println("url:", u)
 		// url alternate
-		urlAlt := k.Get[*url.URL](ctx, "url")
+		urlAlt := ox.Get[*url.URL](ctx, "url")
 		fmt.Println("urlAlt:", urlAlt)
 	}
 
 	// verbose as its own type
 	type Verbosity int64
-	v := k.Get[Verbosity](ctx, "verbose")
+	v := ox.Get[Verbosity](ctx, "verbose")
 	fmt.Println("verbosity:", v, reflect.TypeOf(v))
 
 	return nil
@@ -121,27 +120,31 @@ func sub(ctx context.Context, args []string) error {
 	fmt.Println("sub args:", args)
 
 	// get param-a, as any parent's
-	paramA := k.Get[string](ctx, "param-a")
+	paramA := ox.Get[string](ctx, "param-a")
 	fmt.Println("paramA:", paramA)
 
+	// convert param-b (int) into a uint32
+	paramB := ox.Uint32(ctx, "param-b")
+	fmt.Println("paramB:", paramB)
+
 	// the floats param is available, as this is a sub command
-	floats := k.Slice[float64](ctx, "floats")
+	floats := ox.Slice[float64](ctx, "floats")
 	fmt.Println("floats:", floats)
 
 	// sub is available here
-	sub := k.Get[string](ctx, "sub")
+	sub := ox.Get[string](ctx, "sub")
 	fmt.Println("subParam:", sub)
 
 	// get strings
-	slice := k.Slice[string](ctx, "strings")
+	slice := ox.Slice[string](ctx, "strings")
 	fmt.Println("slice:", slice)
 
-	// slice of URLs
-	urls := k.Slice[*url.URL](ctx, "urls")
-	fmt.Println("urls:", urls)
+	// slice of *big.Int
+	bigint := ox.Slice[*big.Int](ctx, "bigint")
+	fmt.Println("bigint:", bigint)
 
 	// map of ints, converted to int64
-	ints := k.Map[int64](ctx, "ints")
+	ints := ox.Map[string, int64](ctx, "ints")
 	fmt.Println("ints:", ints)
 	return nil
 }
@@ -159,13 +162,29 @@ application's source trees for additional, real-world examples.
 
 ## About
 
-`ox` was built to address limitations with the popular [`cobra`][cobra]/
-[`pflag`][pflag]/[`viper`][viper] package, and similar limitations of the
-[`kingpin`][kingpin] and [`urfave/cli`][urfave] packages.
+`ox` aims to provide a robust and simple command-line package for the most
+common command-line use-cases in [Go][golang].
 
-Specific design goals of the `ox` package:
+`ox` was built to streamline/simplify complexity found in the powerful (and
+popular!) [`cobra`][cobra]/ [`pflag`][pflag]/[`viper`][viper] combo. `ox` is
+written in pure Go, with no external package dependencies, and provides a
+robust, extensible type system, as well as configuration loaders for
+[YAML][yaml], [TOML][toml], [HCL][hcl] that can be optionally enabled/disabled
+through imports.
 
-- Context based
+`ox` avoids "magic", and has sane, sensible defaults. No interfaces, type
+members or other internal logic is hidden or obscured. When using `ox`, the
+user can manually build commands/flags however they see fit.
+
+Wherever an external package is used, the logic is encapsulated via a simple,
+anonymous import, thus allowing downstream users of the package to have a clean
+dependency heirarchy and to pick and choose the functionality that `ox` has.
+
+`ox` has been designed to use generics, and is built with Go 1.23+ applications
+in mind and works with [TinyGo][tinygo].
+
+Specific design considerations of the `ox` package:
+
 - Work with TinyGo out of the box
 - No reflection (unless TinyGo supports it)
 - No magic, sane defaults, easy overrideable defaults
@@ -181,9 +200,21 @@ Specific design goals of the `ox` package:
   minimal hassle, compatible with standard Go interfaces/types
 - Man page generation
 
-[context]: https://pkg.go.dev/context
+Other command-line packages:
+
+- [spf13/cobra][cobra] + [spf13/viper][viper] + [spf13/pflag][pflag]
+- [urfave/cli][urfave]
+- [alecthomas/kong][kong]
+- [alecthomas/kingpin][kingpin]
+
 [cobra]: https://github.com/spf13/cobra
-[pflag]: https://github.com/spf13/pflag
-[viper]: https://github.com/spf13/viper
+[golang]: https://go.dev
+[hcl]: https://github.com/hashicorp/hcl
 [kingpin]: https://github.com/alecthomas/kingpin
+[kong]: https://github.com/alecthomas/kong
+[pflag]: https://github.com/spf13/pflag
+[tinygo]: https://tinygo.org
+[toml]: https://toml.io
 [urfave]: https://github.com/urfave/cli
+[viper]: https://github.com/spf13/viper
+[yaml]: https://yaml.org
