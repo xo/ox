@@ -7,10 +7,6 @@ package ox
 import (
 	"cmp"
 	"context"
-	"errors"
-	"fmt"
-	"io"
-	"os"
 	"time"
 )
 
@@ -18,89 +14,40 @@ var (
 	// DefaultTagName is the default struct tag name used in [FromFlags] and
 	// related func's.
 	DefaultTagName = "ox"
+	// DefaultContext is the default [context.Context].
+	DefaultContext = context.Background()
 	// DefaultLayout is the default timestamp layout used for formatting and
 	// parsing [TimestampT] values.
 	DefaultLayout = time.RFC3339
 )
 
-// Run creates a [Command] for f using [os.Args] by default, unless arguments
-// were specified using a [ContextOption].
-func Run[T ExecFunc](f T, opts ...Option) {
-	ctx := &Context{
-		Stdin:  os.Stdin,
-		Stdout: os.Stdout,
-		Stderr: os.Stderr,
-		Args:   os.Args[1:],
-	}
-	for _, o := range opts {
-		if err := o.apply(ctx); err != nil {
-			ctx.Handle(err)
-		}
-	}
-	if ctx.Vars == nil {
-		ctx.Vars = make(Vars)
-	}
-	root, err := NewCommand(f, opts...)
+// Run creates a [Context] and a [Command] based on the options and executes
+// the command.
+func Run(opts ...Option) {
+	RunContext(DefaultContext, opts...)
+}
+
+// RunContext creates a [Command] for f using [os.Args] by default, unless
+// arguments were specified using a [ContextOption].
+func RunContext(ctx context.Context, opts ...Option) {
+	runContext, err := NewContext(opts...)
 	if err != nil {
-		ctx.Handle(err)
+		runContext.Handle(err)
 	}
-	cmd, args, err := Parse(root, ctx.Args, ctx.Vars)
+	root, err := NewCommand(opts...)
 	if err != nil {
-		ctx.Handle(err)
+		runContext.Handle(err)
+	}
+	cmd, args, err := Parse(root, runContext.Args, runContext.Vars)
+	if err != nil {
+		runContext.Handle(err)
 	}
 	if err := cmd.Validate(args); err != nil {
-		ctx.Handle(err)
+		runContext.Handle(err)
 	}
-	if err := cmd.Exec(context.Background(), args); err != nil {
-		ctx.Handle(err)
+	if err := cmd.Exec(WithContext(ctx, runContext), args); err != nil {
+		runContext.Handle(err)
 	}
-}
-
-// Context are run context options.
-type Context struct {
-	Args   []string
-	Stdin  io.Writer
-	Stdout io.Writer
-	Stderr io.Writer
-	OnErr  OnErr
-	Vars   Vars
-}
-
-// Handle handles an error.
-func (ctx *Context) Handle(err error) {
-	var w io.Writer = os.Stderr
-	if ctx.Stderr != nil {
-		w = ctx.Stderr
-	}
-	switch {
-	case errors.Is(err, ErrExit), ctx.OnErr == OnErrContinue:
-	case ctx.OnErr == OnErrExit:
-		fmt.Fprintln(w, "error:", err)
-		os.Exit(1)
-	case ctx.OnErr == OnErrPanic:
-		panic(err)
-	}
-}
-
-// OnErr is the on error handling option type.
-type OnErr uint8
-
-// On error handling options.
-const (
-	OnErrExit OnErr = iota
-	OnErrContinue
-	OnErrPanic
-)
-
-// apply satisfies the [Option] interface.
-func (e OnErr) apply(val any) error {
-	switch v := val.(type) {
-	case *Command:
-		v.OnErr = e
-	default:
-		return fmt.Errorf("%s option: %w", e, ErrAppliedToInvalidType)
-	}
-	return nil
 }
 
 // Error is a package error.

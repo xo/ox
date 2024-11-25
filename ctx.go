@@ -5,92 +5,129 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/hex"
+	"errors"
+	"fmt"
 	"io"
 	"math/big"
 	"net/netip"
 	"net/url"
 	"os"
-	"path/filepath"
 	"time"
 )
+
+// Context is a exec context.
+type Context struct {
+	Args   []string
+	Stdin  io.Reader
+	Stdout io.Writer
+	Stderr io.Writer
+	OnErr  OnErr
+	Handle func(error)
+	Root   *Command
+	Cmd    *Command
+	Vars   Vars
+}
+
+// NewContext creates a new run context.
+func NewContext(opts ...Option) (*Context, error) {
+	ctx := &Context{
+		Stdin:  os.Stdin,
+		Stdout: os.Stdout,
+		Stderr: os.Stderr,
+		Args:   os.Args[1:],
+	}
+	for _, o := range opts {
+		if err := o.apply(ctx); err != nil {
+			return ctx, err
+		}
+	}
+	if ctx.Vars == nil {
+		ctx.Vars = make(Vars)
+	}
+	if ctx.Handle == nil {
+		ctx.Handle = func(err error) {
+			var w io.Writer = os.Stderr
+			if ctx.Stderr != nil {
+				w = ctx.Stderr
+			}
+			switch {
+			case errors.Is(err, ErrExit), ctx.OnErr == OnErrContinue:
+			case ctx.OnErr == OnErrExit:
+				fmt.Fprintln(w, "error:", err)
+				os.Exit(1)
+			case ctx.OnErr == OnErrPanic:
+				panic(err)
+			}
+		}
+	}
+	return ctx, nil
+}
 
 // contextKey is the context key types.
 type contextKey int
 
 // context keys.
 const (
-	rootKey contextKey = iota
-	cmdKey
-	stdoutKey
-	stderrKey
-	varsKey
+	ctxKey contextKey = iota
 )
 
-// WithRoot sets the root command on the context.
-func WithRoot(parent context.Context, root *Command) context.Context {
-	return context.WithValue(parent, rootKey, root)
+// WithContext adds the [Context] to the parent context.
+func WithContext(parent context.Context, ctx *Context) context.Context {
+	return context.WithValue(parent, ctxKey, ctx)
 }
 
-// WithCmd sets the active command on the context.
-func WithCmd(parent context.Context, cmd *Command) context.Context {
-	return context.WithValue(parent, cmdKey, cmd)
+// Ctx returns the context from the context.
+func Ctx(ctx context.Context) (*Context, bool) {
+	c, ok := ctx.Value(ctxKey).(*Context)
+	return c, ok
 }
 
-// WithStdout sets the standard out on the context.
-func WithStdout(parent context.Context, stdout io.Writer) context.Context {
-	return context.WithValue(parent, stdoutKey, stdout)
-}
-
-// WithStderr sets the standard error output on the context.
-func WithStderr(parent context.Context, stderr io.Writer) context.Context {
-	return context.WithValue(parent, stderrKey, stderr)
-}
-
-// WithVars sets the variables on the context.
-func WithVars(parent context.Context, vars Vars) context.Context {
-	return context.WithValue(parent, varsKey, vars)
-}
-
-// Root returns the root command from the context.
+// Root returns the root [Command] from the context.
 func Root(ctx context.Context) *Command {
-	root, _ := ctx.Value(rootKey).(*Command)
-	return root
-}
-
-// RootName returns the root command name from the context.
-func RootName(ctx context.Context) string {
-	if root := Root(ctx); root != nil {
-		return root.Name()
+	if c, ok := Ctx(ctx); ok && c != nil {
+		return c.Root
 	}
-	return filepath.Base(os.Args[0])
+	return nil
 }
 
-// Cmd returns the active command from the context.
+// Cmd returns the invoked [Command] from the context.
 func Cmd(ctx context.Context) *Command {
-	cmd, _ := ctx.Value(cmdKey).(*Command)
-	return cmd
+	if c, ok := Ctx(ctx); ok && c != nil {
+		return c.Cmd
+	}
+	return nil
+}
+
+// Stdin returns the standard input from the context.
+func Stdin(ctx context.Context) io.Reader {
+	if c, ok := Ctx(ctx); ok && c != nil && c.Stdin != nil {
+		return c.Stdin
+	}
+	return os.Stdin
 }
 
 // Stdout returns the standard output from the context.
 func Stdout(ctx context.Context) io.Writer {
-	if w, _ := ctx.Value(stdoutKey).(io.Writer); w != nil {
-		return w
+	if c, ok := Ctx(ctx); ok && c != nil && c.Stdout != nil {
+		return c.Stdout
 	}
 	return os.Stdout
 }
 
 // Stderr returns the standard error output from the context.
 func Stderr(ctx context.Context) io.Writer {
-	if w, _ := ctx.Value(stderrKey).(io.Writer); w != nil {
-		return w
+	if c, ok := Ctx(ctx); ok && c != nil && c.Stderr != nil {
+		return c.Stderr
 	}
 	return os.Stderr
 }
 
 // VarsOK returns all variables from the context.
 func VarsOK(ctx context.Context) (Vars, bool) {
-	vars, ok := ctx.Value(varsKey).(Vars)
-	return vars, ok
+	if c, ok := Ctx(ctx); ok && c != nil {
+		return c.Vars, true
+	}
+	return nil, false
 }
 
 // AnyOK returns a variable, its set status, and if it was defined from the
@@ -316,4 +353,25 @@ func Path(ctx context.Context, name string) string {
 // Count returns the count variable from the context.
 func Count(ctx context.Context, name string) int {
 	return Get[int](ctx, name)
+}
+
+// OnErr is the on error handling option type.
+type OnErr uint8
+
+// On error handling options.
+const (
+	OnErrExit OnErr = iota
+	OnErrContinue
+	OnErrPanic
+)
+
+// apply satisfies the [Option] interface.
+func (e OnErr) apply(val any) error {
+	switch v := val.(type) {
+	case *Command:
+		v.OnErr = e
+	default:
+		return fmt.Errorf("%s option: %w", e, ErrAppliedToInvalidType)
+	}
+	return nil
 }

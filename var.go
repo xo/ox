@@ -260,6 +260,8 @@ func (val *mapVal) Get() (string, error) {
 type mapValue interface {
 	Set(s string) error
 	String() string
+	Keys() []any
+	Get(any) Value
 }
 
 // makeMap makes a map for the key and type.
@@ -344,6 +346,21 @@ func (val valueMap[K]) String() string {
 		s[i] = toString[string](k) + ":" + value
 	}
 	return "[" + strings.Join(s, " ") + "]"
+}
+
+func (val valueMap[K]) Keys() []any {
+	keys := make([]any, len(val.v))
+	for i, k := range slices.Sorted(maps.Keys(val.v)) {
+		keys[i] = k
+	}
+	return keys
+}
+
+func (val valueMap[K]) Get(key any) Value {
+	if k, ok := key.(K); ok {
+		return val.v[k]
+	}
+	return nil
 }
 
 // Vars is the type for storing variables in the context.

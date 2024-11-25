@@ -4,6 +4,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"math/big"
 	"net/url"
 	"reflect"
 
@@ -14,8 +15,7 @@ import (
 
 func main() {
 	ox.Run(
-		context.Background(),
-		run,
+		ox.Exec(run),
 		ox.Usage("simple", "a simple demo of the ox api"),
 		ox.Version("0.0.0-dev"),
 		ox.Help(),
@@ -28,15 +28,15 @@ func main() {
 			URL("url", "a url", ox.Alias("my-url", "other url flag alias"), ox.Short("u")).
 			Count("verbose", "verbose", ox.Short("v")),
 		ox.Sub(
-			sub,
+			ox.Exec(sub),
 			ox.Usage("sub", "a sub command"),
 			ox.Alias("subCommand", "a sub command alias"),
 			ox.Flags().
 				Var("sub", "sub param").
 				Slice("strings", "a slice of strings", ox.Short("s")).
-				Slice("urls", "a slice of URLs", ox.URLT, ox.Short("u")).
+				Slice("bigint", "a slice of big ints", ox.BigIntT, ox.Short("t")).
 				Map("ints", "a map of integers", ox.IntT, ox.Short("i")),
-			ox.Args(0, 10),
+			ox.ValidArgs(0, 10),
 		),
 	)
 }
@@ -107,12 +107,12 @@ func sub(ctx context.Context, args []string) error {
 	slice := ox.Slice[string](ctx, "strings")
 	fmt.Println("slice:", slice)
 
-	// slice of URLs
-	urls := ox.Slice[*url.URL](ctx, "urls")
-	fmt.Println("urls:", urls)
+	// slice of *big.Int
+	bigint := ox.Slice[*big.Int](ctx, "bigint")
+	fmt.Println("bigint:", bigint)
 
 	// map of ints, converted to int64
-	ints := ox.Map[int64](ctx, "ints")
+	ints := ox.Map[string, int64](ctx, "ints")
 	fmt.Println("ints:", ints)
 	return nil
 }

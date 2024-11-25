@@ -14,12 +14,12 @@ import (
 
 // Command is a command.
 type Command struct {
-	// Exec is the func to be executed.
-	Exec Exec
-	// Descs is the command's name/usage descriptions.
-	Descs []Desc
 	// Parent is the parent command.
 	Parent *Command
+	// Exec is the func to be executed.
+	Exec ExecFunc
+	// Descs is the command's name/usage descriptions.
+	Descs []Desc
 	// Commands are sub commands.
 	Commands []*Command
 	// Flags are the command's flags.
@@ -32,9 +32,8 @@ type Command struct {
 }
 
 // NewCommand creates a new command.
-func NewCommand[T ExecFunc](f T, opts ...Option) (*Command, error) {
+func NewCommand(opts ...Option) (*Command, error) {
 	cmd := &Command{
-		Exec:  NewExec(f),
 		Descs: make([]Desc, 1),
 	}
 	for _, o := range opts {
@@ -52,8 +51,8 @@ func NewCommand[T ExecFunc](f T, opts ...Option) (*Command, error) {
 }
 
 // Sub creates a sub command.
-func (cmd *Command) Sub(f func(context.Context, []string) error, opts ...Option) error {
-	sub, err := NewCommand(f, prepend(opts, Parent(cmd))...)
+func (cmd *Command) Sub(opts ...Option) error {
+	sub, err := NewCommand(prepend(opts, Parent(cmd))...)
 	if err != nil {
 		return err
 	}
@@ -556,32 +555,50 @@ func buildFlagOpts(typ reflect.Type, val reflect.Value, name string, s []string)
 	return prepend(opts, BindValue(val, b)), nil
 }
 
-// ExecFunc is the interface for func's that can be used with [Run] and
-// [NewCommand].
-type ExecFunc interface {
+// ExecType is the interface for func's that can be used with [Run],
+// [NewCommand], and [Exec].
+type ExecType interface {
 	func(context.Context, []string) error |
-		func([]string) error |
+		func(context.Context, []string) |
 		func(context.Context) error |
+		func(context.Context) |
+		func([]string) error |
+		func([]string) |
 		func() error |
 		func()
 }
 
-// Exec wraps a exec func.
-type Exec func(context.Context, []string) error
+// ExecFunc wraps a exec func.
+type ExecFunc func(context.Context, []string) error
 
-// NewExec creates a [Exec] func.
-func NewExec[T ExecFunc](f T) Exec {
+// NewExec creates a [ExecFunc] func.
+func NewExec[T ExecType](f T) ExecFunc {
 	var v any = f
 	switch f := v.(type) {
 	case func(context.Context, []string) error:
 		return f
-	case func([]string) error:
-		return func(_ context.Context, args []string) error {
-			return f(args)
+	case func(context.Context, []string):
+		return func(ctx context.Context, args []string) error {
+			f(ctx, args)
+			return nil
 		}
 	case func(context.Context) error:
 		return func(ctx context.Context, _ []string) error {
 			return f(ctx)
+		}
+	case func(context.Context):
+		return func(ctx context.Context, _ []string) error {
+			f(ctx)
+			return nil
+		}
+	case func([]string) error:
+		return func(_ context.Context, args []string) error {
+			return f(args)
+		}
+	case func([]string):
+		return func(_ context.Context, args []string) error {
+			f(args)
+			return nil
 		}
 	case func() error:
 		return func(context.Context, []string) error {
@@ -594,7 +611,7 @@ func NewExec[T ExecFunc](f T) Exec {
 		}
 	}
 	return func(context.Context, []string) error {
-		return fmt.Errorf("%w: no exec func", ErrInvalidType)
+		return fmt.Errorf("%w: no exec func %T", ErrInvalidType, f)
 	}
 }
 

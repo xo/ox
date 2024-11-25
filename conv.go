@@ -26,36 +26,47 @@ func As[T any](value Value) (T, error) {
 }
 
 // SliceAs converts a value to a slice.
-func SliceAs[T any](val Value) ([]T, error) {
-	/*
-		if v, ok := val.(*sliceVal); ok {
-			s := make([]T, len(v.v))
-			for i := range v.v {
-				if v, err := As[T](v.v[i]); err == nil {
-					s[i] = v
-				}
-			}
+func SliceAs[T any](value Value) ([]T, error) {
+	val, ok := value.(*sliceVal)
+	if !ok {
+		return nil, ErrInvalidConversion
+	}
+	s := make([]T, len(val.v))
+	for i := range val.v {
+		v, err := As[T](val.v[i])
+		if err != nil {
+			var res T
+			return nil, fmt.Errorf("cannot convert slice value %d: %w: %T->%T", i, err, v, res)
 		}
-	*/
-	return nil, ErrInvalidConversion
+		s[i] = v
+	}
+	return s, nil
 }
 
 // MapAs converts a value to a map.
-func MapAs[K cmp.Ordered, T any](val Value) (map[K]T, error) {
-	/*
-		if v, ok := val.(*mapVal[K]); ok {
-			m := make(map[K]T)
-			for key := range v.v {
-				if k, err := As[K](key); err == nil {
-					if v, err := As[T](v.v[key]); err == nil {
-						m[k] = v
-					}
-				}
-			}
-			return m, nil
+func MapAs[K cmp.Ordered, T any](value Value) (map[K]T, error) {
+	val, ok := value.(*mapVal)
+	if !ok {
+		return nil, ErrInvalidConversion
+	}
+	m := make(map[K]T)
+	for _, keyval := range val.v.Keys() {
+		key, err := as[K](keyval, "")
+		if err != nil {
+			return nil, err
 		}
-	*/
-	return nil, ErrInvalidConversion
+		k, ok := key.(K)
+		if !ok {
+			return nil, fmt.Errorf("%w: %T->%T", ErrInvalidConversion, key, k)
+		}
+		val := val.v.Get(keyval)
+		v, err := As[T](val)
+		if err != nil {
+			return nil, err
+		}
+		m[k] = v
+	}
+	return m, nil
 }
 
 // as converts a value.

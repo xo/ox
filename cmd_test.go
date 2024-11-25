@@ -10,11 +10,10 @@ import (
 )
 
 func TestParse(t *testing.T) {
-	root := testCommand(t)
 	for i, test := range parseTests() {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			t.Logf("invoked: %v", test.v)
-			vars := make(Vars)
+			root, vars := testCommand(t), make(Vars)
 			cmd, args, err := Parse(root, test.v[1:], vars)
 			switch {
 			case err != nil:
@@ -25,16 +24,18 @@ func TestParse(t *testing.T) {
 			t.Logf("cmd: %s", cmd.Name())
 			t.Logf("args: %q", args)
 			t.Logf("vars: %s", vars)
-			var stdout, stderr bytes.Buffer
-			ctx := WithRoot(context.Background(), root)
-			ctx = WithStdout(ctx, &stdout)
-			ctx = WithStderr(ctx, &stderr)
-			ctx = WithCmd(ctx, cmd)
-			ctx = WithVars(ctx, vars)
+			buf := new(bytes.Buffer)
+			ctx := WithContext(context.Background(), &Context{
+				Args:   test.v,
+				Root:   root,
+				Cmd:    cmd,
+				Stdout: buf,
+				Vars:   vars,
+			})
 			if err := cmd.Exec(ctx, args); err != nil {
 				t.Fatalf("expected no error, got: %v", err)
 			}
-			s := strings.TrimSpace(stdout.String())
+			s := strings.TrimSpace(buf.String())
 			if exp := strings.Join(test.exp, "\n"); s != exp {
 				t.Errorf("\nexpected:\n%s\ngot:\n%s", exp, s)
 			}
@@ -53,7 +54,6 @@ func parseTests() []parseTest {
 			ss(""),
 			[]string{
 				"exec: cmd",
-				"root: cmd",
 				"name: cmd",
 				"tree: [cmd]",
 				"args: []",
@@ -64,7 +64,6 @@ func parseTests() []parseTest {
 			ss("a//"),
 			[]string{
 				"exec: cmd",
-				"root: cmd",
 				"name: cmd",
 				"tree: [cmd]",
 				"args: []",
@@ -75,7 +74,6 @@ func parseTests() []parseTest {
 			ss("a//--foo=a//one////--foo//b//two//--foo//c//three//four//blah//yay"),
 			[]string{
 				"exec: one",
-				"root: cmd",
 				"name: one",
 				"tree: [cmd one]",
 				"args: [ two three four blah yay]",
@@ -86,7 +84,6 @@ func parseTests() []parseTest {
 			ss("a//--m=A=100//--m//FOO=200//one//two"),
 			[]string{
 				"exec: two",
-				"root: cmd",
 				"name: two",
 				"tree: [cmd one two]",
 				"args: []",
@@ -97,7 +94,6 @@ func parseTests() []parseTest {
 			ss("a//-b//one//-b=false//two//-b=t//three//--b=1"),
 			[]string{
 				"exec: three",
-				"root: cmd",
 				"name: three",
 				"tree: [cmd one two three]",
 				"args: []",
@@ -108,7 +104,6 @@ func parseTests() []parseTest {
 			ss("a//--inc//one//--inc//--inc//two//--inc//three"),
 			[]string{
 				"exec: three",
-				"root: cmd",
 				"name: three",
 				"tree: [cmd one two three]",
 				"args: []",
@@ -119,7 +114,6 @@ func parseTests() []parseTest {
 			ss("a//-fa=b//-iiib//one//two//-bbb//three"),
 			[]string{
 				"exec: three",
-				"root: cmd",
 				"name: three",
 				"tree: [cmd one two three]",
 				"args: []",
@@ -130,7 +124,6 @@ func parseTests() []parseTest {
 			ss("a//one//two//four//-b"),
 			[]string{
 				"exec: two",
-				"root: cmd",
 				"name: two",
 				"tree: [cmd one two]",
 				"args: [four]",
@@ -141,7 +134,6 @@ func parseTests() []parseTest {
 			ss("a//one//four//-iii//--inc//fun"),
 			[]string{
 				"exec: four",
-				"root: cmd",
 				"name: four",
 				"tree: [cmd one four]",
 				"args: [fun]",
@@ -152,7 +144,6 @@ func parseTests() []parseTest {
 			ss("a//five//-u//file:a//-ufile:b//-c=1.2.3.4/24//--cidr//2.4.6.8/0//foo//bar"),
 			[]string{
 				"exec: five",
-				"root: cmd",
 				"name: five",
 				"tree: [cmd five]",
 				"args: [foo bar]",
@@ -163,7 +154,6 @@ func parseTests() []parseTest {
 			ss("a//five//--time//A=07:15:13//a//-d2001-12-25//-d=2002-01-15//--time=B=12:15:32//b"),
 			[]string{
 				"exec: five",
-				"root: cmd",
 				"name: five",
 				"tree: [cmd five]",
 				"args: [a b]",
@@ -174,7 +164,6 @@ func parseTests() []parseTest {
 			ss("a//--//five//--a=b"),
 			[]string{
 				"exec: cmd",
-				"root: cmd",
 				"name: cmd",
 				"tree: [cmd]",
 				"args: [five --a=b]",
@@ -182,10 +171,9 @@ func parseTests() []parseTest {
 			},
 		},
 		{
-			ss("a//five//-T//255=07:15:32//-T//128=12:15:20//-C=16.1=A//-iiiiC25=J//-C//16.100=C//-C//17=1//-C17=//-C//17=//--//--//-a//-b=c"),
+			ss("a//five//-T//255=07:15:32//-T//128=12:15:20//-C=16.1=A//-iiiiC25=J//-C//16.100=C//-C//17.0=1//-C17.0000=//-C//17=//--//--//-a//-b=c"),
 			[]string{
 				"exec: five",
-				"root: cmd",
 				"name: five",
 				"tree: [cmd five]",
 				"args: [-- -a -b=c]",
@@ -202,7 +190,7 @@ func ss(s string) []string {
 func testCommand(t *testing.T) *Command {
 	t.Helper()
 	cmd, err := NewCommand(
-		testDump(t, "cmd"),
+		Exec(testDump(t, "cmd")),
 		Usage("cmd", ""),
 		Flags().
 			String("avar", "", Short("a")).
@@ -212,23 +200,23 @@ func testCommand(t *testing.T) *Command {
 			Slice("foo", "", Short("f")).
 			Int("int", "", Short("n"), Default(float64(15.0))),
 		Sub(
-			testDump(t, "one"),
+			Exec(testDump(t, "one")),
 			Usage("one", ""),
 			Sub(
-				testDump(t, "two"),
+				Exec(testDump(t, "two")),
 				Usage("two", ""),
 				Sub(
-					testDump(t, "three"),
+					Exec(testDump(t, "three")),
 					Usage("three", ""),
 				),
 			),
 			Sub(
-				testDump(t, "four"),
+				Exec(testDump(t, "four")),
 				Usage("four", ""),
 			),
 		),
 		Sub(
-			testDump(t, "five"),
+			Exec(testDump(t, "five")),
 			Usage("five", ""),
 			Flags().
 				String("val", "", Short("l"), Default(125)).
@@ -246,17 +234,17 @@ func testCommand(t *testing.T) *Command {
 	return cmd
 }
 
-func testDump(t *testing.T, name string) func(ctx context.Context, args []string) error {
+func testDump(t *testing.T, name string) func(context.Context, []string) {
 	t.Helper()
-	return func(ctx context.Context, args []string) error {
-		_, _ = fmt.Fprintln(Stdout(ctx), "exec:", name)
-		_, _ = fmt.Fprintln(Stdout(ctx), "root:", RootName(ctx))
-		cmd := Cmd(ctx)
-		_, _ = fmt.Fprintln(Stdout(ctx), "name:", cmd.Name())
-		_, _ = fmt.Fprintln(Stdout(ctx), "tree:", cmd.Tree())
-		_, _ = fmt.Fprintln(Stdout(ctx), "args:", args)
-		vars, _ := VarsOK(ctx)
-		_, _ = fmt.Fprintln(Stdout(ctx), "vars:", vars)
-		return nil
+	return func(ctx context.Context, args []string) {
+		c, ok := Ctx(ctx)
+		if !ok {
+			t.Fatalf("expected non-nil context")
+		}
+		_, _ = fmt.Fprintln(c.Stdout, "exec:", name)
+		_, _ = fmt.Fprintln(c.Stdout, "name:", c.Cmd.Name())
+		_, _ = fmt.Fprintln(c.Stdout, "tree:", c.Cmd.Tree())
+		_, _ = fmt.Fprintln(c.Stdout, "args:", args)
+		_, _ = fmt.Fprintln(c.Stdout, "vars:", c.Vars)
 	}
 }

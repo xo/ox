@@ -3,18 +3,41 @@ package ox
 import (
 	"context"
 	"fmt"
+	"io"
 	"reflect"
 	"slices"
 	"strings"
 	"unicode/utf8"
 )
 
-// WithArgs is a [Context] option to set the command-line arguments to use.
-func WithArgs(args []string) ContextOption {
+// Args is a [Context] option to set the command-line arguments to use.
+func Args(args []string) ContextOption {
 	return option{
-		name: "WithArgs",
-		ctx: func(opts *Context) error {
-			opts.Args = args
+		name: "Args",
+		ctx: func(ctx *Context) error {
+			ctx.Args = args
+			return nil
+		},
+	}
+}
+
+// Pipe is a [Context] option to set the standard in, out, and error to use.
+func Pipe(stdin io.Reader, stdout, stderr io.Writer) ContextOption {
+	return option{
+		name: "Pipe",
+		ctx: func(ctx *Context) error {
+			ctx.Stdin, ctx.Stdout, ctx.Stderr = stdin, stdout, stderr
+			return nil
+		},
+	}
+}
+
+// Exec is a [Command] option to set the exec func.
+func Exec[F ExecType](f F) Option {
+	return option{
+		name: "Exec",
+		cmd: func(cmd *Command) error {
+			cmd.Exec = NewExec(f)
 			return nil
 		},
 	}
@@ -42,33 +65,31 @@ func From[T *E, E any](val T) CommandOption {
 }
 
 // Sub is a [Command] option to create a sub command.
-func Sub(f func(context.Context, []string) error, opts ...Option) CommandOption {
+func Sub(opts ...Option) CommandOption {
 	return option{
 		name: "Sub",
 		cmd: func(c *Command) error {
-			return c.Sub(f, opts...)
+			return c.Sub(opts...)
 		},
 	}
 }
 
 // Version is a [Command] option to hook --version with version output.
 func Version(version string, opts ...Option) CommandOption {
-	return Hook(func(ctx context.Context) error {
-		_, _ = fmt.Fprintf(Stdout(ctx), "%s %s\n", RootName(ctx), version)
-		return ErrExit
-	},
-		prepend(opts, Usage("version", "display version and exit"))...,
-	)
+	return option{
+		cmd: func(*Command) error {
+			return nil
+		},
+	}
 }
 
 // Help is a [Command] option to hook --help with help output.
 func Help(opts ...Option) CommandOption {
-	return Hook(func(ctx context.Context) error {
-		_, _ = fmt.Fprintf(Stdout(ctx), "%s help!\n", RootName(ctx))
-		return ErrExit
-	},
-		prepend(opts, Usage("help", "display help and exit"))...,
-	)
+	return option{
+		cmd: func(*Command) error {
+			return nil
+		},
+	}
 }
 
 // Comp is a [Command] option to enable command completion.
@@ -114,10 +135,10 @@ func ArgsFunc(funcs ...func([]string) error) CommandOption {
 	}
 }
 
-// Args is a [Command] option to the set the command's range of allowed
+// ValidArgs is a [Command] option to the set the command's range of allowed
 // minimum/maximum argruments and allowed argument values. A minimum/maximum <
 // 0 means no minimum/maximum.
-func Args(minimum, maximum int, values ...string) CommandOption {
+func ValidArgs(minimum, maximum int, values ...string) CommandOption {
 	return option{
 		name: "Args",
 		cmd: func(c *Command) error {
