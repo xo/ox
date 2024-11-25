@@ -30,23 +30,23 @@ func Run(opts ...Option) {
 // RunContext creates a [Command] for f using [os.Args] by default, unless
 // arguments were specified using a [ContextOption].
 func RunContext(ctx context.Context, opts ...Option) {
-	runContext, err := NewContext(opts...)
+	c, err := NewContext(opts...)
 	if err != nil {
-		runContext.Handle(err)
+		c.Handle(err)
 	}
 	root, err := NewCommand(opts...)
 	if err != nil {
-		runContext.Handle(err)
+		c.Handle(err)
 	}
-	cmd, args, err := Parse(root, runContext.Args, runContext.Vars)
+	cmd, args, err := Parse(root, c.Args, c.Vars)
 	if err != nil {
-		runContext.Handle(err)
+		c.Handle(err)
 	}
 	if err := cmd.Validate(args); err != nil {
-		runContext.Handle(err)
+		c.Handle(err)
 	}
-	if err := cmd.Exec(WithContext(ctx, runContext), args); err != nil {
-		runContext.Handle(err)
+	if err := cmd.Exec(WithContext(ctx, c), args); err != nil {
+		c.Handle(err)
 	}
 }
 
@@ -88,8 +88,6 @@ const (
 	ErrInvalidArg Error = "invalid arg"
 	// ErrInvalidConversion is the invalid conversion error.
 	ErrInvalidConversion Error = "invalid conversion"
-	// ErrIsNil is the is nil error.
-	// ErrIsNil Error = "is nil"
 	// ErrTypeMismatch is the type mismatch error.
 	ErrTypeMismatch Error = "type mismatch"
 	// ErrExit is the exit error.

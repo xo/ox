@@ -410,21 +410,21 @@ type BoundValue interface {
 	Get() any
 }
 
-// boundVal is a bound value.
-type boundVal[T *E, E any] struct {
+// bindVal is a bound value.
+type bindVal[T *E, E any] struct {
 	v T
 	b *bool
 }
 
 // NewBind binds a value.
 func NewBind[T *E, E any](v T, b *bool) (BoundValue, error) {
-	return &boundVal[T, E]{
+	return &bindVal[T, E]{
 		v: v,
 		b: b,
 	}, nil
 }
 
-func (val *boundVal[T, E]) Set(s string) error {
+func (val *bindVal[T, E]) Set(s string) error {
 	typ := reflect.TypeOf(*val.v)
 	switch typ.Kind() {
 	case reflect.Slice:
@@ -449,29 +449,29 @@ func (val *boundVal[T, E]) Set(s string) error {
 	return fmt.Errorf("%w: %s->%T", ErrInvalidConversion, typ, *val.v)
 }
 
-func (val *boundVal[T, E]) Get() any {
+func (val *bindVal[T, E]) Get() any {
 	return *val.v
 }
 
-// boundRefVal is a value bound with reflection.
-type boundRefVal struct {
+// refVal is a reflection bound value.
+type refVal struct {
 	v reflect.Value
 	b *bool
 }
 
-// NewBindValue binds [reflect.Value] value and its set flag.
-func NewBindValue(value reflect.Value, b *bool) (BoundValue, error) {
+// NewRef binds [reflect.Value] value and its set flag.
+func NewRef(value reflect.Value, b *bool) (BoundValue, error) {
 	switch {
 	case value.Kind() != reflect.Pointer, value.IsNil():
 		return nil, fmt.Errorf("%w: not a pointer or is nil", ErrInvalidValue)
 	}
-	return &boundRefVal{
+	return &refVal{
 		v: value,
 		b: b,
 	}, nil
 }
 
-func (val *boundRefVal) Set(s string) error {
+func (val *refVal) Set(s string) error {
 	typ := val.v.Elem().Type()
 	switch typ.Kind() {
 	case reflect.Slice:
@@ -500,7 +500,7 @@ func (val *boundRefVal) Set(s string) error {
 	return fmt.Errorf("%w: cannot convert %T->%s", ErrInvalidConversion, s, typ)
 }
 
-func (val *boundRefVal) sliceSet(s string) bool {
+func (val *refVal) sliceSet(s string) bool {
 	/*
 		z := reflect.New(val.v.Elem().Type().Elem())
 		fmt.Fprintf(os.Stdout, "type: %s\n", z.Type())
@@ -513,11 +513,11 @@ func (val *boundRefVal) sliceSet(s string) bool {
 	return false
 }
 
-func (val *boundRefVal) mapSet(s string) bool {
+func (val *refVal) mapSet(s string) bool {
 	return false
 }
 
-func (val *boundRefVal) Get() any {
+func (val *refVal) Get() any {
 	return val.v.Elem().Interface()
 }
 

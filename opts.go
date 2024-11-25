@@ -260,21 +260,6 @@ func MapKey(typ Type) FlagOption {
 	}
 }
 
-// BindValue is a [Flag] option to add a bound value to a flag.
-func BindValue(value reflect.Value, b *bool) FlagOption {
-	return option{
-		name: "BindValue",
-		flag: func(g *Flag) error {
-			val, err := NewBindValue(value, b)
-			if err != nil {
-				return err
-			}
-			g.Binds = append(g.Binds, val)
-			return nil
-		},
-	}
-}
-
 // BindSet is a [Flag] option to add a bound variable to a flag.
 func BindSet[T *E, E any](v T, b *bool) FlagOption {
 	return option{
@@ -305,6 +290,21 @@ func Bind[T *E, E any](v T) FlagOption {
 	}
 }
 
+// BindRef is a [Flag] option to add a reflected value to a flag.
+func BindRef(value reflect.Value, b *bool) FlagOption {
+	return option{
+		name: "RefValue",
+		flag: func(g *Flag) error {
+			val, err := NewRef(value, b)
+			if err != nil {
+				return err
+			}
+			g.Binds = append(g.Binds, val)
+			return nil
+		},
+	}
+}
+
 // Default is a [Flag] option to set the flag's default value.
 func Default(def any) FlagOption {
 	return option{
@@ -316,12 +316,13 @@ func Default(def any) FlagOption {
 	}
 }
 
-// NoArg is a [Flag] option to set that the flag expects no argument.
-func NoArg(noArg bool) FlagOption {
+// NoArg is a [Flag] option to set that the flag expects no argument, and the
+// default value to set.
+func NoArg(noArg bool, def any) FlagOption {
 	return option{
 		name: "NoArg",
 		flag: func(g *Flag) error {
-			g.NoArg = noArg
+			g.NoArg, g.Def = noArg, def
 			return nil
 		},
 	}

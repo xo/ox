@@ -94,7 +94,7 @@ func (cmd *Command) Populate(all, overwrite bool, vars Vars) error {
 		}
 		var value string
 		switch {
-		case g.Type == HookT, g.Def == nil && !all:
+		case g.Type == HookT, g.Def == nil && !all, g.NoArg && !all:
 			continue
 		case g.Def != nil:
 			s, err := asString[string](g.Def)
@@ -421,6 +421,9 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 	if g.Name() == "" {
 		return nil, ErrInvalidFlagName
 	}
+	if g.NoArg && g.Def == nil {
+		return nil, fmt.Errorf("flag %s: %w: missing default value for NoArg", g.Name(), ErrInvalidValue)
+	}
 	return g, nil
 }
 
@@ -552,7 +555,7 @@ func buildFlagOpts(typ reflect.Type, val reflect.Value, name string, s []string)
 		}
 	}
 	// prepend bind to opt
-	return prepend(opts, BindValue(val, b)), nil
+	return prepend(opts, BindRef(val, b)), nil
 }
 
 // ExecType is the interface for func's that can be used with [Run],

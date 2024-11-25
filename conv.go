@@ -560,15 +560,6 @@ func toBool(val any) bool {
 	return v
 }
 
-// toBoolString returns the value to a string, with a special case of returning
-// "true" when value is nil.
-func toBoolString(val any) string {
-	if val != nil {
-		return strconv.FormatBool(toBool(val))
-	}
-	return "true"
-}
-
 /*
 // toInt converts the value to a int.
 func toInt[T inti](val any) T {

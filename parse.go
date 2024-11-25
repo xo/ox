@@ -66,7 +66,10 @@ func parseLong(cmd *Command, s string, args []string, vars Vars) ([]string, erro
 		return nil, newFlagError(arg, ErrUnknownFlag)
 	case ok: // --arg=v
 	case g.NoArg: // --arg
-		value = toBoolString(g.Def)
+		var err error
+		if value, err = asString[string](g.Def); err != nil {
+			return nil, newFlagError(arg, err)
+		}
 	case len(args) != 0: // --arg v
 		value, args = args[0], args[1:]
 	default: // missing argument to --arg
@@ -87,10 +90,11 @@ func parseShort(cmd *Command, s string, args []string, vars Vars) ([]string, err
 			return nil, newFlagError(arg, ErrUnknownFlag)
 		case g.NoArg: // -a
 			var value string
+			var err error
 			if slices.Index(v, '=') == 1 {
 				value, v = string(v[2:]), v[len(v)-1:]
-			} else {
-				value = toBoolString(g.Def)
+			} else if value, err = asString[string](g.Def); err != nil {
+				return nil, newFlagError(arg, err)
 			}
 			if err := vars.Set(g, value, true); err != nil {
 				return nil, newFlagError(arg, err)

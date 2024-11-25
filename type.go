@@ -152,8 +152,8 @@ func init() {
 		// HookT:       NewTypeDesc(NewHook(), NoArg(true)),
 	}
 	typeFlagOpts = map[Type][]Option{
-		BoolT:  {NoArg(true)},
-		CountT: {NoArg(true)},
+		BoolT:  {NoArg(true, true)},
+		CountT: {NoArg(true, "")},
 	}
 	reflectTypes = make(map[string]Type)
 	// text marshal types
