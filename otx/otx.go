@@ -1,139 +1,29 @@
-package ox
+// Package otx provides [context.Context] access methods for xo/ox.
+package otx
 
 import (
 	"cmp"
 	"context"
-	"encoding/base64"
-	"encoding/hex"
-	"errors"
-	"fmt"
-	"io"
 	"math/big"
 	"net/netip"
 	"net/url"
-	"os"
 	"time"
+
+	"github.com/xo/ox"
 )
 
-// Context is a exec context.
-type Context struct {
-	Args   []string
-	Stdin  io.Reader
-	Stdout io.Writer
-	Stderr io.Writer
-	OnErr  OnErr
-	Handle func(error)
-	Root   *Command
-	Cmd    *Command
-	Vars   Vars
-}
-
-// NewContext creates a new run context.
-func NewContext(opts ...Option) (*Context, error) {
-	ctx := &Context{
-		Stdin:  os.Stdin,
-		Stdout: os.Stdout,
-		Stderr: os.Stderr,
-		Args:   os.Args[1:],
-	}
-	for _, o := range opts {
-		if err := o.apply(ctx); err != nil {
-			return ctx, err
-		}
-	}
-	if ctx.Vars == nil {
-		ctx.Vars = make(Vars)
-	}
-	if ctx.Handle == nil {
-		ctx.Handle = func(err error) {
-			var w io.Writer = os.Stderr
-			if ctx.Stderr != nil {
-				w = ctx.Stderr
-			}
-			switch {
-			case errors.Is(err, ErrExit), ctx.OnErr == OnErrContinue:
-			case ctx.OnErr == OnErrExit:
-				fmt.Fprintln(w, "error:", err)
-				os.Exit(1)
-			case ctx.OnErr == OnErrPanic:
-				panic(err)
-			}
-		}
-	}
-	return ctx, nil
-}
-
-// contextKey is the context key types.
-type contextKey int
-
-// context keys.
-const (
-	ctxKey contextKey = iota
-)
-
-// WithContext adds the [Context] to the parent context.
-func WithContext(parent context.Context, ctx *Context) context.Context {
-	return context.WithValue(parent, ctxKey, ctx)
-}
-
-// Ctx returns the context from the context.
-func Ctx(ctx context.Context) (*Context, bool) {
-	c, ok := ctx.Value(ctxKey).(*Context)
-	return c, ok
-}
-
-// Root returns the root [Command] from the context.
-func Root(ctx context.Context) *Command {
-	if c, ok := Ctx(ctx); ok && c != nil {
-		return c.Root
-	}
-	return nil
-}
-
-// Cmd returns the invoked [Command] from the context.
-func Cmd(ctx context.Context) *Command {
-	if c, ok := Ctx(ctx); ok && c != nil {
-		return c.Cmd
-	}
-	return nil
-}
-
-// Stdin returns the standard input from the context.
-func Stdin(ctx context.Context) io.Reader {
-	if c, ok := Ctx(ctx); ok && c != nil && c.Stdin != nil {
-		return c.Stdin
-	}
-	return os.Stdin
-}
-
-// Stdout returns the standard output from the context.
-func Stdout(ctx context.Context) io.Writer {
-	if c, ok := Ctx(ctx); ok && c != nil && c.Stdout != nil {
-		return c.Stdout
-	}
-	return os.Stdout
-}
-
-// Stderr returns the standard error output from the context.
-func Stderr(ctx context.Context) io.Writer {
-	if c, ok := Ctx(ctx); ok && c != nil && c.Stderr != nil {
-		return c.Stderr
-	}
-	return os.Stderr
-}
-
-// VarsOK returns all variables from the context.
-func VarsOK(ctx context.Context) (Vars, bool) {
-	if c, ok := Ctx(ctx); ok && c != nil {
+// Vars returns all variables from the context.
+func Vars(ctx context.Context) (ox.Vars, bool) {
+	if c, ok := ox.Ctx(ctx); ok && c != nil {
 		return c.Vars, true
 	}
 	return nil, false
 }
 
-// AnyOK returns a variable, its set status, and if it was defined from the
+// Any returns a variable, its set status, and if it was defined from the
 // context.
-func AnyOK(ctx context.Context, name string) (Value, bool) {
-	if vars, ok := VarsOK(ctx); ok {
+func Any(ctx context.Context, name string) (ox.Value, bool) {
+	if vars, ok := Vars(ctx); ok {
 		if val, ok := vars[name]; ok {
 			return val, true
 		}
@@ -141,27 +31,21 @@ func AnyOK(ctx context.Context, name string) (Value, bool) {
 	return nil, false
 }
 
-// GetOK returns a variable.
-func GetOK[T any](ctx context.Context, name string) (T, bool) {
-	if val, ok := AnyOK(ctx, name); ok {
-		if v, err := As[T](val); err == nil {
-			return v, true
+// Get returns a variable.
+func Get[T any](ctx context.Context, name string) T {
+	if val, ok := Any(ctx, name); ok {
+		if v, err := ox.As[T](val); err == nil {
+			return v
 		}
 	}
 	var v T
-	return v, false
-}
-
-// Get returns the variable from the context.
-func Get[T any](ctx context.Context, name string) T {
-	v, _ := GetOK[T](ctx, name)
 	return v
 }
 
 // Slice returns the slice variable from the context.
-func Slice[T any](ctx context.Context, name string) []T {
-	if val, ok := AnyOK(ctx, name); ok {
-		if v, err := SliceAs[T](val); err == nil {
+func Slice[T []E, E any](ctx context.Context, name string) T {
+	if val, ok := Any(ctx, name); ok {
+		if v, err := ox.AsSlice[T](val); err == nil {
 			return v
 		}
 	}
@@ -170,8 +54,8 @@ func Slice[T any](ctx context.Context, name string) []T {
 
 // Map returns the map variable from the context.
 func Map[K cmp.Ordered, T any](ctx context.Context, name string) map[K]T {
-	if val, ok := AnyOK(ctx, name); ok {
-		if m, err := MapAs[K, T](val); err == nil {
+	if val, ok := Any(ctx, name); ok {
+		if m, err := ox.AsMap[K, T](val); err == nil {
 			return m
 		}
 	}
@@ -193,16 +77,6 @@ func Runes(ctx context.Context, name string) []rune {
 	return Get[[]rune](ctx, name)
 }
 
-// Base64 returns the base64 encoded string variable from the context.
-func Base64(ctx context.Context, name string) string {
-	return base64.StdEncoding.EncodeToString(Get[[]byte](ctx, name))
-}
-
-// Hex returns the hex encoded string variable from the context.
-func Hex(ctx context.Context, name string) string {
-	return hex.EncodeToString(Get[[]byte](ctx, name))
-}
-
 // Bool returns the bool variable from the context.
 func Bool(ctx context.Context, name string) bool {
 	return Get[bool](ctx, name)
@@ -210,12 +84,18 @@ func Bool(ctx context.Context, name string) bool {
 
 // Byte returns the byte variable from the context.
 func Byte(ctx context.Context, name string) byte {
-	return Get[byte](ctx, name)
+	if b := Get[[]byte](ctx, name); len(b) != 0 {
+		return b[0]
+	}
+	return 0
 }
 
 // Rune returns the rune variable from the context.
 func Rune(ctx context.Context, name string) rune {
-	return Get[rune](ctx, name)
+	if r := Get[[]rune](ctx, name); len(r) != 0 {
+		return r[0]
+	}
+	return 0
 }
 
 // Int64 returns the int64 variable from the context.
@@ -298,9 +178,14 @@ func BigRat(ctx context.Context, name string) *big.Rat {
 	return Get[*big.Rat](ctx, name)
 }
 
-// Time returns the [time.Time] variable from the context.
-func Time(ctx context.Context, name string) time.Time {
-	return Get[TimeV](ctx, name).Time()
+// Time returns the [ox.Time] variable from the context.
+func Time(ctx context.Context, name string) ox.FormattedTime {
+	return Get[ox.FormattedTime](ctx, name)
+}
+
+// TimeTime returns the [time.Time] variable from the context.
+func TimeTime(ctx context.Context, name string) time.Time {
+	return Get[ox.FormattedTime](ctx, name).Time()
 }
 
 // Duration returns the [time.Duration] variable from the context.
@@ -336,25 +221,4 @@ func Path(ctx context.Context, name string) string {
 // Count returns the count variable from the context.
 func Count(ctx context.Context, name string) int {
 	return Get[int](ctx, name)
-}
-
-// OnErr is the on error handling option type.
-type OnErr uint8
-
-// On error handling options.
-const (
-	OnErrExit OnErr = iota
-	OnErrContinue
-	OnErrPanic
-)
-
-// apply satisfies the [Option] interface.
-func (e OnErr) apply(val any) error {
-	switch v := val.(type) {
-	case *Command:
-		v.OnErr = e
-	default:
-		return fmt.Errorf("%s option: %w", e, ErrAppliedToInvalidType)
-	}
-	return nil
 }

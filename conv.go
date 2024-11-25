@@ -10,7 +10,7 @@ import (
 	"unicode/utf8"
 )
 
-// As converts a value.
+// As converts a [Value] to type T.
 func As[T any](value Value) (T, error) {
 	val := value.Val()
 	var res T
@@ -25,15 +25,15 @@ func As[T any](value Value) (T, error) {
 	return res, nil
 }
 
-// SliceAs converts a value to a slice.
-func SliceAs[T any](value Value) ([]T, error) {
+// AsSlice converts a [Value] to a slice of type E.
+func AsSlice[T []E, E any](value Value) (T, error) {
 	val, ok := value.(*sliceVal)
 	if !ok {
 		return nil, ErrInvalidConversion
 	}
-	s := make([]T, len(val.v))
+	s := make(T, len(val.v))
 	for i := range val.v {
-		v, err := As[T](val.v[i])
+		v, err := As[E](val.v[i])
 		if err != nil {
 			var res T
 			return nil, fmt.Errorf("cannot convert slice value %d: %w: %T->%T", i, err, v, res)
@@ -43,13 +43,14 @@ func SliceAs[T any](value Value) ([]T, error) {
 	return s, nil
 }
 
-// MapAs converts a value to a map.
-func MapAs[K cmp.Ordered, T any](value Value) (map[K]T, error) {
+// AsMap converts a value to a map with a key of type K, and elements of type
+// E.
+func AsMap[K cmp.Ordered, E any](value Value) (map[K]E, error) {
 	val, ok := value.(*mapVal)
 	if !ok {
 		return nil, ErrInvalidConversion
 	}
-	m := make(map[K]T)
+	m := make(map[K]E)
 	for _, keyval := range val.v.Keys() {
 		key, err := as[K](keyval, "")
 		if err != nil {
@@ -60,13 +61,32 @@ func MapAs[K cmp.Ordered, T any](value Value) (map[K]T, error) {
 			return nil, fmt.Errorf("%w: %T->%T", ErrInvalidConversion, key, k)
 		}
 		val := val.v.Get(keyval)
-		v, err := As[T](val)
+		v, err := As[E](val)
 		if err != nil {
 			return nil, err
 		}
 		m[k] = v
 	}
 	return m, nil
+}
+
+// To converts a [Value] to type T.
+func To[T any](value Value) T {
+	v, _ := As[T](value)
+	return v
+}
+
+// ToSlice converts a [Value] to a slice of type E.
+func ToSlice[T []E, E any](value Value) T {
+	v, _ := AsSlice[T, E](value)
+	return v
+}
+
+// ToMap converts a value to a map with a key of type K, and elements of type
+// E.
+func ToMap[K cmp.Ordered, E any](value Value) map[K]E {
+	v, _ := AsMap[K, E](value)
+	return v
 }
 
 // as converts a value.
@@ -110,7 +130,7 @@ func as[T any](val any, layout string) (any, error) {
 		return asComplex[complex128](val)
 	case complex64:
 		return asComplex[complex64](val)
-	case TimeV:
+	case FormattedTime:
 		return asTime(val, layout)
 	case time.Time:
 		return asTime(val, layout)
@@ -167,7 +187,7 @@ func asString[T stringi](val any) (T, error) {
 		return T(strconv.FormatComplex(v, 'f', -1, bitSize[complex128]())), nil
 	case complex64:
 		return T(strconv.FormatComplex(complex128(v), 'f', -1, bitSize[complex64]())), nil
-	case TimeV:
+	case FormattedTime:
 		return T(v.String()), nil
 	case time.Duration:
 		if v == 0 {
@@ -404,27 +424,27 @@ func asComplex[T complexi](val any) (T, error) {
 }
 
 // asTime converts the value to a [time.Time].
-func asTime(val any, layout string) (TimeV, error) {
+func asTime(val any, layout string) (FormattedTime, error) {
 	switch v := val.(type) {
-	case TimeV:
+	case FormattedTime:
 		return v, nil
 	case time.Time:
-		return TimeV{layout: layout, v: v}, nil
+		return FormattedTime{layout: layout, v: v}, nil
 	case interface{ Time() time.Time }:
-		return TimeV{layout: layout, v: v.Time()}, nil
+		return FormattedTime{layout: layout, v: v.Time()}, nil
 	}
 	s, err := asString[string](val)
 	switch {
 	case err != nil:
-		return TimeV{layout: layout}, err
+		return FormattedTime{layout: layout}, err
 	case s == "":
-		return TimeV{layout: layout}, nil
+		return FormattedTime{layout: layout}, nil
 	}
 	v, err := time.Parse(layout, s)
 	if err != nil {
-		return TimeV{layout: layout}, err
+		return FormattedTime{layout: layout}, err
 	}
-	return TimeV{layout: layout, v: v}, nil
+	return FormattedTime{layout: layout, v: v}, nil
 }
 
 // asDuration converts the value to a [time.Duration].

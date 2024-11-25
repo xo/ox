@@ -114,13 +114,12 @@ func (val *anyVal[T]) Get() (string, error) {
 	}
 	v, err := as[string](val.v, layout(val.v))
 	if err != nil {
-		return "", fmt.Errorf("%w: %w", ErrInvalidConversion, err)
+		return "", fmt.Errorf("%w: %w", ErrInvalidValue, err)
 	}
-	s, ok := v.(string)
-	if !ok {
-		return "", fmt.Errorf("%w: %T->string", ErrInvalidConversion, v)
+	if s, ok := v.(string); ok {
+		return s, nil
 	}
-	return s, nil
+	return "", fmt.Errorf("%w: %T->string", ErrInvalidConversion, v)
 }
 
 func (val *anyVal[T]) String() string {
@@ -128,12 +127,12 @@ func (val *anyVal[T]) String() string {
 	return s
 }
 
-// NewTime returns a Value func for a [time.Time] value.
+// NewTime returns a Value func for a [FormattedTime] value.
 func NewTime(typ Type, layout string) func() (Value, error) {
 	return func() (Value, error) {
-		val := &anyVal[TimeV]{
+		val := &anyVal[FormattedTime]{
 			typ: typ,
-			v:   TimeV{layout: layout},
+			v:   FormattedTime{layout: layout},
 		}
 		if val.typ == "" {
 			val.typ = TimestampT
@@ -213,7 +212,7 @@ type mapVal struct {
 	key Type
 	typ Type
 	set bool
-	v   mapValue
+	v   valueMap
 }
 
 // NewMap creates a map value of type.
@@ -257,7 +256,7 @@ func (val *mapVal) Get() (string, error) {
 	return val.v.String(), nil
 }
 
-type mapValue interface {
+type valueMap interface {
 	Set(s string) error
 	String() string
 	Keys() []any
@@ -265,7 +264,7 @@ type mapValue interface {
 }
 
 // makeMap makes a map for the key and type.
-func makeMap(key, typ Type) (mapValue, error) {
+func makeMap(key, typ Type) (valueMap, error) {
 	switch key {
 	case StringT:
 		return newValueMap[string](typ), nil
@@ -297,20 +296,20 @@ func makeMap(key, typ Type) (mapValue, error) {
 	return nil, fmt.Errorf("%w: bad map key type %s", ErrInvalidType, key)
 }
 
-// valueMap wraps a map.
-type valueMap[K cmp.Ordered] struct {
+// valMap wraps a map.
+type valMap[K cmp.Ordered] struct {
 	typ Type
 	v   map[K]Value
 }
 
 // newValueMap creates a new value map.
-func newValueMap[K cmp.Ordered](typ Type) mapValue {
-	return &valueMap[K]{
+func newValueMap[K cmp.Ordered](typ Type) valueMap {
+	return &valMap[K]{
 		typ: typ,
 	}
 }
 
-func (val *valueMap[K]) Set(s string) error {
+func (val *valMap[K]) Set(s string) error {
 	if val.v == nil {
 		val.v = make(map[K]Value)
 	}
@@ -339,7 +338,7 @@ func (val *valueMap[K]) Set(s string) error {
 	return nil
 }
 
-func (val valueMap[K]) String() string {
+func (val valMap[K]) String() string {
 	s := make([]string, len(val.v))
 	for i, k := range slices.Sorted(maps.Keys(val.v)) {
 		value, _ := val.v[k].Get()
@@ -348,7 +347,7 @@ func (val valueMap[K]) String() string {
 	return "[" + strings.Join(s, " ") + "]"
 }
 
-func (val valueMap[K]) Keys() []any {
+func (val valMap[K]) Keys() []any {
 	keys := make([]any, len(val.v))
 	for i, k := range slices.Sorted(maps.Keys(val.v)) {
 		keys[i] = k
@@ -356,51 +355,10 @@ func (val valueMap[K]) Keys() []any {
 	return keys
 }
 
-func (val valueMap[K]) Get(key any) Value {
+func (val valMap[K]) Get(key any) Value {
 	if k, ok := key.(K); ok {
 		return val.v[k]
 	}
-	return nil
-}
-
-// Vars is the type for storing variables in the context.
-type Vars map[string]Value
-
-// String satisfies the [fmt.Stringer] interfaec.
-func (vars Vars) String() string {
-	var v []string
-	for _, k := range slices.Sorted(maps.Keys(vars)) {
-		if s, err := vars[k].Get(); err == nil {
-			v = append(v, k+":"+s)
-		}
-	}
-	return "[" + strings.Join(v, " ") + "]"
-}
-
-// Set sets a variable in the vars.
-func (vars Vars) Set(g *Flag, s string, set bool) error {
-	// fmt.Fprintf(os.Stdout, "SETTING: %q (%s/%s): %q\n", g.Name(), g.Type, g.Sub, s)
-	name := g.Name()
-	if name == "" {
-		return ErrInvalidFlagName
-	}
-	var err error
-	v, ok := vars[name]
-	if !ok {
-		if v, err = g.New(); err != nil {
-			return err
-		}
-	}
-	if err := v.Set(s); err != nil {
-		return err
-	}
-	v.SetSet(set)
-	for i, val := range g.Binds {
-		if err := val.Set(s); err != nil {
-			return fmt.Errorf("flag %s: bind %d (%T): cannot set %q: %w", g.Name(), i, val.Get(), s, err)
-		}
-	}
-	vars[name] = v
 	return nil
 }
 
@@ -521,49 +479,41 @@ func (val *refVal) Get() any {
 	return val.v.Elem().Interface()
 }
 
-// TimeV wraps a time value with a specific layout.
-type TimeV struct {
+// FormattedTime wraps a time value with a specific layout.
+type FormattedTime struct {
 	layout string
 	v      time.Time
 }
 
-// NewTimeV creates a timeV value.
-func NewTimeV(layout string, v time.Time) TimeV {
-	return TimeV{
-		layout: layout,
-		v:      v,
-	}
-}
-
 // Layout returns the layout.
-func (val TimeV) Layout() string {
+func (val FormattedTime) Layout() string {
 	return val.layout
 }
 
 // Time returns the time value.
-func (val TimeV) Time() time.Time {
+func (val FormattedTime) Time() time.Time {
 	return val.v
 }
 
 // Set sets parses the time value from the string.
-func (val *TimeV) Set(s string) error {
+func (val *FormattedTime) Set(s string) error {
 	var err error
 	val.v, err = time.Parse(val.layout, s)
 	return err
 }
 
 // Format formats the time value as the provided layout.
-func (val TimeV) Format(layout string) string {
+func (val FormattedTime) Format(layout string) string {
 	return val.v.Format(layout)
 }
 
 // String satisfies the [fmt.Stringer] interface.
-func (val TimeV) String() string {
+func (val FormattedTime) String() string {
 	return val.v.Format(val.layout)
 }
 
 // IsValid returns true when the time is not zero.
-func (val TimeV) IsValid() bool {
+func (val FormattedTime) IsValid() bool {
 	return !val.v.IsZero()
 }
 

@@ -2,9 +2,51 @@ package ox
 
 import (
 	"fmt"
+	"maps"
 	"slices"
 	"strings"
 )
+
+// Vars is the type for storing variables in the context.
+type Vars map[string]Value
+
+// String satisfies the [fmt.Stringer] interfaec.
+func (vars Vars) String() string {
+	var v []string
+	for _, k := range slices.Sorted(maps.Keys(vars)) {
+		if s, err := vars[k].Get(); err == nil {
+			v = append(v, k+":"+s)
+		}
+	}
+	return "[" + strings.Join(v, " ") + "]"
+}
+
+// Set sets a variable in the vars.
+func (vars Vars) Set(g *Flag, s string, set bool) error {
+	// fmt.Fprintf(os.Stdout, "SETTING: %q (%s/%s): %q\n", g.Name(), g.Type, g.Sub, s)
+	name := g.Name()
+	if name == "" {
+		return ErrInvalidFlagName
+	}
+	var err error
+	v, ok := vars[name]
+	if !ok {
+		if v, err = g.New(); err != nil {
+			return err
+		}
+	}
+	if err := v.Set(s); err != nil {
+		return err
+	}
+	v.SetSet(set)
+	for i, val := range g.Binds {
+		if err := val.Set(s); err != nil {
+			return fmt.Errorf("flag %s: bind %d (%T): cannot set %q: %w", g.Name(), i, val.Get(), s, err)
+		}
+	}
+	vars[name] = v
+	return nil
+}
 
 // Parse parses the command-line arguments into vars.
 func Parse(root *Command, args []string, vars Vars) (*Command, []string, error) {
@@ -67,7 +109,7 @@ func parseLong(cmd *Command, s string, args []string, vars Vars) ([]string, erro
 	case ok: // --arg=v
 	case g.NoArg: // --arg
 		var err error
-		if value, err = asString[string](g.Def); err != nil {
+		if value, err = asString[string](g.NoArgDef); err != nil {
 			return nil, newFlagError(arg, err)
 		}
 	case len(args) != 0: // --arg v
@@ -93,7 +135,7 @@ func parseShort(cmd *Command, s string, args []string, vars Vars) ([]string, err
 			var err error
 			if slices.Index(v, '=') == 1 {
 				value, v = string(v[2:]), v[len(v)-1:]
-			} else if value, err = asString[string](g.Def); err != nil {
+			} else if value, err = asString[string](g.NoArgDef); err != nil {
 				return nil, newFlagError(arg, err)
 			}
 			if err := vars.Set(g, value, true); err != nil {

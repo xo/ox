@@ -7,6 +7,7 @@ import (
 
 	"github.com/kenshaw/colors"
 	"github.com/xo/ox"
+	"github.com/xo/ox/otx"
 )
 
 func init() {
@@ -25,5 +26,5 @@ func New() (*colors.Color, error) {
 
 // Color retrieves a color from the context.
 func Color(ctx context.Context, name string) *colors.Color {
-	return ox.Get[*colors.Color](ctx, name)
+	return otx.Get[*colors.Color](ctx, name)
 }

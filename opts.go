@@ -322,7 +322,7 @@ func NoArg(noArg bool, def any) FlagOption {
 	return option{
 		name: "NoArg",
 		flag: func(g *Flag) error {
-			g.NoArg, g.Def = noArg, def
+			g.NoArg, g.NoArgDef = noArg, def
 			return nil
 		},
 	}
@@ -357,10 +357,7 @@ func Hook(f func(context.Context) error, opts ...Option) Option {
 // HookDump is an option to set a hook for a flag that Fprint's s and v to the
 // set standard out and then exits normally.
 func HookDump(s string, v ...any) Option {
-	return Hook(func(ctx context.Context) error {
-		_, _ = fmt.Fprintf(Stdout(ctx), s, v...)
-		return ErrExit
-	})
+	return option{}
 }
 
 // Option is the interface for options that can be passed when creating a

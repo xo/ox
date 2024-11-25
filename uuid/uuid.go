@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/xo/ox"
+	"github.com/xo/ox/otx"
 )
 
 func init() {
@@ -20,5 +21,5 @@ func New() (*uuid.UUID, error) {
 
 // UUID returns the uuid var from the context.
 func UUID(ctx context.Context, name string) *uuid.UUID {
-	return ox.Get[*uuid.UUID](ctx, name)
+	return otx.Get[*uuid.UUID](ctx, name)
 }

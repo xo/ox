@@ -55,7 +55,7 @@ func parseTests() []parseTest {
 			[]string{
 				"exec: cmd",
 				"name: cmd",
-				"tree: [cmd]",
+				"path: []",
 				"args: []",
 				"vars: [int:15]",
 			},
@@ -65,7 +65,7 @@ func parseTests() []parseTest {
 			[]string{
 				"exec: cmd",
 				"name: cmd",
-				"tree: [cmd]",
+				"path: []",
 				"args: []",
 				"vars: [int:15]",
 			},
@@ -75,7 +75,7 @@ func parseTests() []parseTest {
 			[]string{
 				"exec: one",
 				"name: one",
-				"tree: [cmd one]",
+				"path: [one]",
 				"args: [ two three four blah yay]",
 				"vars: [foo:[a b c] int:15]",
 			},
@@ -85,7 +85,7 @@ func parseTests() []parseTest {
 			[]string{
 				"exec: two",
 				"name: two",
-				"tree: [cmd one two]",
+				"path: [one two]",
 				"args: []",
 				"vars: [int:15 map:[A:100 FOO:200]]",
 			},
@@ -95,7 +95,7 @@ func parseTests() []parseTest {
 			[]string{
 				"exec: three",
 				"name: three",
-				"tree: [cmd one two three]",
+				"path: [one two three]",
 				"args: []",
 				"vars: [bvar:true int:15]",
 			},
@@ -105,7 +105,7 @@ func parseTests() []parseTest {
 			[]string{
 				"exec: three",
 				"name: three",
-				"tree: [cmd one two three]",
+				"path: [one two three]",
 				"args: []",
 				"vars: [inc:4 int:15]",
 			},
@@ -115,7 +115,7 @@ func parseTests() []parseTest {
 			[]string{
 				"exec: three",
 				"name: three",
-				"tree: [cmd one two three]",
+				"path: [one two three]",
 				"args: []",
 				"vars: [bvar:true foo:[a=b] inc:3 int:15]",
 			},
@@ -125,7 +125,7 @@ func parseTests() []parseTest {
 			[]string{
 				"exec: two",
 				"name: two",
-				"tree: [cmd one two]",
+				"path: [one two]",
 				"args: [four]",
 				"vars: [bvar:true int:15]",
 			},
@@ -135,7 +135,7 @@ func parseTests() []parseTest {
 			[]string{
 				"exec: four",
 				"name: four",
-				"tree: [cmd one four]",
+				"path: [one four]",
 				"args: [fun]",
 				"vars: [inc:4 int:15]",
 			},
@@ -145,7 +145,7 @@ func parseTests() []parseTest {
 			[]string{
 				"exec: five",
 				"name: five",
-				"tree: [cmd five]",
+				"path: [five]",
 				"args: [foo bar]",
 				"vars: [cidr:[1.2.3.4/24 2.4.6.8/0] int:15 url:[file:a file:b] val:125]",
 			},
@@ -155,7 +155,7 @@ func parseTests() []parseTest {
 			[]string{
 				"exec: five",
 				"name: five",
-				"tree: [cmd five]",
+				"path: [five]",
 				"args: [a b]",
 				"vars: [date:[2001-12-25 2002-01-15] int:15 time:[A:07:15:13 B:12:15:32] val:125]",
 			},
@@ -165,7 +165,7 @@ func parseTests() []parseTest {
 			[]string{
 				"exec: cmd",
 				"name: cmd",
-				"tree: [cmd]",
+				"path: []",
 				"args: [five --a=b]",
 				"vars: [int:15]",
 			},
@@ -175,7 +175,7 @@ func parseTests() []parseTest {
 			[]string{
 				"exec: five",
 				"name: five",
-				"tree: [cmd five]",
+				"path: [five]",
 				"args: [-- -a -b=c]",
 				"vars: [countmap:[16.1:2 17:3 25:1] inc:4 int:15 timemap:[128:12:15:20 255:07:15:32] val:125]",
 			},
@@ -243,7 +243,7 @@ func testDump(t *testing.T, name string) func(context.Context, []string) {
 		}
 		_, _ = fmt.Fprintln(c.Stdout, "exec:", name)
 		_, _ = fmt.Fprintln(c.Stdout, "name:", c.Cmd.Name())
-		_, _ = fmt.Fprintln(c.Stdout, "tree:", c.Cmd.Tree())
+		_, _ = fmt.Fprintln(c.Stdout, "path:", c.Cmd.Path())
 		_, _ = fmt.Fprintln(c.Stdout, "args:", args)
 		_, _ = fmt.Fprintln(c.Stdout, "vars:", c.Vars)
 	}

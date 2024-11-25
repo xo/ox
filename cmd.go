@@ -68,14 +68,19 @@ func (cmd *Command) Name() string {
 	return ""
 }
 
-// Tree returns the parents of the command.
+// Tree returns the parents for the command.
 func (cmd *Command) Tree() []string {
 	var v []string
-	for c := cmd; c != nil; {
-		v, c = append(v, c.Name()), c.Parent
+	for c := cmd; c != nil; c = c.Parent {
+		v = append(v, c.Name())
 	}
 	slices.Reverse(v)
 	return v
+}
+
+// Path returns the executed path for the command.
+func (cmd *Command) Path() []string {
+	return cmd.Tree()[1:]
 }
 
 // Populate populates vars with all the command's flags values, overwriting any
@@ -94,7 +99,7 @@ func (cmd *Command) Populate(all, overwrite bool, vars Vars) error {
 		}
 		var value string
 		switch {
-		case g.Type == HookT, g.Def == nil && !all, g.NoArg && !all:
+		case g.Type == HookT, g.Def == nil && !all:
 			continue
 		case g.Def != nil:
 			var err error
@@ -384,14 +389,15 @@ func (fs *FlagSet) Hook(name, desc string, f func(context.Context) error, opts .
 
 // Flag is a command-line flag variable definition.
 type Flag struct {
-	Type  Type
-	Key   Type
-	Sub   Type
-	Descs []Desc
-	Def   any
-	NoArg bool
-	Binds []BoundValue
-	Keys  map[string]string
+	Type     Type
+	Key      Type
+	Sub      Type
+	Descs    []Desc
+	Def      any
+	NoArg    bool
+	NoArgDef any
+	Binds    []BoundValue
+	Keys     map[string]string
 }
 
 // NewFlag creates a new command-line flag.
@@ -420,8 +426,8 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 	if g.Name() == "" {
 		return nil, ErrInvalidFlagName
 	}
-	if g.NoArg && g.Def == nil {
-		return nil, fmt.Errorf("flag %s: %w: missing default value for NoArg", g.Name(), ErrInvalidValue)
+	if g.NoArg && g.NoArgDef == nil {
+		return nil, fmt.Errorf("flag %s: %w: NoArg flag missing default value", g.Name(), ErrInvalidValue)
 	}
 	return g, nil
 }
@@ -499,7 +505,6 @@ type Desc struct {
 	Name       string
 	Usage      string
 	Short      string
-	Key        map[string]string
 	Hidden     bool
 	Deprecated bool
 }
