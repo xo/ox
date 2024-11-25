@@ -362,10 +362,9 @@ func (val valMap[K]) Get(key any) Value {
 	return nil
 }
 
-// BoundValue is the bound value interface.
-type BoundValue interface {
-	Set(string) error
-	Get() any
+// Binder is the interface for binding values.
+type Binder interface {
+	Bind(string) error
 }
 
 // bindVal is a bound value.
@@ -375,14 +374,14 @@ type bindVal[T *E, E any] struct {
 }
 
 // NewBind binds a value.
-func NewBind[T *E, E any](v T, b *bool) (BoundValue, error) {
+func NewBind[T *E, E any](v T, b *bool) (Binder, error) {
 	return &bindVal[T, E]{
 		v: v,
 		b: b,
 	}, nil
 }
 
-func (val *bindVal[T, E]) Set(s string) error {
+func (val *bindVal[T, E]) Bind(s string) error {
 	typ := reflect.TypeOf(*val.v)
 	switch typ.Kind() {
 	case reflect.Slice:
@@ -418,7 +417,7 @@ type refVal struct {
 }
 
 // NewRef binds [reflect.Value] value and its set flag.
-func NewRef(value reflect.Value, b *bool) (BoundValue, error) {
+func NewRef(value reflect.Value, b *bool) (Binder, error) {
 	switch {
 	case value.Kind() != reflect.Pointer, value.IsNil():
 		return nil, fmt.Errorf("%w: not a pointer or is nil", ErrInvalidValue)
@@ -429,7 +428,7 @@ func NewRef(value reflect.Value, b *bool) (BoundValue, error) {
 	}, nil
 }
 
-func (val *refVal) Set(s string) error {
+func (val *refVal) Bind(s string) error {
 	typ := val.v.Elem().Type()
 	switch typ.Kind() {
 	case reflect.Slice:

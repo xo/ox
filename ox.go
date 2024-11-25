@@ -188,6 +188,8 @@ const (
 	ErrInvalidConversion Error = "invalid conversion"
 	// ErrTypeMismatch is the type mismatch error.
 	ErrTypeMismatch Error = "type mismatch"
+	// ErrHelp is the help error.
+	ErrHelp Error = "help"
 	// ErrExit is the exit error.
 	ErrExit Error = "exit"
 )

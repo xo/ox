@@ -40,8 +40,8 @@ func (vars Vars) Set(g *Flag, s string, set bool) error {
 	}
 	v.SetSet(set)
 	for i, val := range g.Binds {
-		if err := val.Set(s); err != nil {
-			return fmt.Errorf("flag %s: bind %d (%T): cannot set %q: %w", g.Name(), i, val.Get(), s, err)
+		if err := val.Bind(s); err != nil {
+			return fmt.Errorf("flag %s: bind %d (%s): cannot set %q: %w", g.Name(), i, val, s, err)
 		}
 	}
 	vars[name] = v

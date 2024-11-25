@@ -33,7 +33,7 @@ func Pipe(stdin io.Reader, stdout, stderr io.Writer) ContextOption {
 }
 
 // Exec is a [Command] option to set the exec func.
-func Exec[F ExecType](f F) Option {
+func Exec[F ExecType](f F) CommandOption {
 	return option{
 		name: "Exec",
 		cmd: func(cmd *Command) error {

@@ -20,10 +20,10 @@ type Command struct {
 	Exec ExecFunc
 	// Descs is the command's name/usage descriptions.
 	Descs []Desc
-	// Commands are sub commands.
-	Commands []*Command
 	// Flags are the command's flags.
 	Flags *FlagSet
+	// Commands are sub commands.
+	Commands []*Command
 	// Args are the command's argument validation func's.
 	Args []func([]string) error
 	// OnErr indicates whether to continue, panic, or to error when
@@ -78,7 +78,7 @@ func (cmd *Command) Tree() []string {
 	return v
 }
 
-// Path returns the executed path for the command.
+// Path returns the execution path for the command.
 func (cmd *Command) Path() []string {
 	return cmd.Tree()[1:]
 }
@@ -389,15 +389,23 @@ func (fs *FlagSet) Hook(name, desc string, f func(context.Context) error, opts .
 
 // Flag is a command-line flag variable definition.
 type Flag struct {
-	Type     Type
-	Key      Type
-	Sub      Type
-	Descs    []Desc
-	Def      any
-	NoArg    bool
+	// Type is the flag [Type].
+	Type Type
+	// Key is the flag's key type when the flag is a [MapT].
+	Key Type
+	// Elem is the flag's element type when the flag is a [SliceT] or [MapT].
+	Elem Type
+	// Descs are the flag's descriptions
+	Descs []Desc
+	// Def is the default value for the flag.
+	Def any
+	// NoArg indicates that flag does takes an optional argument.
+	NoArg bool
+	// NoArgDef is the default value for the flag when no argument was passed for the flag.
 	NoArgDef any
-	Binds    []BoundValue
-	Keys     map[string]string
+	// Binds are variables that will be set.
+	Binds []Binder
+	Keys  map[string]string
 }
 
 // NewFlag creates a new command-line flag.
@@ -405,7 +413,7 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 	g := &Flag{
 		Type: StringT,
 		Key:  StringT,
-		Sub:  StringT,
+		Elem: StringT,
 		Descs: []Desc{{
 			Name:  name,
 			Usage: usage,
@@ -493,9 +501,9 @@ func (g *Flag) Short() (string, bool) {
 func (g *Flag) New() (Value, error) {
 	switch g.Type {
 	case SliceT:
-		return NewSlice(g.Sub), nil
+		return NewSlice(g.Elem), nil
 	case MapT:
-		return NewMap(g.Key, g.Sub)
+		return NewMap(g.Key, g.Elem)
 	}
 	return g.Type.New()
 }

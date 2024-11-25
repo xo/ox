@@ -69,7 +69,7 @@ func (typ Type) apply(val any) error {
 		if v.Type != SliceT && v.Type != MapT && v.Type != HookT {
 			v.Type = typ
 		} else if v.Type != HookT {
-			v.Sub = typ
+			v.Elem = typ
 		}
 	case interface{ SetType(Type) }:
 		v.SetType(typ)
