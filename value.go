@@ -386,10 +386,16 @@ func (val *bindVal[T, E]) Bind(s string) error {
 	switch typ.Kind() {
 	case reflect.Slice:
 		if sliceSet(reflect.ValueOf(val.v), s) {
+			if val.b != nil {
+				*val.b = true
+			}
 			return nil
 		}
 	case reflect.Map:
-		if mapSet(reflect.ValueOf(&val.v), s) {
+		if mapSet(reflect.ValueOf(val.v), s) {
+			if val.b != nil {
+				*val.b = true
+			}
 			return nil
 		}
 	default:
@@ -532,34 +538,27 @@ func sliceSet(value reflect.Value, s string) bool {
 
 // mapSet sets a value on a map.
 func mapSet(val reflect.Value, s string) bool {
-	return false
-	/*
-		key, value, ok := strings.Cut(s, "=")
-		if !ok || key == "" {
-			return fmt.Errorf("%w: %s", ErrInvalidValue, "bad map key")
-		}
-		m := reflect.ValueOf(val.v).Elem()
-		// create map if nil
-		if m.IsNil() {
-			m.Set(reflect.MakeMap(m.Type()))
-			var ok bool
-			if *val.v, ok = m.Interface().(E); !ok {
-				return fmt.Errorf("%w: %T->%T", ErrInvalidConversion, m.Interface(), *val.v)
-			}
-		}
-		// convert key
-		k := reflect.New(m.Type().Key())
-		if !convValue(k, key) {
-			return fmt.Errorf("%w (key): %T->%T", ErrInvalidConversion, key, k.Interface())
-		}
-		// convert value
-		v := reflect.New(m.Type().Elem())
-		if !convValue(v, value) {
-			return fmt.Errorf("%w (value): %T->%T", ErrInvalidConversion, value, v.Interface())
-		}
-		m.SetMapIndex(reflect.Indirect(k), reflect.Indirect(v))
-		return nil
-	*/
+	key, value, ok := strings.Cut(s, "=")
+	if !ok || key == "" {
+		return false
+	}
+	typ := val.Elem().Type()
+	// create map if nil
+	if val.Elem().IsNil() {
+		reflect.Indirect(val).Set(reflect.MakeMap(typ))
+	}
+	// convert key
+	k := reflect.New(typ.Key())
+	if !asValue(k, key) {
+		return false
+	}
+	// convert value
+	v := reflect.New(typ.Elem())
+	if !asValue(v, value) {
+		return false
+	}
+	reflect.Indirect(val).SetMapIndex(reflect.Indirect(k), reflect.Indirect(v))
+	return true
 }
 
 // invalid indicates if a value is invalid.
