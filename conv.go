@@ -138,7 +138,7 @@ func as[T any](val any, layout string) (any, error) {
 		return asDuration(val)
 	}
 	// unmarshal
-	if v, err := asUnmarshal[T](val); err == nil {
+	if v, err := asUnmarshal(typeRef(res), val); err == nil {
 		return v, nil
 	}
 	// reflect
@@ -474,12 +474,12 @@ func asDuration(val any) (time.Duration, error) {
 }
 
 // asUnmarshal creates a new value as T, and unmarshals the value to it.
-func asUnmarshal[T any](val any) (any, error) {
+func asUnmarshal(typ Type, val any) (any, error) {
 	buf, err := asString[[]byte](val)
 	if err != nil {
 		return nil, err
 	}
-	v, f, err := asNew(typeType[T]())
+	v, f, err := asNew(typ)
 	if err != nil {
 		return nil, err
 	}
@@ -522,46 +522,49 @@ func asNew(typ Type) (any, func([]byte) error, error) {
 	return v, u, nil
 }
 
-// asValue attempts to convert using reflect -- expects:
-// reflect.Value(&<target>).
-func asValue(v reflect.Value, val any) (ok bool) {
+// asValue converts a value -- expects reflect.Value(&<target>).
+func asValue(value reflect.Value, val any) (ok bool) {
 	defer func() {
 		if err := recover(); err != nil {
 			ok = false
 		}
 	}()
-	// fmt.Fprintf(os.Stdout, "asValue: %s\n", v.Type())
-	switch v = v.Elem(); v.Kind() {
+	switch el := value.Elem(); el.Kind() {
 	case reflect.Slice:
 		// TODO: implement []byte/[]rune
 	case reflect.String:
 		if s, err := asString[string](val); err == nil {
-			v.SetString(s)
+			el.SetString(s)
 			return true
 		}
 	case reflect.Bool:
 		if b, err := asBool(val); err == nil {
-			v.SetBool(b)
+			el.SetBool(b)
 			return true
 		}
 	case reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8, reflect.Int:
-		if i, err := asInt[int64](val); err == nil && !v.OverflowInt(i) {
-			v.SetInt(i)
+		if i, err := asInt[int64](val); err == nil && !el.OverflowInt(i) {
+			el.SetInt(i)
 			return true
 		}
 	case reflect.Uint64, reflect.Uint32, reflect.Uint16, reflect.Uint8, reflect.Uint:
-		if u, err := asUint[uint64](val); err == nil && !v.OverflowUint(u) {
-			v.SetUint(u)
+		if u, err := asUint[uint64](val); err == nil && !el.OverflowUint(u) {
+			el.SetUint(u)
 			return true
 		}
 	case reflect.Float64, reflect.Float32:
-		if f, err := asFloat[float64](val); err == nil && !v.OverflowFloat(f) {
-			v.SetFloat(f)
+		if f, err := asFloat[float64](val); err == nil && !el.OverflowFloat(f) {
+			el.SetFloat(f)
 			return true
 		}
 	case reflect.Complex128, reflect.Complex64:
-		if c, err := asComplex[complex128](val); err == nil && !overflowComplex(v, c) {
-			v.SetComplex(c)
+		if c, err := asComplex[complex128](val); err == nil && !overflowComplex(el, c) {
+			el.SetComplex(c)
+			return true
+		}
+	case reflect.Pointer:
+		if v, err := asUnmarshal(reflectType(el.Type()), val); err == nil {
+			reflect.Indirect(value).Set(reflect.ValueOf(v))
 			return true
 		}
 	}

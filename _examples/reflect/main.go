@@ -11,7 +11,7 @@ import (
 
 type args struct {
 	Arg     string      `ox:"an argument,short:a"`
-	URL     *url.URL    `ox:"a url,short:u,set:URLSet"`
+	URL     []*url.URL  `ox:"a url,short:u,set:URLSet"`
 	URLSet  bool        ``
 	Ints    []int       `ox:"a slice of ints,short:i"`
 	Strings []string    `ox:"a slice of strings,short:s"`
@@ -22,8 +22,7 @@ type args struct {
 func main() {
 	args := new(args)
 	ox.Run(
-		context.Background(),
-		run(args),
+		ox.Exec(run(args)),
 		ox.Usage("reflect", "demonstrates using ox's From with struct tags"),
 		ox.From(args),
 	)
@@ -37,8 +36,10 @@ func run(args *args) func(context.Context, []string) error {
 		} else {
 			fmt.Println("u: not set")
 		}
+		fmt.Println("ints:", args.Ints)
 		fmt.Println("strings:", args.Strings)
-		fmt.Println("v:", v)
+		fmt.Println("map:", args.Map)
+		fmt.Println("other:", args.Other)
 		return nil
 	}
 }

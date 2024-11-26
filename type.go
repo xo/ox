@@ -297,3 +297,28 @@ func typeRef(val any) Type {
 	}
 	return Type(s)
 }
+
+// reflectType returns the [Type] for the reflect type.
+func reflectType(refType reflect.Type) Type {
+	s := refType.String()
+	switch s {
+	case "*big.Int":
+		return BigIntT
+	case "*big.Float":
+		return BigFloatT
+	case "*big.Rat":
+		return BigRatT
+	case "*url.URL":
+		return URLT
+	case "*netip.Addr":
+		return AddrT
+	case "*netip.AddrPort":
+		return AddrPortT
+	case "*netip.Prefix":
+		return CIDRT
+	}
+	if typ, ok := reflectTypes[s]; ok {
+		return typ
+	}
+	return ""
+}

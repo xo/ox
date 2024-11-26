@@ -438,50 +438,44 @@ func NewRef(value reflect.Value, b *bool) (Binder, error) {
 	}, nil
 }
 
+func (val *refVal) String() string {
+	return val.v.Type().String()
+}
+
 func (val *refVal) Bind(s string) error {
 	typ := val.v.Elem().Type()
 	switch typ.Kind() {
 	case reflect.Slice:
-		/*
-			if val.sliceSet(s) {
-				return nil
+		if sliceSet(val.v, s) {
+			if val.b != nil {
+				*val.b = true
 			}
-		*/
+			return nil
+		}
 	case reflect.Map:
-		/*
-			if val.mapSet(s) {
-				return nil
+		if mapSet(val.v, s) {
+			if val.b != nil {
+				*val.b = true
 			}
-		*/
+			return nil
+		}
+	case reflect.Pointer:
+		if v, err := asUnmarshal(reflectType(typ), s); err == nil {
+			reflect.Indirect(val.v).Set(reflect.ValueOf(v))
+			if val.b != nil {
+				*val.b = true
+			}
+			return nil
+		}
 	default:
-		/*
-			if convValue(val.v, s) {
-				return nil
+		if asValue(val.v, s) {
+			if val.b != nil {
+				*val.b = true
 			}
-			if v, err := convUnmarshal(typ, s); err == nil {
-				reflect.Indirect(val.v).Set(reflect.ValueOf(v))
-				return nil
-			}
-		*/
+			return nil
+		}
 	}
 	return fmt.Errorf("%w: cannot convert %T->%s", ErrInvalidConversion, s, typ)
-}
-
-func (val *refVal) sliceSet(s string) bool {
-	/*
-		z := reflect.New(val.v.Elem().Type().Elem())
-		fmt.Fprintf(os.Stdout, "type: %s\n", z.Type())
-		if !convValue(z, s) {
-			return false
-		}
-		val.v.Elem().Set(reflect.Append(val.v.Elem(), reflect.Indirect(z)))
-		return true
-	*/
-	return false
-}
-
-func (val *refVal) mapSet(s string) bool {
-	return false
 }
 
 func (val *refVal) Get() any {
@@ -526,7 +520,7 @@ func (val FormattedTime) IsValid() bool {
 	return !val.v.IsZero()
 }
 
-// sliceSet sets a value on a slice.
+// sliceSet sets a value on a slice -- expects reflect.ValueOf(&<target>).
 func sliceSet(value reflect.Value, s string) bool {
 	v := reflect.New(value.Elem().Type().Elem())
 	if asValue(v, s) {
@@ -536,7 +530,7 @@ func sliceSet(value reflect.Value, s string) bool {
 	return false
 }
 
-// mapSet sets a value on a map.
+// mapSet sets a value on a map -- expects reflect.ValueOf(&<target>).
 func mapSet(val reflect.Value, s string) bool {
 	key, value, ok := strings.Cut(s, "=")
 	if !ok || key == "" {
