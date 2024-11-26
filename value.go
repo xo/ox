@@ -385,7 +385,7 @@ func (val *bindVal[T, E]) Bind(s string) error {
 	typ := reflect.TypeOf(*val.v)
 	switch typ.Kind() {
 	case reflect.Slice:
-		if sliceSet(reflect.ValueOf(&val.v), s) {
+		if sliceSet(reflect.ValueOf(val.v), s) {
 			return nil
 		}
 	case reflect.Map:
@@ -404,6 +404,10 @@ func (val *bindVal[T, E]) Bind(s string) error {
 		}
 	}
 	return fmt.Errorf("%w: %s->%T", ErrInvalidConversion, typ, *val.v)
+}
+
+func (val *bindVal[T, E]) String() string {
+	return reflect.TypeOf(val.v).String()
 }
 
 func (val *bindVal[T, E]) Get() any {
@@ -518,9 +522,10 @@ func (val FormattedTime) IsValid() bool {
 
 // sliceSet sets a value on a slice.
 func sliceSet(value reflect.Value, s string) bool {
-	v := reflect.New(value.Type().Elem())
+	v := reflect.New(value.Elem().Type().Elem())
 	if asValue(v, s) {
-		value = reflect.Append(value, reflect.Indirect(v))
+		reflect.Indirect(value).Set(reflect.Append(value.Elem(), reflect.Indirect(v)))
+		return true
 	}
 	return false
 }

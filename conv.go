@@ -530,6 +530,7 @@ func asValue(v reflect.Value, val any) (ok bool) {
 			ok = false
 		}
 	}()
+	// fmt.Fprintf(os.Stdout, "asValue: %s\n", v.Type())
 	switch v = v.Elem(); v.Kind() {
 	case reflect.Slice:
 		// TODO: implement []byte/[]rune
