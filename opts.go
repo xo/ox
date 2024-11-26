@@ -124,7 +124,8 @@ func UserConfigFile() CommandOption {
 	}
 }
 
-// ArgsFunc is a [Command] option to set the command's argument validation funcs.
+// ArgsFunc is a [Command] option to add funcs to command's argument validation
+// funcs.
 func ArgsFunc(funcs ...func([]string) error) CommandOption {
 	return option{
 		name: "ArgsFunc",
@@ -135,16 +136,16 @@ func ArgsFunc(funcs ...func([]string) error) CommandOption {
 	}
 }
 
-// ValidArgs is a [Command] option to the set the command's range of allowed
-// minimum/maximum argruments and allowed argument values. A minimum/maximum <
-// 0 means no minimum/maximum.
+// ValidArgs is a [Command] option to add a argument validation func to the
+// command that validates the range of allowed minimum/maximum argruments and
+// allowed argument values. A minimum/maximum < 0 means no minimum/maximum.
 func ValidArgs(minimum, maximum int, values ...string) CommandOption {
 	return option{
 		name: "Args",
 		cmd: func(c *Command) error {
 			for i, s := range values {
 				if s == "" {
-					return fmt.Errorf("arg %q (%d) is %w", s, i, ErrInvalidValue)
+					return fmt.Errorf("%w: argument %d cannot be empty string", ErrInvalidArg, i)
 				}
 			}
 			c.Args = append(c.Args, func(args []string) error {

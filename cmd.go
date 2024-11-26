@@ -127,10 +127,13 @@ func (cmd *Command) Command(name string) *Command {
 }
 
 // Flag finds a flag from the command or the command's parents.
-func (cmd *Command) Flag(name string) *Flag {
+func (cmd *Command) Flag(name string, short bool) *Flag {
 	if cmd.Flags != nil {
 		for _, g := range cmd.Flags.Flags {
 			for _, d := range g.Descs {
+				if len(d.Name) == 1 && !short {
+					continue
+				}
 				if d.Name == name {
 					return g
 				}
@@ -138,7 +141,7 @@ func (cmd *Command) Flag(name string) *Flag {
 		}
 	}
 	if cmd.Parent != nil {
-		return cmd.Parent.Flag(name)
+		return cmd.Parent.Flag(name, short)
 	}
 	return nil
 }
@@ -512,7 +515,6 @@ func (g *Flag) New() (Value, error) {
 type Desc struct {
 	Name       string
 	Usage      string
-	Short      string
 	Hidden     bool
 	Deprecated bool
 }

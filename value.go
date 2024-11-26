@@ -315,11 +315,11 @@ func (val *valMap[K]) Set(s string) error {
 	}
 	keystr, value, ok := strings.Cut(s, "=")
 	if !ok || keystr == "" {
-		return fmt.Errorf("%w: %s", ErrInvalidValue, "missing map key")
+		return fmt.Errorf("%w %q: %s", ErrInvalidValue, s, "missing map key")
 	}
 	key, err := as[K](keystr, "")
 	if err != nil {
-		return fmt.Errorf("%w: bad map key", err)
+		return fmt.Errorf("bad map key: %q: %w", keystr, err)
 	}
 	k, ok := key.(K)
 	if !ok {

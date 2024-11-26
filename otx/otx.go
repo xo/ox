@@ -42,10 +42,10 @@ func Get[T any](ctx context.Context, name string) T {
 	return v
 }
 
-// Slice returns the slice variable from the context.
-func Slice[T []E, E any](ctx context.Context, name string) T {
+// Slice returns the slice variable from the context as a slice of type E.
+func Slice[E any](ctx context.Context, name string) []E {
 	if val, ok := Any(ctx, name); ok {
-		if v, err := ox.AsSlice[T](val); err == nil {
+		if v, err := ox.AsSlice[E](val); err == nil {
 			return v
 		}
 	}

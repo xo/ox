@@ -26,16 +26,16 @@ func As[T any](value Value) (T, error) {
 }
 
 // AsSlice converts a [Value] to a slice of type E.
-func AsSlice[T []E, E any](value Value) (T, error) {
+func AsSlice[E any](value Value) ([]E, error) {
 	val, ok := value.(*sliceVal)
 	if !ok {
 		return nil, ErrInvalidConversion
 	}
-	s := make(T, len(val.v))
+	s := make([]E, len(val.v))
 	for i := range val.v {
 		v, err := As[E](val.v[i])
 		if err != nil {
-			var res T
+			var res E
 			return nil, fmt.Errorf("cannot convert slice value %d: %w: %T->%T", i, err, v, res)
 		}
 		s[i] = v
@@ -77,8 +77,8 @@ func To[T any](value Value) T {
 }
 
 // ToSlice converts a [Value] to a slice of type E.
-func ToSlice[T []E, E any](value Value) T {
-	v, _ := AsSlice[T, E](value)
+func ToSlice[E any](value Value) []E {
+	v, _ := AsSlice[E](value)
 	return v
 }
 
@@ -234,7 +234,6 @@ func asBool(val any) (bool, error) {
 	if v, err := asFloat[float64](val); err == nil {
 		return 0 < v, nil
 	}
-	// NOTE: not doing asComplex here
 	s, err := asString[string](val)
 	switch {
 	case err != nil:

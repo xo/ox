@@ -81,7 +81,7 @@ func parseTests() []parseTest {
 			},
 		},
 		{
-			ss("a//--m=A=100//--m//FOO=200//one//two"),
+			ss("a//-m=A=100//-m//FOO=200//one//two"),
 			[]string{
 				"exec: two",
 				"name: two",
@@ -91,7 +91,7 @@ func parseTests() []parseTest {
 			},
 		},
 		{
-			ss("a//-b//one//-b=false//two//-b=t//three//--b=1"),
+			ss("a//-b//one//-b=false//two//-b=t//three//-b=1"),
 			[]string{
 				"exec: three",
 				"name: three",
