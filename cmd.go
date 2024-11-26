@@ -438,7 +438,7 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 		return nil, ErrInvalidFlagName
 	}
 	if g.NoArg && g.NoArgDef == nil {
-		return nil, fmt.Errorf("flag %s: %w: NoArg flag missing default value", g.Name(), ErrInvalidValue)
+		return nil, fmt.Errorf("flag %s: %w: NoArgDef cannot be nil", g.Name(), ErrInvalidValue)
 	}
 	return g, nil
 }
@@ -447,7 +447,7 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 func FlagsFrom[T *E, E any](val T) ([]*Flag, error) {
 	v := reflect.ValueOf(val).Elem()
 	if v.Kind() != reflect.Struct {
-		return nil, fmt.Errorf("%w: not a *struct", ErrInvalidType)
+		return nil, fmt.Errorf("%w: %T is not a *struct", ErrInvalidType, val)
 	}
 	typ := v.Type()
 	var flags []*Flag
@@ -470,7 +470,8 @@ func FlagsFrom[T *E, E any](val T) ([]*Flag, error) {
 		if err != nil {
 			return nil, fmt.Errorf("field %s: %w", f.Name, err)
 		}
-		g, err := NewFlag(strings.ToLower(f.Name), tag[0], opts...)
+		// TODO: add name mapping here
+		g, err := NewFlag(DefaultFlagNameMapper(f.Name), tag[0], opts...)
 		if err != nil {
 			return nil, fmt.Errorf("field %s: cannot create flag: %w", f.Name, err)
 		}

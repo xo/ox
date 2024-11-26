@@ -11,7 +11,10 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"time"
+
+	"github.com/kenshaw/snaker"
 )
 
 var (
@@ -23,6 +26,10 @@ var (
 	// DefaultLayout is the default timestamp layout used for formatting and
 	// parsing [Time] values.
 	DefaultLayout = time.RFC3339
+	// DefaultFlagNameMaper is the default flag name mapper.
+	DefaultFlagNameMapper = func(s string) string {
+		return strings.ReplaceAll(snaker.CamelToSnake(s), "_", "-")
+	}
 )
 
 // Run creates a [Context] and builds a [Command] and its [FlagSet] based on
