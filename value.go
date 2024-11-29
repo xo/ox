@@ -37,10 +37,8 @@ func NewVal[T any](opts ...Option) func() (Value, error) {
 		val := &anyVal[T]{
 			typ: typeType[T](),
 		}
-		for _, o := range opts {
-			if err := o.apply(val); err != nil {
-				return nil, err
-			}
+		if err := applyOpts(val, opts...); err != nil {
+			return nil, err
 		}
 		return val, nil
 	}

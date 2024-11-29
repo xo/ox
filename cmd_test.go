@@ -21,14 +21,14 @@ func TestParse(t *testing.T) {
 			case cmd == nil:
 				t.Fatal("cmd is nil")
 			}
-			t.Logf("cmd: %s", cmd.Name())
+			t.Logf("cmd: %s", cmd.Name)
 			t.Logf("args: %q", args)
 			t.Logf("vars: %s", vars)
 			buf := new(bytes.Buffer)
 			ctx := WithContext(context.Background(), &Context{
 				Args:   test.v,
 				Root:   root,
-				Cmd:    cmd,
+				Exec:   cmd,
 				Stdout: buf,
 				Vars:   vars,
 			})
@@ -242,8 +242,8 @@ func testDump(t *testing.T, name string) func(context.Context, []string) {
 			t.Fatalf("expected non-nil context")
 		}
 		_, _ = fmt.Fprintln(c.Stdout, "exec:", name)
-		_, _ = fmt.Fprintln(c.Stdout, "name:", c.Cmd.Name())
-		_, _ = fmt.Fprintln(c.Stdout, "path:", c.Cmd.Path())
+		_, _ = fmt.Fprintln(c.Stdout, "name:", c.Exec.Name)
+		_, _ = fmt.Fprintln(c.Stdout, "path:", c.Exec.Path())
 		_, _ = fmt.Fprintln(c.Stdout, "args:", args)
 		_, _ = fmt.Fprintln(c.Stdout, "vars:", c.Vars)
 	}

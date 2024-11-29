@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kenshaw/snaker"
+	"github.com/xo/ox/strcase"
 )
 
 var (
@@ -28,8 +28,25 @@ var (
 	DefaultLayout = time.RFC3339
 	// DefaultFlagNameMaper is the default flag name mapper.
 	DefaultFlagNameMapper = func(s string) string {
-		return strings.ReplaceAll(snaker.CamelToSnake(s), "_", "-")
+		return strings.ReplaceAll(strcase.CamelToSnake(s), "_", "-")
 	}
+	// DefaultVersionName is the default version command/flag name.
+	DefaultVersionName = "version"
+	// DefaultVersionShort is the default version short flag name.
+	DefaultVersionShort = "v"
+	// DefaultHelpName is the default help command/flag name.
+	DefaultHelpName = "help"
+	// DefaultHelpShort is the default help short flag name.
+	DefaultHelpShort = "?"
+	// DefaultWrapWidth is the default wrap width.
+	DefaultWrapWidth = 95
+	// DefaultWrap wraps a line of text with [Wrap] using [DefaultWrapWidth]
+	// for the width.
+	DefaultWrap = func(s string, prefixWidth int) string {
+		return Wrap(s, DefaultWrapWidth, prefixWidth)
+	}
+	// DefaultErrorMessagePrefix is the default 'error: ' message prefix.
+	DefaultErrorMessagePrefix = "error: "
 )
 
 // Run creates a [Context] and builds a [Command] and its [FlagSet] based on
@@ -44,40 +61,53 @@ func Run(opts ...Option) {
 func RunContext(ctx context.Context, opts ...Option) {
 	c, err := NewContext(opts...)
 	if err != nil {
-		c.Handle(err)
-		return
+		if c.Handle(err) {
+			return
+		}
 	}
-	root, err := NewCommand(opts...)
-	if err != nil {
-		c.Handle(err)
-		return
+	if c.Root, err = NewCommand(opts...); err != nil {
+		if c.Handle(err) {
+			return
+		}
 	}
-	cmd, args, err := Parse(root, c.Args, c.Vars)
-	if err != nil {
-		c.Handle(err)
-		return
+	if c.Exec, c.Args, err = Parse(c.Root, c.Args, c.Vars); err != nil {
+		if c.Handle(err) {
+			return
+		}
 	}
-	if err := cmd.Validate(args); err != nil {
-		c.Handle(err)
-		return
+	if err = c.Exec.Validate(c.Args); err != nil {
+		if c.Handle(err) {
+			return
+		}
 	}
-	if err := cmd.Exec(WithContext(ctx, c), args); err != nil {
-		c.Handle(err)
-		return
+	if err = c.Exec.Exec(WithContext(ctx, c), c.Args); err != nil {
+		if c.Handle(err) {
+			return
+		}
 	}
 }
 
-// Context is a [Run] and [RunContext] context.
+// Context is a [Run]/[RunContext] context.
 type Context struct {
-	Args   []string
-	Stdin  io.Reader
+	// Args are the arguments to parse, normally [os.Args][1:].
+	Args []string
+	// Stdin is the standard in to use, normally [os.Stdin].
+	Stdin io.Reader
+	// Stdout is the standard out to use, normally [os.Stdout].
 	Stdout io.Writer
+	// Stderr is the standard error to use, normally [os.Stderr].
 	Stderr io.Writer
-	OnErr  OnErr
-	Handle func(error)
-	Root   *Command
-	Cmd    *Command
-	Vars   Vars
+	// OnErr is the on error handling. Used by the default Handle func.
+	OnErr OnErr
+	// Handle is the func used to handle errors within [Run]/[RunContext].
+	Handle func(error) bool
+	// Root is the root command created within [Run]/[RunContext].
+	Root *Command
+	// Exec is the exec target, determined by the Root's definition and after Args.
+	Exec *Command
+	// Vars are the variables parsed from the flag definitions of the Root
+	// command and its sub-commands.
+	Vars Vars
 }
 
 // NewContext creates a new run context.
@@ -88,28 +118,30 @@ func NewContext(opts ...Option) (*Context, error) {
 		Stderr: os.Stderr,
 		Args:   os.Args[1:],
 	}
-	for _, o := range opts {
-		if err := o.apply(ctx); err != nil {
-			return ctx, err
-		}
+	if err := applyOpts(ctx, opts...); err != nil {
+		return ctx, err
 	}
 	if ctx.Vars == nil {
 		ctx.Vars = make(Vars)
 	}
 	if ctx.Handle == nil {
-		ctx.Handle = func(err error) {
+		ctx.Handle = func(err error) bool {
 			var w io.Writer = os.Stderr
 			if ctx.Stderr != nil {
 				w = ctx.Stderr
 			}
 			switch {
-			case errors.Is(err, ErrExit), ctx.OnErr == OnErrContinue:
+			case errors.Is(err, ErrExit):
+			case errors.Is(err, ErrHelp):
+			case ctx.OnErr == OnErrContinue:
+				return false
 			case ctx.OnErr == OnErrExit:
-				fmt.Fprintln(w, "error:", err)
+				fmt.Fprintf(w, "%s%v\n", DefaultErrorMessagePrefix, err)
 				os.Exit(1)
 			case ctx.OnErr == OnErrPanic:
 				panic(err)
 			}
+			return true
 		}
 	}
 	return ctx, nil
@@ -134,25 +166,25 @@ func Ctx(ctx context.Context) (*Context, bool) {
 	return c, ok
 }
 
-// OnErr is the on error handling option type.
+// OnErr is the on error handling type.
 type OnErr uint8
 
-// On error handling options.
+// On error handling types.
 const (
 	OnErrExit OnErr = iota
 	OnErrContinue
 	OnErrPanic
 )
 
-// apply satisfies the [Option] interface.
-func (e OnErr) apply(val any) error {
-	switch v := val.(type) {
-	case *Command:
-		v.OnErr = e
-	default:
-		return fmt.Errorf("%s option: %w", e, ErrAppliedToInvalidType)
+// Option returns an [opt] for the error handling type.
+func (e OnErr) Option() option {
+	return option{
+		name: e.String(),
+		cmd: func(cmd *Command) error {
+			cmd.OnErr = e
+			return nil
+		},
 	}
-	return nil
 }
 
 // Error is a package error.
@@ -200,6 +232,27 @@ const (
 	// ErrExit is the exit error.
 	ErrExit Error = "exit"
 )
+
+// Wrap wraps a line of text to the specified width, and adding a prefix of
+// empty prefixWidth to each wrapped line.
+func Wrap(s string, width, prefixWidth int) string {
+	words := strings.Fields(strings.TrimSpace(s))
+	if len(words) == 0 {
+		return ""
+	}
+	prefix, wrapped := strings.Repeat(" ", prefixWidth), words[0]
+	left := width - prefixWidth - len(wrapped)
+	for _, word := range words[1:] {
+		if left < len(word)+1 {
+			wrapped += "\n" + prefix + word
+			left = width - len(word)
+		} else {
+			wrapped += " " + word
+			left -= 1 + len(word)
+		}
+	}
+	return wrapped
+}
 
 // ldist is a levenshtein distance implementation.
 func ldist[T []E, E cmp.Ordered](a, b T) int {

@@ -92,8 +92,7 @@ func ToMap[K cmp.Ordered, E any](value Value) map[K]E {
 // as converts a value.
 func as[T any](val any, layout string) (any, error) {
 	var res T
-	var v any = res
-	switch v.(type) {
+	switch any(res).(type) {
 	case []byte:
 		return asString[[]byte](val)
 	case string:
@@ -577,55 +576,9 @@ func toString[T stringi](val any) T {
 	return v
 }
 
-/*
-// toBool converts the value to a bool.
-func toBool(val any) bool {
-	v, _ := asBool(val)
-	return v
-}
-
-// toInt converts the value to a int.
-func toInt[T inti](val any) T {
-	v, _ := asInt[T](val)
-	return v
-}
-
-// toUint converts the value to a uint.
-func toUint[T uinti](val any) T {
-	v, _ := asUint[T](val)
-	return v
-}
-
-// toFloat converts the value to a float.
-func toFloat[T floati](val any) T {
-	v, _ := asFloat[T](val)
-	return v
-}
-
-// toComplex converts the value to a complex.
-func toComplex[T complexi](val any) T {
-	v, _ := asComplex[T](val)
-	return v
-}
-
-// toTime converts the value to a [time.Time].
-func toTime(val any, layout string) time.Time {
-	v, _ := asTime(val, layout)
-	return v
-}
-
-// toDuration converts the value to a [time.Duration].
-func toDuration(val any) time.Duration {
-	v, _ := asDuration(val)
-	return v
-}
-*/
-
 // bitSize returns the bitsize for T.
 func bitSize[T inti | uinti | floati | complexi]() int {
-	var res T
-	var v any = res
-	switch v.(type) {
+	switch any(T(0)).(type) {
 	case complex128:
 		return 128
 	case int64, uint64, float64, complex64:

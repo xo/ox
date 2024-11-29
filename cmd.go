@@ -3,6 +3,7 @@ package ox
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -18,8 +19,12 @@ type Command struct {
 	Parent *Command
 	// Exec is the func to be executed.
 	Exec ExecFunc
-	// Descs is the command's name/usage descriptions.
-	Descs []Desc
+	// Name is the command name.
+	Name string
+	// Usage is the command usage.
+	Usage string
+	// Aliases are the command aliases.
+	Aliases []string
 	// Flags are the command's flags.
 	Flags *FlagSet
 	// Commands are sub commands.
@@ -29,23 +34,28 @@ type Command struct {
 	// OnErr indicates whether to continue, panic, or to error when
 	// flag/argument parsing fails.
 	OnErr OnErr
+	// Hidden indicates the command is hidden from help output.
+	Hidden bool
+	// Deprecated indicates the command is deprecated.
+	Deprecated bool
+	// Help is the help emitter.
+	Help io.WriterTo
 }
 
 // NewCommand creates a new command.
 func NewCommand(opts ...Option) (*Command, error) {
-	cmd := &Command{
-		Descs: make([]Desc, 1),
+	cmd := new(Command)
+	if err := applyOpts(cmd, opts...); err != nil {
+		return nil, err
 	}
-	for _, o := range opts {
-		if err := o.apply(cmd); err != nil {
-			return nil, err
-		}
-	}
-	switch noName := cmd.Name() == ""; {
+	switch noName := cmd.Name == ""; {
 	case noName && cmd.Parent == nil:
-		cmd.Descs[0].Name = filepath.Base(os.Args[0])
+		cmd.Name = filepath.Base(os.Args[0])
 	case noName:
 		return nil, fmt.Errorf("command: %w", ErrUsageNotSet)
+	}
+	if err := applyPostOpts(cmd, opts...); err != nil {
+		return nil, err
 	}
 	return cmd, nil
 }
@@ -60,19 +70,11 @@ func (cmd *Command) Sub(opts ...Option) error {
 	return nil
 }
 
-// Name returns the command's name.
-func (cmd *Command) Name() string {
-	if len(cmd.Descs) != 0 {
-		return cmd.Descs[0].Name
-	}
-	return ""
-}
-
 // Tree returns the parents for the command.
 func (cmd *Command) Tree() []string {
 	var v []string
 	for c := cmd; c != nil; c = c.Parent {
-		v = append(v, c.Name())
+		v = append(v, c.Name)
 	}
 	slices.Reverse(v)
 	return v
@@ -93,9 +95,8 @@ func (cmd *Command) Populate(all, overwrite bool, vars Vars) error {
 		return nil
 	}
 	for _, g := range cmd.Flags.Flags {
-		name := g.Name()
-		if _, ok := vars[name]; ok && overwrite {
-			delete(vars, name)
+		if _, ok := vars[g.Name]; ok && overwrite {
+			delete(vars, g.Name)
 		}
 		var value string
 		switch {
@@ -108,7 +109,7 @@ func (cmd *Command) Populate(all, overwrite bool, vars Vars) error {
 			}
 		}
 		if err := vars.Set(g, value, false); err != nil {
-			return fmt.Errorf("cannot populate %s with %q: %w", name, value, err)
+			return fmt.Errorf("cannot populate %s with %q: %w", g.Name, value, err)
 		}
 	}
 	return nil
@@ -116,11 +117,9 @@ func (cmd *Command) Populate(all, overwrite bool, vars Vars) error {
 
 // Command returns the sub command with the name.
 func (cmd *Command) Command(name string) *Command {
-	for _, sub := range cmd.Commands {
-		for _, d := range sub.Descs {
-			if d.Name == name {
-				return sub
-			}
+	for _, c := range cmd.Commands {
+		if c.Name == name || slices.Contains(c.Aliases, name) {
+			return c
 		}
 	}
 	return nil
@@ -129,15 +128,14 @@ func (cmd *Command) Command(name string) *Command {
 // Flag finds a flag from the command or the command's parents.
 func (cmd *Command) Flag(name string, short bool) *Flag {
 	if cmd.Flags != nil {
-		for _, g := range cmd.Flags.Flags {
-			for _, d := range g.Descs {
-				if len(d.Name) == 1 && !short {
-					continue
-				}
-				if d.Name == name {
-					return g
-				}
-			}
+		if i := slices.IndexFunc(cmd.Flags.Flags, func(g *Flag) bool {
+			return g.Name == name && !short ||
+				g.Short == name && short ||
+				slices.ContainsFunc(g.Aliases, func(s string) bool {
+					return s == name && len(s) == 1 == short
+				})
+		}); i != -1 {
+			return cmd.Flags.Flags[i]
 		}
 	}
 	if cmd.Parent != nil {
@@ -151,7 +149,7 @@ func (cmd *Command) Validate(args []string) error {
 	// validate args
 	for _, f := range cmd.Args {
 		if err := f(args); err != nil {
-			return newCommandError(cmd.Name(), err)
+			return newCommandError(cmd.Name, err)
 		}
 	}
 	return nil
@@ -163,20 +161,22 @@ type FlagSet struct {
 }
 
 // Flags creates a new flag set from the options.
-func Flags(opts ...Option) *FlagSet {
+func Flags() *FlagSet {
 	return new(FlagSet)
 }
 
-// apply satisfies the [Option] interface.
-func (fs *FlagSet) apply(val any) error {
-	switch v := val.(type) {
-	case *Command:
-		v.Flags = fs
-	case *Context:
-	default:
-		return fmt.Errorf("FlagSet: %w", ErrAppliedToInvalidType)
+// Option returns a [CommandOption] for the flag set.
+func (fs *FlagSet) Option() option {
+	return option{
+		name: "FlagSet",
+		ctx: func(*Context) error {
+			return nil
+		},
+		cmd: func(cmd *Command) error {
+			cmd.Flags = fs
+			return nil
+		},
 	}
-	return nil
 }
 
 // Var adds a variable to the flag set.
@@ -398,8 +398,14 @@ type Flag struct {
 	Key Type
 	// Elem is the flag's element type when the flag is a [SliceT] or [MapT].
 	Elem Type
-	// Descs are the flag's descriptions
-	Descs []Desc
+	// Name is the flag's name.
+	Name string
+	// Usage is the flag's usage.
+	Usage string
+	// Short is the flag's short name.
+	Short string
+	// Aliases are the flag's aliases.
+	Aliases []string
 	// Def is the default value for the flag.
 	Def any
 	// NoArg indicates that flag does takes an optional argument.
@@ -408,37 +414,36 @@ type Flag struct {
 	NoArgDef any
 	// Binds are variables that will be set.
 	Binds []Binder
-	Keys  map[string]string
+	// Hidden indicates the command is hidden from help output.
+	Hidden bool
+	// Deprecated indicates the command is deprecated.
+	Deprecated bool
+	// Keys are config look up keys.
+	Keys map[string]string
 }
 
 // NewFlag creates a new command-line flag.
 func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 	g := &Flag{
-		Type: StringT,
-		Key:  StringT,
-		Elem: StringT,
-		Descs: []Desc{{
-			Name:  name,
-			Usage: usage,
-		}},
+		Type:  StringT,
+		Key:   StringT,
+		Elem:  StringT,
+		Name:  name,
+		Usage: usage,
 	}
-	for _, o := range opts {
-		if err := o.apply(g); err != nil {
+	if err := applyOpts(g, opts...); err != nil {
+		return nil, err
+	}
+	if extra, ok := typeFlagOpts[g.Type]; ok {
+		if err := applyOpts(g, extra...); err != nil {
 			return nil, err
 		}
 	}
-	if opts, ok := typeFlagOpts[g.Type]; ok {
-		for _, o := range opts {
-			if err := o.apply(g); err != nil {
-				return nil, err
-			}
-		}
-	}
-	if g.Name() == "" {
+	if g.Name == "" {
 		return nil, ErrInvalidFlagName
 	}
 	if g.NoArg && g.NoArgDef == nil {
-		return nil, fmt.Errorf("flag %s: %w: NoArgDef cannot be nil", g.Name(), ErrInvalidValue)
+		return nil, fmt.Errorf("flag %s: %w: NoArgDef cannot be nil", g.Name, ErrInvalidValue)
 	}
 	return g, nil
 }
@@ -480,27 +485,6 @@ func FlagsFrom[T *E, E any](val T) ([]*Flag, error) {
 	return flags, nil
 }
 
-// Name returns the flag's primary name.
-func (g *Flag) Name() string {
-	if len(g.Descs) != 0 {
-		return g.Descs[0].Name
-	}
-	return ""
-}
-
-// Short returns the flag's first short alias, and whether or not a short alias
-// was found.
-func (g *Flag) Short() (string, bool) {
-	if 1 < len(g.Descs) {
-		for _, d := range g.Descs[1:] {
-			if utf8.RuneCountInString(d.Name) == 1 {
-				return d.Name, true
-			}
-		}
-	}
-	return "", false
-}
-
 // New creates a new value for the flag's type.
 func (g *Flag) New() (Value, error) {
 	switch g.Type {
@@ -510,67 +494,6 @@ func (g *Flag) New() (Value, error) {
 		return NewMap(g.Key, g.Elem)
 	}
 	return g.Type.New()
-}
-
-// Desc contains a command/flag description.
-type Desc struct {
-	Name       string
-	Usage      string
-	Hidden     bool
-	Deprecated bool
-}
-
-// apply satisfies the [Option] interface.
-func (d Desc) apply(val any) error {
-	switch v := val.(type) {
-	case *Command:
-		v.Descs = append(v.Descs, d)
-	case *Flag:
-		v.Descs = append(v.Descs, d)
-	default:
-		return fmt.Errorf("Desc: %w", ErrAppliedToInvalidType)
-	}
-	return nil
-}
-
-// buildFlagOpts builds flag options for v from the passed struct tag values.
-func buildFlagOpts(typ reflect.Type, val reflect.Value, name string, s []string) ([]Option, error) {
-	var b *bool
-	var opts []Option
-	for _, opt := range s {
-		key, value, _ := strings.Cut(opt, ":")
-		switch key {
-		case "name":
-			opts = append(opts, Name(value))
-		case "type":
-			opts = append(opts, Type(value))
-		case "usage":
-			name, usage, _ := strings.Cut(value, "|")
-			opts = append(opts, Usage(name, usage))
-		case "short":
-			opts = append(opts, Short(value))
-		case "alias":
-			name, usage, _ := strings.Cut(value, "|")
-			opts = append(opts, Alias(name, usage))
-		case "default":
-			opts = append(opts, Default(value))
-		case "key":
-			typ, key, _ := strings.Cut(value, "|")
-			opts = append(opts, Key(typ, key))
-		case "set":
-			for i := range typ.NumField() {
-				field := typ.Field(i)
-				if field.Name == name || field.Name != value {
-					continue
-				}
-				break
-			}
-		default:
-			return nil, fmt.Errorf("%w: %q", ErrUnknownTagOption, key)
-		}
-	}
-	// prepend bind to opt
-	return prepend(opts, BindRef(val, b)), nil
 }
 
 // ExecType is the interface for func's that can be used with [Run],
@@ -590,47 +513,85 @@ type ExecType interface {
 type ExecFunc func(context.Context, []string) error
 
 // NewExec creates a [ExecFunc] func.
-func NewExec[T ExecType](f T) ExecFunc {
+func NewExec[T ExecType](f T) (ExecFunc, error) {
 	var v any = f
 	switch f := v.(type) {
 	case func(context.Context, []string) error:
-		return f
+		return f, nil
 	case func(context.Context, []string):
 		return func(ctx context.Context, args []string) error {
 			f(ctx, args)
 			return nil
-		}
+		}, nil
 	case func(context.Context) error:
 		return func(ctx context.Context, _ []string) error {
 			return f(ctx)
-		}
+		}, nil
 	case func(context.Context):
 		return func(ctx context.Context, _ []string) error {
 			f(ctx)
 			return nil
-		}
+		}, nil
 	case func([]string) error:
 		return func(_ context.Context, args []string) error {
 			return f(args)
-		}
+		}, nil
 	case func([]string):
 		return func(_ context.Context, args []string) error {
 			f(args)
 			return nil
-		}
+		}, nil
 	case func() error:
 		return func(context.Context, []string) error {
 			return f()
-		}
+		}, nil
 	case func():
 		return func(context.Context, []string) error {
 			f()
 			return nil
+		}, nil
+	}
+	return nil, fmt.Errorf("%w: invalid exec func %T", ErrInvalidType, f)
+}
+
+// buildFlagOpts builds flag options for v from the passed struct tag values.
+func buildFlagOpts(typ reflect.Type, value reflect.Value, name string, s []string) ([]Option, error) {
+	var b *bool
+	var opts []Option
+	for _, opt := range s {
+		key, val, _ := strings.Cut(opt, ":")
+		switch key {
+		case "name":
+			opts = append(opts, Name(val))
+		case "type":
+			opts = append(opts, Type(val))
+		case "usage":
+			name, usage, _ := strings.Cut(val, "|")
+			opts = append(opts, Usage(name, usage))
+		case "short":
+			opts = append(opts, Short(val))
+		case "alias":
+			name, usage, _ := strings.Cut(val, "|")
+			opts = append(opts, Alias(name, usage))
+		case "default":
+			opts = append(opts, Default(val))
+		case "key":
+			typ, key, _ := strings.Cut(val, "|")
+			opts = append(opts, Key(typ, key))
+		case "set":
+			for i := range typ.NumField() {
+				field := typ.Field(i)
+				if field.Name == name || field.Name != val {
+					continue
+				}
+				break
+			}
+		default:
+			return nil, fmt.Errorf("%w: %q", ErrUnknownTagOption, key)
 		}
 	}
-	return func(context.Context, []string) error {
-		return fmt.Errorf("%w: no exec func %T", ErrInvalidType, f)
-	}
+	// prepend bind to opt
+	return prepend(opts, BindRef(value, b)), nil
 }
 
 // newCommandError creates a command error.

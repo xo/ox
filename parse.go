@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// Vars is the type for storing variables in the context.
+// Vars is a map of argument variables.
 type Vars map[string]Value
 
 // String satisfies the [fmt.Stringer] interfaec.
@@ -23,8 +23,8 @@ func (vars Vars) String() string {
 
 // Set sets a variable in the vars.
 func (vars Vars) Set(g *Flag, s string, set bool) error {
-	// fmt.Fprintf(os.Stdout, "SETTING: %q (%s/%s): %q\n", g.Name(), g.Type, g.Sub, s)
-	name := g.Name()
+	// fmt.Fprintf(os.Stdout, "SETTING: %q (%s/%s): %q\n", g.Name, g.Type, g.Sub, s)
+	name := g.Name
 	if name == "" {
 		return ErrInvalidFlagName
 	}
@@ -54,7 +54,7 @@ func Parse(root *Command, args []string, vars Vars) (*Command, []string, error) 
 		return nil, nil, fmt.Errorf("Parse: %w", ErrCanOnlyBeUsedWithRootCommand)
 	}
 	if err := root.Populate(false, false, vars); err != nil {
-		return nil, nil, newCommandError(root.Name(), err)
+		return nil, nil, newCommandError(root.Name, err)
 	}
 	if len(args) == 0 {
 		return root, nil, nil
@@ -78,7 +78,7 @@ func parse(cmd *Command, args []string, vars Vars) (*Command, []string, error) {
 			}
 			if c != nil {
 				if err := c.Populate(false, false, vars); err != nil {
-					return nil, nil, newCommandError(c.Name(), err)
+					return nil, nil, newCommandError(c.Name, err)
 				}
 				cmd = c
 			} else {

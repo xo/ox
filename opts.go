@@ -10,8 +10,9 @@ import (
 	"unicode/utf8"
 )
 
-// Args is a [Context] option to set the command-line arguments to use.
-func Args(args []string) ContextOption {
+// Args is a [Run]/[RunContext]/[Context] option to set the command-line
+// arguments.
+func Args(args ...string) ContextOption {
 	return option{
 		name: "Args",
 		ctx: func(ctx *Context) error {
@@ -21,7 +22,8 @@ func Args(args []string) ContextOption {
 	}
 }
 
-// Pipe is a [Context] option to set the standard in, out, and error to use.
+// Pipe is a [Run]/[RunContext]/[Context] option to set the standard in, out,
+// and error.
 func Pipe(stdin io.Reader, stdout, stderr io.Writer) ContextOption {
 	return option{
 		name: "Pipe",
@@ -37,7 +39,19 @@ func Exec[F ExecType](f F) CommandOption {
 	return option{
 		name: "Exec",
 		cmd: func(cmd *Command) error {
-			cmd.Exec = NewExec(f)
+			var err error
+			cmd.Exec, err = NewExec(f)
+			return err
+		},
+	}
+}
+
+// Defaults is a [Command] option to add the default options of [Help], [Comp],
+// and [Version] to the command.
+func Defaults() CommandOption {
+	return option{
+		name: "Defaults",
+		cmd: func(cmd *Command) error {
 			return nil
 		},
 	}
@@ -68,14 +82,14 @@ func From[T *E, E any](val T) CommandOption {
 func Sub(opts ...Option) CommandOption {
 	return option{
 		name: "Sub",
-		cmd: func(c *Command) error {
-			return c.Sub(opts...)
+		cmd: func(cmd *Command) error {
+			return cmd.Sub(opts...)
 		},
 	}
 }
 
 // Version is a [Command] option to hook --version with version output.
-func Version(version string, opts ...Option) CommandOption {
+func Version() CommandOption {
 	return option{
 		cmd: func(*Command) error {
 			return nil
@@ -86,7 +100,12 @@ func Version(version string, opts ...Option) CommandOption {
 // Help is a [Command] option to hook --help with help output.
 func Help(opts ...Option) CommandOption {
 	return option{
-		cmd: func(*Command) error {
+		post: func(cmd *Command) error {
+			/*
+				var err error
+				cmd.Help, err = NewHelp(opts...)
+				return err
+			*/
 			return nil
 		},
 	}
@@ -96,8 +115,8 @@ func Help(opts ...Option) CommandOption {
 func Comp() CommandOption {
 	return option{
 		name: "Comp",
-		cmd: func(c *Command) error {
-			if c.Parent != nil {
+		cmd: func(cmd *Command) error {
+			if cmd.Parent != nil {
 				return ErrCanOnlyBeUsedWithRootCommand
 			}
 			return nil
@@ -110,8 +129,8 @@ func Comp() CommandOption {
 func UserConfigFile() CommandOption {
 	return option{
 		name: "UserConfigFile",
-		cmd: func(c *Command) error {
-			if c.Parent != nil {
+		cmd: func(cmd *Command) error {
+			if cmd.Parent != nil {
 				return ErrCanOnlyBeUsedWithRootCommand
 			}
 			dir, err := userConfigDir()
@@ -129,8 +148,8 @@ func UserConfigFile() CommandOption {
 func ArgsFunc(funcs ...func([]string) error) CommandOption {
 	return option{
 		name: "ArgsFunc",
-		cmd: func(c *Command) error {
-			c.Args = append(c.Args, funcs...)
+		cmd: func(cmd *Command) error {
+			cmd.Args = append(cmd.Args, funcs...)
 			return nil
 		},
 	}
@@ -142,13 +161,13 @@ func ArgsFunc(funcs ...func([]string) error) CommandOption {
 func ValidArgs(minimum, maximum int, values ...string) CommandOption {
 	return option{
 		name: "Args",
-		cmd: func(c *Command) error {
+		cmd: func(cmd *Command) error {
 			for i, s := range values {
 				if s == "" {
 					return fmt.Errorf("%w: argument %d cannot be empty string", ErrInvalidArg, i)
 				}
 			}
-			c.Args = append(c.Args, func(args []string) error {
+			cmd.Args = append(cmd.Args, func(args []string) error {
 				switch n := len(args); {
 				case minimum < 0 && maximum < 0:
 				case minimum == 0 && maximum == 0 && n != 0:
@@ -178,8 +197,8 @@ func ValidArgs(minimum, maximum int, values ...string) CommandOption {
 func Parent(parent *Command) CommandOption {
 	return option{
 		name: "Parent",
-		cmd: func(c *Command) error {
-			c.Parent, c.OnErr = parent, parent.OnErr
+		cmd: func(cmd *Command) error {
+			cmd.Parent, cmd.OnErr = parent, parent.OnErr
 			return nil
 		},
 	}
@@ -189,12 +208,12 @@ func Parent(parent *Command) CommandOption {
 func Name(name string) CommandFlagOption {
 	return option{
 		name: "Name",
-		cmd: func(c *Command) error {
-			c.Descs[0].Name = name
+		cmd: func(cmd *Command) error {
+			cmd.Name = name
 			return nil
 		},
 		flag: func(g *Flag) error {
-			g.Descs[0].Name = name
+			g.Name = name
 			return nil
 		},
 	}
@@ -204,12 +223,12 @@ func Name(name string) CommandFlagOption {
 func Usage(name, usage string) CommandFlagOption {
 	return option{
 		name: "Usage",
-		cmd: func(c *Command) error {
-			c.Descs[0].Name, c.Descs[0].Usage = name, usage
+		cmd: func(cmd *Command) error {
+			cmd.Name, cmd.Usage = name, usage
 			return nil
 		},
 		flag: func(g *Flag) error {
-			g.Descs[0].Name, g.Descs[0].Usage = name, usage
+			g.Name, g.Usage = name, usage
 			return nil
 		},
 	}
@@ -219,32 +238,70 @@ func Usage(name, usage string) CommandFlagOption {
 func Alias(name, usage string) CommandFlagOption {
 	return option{
 		name: "Alias",
-		cmd: func(c *Command) error {
-			c.Descs = append(c.Descs, Desc{
-				Name:  name,
-				Usage: usage,
-			})
+		cmd: func(cmd *Command) error {
 			return nil
 		},
 		flag: func(g *Flag) error {
-			g.Descs = append(g.Descs, Desc{
-				Name:  name,
-				Usage: usage,
-			})
+			g.Name, g.Usage = name, usage
 			return nil
 		},
 	}
 }
 
 // Short is a [Flag] option to add a flag's short (single character) alias.
-func Short(name string) FlagOption {
+func Short(short string) FlagOption {
 	return option{
 		name: "Short",
 		flag: func(g *Flag) error {
-			if utf8.RuneCountInString(name) != 1 {
-				return fmt.Errorf("%w: %q", ErrInvalidShortName, name)
+			if utf8.RuneCountInString(short) != 1 {
+				return fmt.Errorf("%w: %q", ErrInvalidShortName, short)
 			}
-			g.Descs = append(g.Descs, Desc{Name: name})
+			g.Short = short
+			return nil
+		},
+	}
+}
+
+// Banner is a [Command]/[Flag] option to set the command/flag's banner.
+func Banner(banner string) CommandFlagOption {
+	return option{
+		name: "Banner",
+		cmd: func(cmd *Command) error {
+			// cmd.Descs[0].Banner = banner
+			return nil
+		},
+		flag: func(g *Flag) error {
+			// g.Descs[0].Banner = banner
+			return nil
+		},
+	}
+}
+
+// Spec is a [Command]/[Flag] option to set the command/flag's spec.
+func Spec(spec string) CommandFlagOption {
+	return option{
+		name: "Spec",
+		cmd: func(c *Command) error {
+			// c.Descs[0].Spec = spec
+			return nil
+		},
+		flag: func(g *Flag) error {
+			// g.Descs[0].Spec = spec
+			return nil
+		},
+	}
+}
+
+// Footer is a [Command]/[Flag] option to set the command/flag's footer.
+func Footer(footer string) CommandFlagOption {
+	return option{
+		name: "Footer",
+		cmd: func(c *Command) error {
+			// c.Descs[0].Footer = footer
+			return nil
+		},
+		flag: func(g *Flag) error {
+			// g.Descs[0].Footer = footer
 			return nil
 		},
 	}
@@ -345,7 +402,7 @@ func Key(typ, key string) FlagOption {
 }
 
 // Hook is a [Flag] option to set a hook for a flag, that exits normally.
-func Hook(f func(context.Context) error, opts ...Option) Option {
+func Hook(f func(context.Context) error) CommandFlagOption {
 	return option{
 		name: "Hook",
 		flag: func(g *Flag) error {
@@ -355,16 +412,21 @@ func Hook(f func(context.Context) error, opts ...Option) Option {
 	}
 }
 
-// HookDump is an option to set a hook for a flag that Fprint's s and v to the
-// set standard out and then exits normally.
-func HookDump(s string, v ...any) Option {
-	return option{}
+// Sections is a [Help] option to add section names for help.
+func Sections(sections ...string) HelpOption {
+	return option{
+		/*
+			help: func(*HelpDesc) error {
+				return nil
+			},
+		*/
+	}
 }
 
-// Option is the interface for options that can be passed when creating a
+// opt is the interface for options that can be passed when creating a
 // [Context], [Command], or [Flag].
 //
-// The [Option] type is aliased as [ContextOption], [CommandOption],
+// The [opt] type is aliased as [ContextOption], [CommandOption],
 // [CommandFlagOption], and [FlagOption] and provided for ease-of-use,
 // readibility, and categorization within documentation.
 //
@@ -381,30 +443,39 @@ func HookDump(s string, v ...any) Option {
 // [NewCommand], and a [Type] can be used as a [FlagOption] in calls to
 // [NewFlag].
 type Option interface {
-	apply(any) error
+	Option() option
 }
 
-// ContextOption are [Option]'s that apply to a [Context].
+// ContextOption are [opt]'s that apply to a [Context].
 type ContextOption = Option
 
-// CommandOption are [Option]'s that apply to a [Command].
+// CommandOption are [opt]'s that apply to a [Command].
 type CommandOption = Option
 
-// CommandFlagOption are [Option]'s that apply to either a [Command] or [Flag].
+// CommandFlagOption are [opt]'s that apply to either a [Command] or [Flag].
 type CommandFlagOption = Option
 
-// FlagOption are [Option]'s that apply to a [Flag].
+// FlagOption are [opt]'s that apply to a [Flag].
 type FlagOption = Option
+
+// HelpOption are [opt]'s that apply to [Help].
+type HelpOption = Option
 
 // option wraps an option.
 type option struct {
 	name string
 	ctx  func(*Context) error
 	cmd  func(*Command) error
+	post func(*Command) error
 	flag func(*Flag) error
+	typ  func(v interface{ SetType(Type) }) error
 }
 
-// apply satisfies the [Option] interface.
+func (opt option) Option() option {
+	return opt
+}
+
+// apply satisfies the [opt] interface.
 func (opt option) apply(val any) error {
 	var err error
 	switch v := val.(type) {
@@ -420,11 +491,37 @@ func (opt option) apply(val any) error {
 		if opt.ctx != nil {
 			err = opt.ctx(v)
 		}
+	case interface{ SetType(Type) }:
+		if opt.typ != nil {
+			err = opt.typ(v)
+		}
 	default:
 		err = ErrAppliedToInvalidType
 	}
 	if err != nil {
 		return fmt.Errorf("%s: %w", opt.name, err)
+	}
+	return nil
+}
+
+// applyOpts applies the options to v.
+func applyOpts(v any, opts ...Option) error {
+	for _, o := range opts {
+		if err := o.Option().apply(v); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// postOpts returns the post options.
+func applyPostOpts(cmd *Command, opts ...Option) error {
+	for _, o := range opts {
+		if opt := o.Option(); opt.post != nil {
+			if err := opt.post(cmd); err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }

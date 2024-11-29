@@ -62,21 +62,23 @@ const (
 	HookT Type = "hook"
 )
 
-// apply satisfies the [Option] interface.
-func (typ Type) apply(val any) error {
-	switch v := val.(type) {
-	case *Flag:
-		if v.Type != SliceT && v.Type != MapT && v.Type != HookT {
-			v.Type = typ
-		} else if v.Type != HookT {
-			v.Elem = typ
-		}
-	case interface{ SetType(Type) }:
-		v.SetType(typ)
-	default:
-		return fmt.Errorf("Type(%s) used as option: %w", typ, ErrAppliedToInvalidType)
+// Option returns an [option] for the type.
+func (typ Type) Option() option {
+	return option{
+		name: typ.String(),
+		flag: func(g *Flag) error {
+			if g.Type != SliceT && g.Type != MapT && g.Type != HookT {
+				g.Type = typ
+			} else if g.Type != HookT {
+				g.Elem = typ
+			}
+			return nil
+		},
+		typ: func(t interface{ SetType(Type) }) error {
+			t.SetType(typ)
+			return nil
+		},
 	}
-	return nil
 }
 
 // String satisfies the [fmt.Stringer] interface.
