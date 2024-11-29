@@ -65,7 +65,7 @@ const (
 // Option returns an [option] for the type.
 func (typ Type) Option() option {
 	return option{
-		name: typ.String(),
+		name: "Type(" + typ.String() + ")",
 		flag: func(g *Flag) error {
 			if g.Type != SliceT && g.Type != MapT && g.Type != HookT {
 				g.Type = typ

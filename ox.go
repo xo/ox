@@ -179,7 +179,7 @@ const (
 // Option returns an [opt] for the error handling type.
 func (e OnErr) Option() option {
 	return option{
-		name: e.String(),
+		name: "OnErr(" + e.String() + ")",
 		cmd: func(cmd *Command) error {
 			cmd.OnErr = e
 			return nil
