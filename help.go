@@ -2,24 +2,27 @@ package ox
 
 import (
 	"io"
+
+	"github.com/xo/ox/text"
 )
 
 // HelpDesc holds help descriptions.
 type HelpDesc struct {
 	// Commands are command sections.
-	Commands map[string]HelpDetails
+	Commands map[string]CommandHelp
+	Flags    map[string]FlagHelp
 }
 
-type HelpDetails struct {
+type CommandHelp struct {
 	Banner   string
 	Spec     string
 	Footer   string
 	Distance int
 	Suggest  []string
-	Flags    map[string]FlagDetails
+	Flags    map[string]FlagHelp
 }
 
-type FlagDetails struct {
+type FlagHelp struct {
 	Suggest []string
 }
 
@@ -30,6 +33,24 @@ func NewHelp(opts ...Option) (*HelpDesc, error) {
 		return nil, err
 	}
 	return h, nil
+}
+
+// NewHelpFor adds a `--help` flag and `help` command to a command and all its
+// sub commands. The `help` command will only be added if the command has sub
+// commands.
+func NewHelpFor(cmd *Command, opts ...Option) error {
+	_ = cmd.Flags.Hook(text.HelpName, text.HelpFlagDesc, Short(text.HelpFlagShort), NoArg(true, ""), Default(func() error {
+		return ErrExit
+	}))
+	/*
+		for _, c := range cmd.Commands {
+		}
+	*/
+	return nil
+}
+
+func NewVersionFor(cmd *Command, opts ...Option) error {
+	return nil
 }
 
 // WriteTo satisfies the [io.WriterTo] interface.

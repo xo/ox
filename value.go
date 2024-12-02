@@ -480,6 +480,76 @@ func (val *refVal) Get() any {
 	return val.v.Elem().Interface()
 }
 
+// hookVal is a hook func.
+type hookVal struct {
+	typ Type
+	v   func(string) error
+	set bool
+}
+
+// newHook creates a new hook for the func f in v.
+func newHook(v any) (Value, error) {
+	switch f := v.(type) {
+	case func(string) error:
+		return &hookVal{
+			typ: HookT,
+			v:   f,
+		}, nil
+	case func() error:
+		return &hookVal{
+			typ: HookT,
+			v: func(string) error {
+				return f()
+			},
+		}, nil
+	case func(string):
+		return &hookVal{
+			typ: HookT,
+			v: func(s string) error {
+				f(s)
+				return nil
+			},
+		}, nil
+	case func():
+		return &hookVal{
+			typ: HookT,
+			v: func(string) error {
+				f()
+				return nil
+			},
+		}, nil
+	}
+	return nil, fmt.Errorf("%w: invalid hook func", ErrInvalidValue)
+}
+
+func (val *hookVal) Type() Type {
+	return val.typ
+}
+
+func (val *hookVal) Val() any {
+	return val.v
+}
+
+func (val *hookVal) SetSet(set bool) {
+	val.set = set
+}
+
+func (val *hookVal) WasSet() bool {
+	return val.set
+}
+
+func (val *hookVal) Set(s string) error {
+	return val.v(s)
+}
+
+func (val *hookVal) Get() (string, error) {
+	return "(hook)", nil
+}
+
+func (val *hookVal) String() string {
+	return "(hook)"
+}
+
 // FormattedTime wraps a time value with a specific layout.
 type FormattedTime struct {
 	layout string

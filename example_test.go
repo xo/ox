@@ -6,31 +6,54 @@ import (
 	"github.com/xo/ox"
 )
 
-func ExampleHelp() {
+func Example() {
 	args := struct {
-		Number float64 `ox:"a number"`
+		Count uint64 `ox:"type:count"`
 	}{}
-	run := func(context.Context, []string) {
+	run := func() {
 	}
 	ox.Run(
 		ox.Exec(run),
+		ox.Defaults(),
+		ox.From(&args),
+	)
+	// Output:
+}
+
+func Example_test() {
+	args := struct {
+		Number float64 `ox:"a number"`
+	}{}
+	root := func(context.Context, []string) {
+	}
+	sub := func(context.Context, []string) error {
+		return nil
+	}
+	ox.RunContext(
+		context.Background(),
+		ox.Exec(root),
 		ox.Usage("exhelp", "help example"),
 		ox.Help(),
+		ox.Sub(
+			ox.Exec(sub),
+		),
 		ox.From(&args),
 		ox.Args("--help"),
 	)
 	// Output:
 }
 
-// Example_psql demonstrates building complex help output. Based on the output
-// of `psql --help`. The output formatting has been slightly changed, as the
-// generated help output alters the column formatting, and the output cannot be
-// duplicated perfectly -- that said, a faithful attempt has been made to stick
-// to the original help output wherever possible.
+// Example_psql demonstrates building complex help output, based on original
+// output of `psql --help`. The output formatting has been slightly changed, as
+// the generated help output alters the column formatting, and the output
+// cannot be duplicated perfectly -- that said, a faithful attempt has been
+// made to stick to the original help output wherever possible.
 func Example_psql() {
 	args := struct {
-		Command  string            `ox:"run only single command (SQL or internal) and exit,short:c,section:0"`
-		Dbname   string            `ox:"database name to connect to,short:d,section:0"`
+		Command string `ox:"run only single command (SQL or internal) and exit,short:c,section:0"`
+		// default:ken here forces it to match output, but `default:$USER` will
+		// use current user's name as default value
+		Dbname   string            `ox:"database name to connect to,short:d,default:ken,section:0"`
 		File     string            `ox:"execute commands from file\\, then exit,short:f,spec:FILENAME,section:0"`
 		List     bool              `ox:"list databases\\, then exit,short:l,section:0"`
 		Variable map[string]string `ox:"set psql variable NAME to VALUE,short:v,alias:set,spec:NAME=VALUE,section:0"`

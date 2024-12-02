@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"slices"
+	"strconv"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -386,8 +387,8 @@ func (fs *FlagSet) Map(name, desc string, opts ...Option) *FlagSet {
 }
 
 // Hook adds a hook to the flag set.
-func (fs *FlagSet) Hook(name, desc string, f func(context.Context) error, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(HookT), Default(f))...)
+func (fs *FlagSet) Hook(name, desc string, opts ...Option) *FlagSet {
+	return fs.Var(name, desc, prepend(opts, Option(HookT))...)
 }
 
 // Flag is a command-line flag variable definition.
@@ -439,11 +440,13 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 			return nil, err
 		}
 	}
-	if g.Name == "" {
+	switch {
+	case g.Name == "":
 		return nil, ErrInvalidFlagName
-	}
-	if g.NoArg && g.NoArgDef == nil {
+	case g.NoArg && g.NoArgDef == nil:
 		return nil, fmt.Errorf("flag %s: %w: NoArgDef cannot be nil", g.Name, ErrInvalidValue)
+	case g.Type == HookT && g.Def == nil:
+		return nil, fmt.Errorf("flag %s: %w: Def cannot be nil", g.Name, ErrInvalidValue)
 	}
 	return g, nil
 }
@@ -466,7 +469,7 @@ func FlagsFrom[T *E, E any](val T) ([]*Flag, error) {
 		if !ok {
 			continue
 		}
-		tag := strings.Split(s, ",")
+		tag := split(s, ',')
 		if len(tag) == 0 || tag[0] == "-" {
 			continue
 		}
@@ -492,6 +495,8 @@ func (g *Flag) New() (Value, error) {
 		return NewSlice(g.Elem), nil
 	case MapT:
 		return NewMap(g.Key, g.Elem)
+	case HookT:
+		return newHook(g.Def)
 	}
 	return g.Type.New()
 }
@@ -578,6 +583,14 @@ func buildFlagOpts(typ reflect.Type, value reflect.Value, name string, s []strin
 		case "key":
 			typ, key, _ := strings.Cut(val, "|")
 			opts = append(opts, Key(typ, key))
+		case "section":
+			section, err := strconv.Atoi(val)
+			if err != nil {
+				return nil, fmt.Errorf("%w: section %s: %w", ErrInvalidConversion, val, err)
+			}
+			opts = append(opts, Section(section))
+		case "spec":
+			opts = append(opts, Spec(val))
 		case "set":
 			for i := range typ.NumField() {
 				field := typ.Field(i)
@@ -605,4 +618,34 @@ func newFlagError(name string, err error) error {
 		return fmt.Errorf("-%s: %w", name, err)
 	}
 	return fmt.Errorf("--%s: %w", name, err)
+}
+
+// split splits a string by the cut rune, skipping escaped runes.
+func split(str string, cut rune) []string {
+	r := []rune(str)
+	v := make([][]rune, 1)
+	var c, next rune
+	for i, j, n := 0, 0, len(r); i < n; i++ {
+		c = r[i]
+		switch next = peek(r, i+1, n); {
+		case r[i] == '\\' && next != 0:
+			i, c = i+1, next
+		case r[i] == cut:
+			j, v = j+1, append(v, nil)
+			continue
+		}
+		v[j] = append(v[j], c)
+	}
+	s := make([]string, len(v))
+	for i, r := range v {
+		s[i] = string(r)
+	}
+	return s
+}
+
+func peek(r []rune, i, n int) rune {
+	if i < n {
+		return r[i]
+	}
+	return 0
 }

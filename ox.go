@@ -15,29 +15,18 @@ import (
 	"time"
 
 	"github.com/xo/ox/strcase"
+	"github.com/xo/ox/text"
 )
 
 var (
+	// DefaultContext is the default [context.Context].
+	DefaultContext = context.Background()
 	// DefaultTagName is the default struct tag name used in [FromFlags] and
 	// related func's.
 	DefaultTagName = "ox"
-	// DefaultContext is the default [context.Context].
-	DefaultContext = context.Background()
 	// DefaultLayout is the default timestamp layout used for formatting and
 	// parsing [Time] values.
 	DefaultLayout = time.RFC3339
-	// DefaultFlagNameMaper is the default flag name mapper.
-	DefaultFlagNameMapper = func(s string) string {
-		return strings.ReplaceAll(strcase.CamelToSnake(s), "_", "-")
-	}
-	// DefaultVersionName is the default version command/flag name.
-	DefaultVersionName = "version"
-	// DefaultVersionShort is the default version short flag name.
-	DefaultVersionShort = "v"
-	// DefaultHelpName is the default help command/flag name.
-	DefaultHelpName = "help"
-	// DefaultHelpShort is the default help short flag name.
-	DefaultHelpShort = "?"
 	// DefaultWrapWidth is the default wrap width.
 	DefaultWrapWidth = 95
 	// DefaultWrap wraps a line of text with [Wrap] using [DefaultWrapWidth]
@@ -45,8 +34,13 @@ var (
 	DefaultWrap = func(s string, prefixWidth int) string {
 		return Wrap(s, DefaultWrapWidth, prefixWidth)
 	}
-	// DefaultErrorMessagePrefix is the default 'error: ' message prefix.
-	DefaultErrorMessagePrefix = "error: "
+	// DefaultFlagNameMaper is the default flag name mapper.
+	DefaultFlagNameMapper = func(s string) string {
+		return strings.ReplaceAll(strcase.CamelToSnake(s), "_", "-")
+	}
+	// DefaultStripGoTestFlags when enabled strips Go's `-test.` prefix'd
+	// flags.
+	DefaultStripGoTestFlags = true
 )
 
 // Run creates a [Context] and builds a [Command] and its [FlagSet] based on
@@ -116,7 +110,7 @@ func NewContext(opts ...Option) (*Context, error) {
 		Stdin:  os.Stdin,
 		Stdout: os.Stdout,
 		Stderr: os.Stderr,
-		Args:   os.Args[1:],
+		Args:   stripTestFlags(os.Args[1:]),
 	}
 	if err := applyOpts(ctx, opts...); err != nil {
 		return ctx, err
@@ -132,11 +126,10 @@ func NewContext(opts ...Option) (*Context, error) {
 			}
 			switch {
 			case errors.Is(err, ErrExit):
-			case errors.Is(err, ErrHelp):
 			case ctx.OnErr == OnErrContinue:
 				return false
 			case ctx.OnErr == OnErrExit:
-				fmt.Fprintf(w, "%s%v\n", DefaultErrorMessagePrefix, err)
+				fmt.Fprintf(w, "%s%v\n", text.ErrorMessagePrefix, err)
 				os.Exit(1)
 			case ctx.OnErr == OnErrPanic:
 				panic(err)
@@ -272,6 +265,25 @@ func ldist[T []E, E cmp.Ordered](a, b T) int {
 		}
 	}
 	return v[m]
+}
+
+// stripTestFlags strips flags starting with `-test.` from args.
+func stripTestFlags(args []string) []string {
+	if !DefaultStripGoTestFlags {
+		return args
+	}
+	var v []string
+	for i := 0; i < len(v); i++ {
+		switch hasPrefix := strings.HasPrefix(args[i], "-test."); {
+		case hasPrefix && !strings.Contains(args[i], "="):
+			i++
+			continue
+		case hasPrefix:
+			continue
+		}
+		v = append(v, args[i])
+	}
+	return v
 }
 
 // prepend is a generic prepend.

@@ -46,13 +46,17 @@ func Exec[F ExecType](f F) CommandOption {
 	}
 }
 
-// Defaults is a [Command] option to add the default options of [Help], [Comp],
-// and [Version] to the command.
+// Defaults is a [Command] option to add [Help], [Comp], and [Version] to the
+// command.
 func Defaults() CommandOption {
+	opts := []Option{Help(), Comp(), Version()}
 	return option{
 		name: "Defaults",
 		cmd: func(cmd *Command) error {
-			return nil
+			return applyOpts(cmd, opts...)
+		},
+		post: func(cmd *Command) error {
+			return applyPostOpts(cmd, opts...)
 		},
 	}
 }
@@ -67,7 +71,11 @@ func From[T *E, E any](val T) CommandOption {
 			}
 			flags, err := FlagsFrom(val)
 			if err != nil {
-				return fmt.Errorf("cannot build flags for %T: %w", val, err)
+				typ := reflect.TypeOf(val).String()
+				if strings.HasPrefix(typ, "*struct {") {
+					typ = "*struct"
+				}
+				return fmt.Errorf("cannot build flags for %s: %w", typ, err)
 			}
 			if cmd.Flags == nil {
 				cmd.Flags = Flags()
@@ -89,24 +97,38 @@ func Sub(opts ...Option) CommandOption {
 }
 
 // Version is a [Command] option to hook --version with version output.
-func Version() CommandOption {
+func Version(opts ...Option) CommandOption {
 	return option{
-		cmd: func(*Command) error {
+		cmd: func(cmd *Command) error {
+			if cmd.Parent != nil {
+				return ErrCanOnlyBeUsedWithRootCommand
+			}
 			return nil
+		},
+		post: func(cmd *Command) error {
+			if cmd.Parent != nil {
+				return ErrCanOnlyBeUsedWithRootCommand
+			}
+			return NewVersionFor(cmd, opts...)
 		},
 	}
 }
 
-// Help is a [Command] option to hook --help with help output.
+// Help is a [Command] option to hook `--help` with help output, as well as to
+// add a `help` sub command to the tree.
 func Help(opts ...Option) CommandOption {
 	return option{
-		post: func(cmd *Command) error {
-			/*
-				var err error
-				cmd.Help, err = NewHelp(opts...)
-				return err
-			*/
+		cmd: func(cmd *Command) error {
+			if cmd.Parent != nil {
+				return ErrCanOnlyBeUsedWithRootCommand
+			}
 			return nil
+		},
+		post: func(cmd *Command) error {
+			if cmd.Parent != nil {
+				return ErrCanOnlyBeUsedWithRootCommand
+			}
+			return NewHelpFor(cmd, opts...)
 		},
 	}
 }
@@ -266,12 +288,7 @@ func Short(short string) FlagOption {
 func Banner(banner string) CommandFlagOption {
 	return option{
 		name: "Banner",
-		cmd: func(cmd *Command) error {
-			// cmd.Descs[0].Banner = banner
-			return nil
-		},
 		flag: func(g *Flag) error {
-			// g.Descs[0].Banner = banner
 			return nil
 		},
 	}
@@ -281,12 +298,7 @@ func Banner(banner string) CommandFlagOption {
 func Spec(spec string) CommandFlagOption {
 	return option{
 		name: "Spec",
-		cmd: func(c *Command) error {
-			// c.Descs[0].Spec = spec
-			return nil
-		},
 		flag: func(g *Flag) error {
-			// g.Descs[0].Spec = spec
 			return nil
 		},
 	}
@@ -296,12 +308,7 @@ func Spec(spec string) CommandFlagOption {
 func Footer(footer string) CommandFlagOption {
 	return option{
 		name: "Footer",
-		cmd: func(c *Command) error {
-			// c.Descs[0].Footer = footer
-			return nil
-		},
 		flag: func(g *Flag) error {
-			// g.Descs[0].Footer = footer
 			return nil
 		},
 	}
@@ -364,6 +371,25 @@ func BindRef(value reflect.Value, b *bool) FlagOption {
 }
 
 // Default is a [Flag] option to set the flag's default value.
+//
+// Special strings can be used are expanded when the flag is created:
+//
+//	$HOME - the current user's home directory
+//	$USER - the current user's user name
+//	$CACHE - the current user's cache directory
+//	$APPCACHE - the current user's cache directory, with the root command's name added as a subdir
+//	$ENV{KEY} - the environment value for $KEY
+//	$CFG{[TYPE::]KEY} - the registered config file loader type and key value
+//
+// For example:
+//
+//	ox.Default("$USER") - expands to "ken" if the user running the application is "ken"
+//	ox.Default("$HOME") - expands to /home/$USER on most Unix systems
+//	ox.Default("$CACHE") - expands to /home/$USER/.cache on most Unix systems
+//	ox.Default("$APPCACHE") - expands to /home/$USER/.cache/myApp if the root command's name is "myApp" on most Unix systems
+//	ox.Default("$ENV{MY_VAR}") - expands to value of the environment var $MY_VAR
+//	ox.Default("$CFG{yaml::a.b.c}") - expands to the registered YAML config file's key of a.b.c
+//	ox.Default("$CFG{a.b.c}") - expands to the first registered config file that returns a non-nil value for key a.b.c
 func Default(def any) FlagOption {
 	return option{
 		name: "Default",
@@ -396,6 +422,16 @@ func Key(typ, key string) FlagOption {
 				g.Keys = make(map[string]string)
 			}
 			g.Keys[typ] = key
+			return nil
+		},
+	}
+}
+
+// FlagOption is a [Flag] option to set the flag's help section.
+func Section(section int) FlagOption {
+	return option{
+		name: "Section",
+		flag: func(g *Flag) error {
 			return nil
 		},
 	}
