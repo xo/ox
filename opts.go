@@ -617,11 +617,13 @@ func (m SectionMap) Option() option {
 		},
 		post: func(cmd *Command) error {
 			for _, k := range slices.Sorted(maps.Keys(m)) {
-				c := cmd.Command(k)
-				if c == nil {
-					continue
+				if strings.HasPrefix(k, "flag:") {
+					if g := cmd.Flag(strings.TrimPrefix(k, "flag:"), false); g != nil {
+						g.Section = m[k]
+					}
+				} else if c := cmd.Command(k); c != nil {
+					c.Section = m[k]
 				}
-				c.Section = m[k]
 			}
 			return nil
 		},

@@ -205,11 +205,17 @@ PostgreSQL home page: <https://www.postgresql.org/>`),
 // command into different sections.
 func Example_sections() {
 	args := struct {
-		Config string `ox:"config file,spec:FILE"`
+		Config string           `ox:"config file,spec:FILE,section:1"`
+		MyInts []int            `ox:"a integer slice,short:i"`
+		URLMap map[int]*url.URL `ox:"urls,short:U"`
 	}{}
 	ox.Run(
 		ox.Usage("tree", "a command tree"),
-		ox.Defaults(),
+		ox.Defaults(ox.Sections(
+			"Normal flags",
+			"More flags",
+			"Other flags",
+		)),
 		ox.Sub(
 			ox.Usage("sub1", "the sub1 command"),
 			ox.Section(0),
@@ -226,8 +232,10 @@ func Example_sections() {
 			"Secondary commands",
 		),
 		ox.SectionMap{
-			"help":   0,
-			"sub2.b": 1,
+			"help":         0,
+			"sub2.b":       1,
+			"flag:help":    0,
+			"flag:my-ints": 2,
 		},
 		ox.From(&args),
 	)
@@ -245,9 +253,15 @@ func Example_sections() {
 	//   sub2.a  the sub2.a command
 	//   sub2.b  the sub2.b command
 	//
-	// Flags:
-	//       --config FILE  config file
-	//   -h, --help         show help, then exit
+	// Normal flags:
+	//   -U, --url-map int=url  urls
+	//   -h, --help             show help, then exit
+	//
+	// More flags:
+	//       --config FILE      config file
+	//
+	// Other flags:
+	//   -i, --my-ints int      a integer slice
 	//
 	// Use "tree [command] --help" for more information about a command.
 }
