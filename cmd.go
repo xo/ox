@@ -132,6 +132,16 @@ func (cmd *Command) Command(name string) *Command {
 	return nil
 }
 
+// CommandSpecial returns the sub command with the special value.
+func (cmd *Command) CommandSpecial(special string) *Command {
+	for _, c := range cmd.Commands {
+		if c.Special == special {
+			return c
+		}
+	}
+	return nil
+}
+
 // Flag finds a flag from the command or the command's parents.
 func (cmd *Command) Flag(name string, short bool) *Flag {
 	if cmd.Flags != nil {
@@ -147,6 +157,18 @@ func (cmd *Command) Flag(name string, short bool) *Flag {
 	}
 	if cmd.Parent != nil {
 		return cmd.Parent.Flag(name, short)
+	}
+	return nil
+}
+
+// FlagSpecial returns the flag with a special value.
+func (cmd *Command) FlagSpecial(special string) *Flag {
+	if cmd.Flags != nil && len(cmd.Flags.Flags) != 0 {
+		for _, g := range cmd.Flags.Flags {
+			if g.Special == special {
+				return g
+			}
+		}
 	}
 	return nil
 }

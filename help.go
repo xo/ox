@@ -13,15 +13,7 @@ import (
 // NewVersionFor adds a `--version` flag to a command, or hooks the command's
 // flag with `Special == "hook:version"`.
 func NewVersionFor(cmd *Command) error {
-	var flag *Flag
-	if cmd.Flags != nil && len(cmd.Flags.Flags) != 0 {
-		for _, g := range cmd.Flags.Flags {
-			if g.Special == "hook:version" {
-				flag = g
-				break
-			}
-		}
-	}
+	flag := cmd.FlagSpecial("hook:version")
 	if flag != nil {
 		flag.Type, flag.Def, flag.NoArg, flag.NoArgDef = HookT, DefaultVersion, true, ""
 	} else {
@@ -41,15 +33,7 @@ func NewHelpFor(cmd *Command, opts ...Option) error {
 		_, _ = cmd.HelpContext(ctx).WriteTo(ctx.Stdout)
 		return ErrExit
 	}
-	var flag *Flag
-	if cmd.Flags != nil && len(cmd.Flags.Flags) != 0 {
-		for _, g := range cmd.Flags.Flags {
-			if g.Special == "hook:help" {
-				flag = g
-				break
-			}
-		}
-	}
+	flag := cmd.FlagSpecial("hook:help")
 	if flag != nil {
 		flag.Type, flag.Def, flag.NoArg, flag.NoArgDef = HookT, f, true, ""
 	} else {
