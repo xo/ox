@@ -8,6 +8,7 @@ import (
 	"github.com/xo/ox"
 )
 
+// Example is a quick example demonstrating the xo/ox package.
 func Example() {
 	type Verbosity int
 	args := struct {
@@ -38,13 +39,15 @@ func Example() {
 	//   -i, --ints int          a slice of ints
 	//   -d, --date date         formatted date
 	//   -v, --verbose           enable verbose
-	//   -v, --version           show version, then exit
+	//       --version           show version, then exit
 	//   -h, --help              show help, then exit
 	//
 	// See: https://github.com/xo/ox for more information.
 }
 
-func Example_test() {
+// Example_argsTest provides an example for testing arbitrary command-line
+// invocations by setting the arguments to [Parse] with [ox.Args].
+func Example_argsTest() {
 	args := struct {
 		Number float64 `ox:"a number"`
 	}{}
@@ -53,10 +56,12 @@ func Example_test() {
 	}{}
 	ox.RunContext(
 		context.Background(),
+		// ox.Exec(myFunc),
 		ox.Usage("extest", "test example"),
 		ox.Defaults(),
 		ox.From(&args),
 		ox.Sub(
+			// ox.Exec(mySubFunc),
 			ox.Usage("sub", "a sub command to test"),
 			ox.From(&subArgs),
 		),
@@ -121,7 +126,8 @@ func Example_psql() {
 		Password   bool   `ox:"force password prompt (should happen automatically),short:W,section:3"`
 	}{}
 	ox.Run(
-		ox.Usage("psql", ""),
+		// ox.Exec(myFunc),
+		ox.Usage("psql", "the PostgreSQL interactive terminal"),
 		ox.Help(
 			ox.Banner("psql is the PostgreSQL interactive terminal."),
 			ox.Spec("[OPTION]... [DBNAME [USERNAME]]"),

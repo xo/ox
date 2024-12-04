@@ -61,7 +61,7 @@ func parse(ctx *Context, cmd *Command, args []string, vars Vars) (*Command, []st
 // parseLong parses a long flag ('--arg' '--arg v' '--arg k=v' '--arg=' '--arg=v').
 func parseLong(ctx *Context, cmd *Command, s string, args []string, vars Vars) ([]string, error) {
 	arg, value, ok := strings.Cut(strings.TrimPrefix(s, "--"), "=")
-	g := cmd.Flag(arg, false)
+	g := cmd.Flag(arg, true, false)
 	switch {
 	case g == nil:
 		return nil, newFlagError(arg, ErrUnknownFlag)
@@ -86,7 +86,7 @@ func parseLong(ctx *Context, cmd *Command, s string, args []string, vars Vars) (
 func parseShort(ctx *Context, cmd *Command, s string, args []string, vars Vars) ([]string, error) {
 	for v := []rune(s[1:]); len(v) != 0; v = v[1:] {
 		arg := string(v[0])
-		switch g, n := cmd.Flag(arg, true), len(v[1:]); {
+		switch g, n := cmd.Flag(arg, true, true), len(v[1:]); {
 		case g == nil:
 			return nil, newFlagError(arg, ErrUnknownFlag)
 		case g.NoArg: // -a

@@ -16,7 +16,11 @@ func NewVersionFor(cmd *Command) error {
 	if g := cmd.FlagSpecial("hook:version"); g != nil {
 		g.Type, g.Def, g.NoArg, g.NoArgDef = HookT, DefaultVersion, true, ""
 	} else {
-		cmd.Flags = cmd.Flags.Hook(text.VersionFlagName, text.VersionFlagDesc, DefaultVersion, Short(text.VersionFlagShort))
+		var opts []Option
+		if cmd.Flag(text.VersionFlagShort, false, true) == nil {
+			opts = append(opts, Short(text.VersionFlagShort))
+		}
+		cmd.Flags = cmd.Flags.Hook(text.VersionFlagName, text.VersionFlagDesc, DefaultVersion, opts...)
 	}
 	return nil
 }
@@ -35,7 +39,11 @@ func NewHelpFor(cmd *Command, opts ...Option) error {
 	if g := cmd.FlagSpecial("hook:help"); g != nil {
 		g.Type, g.Def, g.NoArg, g.NoArgDef = HookT, f, true, ""
 	} else {
-		cmd.Flags = cmd.Flags.Hook(text.HelpFlagName, text.HelpFlagDesc, f, Short(text.HelpFlagShort))
+		var opts []Option
+		if cmd.Flag(text.HelpFlagShort, false, true) == nil {
+			opts = append(opts, Short(text.HelpFlagShort))
+		}
+		cmd.Flags = cmd.Flags.Hook(text.HelpFlagName, text.HelpFlagDesc, f, opts...)
 	}
 	return nil
 }

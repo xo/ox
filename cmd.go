@@ -143,7 +143,7 @@ func (cmd *Command) CommandSpecial(special string) *Command {
 }
 
 // Flag finds a flag from the command or the command's parents.
-func (cmd *Command) Flag(name string, short bool) *Flag {
+func (cmd *Command) Flag(name string, parents, short bool) *Flag {
 	if cmd.Flags != nil {
 		if i := slices.IndexFunc(cmd.Flags.Flags, func(g *Flag) bool {
 			return g.Name == name && !short ||
@@ -155,8 +155,8 @@ func (cmd *Command) Flag(name string, short bool) *Flag {
 			return cmd.Flags.Flags[i]
 		}
 	}
-	if cmd.Parent != nil {
-		return cmd.Parent.Flag(name, short)
+	if parents && cmd.Parent != nil {
+		return cmd.Parent.Flag(name, parents, short)
 	}
 	return nil
 }
