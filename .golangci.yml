@@ -3,6 +3,8 @@ linters:
   disable:
     - cyclop
     - depguard
+    - dupl
+    - err113
     - exhaustive
     - exhaustruct
     - exportloopref
@@ -10,18 +12,23 @@ linters:
     - gci
     - gochecknoglobals
     - gochecknoinits
+    - gocognit
+    - gocyclo
     - gosec
     - inamedparam
     - ireturn
     - lll
     - maintidx
+    - makezero
     - mnd
     - nakedret
+    - nestif
     - nlreturn
     - nonamedreturns
     - paralleltest
     - prealloc
     - recvcheck
+    - revive
     - testableexamples
     - testpackage
     - varnamelen
