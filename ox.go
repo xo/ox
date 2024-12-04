@@ -56,16 +56,6 @@ var (
 	// DefaultVersionTrimPrefix is used by [DefaultVersionMapper] to trim the
 	// `v` prefix on build version.
 	DefaultVersionTrimPrefix = true
-	// DefaultVersionMapper maps the passed name, version.
-	DefaultVersionMapper = func(name, ver string) (string, string) {
-		if name == "" {
-			name = filepath.Base(os.Args[0])
-		}
-		if DefaultVersionTrimPrefix && regexp.MustCompile(`^v[0-9]+\.`).MatchString(ver) {
-			ver = strings.TrimPrefix(ver, "v")
-		}
-		return name, ver
-	}
 	// DefaultVersion is the default version func.
 	DefaultVersion = func(ctx *Context) error {
 		ver := DefaultVersionString
@@ -93,6 +83,16 @@ var (
 		fmt.Fprintln(w, name, ver)
 		return ErrExit
 	}
+	// DefaultVersionMapper maps the passed name, version.
+	DefaultVersionMapper = func(name, ver string) (string, string) {
+		if name == "" {
+			name = filepath.Base(os.Args[0])
+		}
+		if DefaultVersionTrimPrefix && regexp.MustCompile(`^v[0-9]+\.`).MatchString(ver) {
+			ver = strings.TrimPrefix(ver, "v")
+		}
+		return name, ver
+	}
 )
 
 // Run creates a [Context] and builds a [Command] and its [FlagSet] based on
@@ -105,15 +105,16 @@ func Run(opts ...Option) {
 // RunContext creates a [Command] for f using [os.Args] by default, unless
 // arguments were specified using a [ContextOption].
 func RunContext(ctx context.Context, opts ...Option) {
+	// build context
 	c, err := NewContext(opts...)
 	if err != nil && c.Handle(err) {
 		return
 	}
-	// parse flags into context
+	// parse
 	if err = c.Parse(); err != nil && c.Handle(err) {
 		return
 	}
-	// validate args
+	// validate
 	if err = c.Validate(); err != nil && c.Handle(err) {
 		return
 	}
@@ -213,11 +214,13 @@ func (ctx *Context) Run(parent context.Context) error {
 //
 //	$HOME - the current user's home directory
 //	$USER - the current user's user name
+//	$CONFIG - the current user's config directory
+//	$APPCONFIG - the current user's config directory, with the root command's name added as a subdir
 //	$CACHE - the current user's cache directory
 //	$APPCACHE - the current user's cache directory, with the root command's name added as a subdir
 //	$NUMCPU - the value of [runtime.NumCPU]
 //	$ARCH - the value of [runtime.GOARCH]
-//	$OS - $ the value of [runtime.GOOS]
+//	$OS - the value of [runtime.GOOS]
 //	$ENV{KEY} - the environment value for $KEY
 //	$CFG{[TYPE::]KEY} - the registered config file loader type and key value
 //
@@ -246,6 +249,14 @@ func (ctx *Context) Expand(v any) (string, error) {
 		}
 	case "$CONFIG":
 		f = userConfigDir
+	case "$APPCONFIG":
+		f = func() (string, error) {
+			dir, err := userConfigDir()
+			if err != nil {
+				return "", err
+			}
+			return filepath.Join(dir, ctx.Root.Name), nil
+		}
 	case "$CACHE":
 		f = userCacheDir
 	case "$APPCACHE":
