@@ -76,11 +76,18 @@ var (
 			}
 		}
 		var name string
-		if ctx.Root != nil {
+		if ctx != nil && ctx.Root != nil {
 			name = ctx.Root.Name
 		}
 		name, ver = DefaultVersionMapper(name, ver)
-		fmt.Fprintln(ctx.Stdout, name, ver)
+		var w io.Writer
+		if ctx != nil {
+			w = ctx.Stdout
+		}
+		if w == nil {
+			w = os.Stdout
+		}
+		fmt.Fprintln(w, name, ver)
 		return ErrExit
 	}
 )
