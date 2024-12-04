@@ -38,8 +38,8 @@ func Example() {
 	//   -i, --ints int          a slice of ints
 	//   -d, --date date         formatted date
 	//   -v, --verbose           enable verbose
-	//   -h, --help              show help, then exit
 	//   -v, --version           show version, then exit
+	//   -h, --help              show help, then exit
 	//
 	// See: https://github.com/xo/ox for more information.
 }

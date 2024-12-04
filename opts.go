@@ -108,10 +108,10 @@ func Exec[F ExecType](f F) CommandOption {
 	}
 }
 
-// Defaults is a [Command] option to add [Help], [Comp], and [Version] to the
-// command.
+// Defaults is a [Command] option to add [Version], [Help], and [Comp] options
+// to the command.
 func Defaults(opts ...Option) CommandOption {
-	options := []Option{Help(opts...), Comp(), Version()}
+	options := []Option{Version(), Help(opts...), Comp()}
 	return option{
 		name: "Defaults",
 		cmd: func(cmd *Command) error {
