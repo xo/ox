@@ -10,8 +10,32 @@ import (
 	"github.com/xo/ox/text"
 )
 
+// NewVersionFor adds a `--version` flag to a command, or hooks the command's
+// flag with `Special == "hook:version"`.
+func NewVersionFor(cmd *Command, opts ...Option) error {
+	f := func(ctx *Context) error {
+		_, _ = ctx.Stdout.Write([]byte("version"))
+		return ErrExit
+	}
+	var flag *Flag
+	if cmd.Flags != nil && len(cmd.Flags.Flags) != 0 {
+		for _, g := range cmd.Flags.Flags {
+			if g.Special == "hook:version" {
+				flag = g
+				break
+			}
+		}
+	}
+	if flag != nil {
+		flag.Type, flag.Def, flag.NoArg, flag.NoArgDef = HookT, f, true, ""
+	} else {
+		cmd.Flags = cmd.Flags.Hook(text.VersionFlagName, text.VersionFlagDesc, f, Short(text.VersionFlagShort))
+	}
+	return nil
+}
+
 // NewHelpFor adds a `--help` flag to a command, or hooks the command's flag
-// with `Special == "help"`.
+// with `Special == "hook:help"`.
 func NewHelpFor(cmd *Command, opts ...Option) error {
 	var err error
 	if cmd.Help, err = NewCommandHelp(cmd, opts...); err != nil {
@@ -212,10 +236,6 @@ func (help *CommandHelp) WriteTo(w io.Writer) (int64, error) {
 		}
 	}
 	return n, err
-}
-
-func NewVersionFor(cmd *Command, opts ...Option) error {
-	return nil
 }
 
 // writeStrings writes the strings to w.

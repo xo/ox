@@ -39,6 +39,7 @@ func Example() {
 	//   -d, --date date         formatted date
 	//   -v, --verbose           enable verbose
 	//   -h, --help              show help, then exit
+	//   -v, --version           show version, then exit
 	//
 	// See: https://github.com/xo/ox for more information.
 }
@@ -85,7 +86,7 @@ func Example_psql() {
 		File              string            `ox:"execute commands from file\\, then exit,short:f,spec:FILENAME,section:0"`
 		List              bool              `ox:"list databases\\, then exit,short:l,section:0"`
 		Variable          map[string]string `ox:"set psql variable NAME to VALUE,short:v,alias:set,spec:NAME=VALUE,section:0"`
-		Version           bool              `ox:"output version information\\, then exit,hook:version,section:0"`
+		Version           bool              `ox:"output version information\\, then exit,hook:version,short:V,section:0"`
 		NoPsqlrc          bool              `ox:"do not read startup file (~/.psqlrc),short:X,section:0"`
 		SingleTransaction bool              `ox:"execute as a single transaction (if non-interactive),short:1,section:0"`
 		Help              bool              `ox:"show this help\\, then exit,short:?,hook:help,section:0"`
@@ -155,7 +156,7 @@ PostgreSQL home page: <https://www.postgresql.org/>`),
 	//   -f, --file FILENAME                 execute commands from file, then exit
 	//   -l, --list                          list databases, then exit
 	//   -v, --variable NAME=VALUE           set psql variable NAME to VALUE
-	//       --version                       output version information, then exit
+	//   -V, --version                       output version information, then exit
 	//   -X, --no-psqlrc                     do not read startup file (~/.psqlrc)
 	//   -1, --single-transaction            execute as a single transaction (if non-interactive)
 	//   -?, --help                          show this help, then exit
@@ -201,8 +202,8 @@ PostgreSQL home page: <https://www.postgresql.org/>`),
 	// PostgreSQL home page: <https://www.postgresql.org/>
 }
 
-// Example_sections demonstrates putting commands, including the default `help`
-// command into different sections.
+// Example_sections demonstrates setting the help section for commands and
+// flags, including default `--help` flag and `help` command.
 func Example_sections() {
 	args := struct {
 		Config string           `ox:"config file,spec:FILE,section:1"`
@@ -253,8 +254,11 @@ func Example_sections() {
 	//   sub2.a  the sub2.a command
 	//   sub2.b  the sub2.b command
 	//
-	// Normal flags:
+	// Flags:
 	//   -U, --url-map int=url  urls
+	//   -v, --version          show version, then exit
+	//
+	// Normal flags:
 	//   -h, --help             show help, then exit
 	//
 	// More flags:

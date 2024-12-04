@@ -460,11 +460,12 @@ type Flag struct {
 // NewFlag creates a new command-line flag.
 func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 	g := &Flag{
-		Type:   StringT,
-		MapKey: StringT,
-		Elem:   StringT,
-		Name:   name,
-		Usage:  usage,
+		Type:    StringT,
+		MapKey:  StringT,
+		Elem:    StringT,
+		Name:    name,
+		Usage:   usage,
+		Section: -1,
 	}
 	if err := applyOpts(g, opts...); err != nil {
 		return nil, err
