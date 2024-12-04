@@ -16,10 +16,10 @@ var (
 	GlobalFlags = `Global Flags`
 	// VersionFlagName is the version flag name.
 	VersionFlagName = `version`
-	// VersionFlagShort is the version short flag name.
-	VersionFlagShort = `v`
 	// VersionFlagDesc is the version flag description.
 	VersionFlagDesc = `show version, then exit`
+	// VersionFlagShort is the version short flag name.
+	VersionFlagShort = `v`
 	// HelpFlagName is the help command/flag name.
 	HelpFlagName = `help`
 	// HelpFlagDesc is the help flag description.

@@ -159,7 +159,7 @@ func Sub(opts ...Option) CommandOption {
 }
 
 // Version is a [Command] option to hook --version with version output.
-func Version(opts ...Option) CommandOption {
+func Version() CommandOption {
 	return option{
 		name: "Version",
 		cmd: func(cmd *Command) error {
@@ -172,7 +172,7 @@ func Version(opts ...Option) CommandOption {
 			if cmd.Parent != nil {
 				return ErrCanOnlyBeUsedWithRootCommand
 			}
-			return NewVersionFor(cmd, opts...)
+			return NewVersionFor(cmd)
 		},
 	}
 }
@@ -267,7 +267,7 @@ func ArgsFunc(funcs ...func([]string) error) CommandOption {
 // allowed argument values. A minimum/maximum < 0 means no minimum/maximum.
 func ValidArgs(minimum, maximum int, values ...string) CommandOption {
 	return option{
-		name: "Args",
+		name: "ValidArgs",
 		cmd: func(cmd *Command) error {
 			for i, s := range values {
 				if s == "" {
@@ -431,7 +431,7 @@ func Bind[T *E, E any](v T) FlagOption {
 // BindRef is a [Flag] option to add a reflected value to a flag.
 func BindRef(value reflect.Value, b *bool) FlagOption {
 	return option{
-		name: "RefValue",
+		name: "BindRef",
 		flag: func(g *Flag) error {
 			val, err := NewRef(value, b)
 			if err != nil {

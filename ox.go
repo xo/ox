@@ -14,6 +14,7 @@ import (
 	"os/user"
 	"path/filepath"
 	"runtime"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"time"
@@ -31,6 +32,9 @@ var (
 	// DefaultLayout is the default timestamp layout used for formatting and
 	// parsing [Time] values.
 	DefaultLayout = time.RFC3339
+	// DefaultStripGoTestFlags when enabled strips Go's `-test.` prefix'd
+	// flags.
+	DefaultStripGoTestFlags = true
 	// DefaultWrapWidth is the default wrap width.
 	DefaultWrapWidth = 95
 	// DefaultWrap wraps a line of text with [Wrap] using [DefaultWrapWidth]
@@ -46,9 +50,23 @@ var (
 	DefaultFlagNameMapper = func(s string) string {
 		return strings.ReplaceAll(strcase.CamelToSnake(s), "_", "-")
 	}
-	// DefaultStripGoTestFlags when enabled strips Go's `-test.` prefix'd
-	// flags.
-	DefaultStripGoTestFlags = true
+	// DefaultVersionString is the default version string.
+	DefaultVersionString = "0.0.0-dev"
+	// DefaultVersion is the default version func.
+	DefaultVersion = func(ctx *Context) error {
+		version := DefaultVersionString
+		if info, ok := debug.ReadBuildInfo(); ok && version == "0.0.0-dev" {
+			mod := &info.Main
+			if mod.Replace != nil {
+				mod = mod.Replace
+			}
+			if mod.Version != "" {
+				version = mod.Version
+			}
+		}
+		fmt.Fprintln(ctx.Stdout, ctx.Root.Name, version)
+		return ErrExit
+	}
 )
 
 // Run creates a [Context] and builds a [Command] and its [FlagSet] based on
