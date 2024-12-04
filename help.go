@@ -131,27 +131,38 @@ func (help *CommandHelp) WriteTo(w io.Writer) (int64, error) {
 	}
 	// sub commands
 	if !help.NoCommands && len(help.Command.Commands) != 0 {
-		n, err = writeBreak(w, n, err)
-		n, err = writeStrings(w, n, err, text.Commands, ":")
-		width := 0
-		for _, c := range help.Command.Commands {
+		sections := make(map[int]string, len(help.CommandSections))
+		for i, section := range help.CommandSections {
+			sections[i] = section
+		}
+		// split between sections
+		width, indexes := 0, make(map[int][]int)
+		for i, c := range help.Command.Commands {
+			indexes[c.Section] = append(indexes[c.Section], i)
 			width = max(width, DefaultWidth(c.Name))
+			if _, ok := sections[c.Section]; !ok {
+				sections[c.Section] = text.Commands
+			}
 		}
-		// TODO: organize commands in sections
-		for _, c := range help.Command.Commands {
-			n, err = writeStrings(w, n, err, "\n  ", c.Name, "  ", DefaultWrap(c.Usage, width+4))
+		// write commands
+		for _, section := range slices.Sorted(maps.Keys(indexes)) {
+			n, err = writeBreak(w, n, err)
+			n, err = writeStrings(w, n, err, sections[section], ":")
+			for _, i := range indexes[section] {
+				c := help.Command.Commands[i]
+				n, err = writeStrings(w, n, err, "\n  ", c.Name, strings.Repeat(" ", width-len(c.Name)+2), DefaultWrap(c.Usage, width+4))
+			}
+			n, err = writeStrings(w, n, err, "\n")
 		}
-		n, err = writeStrings(w, n, err, "\n")
 	}
 	// flags
 	if !help.NoFlags && help.Command.Flags != nil && len(help.Command.Flags.Flags) != 0 {
-		indexes, specs := make(map[int][]int), make([]string, len(help.Command.Flags.Flags))
 		sections := make(map[int]string, len(help.Sections))
 		for i, section := range help.Sections {
 			sections[i] = section
 		}
-		width := 0
-		// split between sections, if defined
+		// split between sections
+		width, indexes, specs := 0, make(map[int][]int), make([]string, len(help.Command.Flags.Flags))
 		for i, g := range help.Command.Flags.Flags {
 			indexes[g.Section] = append(indexes[g.Section], i)
 			specs[i] = spec(g)
