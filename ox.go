@@ -11,6 +11,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/user"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -34,6 +36,10 @@ var (
 	DefaultWrap = func(s string, prefixWidth int) string {
 		return Wrap(s, DefaultWrapWidth, prefixWidth)
 	}
+	// DefaultWidth returns the width of a string used by [Wrap].
+	DefaultWidth = func(s string) int {
+		return len(s)
+	}
 	// DefaultFlagNameMaper is the default flag name mapper.
 	DefaultFlagNameMapper = func(s string) string {
 		return strings.ReplaceAll(strcase.CamelToSnake(s), "_", "-")
@@ -54,30 +60,20 @@ func Run(opts ...Option) {
 // arguments were specified using a [ContextOption].
 func RunContext(ctx context.Context, opts ...Option) {
 	c, err := NewContext(opts...)
-	if err != nil {
-		if c.Handle(err) {
-			return
-		}
+	if err != nil && c.Handle(err) {
+		return
 	}
-	if c.Root, err = NewCommand(opts...); err != nil {
-		if c.Handle(err) {
-			return
-		}
+	// parse flags into context
+	if err = c.Parse(); err != nil && c.Handle(err) {
+		return
 	}
-	if c.Exec, c.Args, err = Parse(c.Root, c.Args, c.Vars); err != nil {
-		if c.Handle(err) {
-			return
-		}
+	// validate args
+	if err = c.Validate(); err != nil && c.Handle(err) {
+		return
 	}
-	if err = c.Exec.Validate(c.Args); err != nil {
-		if c.Handle(err) {
-			return
-		}
-	}
-	if err = c.Exec.Exec(WithContext(ctx, c), c.Args); err != nil {
-		if c.Handle(err) {
-			return
-		}
+	// execute
+	if err = c.Run(ctx); err != nil && c.Handle(err) {
+		return
 	}
 }
 
@@ -112,32 +108,104 @@ func NewContext(opts ...Option) (*Context, error) {
 		Stderr: os.Stderr,
 		Args:   stripTestFlags(os.Args[1:]),
 	}
+	ctx.Handle = func(err error) bool {
+		var w io.Writer = os.Stderr
+		if ctx.Stderr != nil {
+			w = ctx.Stderr
+		}
+		switch {
+		case errors.Is(err, ErrExit):
+		case ctx.OnErr == OnErrContinue:
+			return false
+		case ctx.OnErr == OnErrExit:
+			fmt.Fprintf(w, "%s%v\n", text.ErrorMessagePrefix, err)
+			os.Exit(1)
+		case ctx.OnErr == OnErrPanic:
+			panic(err)
+		}
+		return true
+	}
 	if err := applyOpts(ctx, opts...); err != nil {
 		return ctx, err
 	}
 	if ctx.Vars == nil {
 		ctx.Vars = make(Vars)
 	}
-	if ctx.Handle == nil {
-		ctx.Handle = func(err error) bool {
-			var w io.Writer = os.Stderr
-			if ctx.Stderr != nil {
-				w = ctx.Stderr
-			}
-			switch {
-			case errors.Is(err, ErrExit):
-			case ctx.OnErr == OnErrContinue:
-				return false
-			case ctx.OnErr == OnErrExit:
-				fmt.Fprintf(w, "%s%v\n", text.ErrorMessagePrefix, err)
-				os.Exit(1)
-			case ctx.OnErr == OnErrPanic:
-				panic(err)
-			}
-			return true
+	if ctx.Root == nil {
+		var err error
+		if ctx.Root, err = NewCommand(opts...); err != nil {
+			return ctx, err
 		}
 	}
 	return ctx, nil
+}
+
+// Parse parses the context args.
+func (ctx *Context) Parse() error {
+	var err error
+	ctx.Exec, ctx.Args, err = Parse(ctx, ctx.Root, ctx.Args, ctx.Vars)
+	return err
+}
+
+// Validate validates the args.
+func (ctx *Context) Validate() error {
+	return ctx.Exec.Validate(ctx.Args)
+}
+
+// Run runs the command.
+func (ctx *Context) Run(parent context.Context) error {
+	if ctx.Exec.Exec != nil {
+		return ctx.Exec.Exec(WithContext(parent, ctx), ctx.Args)
+	}
+	_, _ = ctx.Exec.HelpContext(ctx).WriteTo(ctx.Stdout)
+	return nil
+}
+
+// Expand expands s.
+//
+//	$HOME - the current user's home directory
+//	$USER - the current user's user name
+//	$CACHE - the current user's cache directory
+//	$APPCACHE - the current user's cache directory, with the root command's name added as a subdir
+//	$ENV{KEY} - the environment value for $KEY
+//	$CFG{[TYPE::]KEY} - the registered config file loader type and key value
+func (ctx *Context) Expand(v any) (string, error) {
+	s, ok := v.(string)
+	if !ok {
+		return asString[string](v)
+	}
+	var f func() (string, error)
+	switch s {
+	case "$HOME":
+		f = userHomeDir
+	case "$USER":
+		f = func() (string, error) {
+			u, err := user.Current()
+			if err != nil {
+				return "", err
+			}
+			return u.Username, nil
+		}
+	case "$CONFIG":
+		f = userConfigDir
+	case "$CACHE":
+		f = userCacheDir
+	case "$APPCACHE":
+		f = func() (string, error) {
+			dir, err := userCacheDir()
+			if err != nil {
+				return "", err
+			}
+			return filepath.Join(dir, ctx.Root.Name), nil
+		}
+	default:
+		return s, nil
+	}
+	s, err := f()
+	if err != nil {
+		return "", fmt.Errorf("unable to expand %q: %w", s, err)
+	}
+	return s, nil
 }
 
 // contextKey is the context key type.
@@ -220,8 +288,6 @@ const (
 	ErrInvalidConversion Error = "invalid conversion"
 	// ErrTypeMismatch is the type mismatch error.
 	ErrTypeMismatch Error = "type mismatch"
-	// ErrHelp is the help error.
-	ErrHelp Error = "help"
 	// ErrExit is the exit error.
 	ErrExit Error = "exit"
 )
@@ -236,12 +302,12 @@ func Wrap(s string, width, prefixWidth int) string {
 	prefix, wrapped := strings.Repeat(" ", prefixWidth), words[0]
 	left := width - prefixWidth - len(wrapped)
 	for _, word := range words[1:] {
-		if left < len(word)+1 {
+		if left < DefaultWidth(word)+1 {
 			wrapped += "\n" + prefix + word
-			left = width - len(word)
+			left = width - DefaultWidth(word)
 		} else {
 			wrapped += " " + word
-			left -= 1 + len(word)
+			left -= 1 + DefaultWidth(word)
 		}
 	}
 	return wrapped
@@ -273,7 +339,7 @@ func stripTestFlags(args []string) []string {
 		return args
 	}
 	var v []string
-	for i := 0; i < len(v); i++ {
+	for i := 0; i < len(args); i++ {
 		switch hasPrefix := strings.HasPrefix(args[i], "-test."); {
 		case hasPrefix && !strings.Contains(args[i], "="):
 			i++

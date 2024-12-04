@@ -31,6 +31,7 @@ func main() {
 	ox.Run(
 		ox.Exec(run),
 		ox.Usage("bind", "demonstrates using ox's binds"),
+		ox.Defaults(),
 		ox.Flags().
 			String("arg", "an arg", ox.Bind(&arg)).
 			URL("url", "a url", ox.Short("u"), ox.BindSet(&u, &urlSet)).

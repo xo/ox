@@ -39,13 +39,17 @@ type Command struct {
 	Hidden bool
 	// Deprecated indicates the command is deprecated.
 	Deprecated bool
+	// Section is the help section.
+	Section int
 	// Help is the help emitter.
 	Help io.WriterTo
 }
 
 // NewCommand creates a new command.
 func NewCommand(opts ...Option) (*Command, error) {
-	cmd := new(Command)
+	cmd := &Command{
+		Section: -1,
+	}
 	if err := applyOpts(cmd, opts...); err != nil {
 		return nil, err
 	}
@@ -91,7 +95,7 @@ func (cmd *Command) Path() []string {
 // populated, otherwise only flags with default values will be. When overwrite
 // is true, existing vars will be set to either to flag's empty or default
 // value.
-func (cmd *Command) Populate(all, overwrite bool, vars Vars) error {
+func (cmd *Command) Populate(ctx *Context, all, overwrite bool, vars Vars) error {
 	if cmd.Flags == nil {
 		return nil
 	}
@@ -105,11 +109,11 @@ func (cmd *Command) Populate(all, overwrite bool, vars Vars) error {
 			continue
 		case g.Def != nil:
 			var err error
-			if value, err = asString[string](g.Def); err != nil {
+			if value, err = ctx.Expand(g.Def); err != nil {
 				return err
 			}
 		}
-		if err := vars.Set(g, value, false); err != nil {
+		if err := vars.Set(ctx, g, value, false); err != nil {
 			return fmt.Errorf("cannot populate %s with %q: %w", g.Name, value, err)
 		}
 	}
@@ -156,6 +160,30 @@ func (cmd *Command) Validate(args []string) error {
 	return nil
 }
 
+// HelpContext adds the context to the command's help.
+func (cmd *Command) HelpContext(ctx *Context) io.WriterTo {
+	help := cmd.Help
+	if help == nil {
+		help, _ = NewCommandHelp(cmd)
+	}
+	if v, ok := help.(interface{ SetContext(*Context) }); ok {
+		v.SetContext(ctx)
+	}
+	return help
+}
+
+// WriteTo satisfies the [io.WriterTo] interface.
+func (cmd *Command) WriteTo(w io.Writer) (int64, error) {
+	help := cmd.Help
+	if help == nil {
+		var err error
+		if help, err = NewCommandHelp(cmd); err != nil {
+			return 0, err
+		}
+	}
+	return help.WriteTo(w)
+}
+
 // FlagSet is a set of command-line flag definitions.
 type FlagSet struct {
 	Flags []*Flag
@@ -170,9 +198,6 @@ func Flags() *FlagSet {
 func (fs *FlagSet) Option() option {
 	return option{
 		name: "FlagSet",
-		ctx: func(*Context) error {
-			return nil
-		},
 		cmd: func(cmd *Command) error {
 			cmd.Flags = fs
 			return nil
@@ -387,16 +412,16 @@ func (fs *FlagSet) Map(name, desc string, opts ...Option) *FlagSet {
 }
 
 // Hook adds a hook to the flag set.
-func (fs *FlagSet) Hook(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(HookT))...)
+func (fs *FlagSet) Hook(name, desc string, f any, opts ...Option) *FlagSet {
+	return fs.Var(name, desc, prepend(opts, Option(HookT), NoArg(true, ""), Default(f))...)
 }
 
 // Flag is a command-line flag variable definition.
 type Flag struct {
 	// Type is the flag [Type].
 	Type Type
-	// Key is the flag's key type when the flag is a [MapT].
-	Key Type
+	// MapKey is the flag's map key type when the flag is a [MapT].
+	MapKey Type
 	// Elem is the flag's element type when the flag is a [SliceT] or [MapT].
 	Elem Type
 	// Name is the flag's name.
@@ -411,7 +436,8 @@ type Flag struct {
 	Def any
 	// NoArg indicates that flag does takes an optional argument.
 	NoArg bool
-	// NoArgDef is the default value for the flag when no argument was passed for the flag.
+	// NoArgDef is the default value for the flag when no argument was passed
+	// for the flag.
 	NoArgDef any
 	// Binds are variables that will be set.
 	Binds []Binder
@@ -421,16 +447,22 @@ type Flag struct {
 	Deprecated bool
 	// Keys are config look up keys.
 	Keys map[string]string
+	// Spec is the help spec.
+	Spec string
+	// Section is the help section.
+	Section int
+	// Special is the special value.
+	Special string
 }
 
 // NewFlag creates a new command-line flag.
 func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 	g := &Flag{
-		Type:  StringT,
-		Key:   StringT,
-		Elem:  StringT,
-		Name:  name,
-		Usage: usage,
+		Type:   StringT,
+		MapKey: StringT,
+		Elem:   StringT,
+		Name:   name,
+		Usage:  usage,
 	}
 	if err := applyOpts(g, opts...); err != nil {
 		return nil, err
@@ -460,7 +492,7 @@ func FlagsFrom[T *E, E any](val T) ([]*Flag, error) {
 	typ := v.Type()
 	var flags []*Flag
 	for i := range typ.NumField() {
-		// make sure the field is exported
+		// check field is exported
 		f := typ.Field(i)
 		if r := []rune(f.Name); !unicode.IsUpper(r[0]) {
 			continue
@@ -483,20 +515,21 @@ func FlagsFrom[T *E, E any](val T) ([]*Flag, error) {
 		if err != nil {
 			return nil, fmt.Errorf("field %s: cannot create flag: %w", f.Name, err)
 		}
+		// fmt.Fprintf(os.Stderr, "FLAG TYPE: %s/%s/%s\n", g.Type, g.MapKey, g.Elem)
 		flags = append(flags, g)
 	}
 	return flags, nil
 }
 
 // New creates a new value for the flag's type.
-func (g *Flag) New() (Value, error) {
+func (g *Flag) New(ctx *Context) (Value, error) {
 	switch g.Type {
 	case SliceT:
 		return NewSlice(g.Elem), nil
 	case MapT:
-		return NewMap(g.Key, g.Elem)
+		return NewMap(g.MapKey, g.Elem)
 	case HookT:
-		return newHook(g.Def)
+		return newHook(ctx, g.Def)
 	}
 	return g.Type.New()
 }
@@ -560,9 +593,14 @@ func NewExec[T ExecType](f T) (ExecFunc, error) {
 }
 
 // buildFlagOpts builds flag options for v from the passed struct tag values.
-func buildFlagOpts(typ reflect.Type, value reflect.Value, name string, s []string) ([]Option, error) {
+func buildFlagOpts(refType reflect.Type, value reflect.Value, name string, s []string) ([]Option, error) {
 	var b *bool
-	var opts []Option
+	typ, mapKey, elem, err := defaultType(value.Elem().Type())
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", value.Type().String(), err)
+	}
+	// fmt.Fprintf(os.Stderr, "TYPE: %s/%s/%s\n", typ, mapKey, elem)
+	opts := []Option{typ, MapKey(mapKey), Elem(elem)}
 	for _, opt := range s {
 		key, val, _ := strings.Cut(opt, ":")
 		switch key {
@@ -570,14 +608,17 @@ func buildFlagOpts(typ reflect.Type, value reflect.Value, name string, s []strin
 			opts = append(opts, Name(val))
 		case "type":
 			opts = append(opts, Type(val))
+		case "elem":
+			opts = append(opts, Elem(Type(val)))
+		case "mapkey":
+			opts = append(opts, MapKey(Type(val)))
 		case "usage":
 			name, usage, _ := strings.Cut(val, "|")
 			opts = append(opts, Usage(name, usage))
 		case "short":
 			opts = append(opts, Short(val))
 		case "alias":
-			name, usage, _ := strings.Cut(val, "|")
-			opts = append(opts, Alias(name, usage))
+			opts = append(opts, Aliases(val))
 		case "default":
 			opts = append(opts, Default(val))
 		case "key":
@@ -591,9 +632,11 @@ func buildFlagOpts(typ reflect.Type, value reflect.Value, name string, s []strin
 			opts = append(opts, Section(section))
 		case "spec":
 			opts = append(opts, Spec(val))
+		case "hook":
+			opts = append(opts, Special("hook:"+val))
 		case "set":
-			for i := range typ.NumField() {
-				field := typ.Field(i)
+			for i := range refType.NumField() {
+				field := refType.Field(i)
 				if field.Name == name || field.Name != val {
 					continue
 				}
@@ -643,6 +686,7 @@ func split(str string, cut rune) []string {
 	return s
 }
 
+// peek peeks at the next rune in r.
 func peek(r []rune, i, n int) rune {
 	if i < n {
 		return r[i]

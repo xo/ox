@@ -98,6 +98,7 @@ func CommonInitialisms() []string {
 		"ASCII",
 		"CPU",
 		"CSS",
+		"CSV",
 		"DNS",
 		"EOF",
 		"GPU",
@@ -119,6 +120,7 @@ func CommonInitialisms() []string {
 		"SSH",
 		"TCP",
 		"TLS",
+		"TSV",
 		"TTL",
 		"UDP",
 		"UI",
@@ -143,10 +145,13 @@ func CommonPlurals() []string {
 		"ACL",
 		"API",
 		"CPU",
+		"CSV",
 		"GPU",
 		"GUID",
 		"ID",
 		"IP",
+		"TSV",
+		"UID",
 		"UID",
 		"URI",
 		"URL",
@@ -170,7 +175,7 @@ func toIdent(s string, c rune) string {
 	return s
 }
 
-// sub substitues underscrose in place of runes that are invalid for
+// sub substitutes underscrose in place of runes that are invalid for
 // Go identifiers.
 func sub(s string, c rune) string {
 	r := []rune(s)
@@ -184,7 +189,7 @@ func sub(s string, c rune) string {
 
 // isIdentifierChar determines if ch is a valid character for a Go identifier.
 //
-// See: go/src/go/scanner/scanner.go
+// See: go/src/go/scanner/scanner.go.
 func isIdentifierChar(ch rune) bool {
 	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_' || ch >= 0x80 && unicode.IsLetter(ch) ||
 		'0' <= ch && ch <= '9' || ch >= 0x80 && unicode.IsDigit(ch)

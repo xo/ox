@@ -45,9 +45,9 @@ const (
 	CountT      Type = "count"
 	PathT       Type = "path"
 
-	BigIntT   Type = "big int"
-	BigFloatT Type = "big float"
-	BigRatT   Type = "big rat"
+	BigIntT   Type = "bigint"
+	BigFloatT Type = "bigfloat"
+	BigRatT   Type = "bigrat"
 	URLT      Type = "url"
 	AddrT     Type = "addr"
 	AddrPortT Type = "addrport"
@@ -119,44 +119,42 @@ var typeTextNews map[Type]func() (any, error)
 var typeBinaryNews map[Type]func() (any, error)
 
 func init() {
-	typeNews = map[Type]func() (Value, error){
-		BytesT:      NewVal[[]byte](),
-		StringT:     NewVal[string](),
-		RunesT:      NewVal[[]rune](),
-		Base64T:     NewVal[[]byte](Base64T),
-		HexT:        NewVal[[]byte](HexT),
-		BoolT:       NewVal[bool](),
-		ByteT:       NewVal[string](ByteT),
-		RuneT:       NewVal[string](RuneT),
-		Int64T:      NewVal[int64](),
-		Int32T:      NewVal[int32](),
-		Int16T:      NewVal[int16](),
-		Int8T:       NewVal[int8](),
-		IntT:        NewVal[int](),
-		Uint64T:     NewVal[uint64](),
-		Uint32T:     NewVal[uint32](),
-		Uint16T:     NewVal[uint16](),
-		Uint8T:      NewVal[uint8](),
-		UintT:       NewVal[uint](),
-		Float64T:    NewVal[float64](),
-		Float32T:    NewVal[float32](),
-		Complex128T: NewVal[complex128](),
-		Complex64T:  NewVal[complex64](),
-		TimestampT:  NewTime(TimestampT, ""),
-		DateTimeT:   NewTime(DateTimeT, time.DateTime),
-		DateT:       NewTime(DateT, time.DateOnly),
-		TimeT:       NewTime(TimeT, time.TimeOnly),
-		DurationT:   NewVal[time.Duration](),
-		CountT:      NewVal[uint64](CountT),
-		PathT:       NewVal[string](PathT),
-	}
-	typeFlagOpts = map[Type][]Option{
-		BoolT:  {NoArg(true, true)},
-		CountT: {NoArg(true, "")},
-	}
+	typeNews = make(map[Type]func() (Value, error))
+	typeFlagOpts = make(map[Type][]Option)
 	reflectTypes = make(map[string]Type)
-	// text marshal types
 	typeTextNews = make(map[Type]func() (any, error))
+	typeBinaryNews = make(map[Type]func() (any, error))
+	// register basic types
+	RegisterType(BytesT, NewVal[[]byte]())
+	RegisterType(StringT, NewVal[string]())
+	RegisterType(RunesT, NewVal[[]rune]())
+	RegisterType(Base64T, NewVal[[]byte](Base64T))
+	RegisterType(HexT, NewVal[[]byte](HexT))
+	RegisterType(BoolT, NewVal[bool](), NoArg(true, true))
+	RegisterType(ByteT, NewVal[string](ByteT))
+	RegisterType(RuneT, NewVal[string](RuneT))
+	RegisterType(Int64T, NewVal[int64]())
+	RegisterType(Int32T, NewVal[int32]())
+	RegisterType(Int16T, NewVal[int16]())
+	RegisterType(Int8T, NewVal[int8]())
+	RegisterType(IntT, NewVal[int]())
+	RegisterType(Uint64T, NewVal[uint64]())
+	RegisterType(Uint32T, NewVal[uint32]())
+	RegisterType(Uint16T, NewVal[uint16]())
+	RegisterType(Uint8T, NewVal[uint8]())
+	RegisterType(UintT, NewVal[uint]())
+	RegisterType(Float64T, NewVal[float64]())
+	RegisterType(Float32T, NewVal[float32]())
+	RegisterType(Complex128T, NewVal[complex128]())
+	RegisterType(Complex64T, NewVal[complex64]())
+	RegisterType(TimestampT, NewTime(TimestampT, ""))
+	RegisterType(DateTimeT, NewTime(DateTimeT, time.DateTime))
+	RegisterType(DateT, NewTime(DateT, time.DateOnly))
+	RegisterType(TimeT, NewTime(TimeT, time.TimeOnly))
+	RegisterType(DurationT, NewVal[time.Duration]())
+	RegisterType(CountT, NewVal[uint64](CountT), NoArg(true, ""))
+	RegisterType(PathT, NewVal[string](PathT))
+	// register text marshal types
 	RegisterTextType(func() (*big.Int, error) {
 		return big.NewInt(0), nil
 	})
@@ -175,17 +173,15 @@ func init() {
 	RegisterTextType(func() (*netip.Prefix, error) {
 		return new(netip.Prefix), nil
 	})
-	// binary marshal types
-	typeBinaryNews = make(map[Type]func() (any, error))
+	// register binary marshal types
 	RegisterBinaryType(func() (*url.URL, error) {
 		return new(url.URL), nil
 	})
 }
 
-// RegisterTypeOptions registers [Flag] options used within [NewFlag], used for
-// setting default flag values.
-func RegisterTypeOptions(typ Type, opts ...Option) {
-	typeFlagOpts[typ] = opts
+// RegisterType registers a type.
+func RegisterType(typ Type, f func() (Value, error), opts ...Option) {
+	typeNews[typ], typeFlagOpts[typ] = f, opts
 }
 
 // RegisterTypeName registers a type name.
@@ -196,12 +192,12 @@ func RegisterTypeName(typ Type, names ...string) {
 }
 
 // RegisterTextType registers a new text type.
-func RegisterTextType[T TextMarshaler](f func() (T, error)) {
+func RegisterTextType[T TextMarshalUnmarshaler](f func() (T, error)) {
 	registerMarshaler[T](func() (any, error) { return f() }, typeTextNews)
 }
 
 // RegisterBinaryType registers a new binary type.
-func RegisterBinaryType[T BinaryMarshaler](f func() (T, error)) {
+func RegisterBinaryType[T BinaryMarshalUnmarshaler](f func() (T, error)) {
 	registerMarshaler[T](func() (any, error) { return f() }, typeBinaryNews)
 }
 
@@ -217,14 +213,14 @@ func registerMarshaler[T any](f func() (any, error), descs map[Type]func() (any,
 	typeNews[typ], descs[typ] = NewVal[T](typ), f
 }
 
-// TextMarshaler is the text marshal interface.
-type TextMarshaler interface {
+// TextMarshalUnmarshaler is the text marshal interface.
+type TextMarshalUnmarshaler interface {
 	encoding.TextMarshaler
 	encoding.TextUnmarshaler
 }
 
-// BinaryMarshaler is the binary marshal interface.
-type BinaryMarshaler interface {
+// BinaryMarshalUnmarshaler is the binary marshal interface.
+type BinaryMarshalUnmarshaler interface {
 	encoding.BinaryMarshaler
 	encoding.BinaryUnmarshaler
 }
@@ -300,6 +296,67 @@ func typeRef(val any) Type {
 	return Type(s)
 }
 
+// defaultType returns the type, map key type, and element type of v.
+func defaultType(refType reflect.Type) (Type, Type, Type, error) {
+	// fmt.Fprintf(os.Stderr, "DEFAULT TYPE: %s\n", refType.String())
+	switch refType.Kind() {
+	case reflect.String:
+		return StringT, StringT, StringT, nil
+	case reflect.Bool:
+		return BoolT, StringT, StringT, nil
+	case reflect.Int64:
+		return Int64T, StringT, StringT, nil
+	case reflect.Int32:
+		return Int32T, StringT, StringT, nil
+	case reflect.Int16:
+		return Int16T, StringT, StringT, nil
+	case reflect.Int8:
+		return Int8T, StringT, StringT, nil
+	case reflect.Int:
+		return IntT, StringT, StringT, nil
+	case reflect.Uint64:
+		return Uint64T, StringT, StringT, nil
+	case reflect.Uint32:
+		return Uint32T, StringT, StringT, nil
+	case reflect.Uint16:
+		return Uint16T, StringT, StringT, nil
+	case reflect.Uint8:
+		return Uint8T, StringT, StringT, nil
+	case reflect.Uint:
+		return UintT, StringT, StringT, nil
+	case reflect.Float64:
+		return Float64T, StringT, StringT, nil
+	case reflect.Float32:
+		return Float32T, StringT, StringT, nil
+	case reflect.Complex128:
+		return Complex128T, StringT, StringT, nil
+	case reflect.Complex64:
+		return Complex128T, StringT, StringT, nil
+	case reflect.Pointer:
+		if typ := reflectType(refType); typ != "" {
+			return typ, StringT, StringT, nil
+		}
+	case reflect.Slice:
+		elem := refType.Elem()
+		if elem.Kind() == reflect.Slice && elem.Elem().Kind() == reflect.Uint8 {
+			return SliceT, StringT, BytesT, nil
+		}
+		if typ, _, _, err := defaultType(elem); err == nil {
+			return SliceT, StringT, typ, nil
+		}
+	case reflect.Map:
+		if mapKey, _, _, err := defaultType(refType.Key()); err == nil {
+			if elem, _, _, err := defaultType(refType.Elem()); err == nil {
+				return MapT, mapKey, elem, nil
+			}
+		}
+	}
+	if refType == timeType {
+		return TimestampT, StringT, StringT, nil
+	}
+	return "", "", "", ErrInvalidType
+}
+
 // reflectType returns the [Type] for the reflect type.
 func reflectType(refType reflect.Type) Type {
 	s := refType.String()
@@ -324,3 +381,5 @@ func reflectType(refType reflect.Type) Type {
 	}
 	return ""
 }
+
+var timeType = reflect.TypeOf(time.Time{})

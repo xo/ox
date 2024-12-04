@@ -140,7 +140,7 @@ func (ini *Initialisms) ForceLowerCamelIdentifier(name string) string {
 		return ""
 	}
 	name = ini.CamelToSnake(name)
-	first := strings.SplitN(name, "_", -1)[0]
+	first := strings.Split(name, "_")[0]
 	name = ini.SnakeToCamelIdentifier(name)
 	return strings.ToLower(first) + name[len(first):]
 }

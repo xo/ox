@@ -7,63 +7,22 @@ import (
 	"strings"
 )
 
-// Vars is a map of argument variables.
-type Vars map[string]Value
-
-// String satisfies the [fmt.Stringer] interfaec.
-func (vars Vars) String() string {
-	var v []string
-	for _, k := range slices.Sorted(maps.Keys(vars)) {
-		if s, err := vars[k].Get(); err == nil {
-			v = append(v, k+":"+s)
-		}
-	}
-	return "[" + strings.Join(v, " ") + "]"
-}
-
-// Set sets a variable in the vars.
-func (vars Vars) Set(g *Flag, s string, set bool) error {
-	// fmt.Fprintf(os.Stdout, "SETTING: %q (%s/%s): %q\n", g.Name, g.Type, g.Sub, s)
-	name := g.Name
-	if name == "" {
-		return ErrInvalidFlagName
-	}
-	var err error
-	v, ok := vars[name]
-	if !ok {
-		if v, err = g.New(); err != nil {
-			return err
-		}
-	}
-	if err := v.Set(s); err != nil {
-		return err
-	}
-	v.SetSet(set)
-	for i, val := range g.Binds {
-		if err := val.Bind(s); err != nil {
-			return fmt.Errorf("bind %d (%s): cannot set %q: %w", i, val, s, err)
-		}
-	}
-	vars[name] = v
-	return nil
-}
-
 // Parse parses the command-line arguments into vars.
-func Parse(root *Command, args []string, vars Vars) (*Command, []string, error) {
+func Parse(ctx *Context, root *Command, args []string, vars Vars) (*Command, []string, error) {
 	if root.Parent != nil {
 		return nil, nil, fmt.Errorf("Parse: %w", ErrCanOnlyBeUsedWithRootCommand)
 	}
-	if err := root.Populate(false, false, vars); err != nil {
+	if err := root.Populate(ctx, false, false, vars); err != nil {
 		return nil, nil, newCommandError(root.Name, err)
 	}
 	if len(args) == 0 {
 		return root, nil, nil
 	}
-	return parse(root, args, vars)
+	return parse(ctx, root, args, vars)
 }
 
 // parse parses the args into m based on the flags on the command.
-func parse(cmd *Command, args []string, vars Vars) (*Command, []string, error) {
+func parse(ctx *Context, cmd *Command, args []string, vars Vars) (*Command, []string, error) {
 	var v []string
 	var s string
 	var n int
@@ -77,7 +36,7 @@ func parse(cmd *Command, args []string, vars Vars) (*Command, []string, error) {
 				c = cmd.Command(s)
 			}
 			if c != nil {
-				if err := c.Populate(false, false, vars); err != nil {
+				if err := c.Populate(ctx, false, false, vars); err != nil {
 					return nil, nil, newCommandError(c.Name, err)
 				}
 				cmd = c
@@ -87,11 +46,11 @@ func parse(cmd *Command, args []string, vars Vars) (*Command, []string, error) {
 		case s == "--":
 			return cmd, append(v, args...), nil
 		case s[1] == '-':
-			if args, err = parseLong(cmd, s, args, vars); err != nil {
+			if args, err = parseLong(ctx, cmd, s, args, vars); err != nil {
 				return nil, nil, err
 			}
 		default:
-			if args, err = parseShort(cmd, s, args, vars); err != nil {
+			if args, err = parseShort(ctx, cmd, s, args, vars); err != nil {
 				return nil, nil, err
 			}
 		}
@@ -100,7 +59,7 @@ func parse(cmd *Command, args []string, vars Vars) (*Command, []string, error) {
 }
 
 // parseLong parses a long flag ('--arg' '--arg v' '--arg k=v' '--arg=' '--arg=v').
-func parseLong(cmd *Command, s string, args []string, vars Vars) ([]string, error) {
+func parseLong(ctx *Context, cmd *Command, s string, args []string, vars Vars) ([]string, error) {
 	arg, value, ok := strings.Cut(strings.TrimPrefix(s, "--"), "=")
 	g := cmd.Flag(arg, false)
 	switch {
@@ -117,14 +76,14 @@ func parseLong(cmd *Command, s string, args []string, vars Vars) ([]string, erro
 	default: // missing argument to --arg
 		return nil, newFlagError(arg, ErrMissingArgument)
 	}
-	if err := vars.Set(g, value, true); err != nil {
+	if err := vars.Set(ctx, g, value, true); err != nil {
 		return nil, newFlagError(arg, err)
 	}
 	return args, nil
 }
 
 // parseShort parses short flags ('-a' '-aaa' '-av' '-a v' '-a=' '-a=v').
-func parseShort(cmd *Command, s string, args []string, vars Vars) ([]string, error) {
+func parseShort(ctx *Context, cmd *Command, s string, args []string, vars Vars) ([]string, error) {
 	for v := []rune(s[1:]); len(v) != 0; v = v[1:] {
 		arg := string(v[0])
 		switch g, n := cmd.Flag(arg, true), len(v[1:]); {
@@ -138,7 +97,7 @@ func parseShort(cmd *Command, s string, args []string, vars Vars) ([]string, err
 			} else if value, err = asString[string](g.NoArgDef); err != nil {
 				return nil, newFlagError(arg, err)
 			}
-			if err := vars.Set(g, value, true); err != nil {
+			if err := vars.Set(ctx, g, value, true); err != nil {
 				return nil, newFlagError(arg, err)
 			}
 		case n == 0 && len(args) == 0: // missing argument to -a
@@ -147,16 +106,56 @@ func parseShort(cmd *Command, s string, args []string, vars Vars) ([]string, err
 			if slices.Index(v, '=') == 1 {
 				v = v[1:]
 			}
-			if err := vars.Set(g, string(v[1:]), true); err != nil {
+			if err := vars.Set(ctx, g, string(v[1:]), true); err != nil {
 				return nil, newFlagError(arg, err)
 			}
 			return args, nil
 		default: // -a v
-			if err := vars.Set(g, args[0], true); err != nil {
+			if err := vars.Set(ctx, g, args[0], true); err != nil {
 				return nil, newFlagError(arg, err)
 			}
 			return args[1:], nil
 		}
 	}
 	return args, nil
+}
+
+// Vars is a map of argument variables.
+type Vars map[string]Value
+
+// String satisfies the [fmt.Stringer] interfaec.
+func (vars Vars) String() string {
+	var v []string
+	for _, k := range slices.Sorted(maps.Keys(vars)) {
+		if s, err := vars[k].Get(); err == nil {
+			v = append(v, k+":"+s)
+		}
+	}
+	return "[" + strings.Join(v, " ") + "]"
+}
+
+// Set sets a variable in the vars.
+func (vars Vars) Set(ctx *Context, g *Flag, s string, set bool) error {
+	name := g.Name
+	if name == "" {
+		return ErrInvalidFlagName
+	}
+	var err error
+	v, ok := vars[name]
+	if !ok {
+		if v, err = g.New(ctx); err != nil {
+			return err
+		}
+	}
+	if err := v.Set(s); err != nil {
+		return err
+	}
+	v.SetSet(set)
+	for i, val := range g.Binds {
+		if err := val.Bind(s); err != nil {
+			return fmt.Errorf("bind %d (%s): cannot set %q: %w", i, val, s, err)
+		}
+	}
+	vars[name] = v
+	return nil
 }

@@ -483,43 +483,56 @@ func (val *refVal) Get() any {
 // hookVal is a hook func.
 type hookVal struct {
 	typ Type
-	v   func(string) error
+	ctx *Context
 	set bool
+	v   func(*Context, string) error
 }
 
 // newHook creates a new hook for the func f in v.
-func newHook(v any) (Value, error) {
-	switch f := v.(type) {
-	case func(string) error:
-		return &hookVal{
-			typ: HookT,
-			v:   f,
-		}, nil
-	case func() error:
-		return &hookVal{
-			typ: HookT,
-			v: func(string) error {
-				return f()
-			},
-		}, nil
-	case func(string):
-		return &hookVal{
-			typ: HookT,
-			v: func(s string) error {
-				f(s)
-				return nil
-			},
-		}, nil
-	case func():
-		return &hookVal{
-			typ: HookT,
-			v: func(string) error {
-				f()
-				return nil
-			},
-		}, nil
+func newHook(ctx *Context, v any) (Value, error) {
+	val := &hookVal{
+		typ: HookT,
+		ctx: ctx,
 	}
-	return nil, fmt.Errorf("%w: invalid hook func", ErrInvalidValue)
+	switch f := v.(type) {
+	case func(*Context, string) error:
+		val.v = f
+	case func(*Context, string):
+		val.v = func(ctx *Context, s string) error {
+			f(ctx, s)
+			return nil
+		}
+	case func(*Context) error:
+		val.v = func(ctx *Context, _ string) error {
+			return f(ctx)
+		}
+	case func(*Context):
+		val.v = func(ctx *Context, _ string) error {
+			f(ctx)
+			return nil
+		}
+	case func(string) error:
+		val.v = func(_ *Context, s string) error {
+			return f(s)
+		}
+	case func(string):
+		val.v = func(_ *Context, s string) error {
+			f(s)
+			return nil
+		}
+	case func() error:
+		val.v = func(*Context, string) error {
+			return f()
+		}
+	case func():
+		val.v = func(*Context, string) error {
+			f()
+			return nil
+		}
+	default:
+		return nil, fmt.Errorf("%w: invalid hook func", ErrInvalidValue)
+	}
+	return val, nil
 }
 
 func (val *hookVal) Type() Type {
@@ -539,7 +552,7 @@ func (val *hookVal) WasSet() bool {
 }
 
 func (val *hookVal) Set(s string) error {
-	return val.v(s)
+	return val.v(val.ctx, s)
 }
 
 func (val *hookVal) Get() (string, error) {
@@ -623,7 +636,6 @@ func mapSet(val reflect.Value, s string) bool {
 	return true
 }
 
-// invalid indicates if a value is invalid.
 // inc increments the value.
 func inc(val any, delta uint64) {
 	if v, ok := val.(*uint64); ok {

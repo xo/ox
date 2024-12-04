@@ -48,15 +48,15 @@ func Exec[F ExecType](f F) CommandOption {
 
 // Defaults is a [Command] option to add [Help], [Comp], and [Version] to the
 // command.
-func Defaults() CommandOption {
-	opts := []Option{Help(), Comp(), Version()}
+func Defaults(opts ...Option) CommandOption {
+	options := []Option{Help(opts...), Comp(), Version()}
 	return option{
 		name: "Defaults",
 		cmd: func(cmd *Command) error {
-			return applyOpts(cmd, opts...)
+			return applyOpts(cmd, options...)
 		},
 		post: func(cmd *Command) error {
-			return applyPostOpts(cmd, opts...)
+			return applyPostOpts(cmd, options...)
 		},
 	}
 }
@@ -114,8 +114,10 @@ func Version(opts ...Option) CommandOption {
 	}
 }
 
-// Help is a [Command] option to hook `--help` with help output, as well as to
-// add a `help` sub command to the tree.
+// Help is a [Command] option to add help output to a root command. By default,
+// it adds a `--help` flag to all commands in the command tree. The root
+// command will have a `help` sub command added if there are any other defined
+// sub commands.
 func Help(opts ...Option) CommandOption {
 	return option{
 		cmd: func(cmd *Command) error {
@@ -128,7 +130,10 @@ func Help(opts ...Option) CommandOption {
 			if cmd.Parent != nil {
 				return ErrCanOnlyBeUsedWithRootCommand
 			}
-			return NewHelpFor(cmd, opts...)
+			if err := NewHelpFor(cmd, opts...); err != nil {
+				return err
+			}
+			return addHelp(cmd)
 		},
 	}
 }
@@ -242,29 +247,36 @@ func Name(name string) CommandFlagOption {
 }
 
 // Usage is a [Command]/[Flag] option to set the command/flag's name and usage.
-func Usage(name, usage string) CommandFlagOption {
+func Usage(name, usage string, aliases ...string) CommandFlagOption {
 	return option{
 		name: "Usage",
 		cmd: func(cmd *Command) error {
-			cmd.Name, cmd.Usage = name, usage
+			if cmd.Parent == nil && len(aliases) != 0 {
+				return fmt.Errorf("%w: cannot apply to root command", ErrInvalidType)
+			}
+			cmd.Name, cmd.Usage, cmd.Aliases = name, usage, aliases
 			return nil
 		},
 		flag: func(g *Flag) error {
-			g.Name, g.Usage = name, usage
+			g.Name, g.Usage, g.Aliases = name, usage, aliases
 			return nil
 		},
 	}
 }
 
-// Alias is a [Command]/[Flag] option to add a alias for the command/flag.
-func Alias(name, usage string) CommandFlagOption {
+// Aliases is a [Command]/[Flag] option to add a alias for the command/flag.
+func Aliases(aliases ...string) CommandFlagOption {
 	return option{
-		name: "Alias",
+		name: "Aliases",
 		cmd: func(cmd *Command) error {
+			if cmd.Parent == nil {
+				return fmt.Errorf("%w: cannot apply to root command", ErrInvalidType)
+			}
+			cmd.Aliases = append(cmd.Aliases, aliases...)
 			return nil
 		},
 		flag: func(g *Flag) error {
-			g.Name, g.Usage = name, usage
+			g.Aliases = append(g.Aliases, aliases...)
 			return nil
 		},
 	}
@@ -284,42 +296,23 @@ func Short(short string) FlagOption {
 	}
 }
 
-// Banner is a [Command]/[Flag] option to set the command/flag's banner.
-func Banner(banner string) CommandFlagOption {
-	return option{
-		name: "Banner",
-		flag: func(g *Flag) error {
-			return nil
-		},
-	}
-}
-
-// Spec is a [Command]/[Flag] option to set the command/flag's spec.
-func Spec(spec string) CommandFlagOption {
-	return option{
-		name: "Spec",
-		flag: func(g *Flag) error {
-			return nil
-		},
-	}
-}
-
-// Footer is a [Command]/[Flag] option to set the command/flag's footer.
-func Footer(footer string) CommandFlagOption {
-	return option{
-		name: "Footer",
-		flag: func(g *Flag) error {
-			return nil
-		},
-	}
-}
-
 // MapKey is a [Flag] option to set the flag's map key type.
-func MapKey(typ Type) FlagOption {
+func MapKey(mapKey Type) FlagOption {
 	return option{
 		name: "MapKey",
 		flag: func(g *Flag) error {
-			g.Key = typ
+			g.MapKey = mapKey
+			return nil
+		},
+	}
+}
+
+// Elem is a [Flag] option to set the flag's element type.
+func Elem(elem Type) FlagOption {
+	return option{
+		name: "Elem",
+		flag: func(g *Flag) error {
+			g.Elem = elem
 			return nil
 		},
 	}
@@ -390,6 +383,8 @@ func BindRef(value reflect.Value, b *bool) FlagOption {
 //	ox.Default("$ENV{MY_VAR}") - expands to value of the environment var $MY_VAR
 //	ox.Default("$CFG{yaml::a.b.c}") - expands to the registered YAML config file's key of a.b.c
 //	ox.Default("$CFG{a.b.c}") - expands to the first registered config file that returns a non-nil value for key a.b.c
+//
+// See [Context.Expand] for more expansion details.
 func Default(def any) FlagOption {
 	return option{
 		name: "Default",
@@ -427,18 +422,34 @@ func Key(typ, key string) FlagOption {
 	}
 }
 
-// FlagOption is a [Flag] option to set the flag's help section.
-func Section(section int) FlagOption {
+// Special is a [Flag] option to set a flag's special value.
+func Special(special string) FlagOption {
 	return option{
-		name: "Section",
+		name: "Special",
 		flag: func(g *Flag) error {
+			g.Special = special
 			return nil
 		},
 	}
 }
 
-// Hook is a [Flag] option to set a hook for a flag, that exits normally.
-func Hook(f func(context.Context) error) CommandFlagOption {
+// Section is a [Command]/[Flag] option to set the flag's help section.
+func Section(section int) CommandFlagOption {
+	return option{
+		name: "Section",
+		cmd: func(cmd *Command) error {
+			cmd.Section = section
+			return nil
+		},
+		flag: func(g *Flag) error {
+			g.Section = section
+			return nil
+		},
+	}
+}
+
+// Hook is a [Flag] option to set a hook for a flag.
+func Hook(f func(context.Context) error) FlagOption {
 	return option{
 		name: "Hook",
 		flag: func(g *Flag) error {
@@ -448,23 +459,72 @@ func Hook(f func(context.Context) error) CommandFlagOption {
 	}
 }
 
-// Sections is a [Help] option to add section names for help.
-func Sections(sections ...string) HelpOption {
+// Banner is a [Help] option to set the banner.
+func Banner(banner string) HelpOption {
 	return option{
-		/*
-			help: func(*HelpDesc) error {
-				return nil
-			},
-		*/
+		name: "Banner",
+		help: func(help *CommandHelp) error {
+			help.Banner, help.NoBanner = banner, banner == ""
+			return nil
+		},
 	}
 }
 
-// opt is the interface for options that can be passed when creating a
-// [Context], [Command], or [Flag].
+// Spec is a [Flag]/[Help] option to set the use spec.
+func Spec(spec string) FlagHelpOption {
+	return option{
+		name: "Spec",
+		flag: func(g *Flag) error {
+			g.Spec = spec
+			return nil
+		},
+		help: func(help *CommandHelp) error {
+			help.Spec, help.NoSpec = spec, spec == ""
+			return nil
+		},
+	}
+}
+
+// Footer is a [Help] option to set the command/flag's footer.
+func Footer(footer string) HelpOption {
+	return option{
+		name: "Footer",
+		help: func(help *CommandHelp) error {
+			help.Footer, help.NoSpec = footer, footer == ""
+			return nil
+		},
+	}
+}
+
+// CommandSections is a [Help] option to add section names for commands.
+func CommandSections(sections ...string) HelpOption {
+	return option{
+		name: "CommandSections",
+		help: func(help *CommandHelp) error {
+			help.CommandSections = sections
+			return nil
+		},
+	}
+}
+
+// Sections is a [Help] option to add section names for flags.
+func Sections(sections ...string) HelpOption {
+	return option{
+		name: "Sections",
+		help: func(help *CommandHelp) error {
+			help.Sections = sections
+			return nil
+		},
+	}
+}
+
+// Option is the interface for options that can be passed when creating a
+// [Context], [Command], [Flag], or [Help].
 //
-// The [opt] type is aliased as [ContextOption], [CommandOption],
-// [CommandFlagOption], and [FlagOption] and provided for ease-of-use,
-// readibility, and categorization within documentation.
+// The [Option] type is aliased as [ContextOption], [CommandOption],
+// [CommandFlagOption], [FlagOption], [HelpOption], [FlagHelpOption] and
+// provided for ease-of-use, readibility, and categorization within
+// documentation.
 //
 // A [ContextOption] can be applied to a [Context] and passed to [Run].
 //
@@ -475,6 +535,11 @@ func Sections(sections ...string) HelpOption {
 //
 // A [FlagOption] can be applied to a [Flag] and passed to [NewFlag].
 //
+// A [HelpOption] can be passed to [Help] or to [NewCommandHelp].
+//
+// A [FlagHelpOption] can be applied to a [Flag], passed to [NewFlag], or
+// passed to [Help].
+//
 // Additionally, a [OnErr] can be used as a [CommandOption] or in calls to
 // [NewCommand], and a [Type] can be used as a [FlagOption] in calls to
 // [NewFlag].
@@ -482,20 +547,23 @@ type Option interface {
 	Option() option
 }
 
-// ContextOption are [opt]'s that apply to a [Context].
+// ContextOption are [Option]'s that apply to a [Context].
 type ContextOption = Option
 
-// CommandOption are [opt]'s that apply to a [Command].
+// CommandOption are [Option]'s that apply to a [Command].
 type CommandOption = Option
 
-// CommandFlagOption are [opt]'s that apply to either a [Command] or [Flag].
+// CommandFlagOption are [Option]'s that apply to either a [Command] or [Flag].
 type CommandFlagOption = Option
 
-// FlagOption are [opt]'s that apply to a [Flag].
+// FlagOption are [Option]'s that apply to a [Flag].
 type FlagOption = Option
 
-// HelpOption are [opt]'s that apply to [Help].
+// HelpOption are [Option]'s that apply to [Help].
 type HelpOption = Option
+
+// FlagHelpOption are [Option]'s that apply to [Flag] and [Help].
+type FlagHelpOption = Option
 
 // option wraps an option.
 type option struct {
@@ -504,18 +572,23 @@ type option struct {
 	cmd  func(*Command) error
 	post func(*Command) error
 	flag func(*Flag) error
+	help func(*CommandHelp) error
 	typ  func(v interface{ SetType(Type) }) error
 }
 
+// Option satisfies the [Option] interface.
 func (opt option) Option() option {
 	return opt
 }
 
-// apply satisfies the [opt] interface.
+// apply applies the option to val.
 func (opt option) apply(val any) error {
-	var err error
+	var err error = ErrAppliedToInvalidType
 	switch v := val.(type) {
 	case *Command:
+		if opt.ctx != nil {
+			err = nil
+		}
 		if opt.cmd != nil {
 			err = opt.cmd(v)
 		}
@@ -524,18 +597,39 @@ func (opt option) apply(val any) error {
 			err = opt.flag(v)
 		}
 	case *Context:
+		if opt.cmd != nil || opt.post != nil {
+			err = nil
+		}
 		if opt.ctx != nil {
 			err = opt.ctx(v)
+		}
+	case *CommandHelp:
+		if opt.help != nil {
+			err = opt.help(v)
 		}
 	case interface{ SetType(Type) }:
 		if opt.typ != nil {
 			err = opt.typ(v)
 		}
-	default:
-		err = ErrAppliedToInvalidType
 	}
 	if err != nil {
-		return fmt.Errorf("%s: %w", opt.name, err)
+		return fmt.Errorf("%s (%T): %w", opt.name, val, err)
+	}
+	return nil
+}
+
+// addHelp adds help for all sub commands on cmd.
+func addHelp(cmd *Command) error {
+	if len(cmd.Commands) == 0 {
+		return nil
+	}
+	for _, c := range cmd.Commands {
+		if err := NewHelpFor(c); err != nil {
+			return err
+		}
+		if err := addHelp(c); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -550,7 +644,7 @@ func applyOpts(v any, opts ...Option) error {
 	return nil
 }
 
-// postOpts returns the post options.
+// postOpts applies post options to the command.
 func applyPostOpts(cmd *Command, opts ...Option) error {
 	for _, o := range opts {
 		if opt := o.Option(); opt.post != nil {

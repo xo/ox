@@ -14,7 +14,7 @@ func TestParse(t *testing.T) {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			t.Logf("invoked: %v", test.v)
 			root, vars := testCommand(t), make(Vars)
-			cmd, args, err := Parse(root, test.v[1:], vars)
+			cmd, args, err := Parse(nil, root, test.v[1:], vars)
 			switch {
 			case err != nil:
 				t.Fatalf("expected no error, got: %v", err)

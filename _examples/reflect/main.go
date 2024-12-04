@@ -24,6 +24,7 @@ func main() {
 	ox.Run(
 		ox.Exec(run(args)),
 		ox.Usage("reflect", "demonstrates using ox's From with struct tags"),
+		ox.Defaults(),
 		ox.From(args),
 	)
 }

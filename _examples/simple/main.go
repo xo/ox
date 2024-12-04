@@ -18,26 +18,27 @@ func main() {
 	ox.Run(
 		ox.Exec(run),
 		ox.Usage("simple", "a simple demo of the ox api"),
-		ox.Version("0.0.0-dev"),
-		ox.Help(),
-		ox.Comp(),
+		ox.Defaults(),
 		ox.UserConfigFile(),
 		ox.Flags().
 			Var("param-a", "parameter a", ox.Short("a"), ox.Key("", "param-a"), ox.Key("yaml", "my_param_a"), ox.Key("toml", "paramA")).
 			Int("param-b", "parameter b", ox.Short("b"), ox.Default(125)).
 			Slice("floats", "a slice of float64", ox.Float64T, ox.Short("f")).
-			URL("url", "a url", ox.Alias("my-url", "other url flag alias"), ox.Short("u")).
+			URL("url", "a url", ox.Aliases("my-url"), ox.Short("u")).
 			Count("verbose", "verbose", ox.Short("v")),
 		ox.Sub(
 			ox.Exec(sub),
 			ox.Usage("sub", "a sub command"),
-			ox.Alias("subCommand", "a sub command alias"),
+			ox.Aliases("subCommand"),
 			ox.Flags().
 				Var("sub", "sub param").
 				Slice("strings", "a slice of strings", ox.Short("s")).
 				Slice("bigint", "a slice of big ints", ox.BigIntT, ox.Short("t")).
 				Map("ints", "a map of integers", ox.IntT, ox.Short("i")),
 			ox.ValidArgs(0, 10),
+			ox.Sub(
+				ox.Usage("dub", "a dub command"),
+			),
 		),
 	)
 }
