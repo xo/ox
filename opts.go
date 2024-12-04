@@ -326,7 +326,8 @@ func Name(name string) CommandFlagOption {
 	}
 }
 
-// Usage is a [Command]/[Flag] option to set the command/flag's name and usage.
+// Usage is a [Command]/[Flag] option to set the command/flag's name, usage,
+// and aliases.
 func Usage(name, usage string, aliases ...string) CommandFlagOption {
 	return option{
 		name: "Usage",
@@ -344,7 +345,7 @@ func Usage(name, usage string, aliases ...string) CommandFlagOption {
 	}
 }
 
-// Aliases is a [Command]/[Flag] option to add a alias for the command/flag.
+// Aliases is a [Command]/[Flag] option to add aliases for the command/flag.
 func Aliases(aliases ...string) CommandFlagOption {
 	return option{
 		name: "Aliases",
