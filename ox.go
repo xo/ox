@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"runtime/debug"
 	"strconv"
@@ -52,19 +53,34 @@ var (
 	}
 	// DefaultVersionString is the default version string.
 	DefaultVersionString = "0.0.0-dev"
+	// DefaultVersionMapper is the default version mapper.
+	DefaultVersionMapper = func(name, ver string) (string, string) {
+		if name == "" {
+			name = filepath.Base(os.Args[0])
+		}
+		if regexp.MustCompile(`^v[0-9]+\.`).MatchString(ver) {
+			ver = strings.TrimPrefix(ver, "v")
+		}
+		return name, ver
+	}
 	// DefaultVersion is the default version func.
 	DefaultVersion = func(ctx *Context) error {
-		version := DefaultVersionString
-		if info, ok := debug.ReadBuildInfo(); ok && version == "0.0.0-dev" {
+		ver := DefaultVersionString
+		if info, ok := debug.ReadBuildInfo(); ok && ver == "0.0.0-dev" {
 			mod := &info.Main
 			if mod.Replace != nil {
 				mod = mod.Replace
 			}
-			if mod.Version != "" {
-				version = mod.Version
+			if mod.Version != "" && mod.Version != "(devel)" {
+				ver = mod.Version
 			}
 		}
-		fmt.Fprintln(ctx.Stdout, ctx.Root.Name, version)
+		var name string
+		if ctx.Root != nil {
+			name = ctx.Root.Name
+		}
+		name, ver = DefaultVersionMapper(name, ver)
+		fmt.Fprintln(ctx.Stdout, name, ver)
 		return ErrExit
 	}
 )
