@@ -138,6 +138,10 @@ Report bugs to <pgsql-bugs@lists.postgresql.org>.
 PostgreSQL home page: <https://www.postgresql.org/>`),
 		),
 		ox.From(&args),
+		// this is used to override the expansion parameters
+		ox.Override(map[string]string{
+			"$USER": "fuser",
+		}),
 	)
 	// Output:
 	// psql is the PostgreSQL interactive terminal.
@@ -147,7 +151,7 @@ PostgreSQL home page: <https://www.postgresql.org/>`),
 	//
 	// General options:
 	//   -c, --command string                run only single command (SQL or internal) and exit
-	//   -d, --dbname string                 database name to connect to (default: ken)
+	//   -d, --dbname string                 database name to connect to (default: fuser)
 	//   -f, --file FILENAME                 execute commands from file, then exit
 	//   -l, --list                          list databases, then exit
 	//   -v, --variable NAME=VALUE           set psql variable NAME to VALUE
@@ -185,7 +189,7 @@ PostgreSQL home page: <https://www.postgresql.org/>`),
 	//   -h, --host HOSTNAME                 database server host or socket directory (default: local
 	//                                       socket)
 	//   -p, --port PORT                     database server port (default: 5432)
-	//   -U, --username USERNAME             database user name (default: ken)
+	//   -U, --username USERNAME             database user name (default: fuser)
 	//   -w, --no-password                   never prompt for password
 	//   -W, --password                      force password prompt (should happen automatically)
 	//

@@ -22,6 +22,18 @@ func Args(args ...string) ContextOption {
 	}
 }
 
+// Override is a [Run]/[RunContext]/[Context] option to override expansion
+// variables.
+func Override(override map[string]string) ContextOption {
+	return option{
+		name: "Override",
+		ctx: func(ctx *Context) error {
+			ctx.Override = override
+			return nil
+		},
+	}
+}
+
 // Pipe is a [Run]/[RunContext]/[Context] option to set the standard in, out,
 // and error.
 func Pipe(stdin io.Reader, stdout, stderr io.Writer) ContextOption {

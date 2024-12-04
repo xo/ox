@@ -98,6 +98,8 @@ type Context struct {
 	// Vars are the variables parsed from the flag definitions of the Root
 	// command and its sub-commands.
 	Vars Vars
+	// Override are overriding expansions.
+	Override map[string]string
 }
 
 // NewContext creates a new run context.
@@ -175,6 +177,11 @@ func (ctx *Context) Expand(v any) (string, error) {
 	s, ok := v.(string)
 	if !ok {
 		return asString[string](v)
+	}
+	if ctx.Override != nil {
+		if s, ok := ctx.Override[s]; ok {
+			return s, nil
+		}
 	}
 	var f func() (string, error)
 	switch s {
