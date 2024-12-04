@@ -517,7 +517,6 @@ func FlagsFrom[T *E, E any](val T) ([]*Flag, error) {
 		if err != nil {
 			return nil, fmt.Errorf("field %s: cannot create flag: %w", f.Name, err)
 		}
-		// fmt.Fprintf(os.Stderr, "FLAG TYPE: %s/%s/%s\n", g.Type, g.MapKey, g.Elem)
 		flags = append(flags, g)
 	}
 	return flags, nil
@@ -601,7 +600,6 @@ func buildFlagOpts(refType reflect.Type, value reflect.Value, name string, s []s
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", value.Type().String(), err)
 	}
-	// fmt.Fprintf(os.Stderr, "TYPE: %s/%s/%s\n", typ, mapKey, elem)
 	opts := []Option{typ, MapKey(mapKey), Elem(elem)}
 	for _, opt := range s {
 		key, val, _ := strings.Cut(opt, ":")

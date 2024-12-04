@@ -200,3 +200,54 @@ PostgreSQL home page: <https://www.postgresql.org/>`),
 	// Report bugs to <pgsql-bugs@lists.postgresql.org>.
 	// PostgreSQL home page: <https://www.postgresql.org/>
 }
+
+// Example_sections demonstrates putting commands, including the default `help`
+// command into different sections.
+func Example_sections() {
+	args := struct {
+		Config string `ox:"config file,spec:FILE"`
+	}{}
+	ox.Run(
+		ox.Usage("tree", "a command tree"),
+		ox.Defaults(),
+		ox.Sub(
+			ox.Usage("sub1", "the sub1 command"),
+			ox.Section(0),
+		),
+		ox.Sub(
+			ox.Usage("sub2.a", "the sub2.a command"),
+			ox.Section(1),
+		),
+		ox.Sub(
+			ox.Usage("sub2.b", "the sub2.b command"),
+		),
+		ox.Sections(
+			"Primary commands",
+			"Secondary commands",
+		),
+		ox.SectionMap{
+			"help":   0,
+			"sub2.b": 1,
+		},
+		ox.From(&args),
+	)
+	// Output:
+	// tree a command tree
+	//
+	// Usage:
+	//   tree [flags] [command] [args]
+	//
+	// Primary commands:
+	//   sub1    the sub1 command
+	//   help    show help for any command
+	//
+	// Secondary commands:
+	//   sub2.a  the sub2.a command
+	//   sub2.b  the sub2.b command
+	//
+	// Flags:
+	//       --config FILE  config file
+	//   -h, --help         show help, then exit
+	//
+	// Use "tree [command] --help" for more information about a command.
+}

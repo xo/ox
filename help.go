@@ -162,7 +162,7 @@ func (help *CommandHelp) WriteTo(w io.Writer) (int64, error) {
 			sections[i] = section
 		}
 		// split between sections
-		width, indexes, specs := 0, make(map[int][]int), make([]string, len(help.Command.Flags.Flags))
+		width, indexes, specs, hasShort := 0, make(map[int][]int), make([]string, len(help.Command.Flags.Flags)), false
 		for i, g := range help.Command.Flags.Flags {
 			indexes[g.Section] = append(indexes[g.Section], i)
 			specs[i] = spec(g)
@@ -170,14 +170,22 @@ func (help *CommandHelp) WriteTo(w io.Writer) (int64, error) {
 			if _, ok := sections[g.Section]; !ok {
 				sections[g.Section] = text.Flags
 			}
+			hasShort = hasShort || g.Short != ""
+		}
+		offset := 2
+		if hasShort {
+			offset = 10
 		}
 		// write flags
 		for _, section := range slices.Sorted(maps.Keys(indexes)) {
 			n, err = writeBreak(w, n, err)
 			n, err = writeStrings(w, n, err, sections[section], ":")
 			for _, i := range indexes[section] {
-				s, g := "    ", help.Command.Flags.Flags[i]
-				if g.Short != "" {
+				s, g := "", help.Command.Flags.Flags[i]
+				switch {
+				case hasShort && g.Short == "":
+					s = "    "
+				case hasShort:
 					s = "-" + g.Short + ", "
 				}
 				usage := g.Usage
@@ -186,7 +194,7 @@ func (help *CommandHelp) WriteTo(w io.Writer) (int64, error) {
 						usage += " " + fmt.Sprintf(text.FlagDefault, def)
 					}
 				}
-				n, err = writeStrings(w, n, err, "\n  ", s, "--", specs[i], strings.Repeat(" ", width-len(specs[i])+2), DefaultWrap(usage, width+10))
+				n, err = writeStrings(w, n, err, "\n  ", s, "--", specs[i], strings.Repeat(" ", width-len(specs[i])+2), DefaultWrap(usage, width+offset))
 			}
 			n, err = writeBreak(w, n, err)
 		}

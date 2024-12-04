@@ -298,7 +298,6 @@ func typeRef(val any) Type {
 
 // defaultType returns the type, map key type, and element type of v.
 func defaultType(refType reflect.Type) (Type, Type, Type, error) {
-	// fmt.Fprintf(os.Stderr, "DEFAULT TYPE: %s\n", refType.String())
 	switch refType.Kind() {
 	case reflect.String:
 		return StringT, StringT, StringT, nil

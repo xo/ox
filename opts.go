@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"maps"
 	"reflect"
 	"slices"
 	"strings"
@@ -11,6 +12,53 @@ import (
 
 	"github.com/xo/ox/text"
 )
+
+// Option is the interface for options that can be passed when creating a
+// [Context], [Command], [Flag], or [Help].
+//
+// The [Option] type is aliased as [ContextOption], [CommandOption],
+// [CommandFlagOption], [FlagOption], [HelpOption], [FlagHelpOption] and
+// provided for ease-of-use, readibility, and categorization within
+// documentation.
+//
+// A [ContextOption] can be applied to a [Context] and passed to [Run].
+//
+// A [CommandOption] can be applied to a [Command] and passed to [NewCommand].
+//
+// A [CommandFlagOption] can be applied to either a [Command] or [Flag], and
+// can be passed to [NewCommand] and [NewFlag].
+//
+// A [FlagOption] can be applied to a [Flag] and passed to [NewFlag].
+//
+// A [HelpOption] can be passed to [Help] or to [NewCommandHelp].
+//
+// A [FlagHelpOption] can be applied to a [Flag], passed to [NewFlag], or
+// passed to [Help].
+//
+// Additionally, a [OnErr] and [SectionMap] can be used as a [CommandOption] or
+// in calls to [NewCommand], and a [Type] can be used as a [FlagOption] in
+// calls to [NewFlag].
+type Option interface {
+	Option() option
+}
+
+// ContextOption are [Option]'s that apply to a [Context].
+type ContextOption = Option
+
+// CommandOption are [Option]'s that apply to a [Command].
+type CommandOption = Option
+
+// CommandFlagOption are [Option]'s that apply to either a [Command] or [Flag].
+type CommandFlagOption = Option
+
+// FlagOption are [Option]'s that apply to a [Flag].
+type FlagOption = Option
+
+// HelpOption are [Option]'s that apply to [Help].
+type HelpOption = Option
+
+// FlagHelpOption are [Option]'s that apply to [Flag] and [Help].
+type FlagHelpOption = Option
 
 // Args is a [Run]/[RunContext]/[Context] option to set the command-line
 // arguments.
@@ -113,6 +161,7 @@ func Sub(opts ...Option) CommandOption {
 // Version is a [Command] option to hook --version with version output.
 func Version(opts ...Option) CommandOption {
 	return option{
+		name: "Version",
 		cmd: func(cmd *Command) error {
 			if cmd.Parent != nil {
 				return ErrCanOnlyBeUsedWithRootCommand
@@ -134,6 +183,7 @@ func Version(opts ...Option) CommandOption {
 // sub commands.
 func Help(opts ...Option) CommandOption {
 	return option{
+		name: "Help",
 		cmd: func(cmd *Command) error {
 			if cmd.Parent != nil {
 				return ErrCanOnlyBeUsedWithRootCommand
@@ -530,21 +580,23 @@ func Footer(footer string) HelpOption {
 	}
 }
 
-// CommandSections is a [Help] option to add section names for commands.
-func CommandSections(sections ...string) HelpOption {
-	return option{
-		name: "CommandSections",
-		help: func(help *CommandHelp) error {
-			help.CommandSections = sections
-			return nil
-		},
-	}
-}
-
-// Sections is a [Help] option to add section names for flags.
+// Sections is a [Help] option to set section names for commands when used with
+// a [Command] or flag sections when used with [Help].
 func Sections(sections ...string) HelpOption {
 	return option{
 		name: "Sections",
+		cmd: func(cmd *Command) error {
+			return nil
+		},
+		post: func(cmd *Command) error {
+			if cmd.Help == nil {
+				return fmt.Errorf("%w: cannot be used with nil CommandHelp", ErrInvalidType)
+			}
+			if help, ok := cmd.Help.(*CommandHelp); ok {
+				help.CommandSections = sections
+			}
+			return nil
+		},
 		help: func(help *CommandHelp) error {
 			help.Sections = sections
 			return nil
@@ -552,52 +604,29 @@ func Sections(sections ...string) HelpOption {
 	}
 }
 
-// Option is the interface for options that can be passed when creating a
-// [Context], [Command], [Flag], or [Help].
-//
-// The [Option] type is aliased as [ContextOption], [CommandOption],
-// [CommandFlagOption], [FlagOption], [HelpOption], [FlagHelpOption] and
-// provided for ease-of-use, readibility, and categorization within
-// documentation.
-//
-// A [ContextOption] can be applied to a [Context] and passed to [Run].
-//
-// A [CommandOption] can be applied to a [Command] and passed to [NewCommand].
-//
-// A [CommandFlagOption] can be applied to either a [Command] or [Flag], and
-// can be passed to [NewCommand] and [NewFlag].
-//
-// A [FlagOption] can be applied to a [Flag] and passed to [NewFlag].
-//
-// A [HelpOption] can be passed to [Help] or to [NewCommandHelp].
-//
-// A [FlagHelpOption] can be applied to a [Flag], passed to [NewFlag], or
-// passed to [Help].
-//
-// Additionally, a [OnErr] can be used as a [CommandOption] or in calls to
-// [NewCommand], and a [Type] can be used as a [FlagOption] in calls to
-// [NewFlag].
-type Option interface {
-	Option() option
+// SectionMap is a [Command] option to apply refined sections to commands and
+// flags.
+type SectionMap map[string]int
+
+// Option satisfies the [Option] interface.
+func (m SectionMap) Option() option {
+	return option{
+		name: "SectionMap",
+		cmd: func(*Command) error {
+			return nil
+		},
+		post: func(cmd *Command) error {
+			for _, k := range slices.Sorted(maps.Keys(m)) {
+				c := cmd.Command(k)
+				if c == nil {
+					continue
+				}
+				c.Section = m[k]
+			}
+			return nil
+		},
+	}
 }
-
-// ContextOption are [Option]'s that apply to a [Context].
-type ContextOption = Option
-
-// CommandOption are [Option]'s that apply to a [Command].
-type CommandOption = Option
-
-// CommandFlagOption are [Option]'s that apply to either a [Command] or [Flag].
-type CommandFlagOption = Option
-
-// FlagOption are [Option]'s that apply to a [Flag].
-type FlagOption = Option
-
-// HelpOption are [Option]'s that apply to [Help].
-type HelpOption = Option
-
-// FlagHelpOption are [Option]'s that apply to [Flag] and [Help].
-type FlagHelpOption = Option
 
 // option wraps an option.
 type option struct {
