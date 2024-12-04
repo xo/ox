@@ -12,7 +12,9 @@ var (
 	Commands = `Available Commands`
 	// Flags is the `Flags:` section name.
 	Flags = `Flags`
-	// VersionFlagName is the version command/flag name.
+	// GlobalFlags is the `Global Flags:` section name.
+	GlobalFlags = `Global Flags`
+	// VersionFlagName is the version flag name.
 	VersionFlagName = `version`
 	// VersionFlagShort is the version short flag name.
 	VersionFlagShort = `v`
@@ -24,6 +26,10 @@ var (
 	HelpFlagDesc = `show help, then exit`
 	// HelpFlagShort is the help short flag name.
 	HelpFlagShort = `h`
+	// HelpCommandName is the help command name.
+	HelpCommandName = `help`
+	// HelpCommandDesc is the help command description.
+	HelpCommandDesc = `show help for any command`
 	// CommandFlagsSpec is the default spec for command flags.
 	CommandFlagsSpec = `[flags]`
 	// CommandSubSpec is the default spec for sub command names.

@@ -43,6 +43,8 @@ type Command struct {
 	Section int
 	// Help is the help emitter.
 	Help io.WriterTo
+	// Special is the special value.
+	Special string
 }
 
 // NewCommand creates a new command.

@@ -8,6 +8,8 @@ import (
 	"slices"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/xo/ox/text"
 )
 
 // Args is a [Run]/[RunContext]/[Context] option to set the command-line
@@ -145,7 +147,23 @@ func Help(opts ...Option) CommandOption {
 			if err := NewHelpFor(cmd, opts...); err != nil {
 				return err
 			}
-			return addHelp(cmd)
+			// add help sub command
+			if len(cmd.Commands) != 0 {
+				if err := cmd.Sub(
+					Exec(func(ctx context.Context) error {
+						c, _ := Ctx(ctx)
+						_, _ = cmd.HelpContext(c).WriteTo(c.Stdout)
+						return ErrExit
+					}),
+					Usage(text.HelpCommandName, text.HelpCommandDesc),
+				); err != nil {
+					return err
+				}
+			}
+			if err := addHelp(cmd); err != nil {
+				return err
+			}
+			return nil
 		},
 	}
 }
@@ -438,6 +456,10 @@ func Key(typ, key string) FlagOption {
 func Special(special string) FlagOption {
 	return option{
 		name: "Special",
+		cmd: func(cmd *Command) error {
+			cmd.Special = special
+			return nil
+		},
 		flag: func(g *Flag) error {
 			g.Special = special
 			return nil
