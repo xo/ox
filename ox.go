@@ -53,12 +53,15 @@ var (
 	}
 	// DefaultVersionString is the default version string.
 	DefaultVersionString = "0.0.0-dev"
-	// DefaultVersionMapper is the default version mapper.
+	// DefaultVersionTrimPrefix is used by [DefaultVersionMapper] to trim the
+	// `v` prefix on build version.
+	DefaultVersionTrimPrefix = true
+	// DefaultVersionMapper maps the passed name, version.
 	DefaultVersionMapper = func(name, ver string) (string, string) {
 		if name == "" {
 			name = filepath.Base(os.Args[0])
 		}
-		if regexp.MustCompile(`^v[0-9]+\.`).MatchString(ver) {
+		if DefaultVersionTrimPrefix && regexp.MustCompile(`^v[0-9]+\.`).MatchString(ver) {
 			ver = strings.TrimPrefix(ver, "v")
 		}
 		return name, ver
