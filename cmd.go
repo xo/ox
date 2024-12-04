@@ -494,12 +494,12 @@ func FlagsFrom[T *E, E any](val T) ([]*Flag, error) {
 	for i := range typ.NumField() {
 		// check field is exported
 		f := typ.Field(i)
-		if r := []rune(f.Name); !unicode.IsUpper(r[0]) {
-			continue
-		}
 		s, ok := f.Tag.Lookup(DefaultTagName)
 		if !ok {
 			continue
+		}
+		if r := []rune(f.Name); !unicode.IsUpper(r[0]) {
+			return nil, fmt.Errorf("%w: field %q is not exported but has tag %s", ErrInvalidType, f.Name, DefaultTagName)
 		}
 		tag := split(s, ',')
 		if len(tag) == 0 || tag[0] == "-" {
