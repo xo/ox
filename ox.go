@@ -13,6 +13,8 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -169,6 +171,9 @@ func (ctx *Context) Run(parent context.Context) error {
 //	$USER - the current user's user name
 //	$CACHE - the current user's cache directory
 //	$APPCACHE - the current user's cache directory, with the root command's name added as a subdir
+//	$NUMCPU - the value of [runtime.NumCPU]
+//	$ARCH - the value of [runtime.GOARCH]
+//	$OS - $ the value of [runtime.GOOS]
 //	$ENV{KEY} - the environment value for $KEY
 //	$CFG{[TYPE::]KEY} - the registered config file loader type and key value
 //
@@ -207,6 +212,12 @@ func (ctx *Context) Expand(v any) (string, error) {
 			}
 			return filepath.Join(dir, ctx.Root.Name), nil
 		}
+	case "$NUMCPU":
+		return strconv.Itoa(runtime.NumCPU()), nil
+	case "$ARCH":
+		return runtime.GOARCH, nil
+	case "$OS":
+		return runtime.GOOS, nil
 	default:
 		return s, nil
 	}
