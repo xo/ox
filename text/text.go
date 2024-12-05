@@ -43,4 +43,15 @@ var (
 	FlagSpecSpacer = ` `
 	// FlagDefault is the default flag text.
 	FlagDefault = `(default: %s)`
+	// CompFlagName is the default completion flag name.
+	CompFlagName = `completion-script-%s`
+	// CompCommandName is the default completion command name.
+	CompCommandName = `completion`
+	// CompDesc is the default completion command description.
+	CompDesc = `generate completion script for %s`
+	// CompCommandBanner is the defalut completion command banner.
+	CompCommandBanner = `Generate %s completion script for %s.`
+	// CompCommandAShellDesc is the default `a shell` completion command
+	// description.
+	CompCommandAShellDesc = `a shell`
 )

@@ -1,0 +1,9 @@
+Generate the %[1]s completion script for zsh.
+
+To load completions in your current shell session:
+
+  source <(%[2]s)
+
+To load completions for every new session, execute once:
+
+  %[2]s > "${fpath[1]}/_%[1]s"

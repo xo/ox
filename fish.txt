@@ -1,0 +1,11 @@
+Generate the %[1]s completion script for fish.
+
+To load completions in your current shell session:
+
+  %[2]s | source
+
+To load completions for every new session, execute once:
+
+  %[2]s > ~/.config/fish/completions/%[1]s.fish
+
+You will need to start a new shell for this setup to take effect.

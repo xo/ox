@@ -1,0 +1,14 @@
+Generate the %[1]s completion script for bash.
+
+To load completions in your current shell session:
+
+  source <(%[2]s)
+
+To load completions for every new session, execute once:
+- Linux:
+
+  %[2]s > /etc/bash_completion.d/%[1]s
+
+- MacOS:
+
+  %[2]s > /usr/local/etc/bash_completion.d/%[1]s

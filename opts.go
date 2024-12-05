@@ -172,7 +172,7 @@ func Version() CommandOption {
 			if cmd.Parent != nil {
 				return ErrCanOnlyBeUsedWithRootCommand
 			}
-			return NewVersionFor(cmd)
+			return NewVersion(cmd)
 		},
 	}
 }
@@ -194,7 +194,7 @@ func Help(opts ...Option) CommandOption {
 			if cmd.Parent != nil {
 				return ErrCanOnlyBeUsedWithRootCommand
 			}
-			if err := NewHelpFor(cmd, opts...); err != nil {
+			if err := NewHelp(cmd, opts...); err != nil {
 				return err
 			}
 			// add help sub command
@@ -227,6 +227,16 @@ func Comp() CommandOption {
 				return ErrCanOnlyBeUsedWithRootCommand
 			}
 			return nil
+		},
+		post: func(cmd *Command) error {
+			if cmd.Parent != nil {
+				return ErrCanOnlyBeUsedWithRootCommand
+			}
+			f := NewCompFlags
+			if len(cmd.Commands) != 0 {
+				f = NewComp
+			}
+			return f(cmd)
 		},
 	}
 }
@@ -533,6 +543,36 @@ func Section(section int) CommandFlagOption {
 	}
 }
 
+// Hidden is a [Command]/[Flag] option to set the command/flag's hidden.
+func Hidden(hidden bool) CommandFlagOption {
+	return option{
+		name: "Hidden",
+		cmd: func(cmd *Command) error {
+			cmd.Hidden = hidden
+			return nil
+		},
+		flag: func(g *Flag) error {
+			g.Hidden = hidden
+			return nil
+		},
+	}
+}
+
+// Deprecated is a [Command]/[Flag] option to set the command/flag's deprecated.
+func Deprecated(deprecated bool) CommandFlagOption {
+	return option{
+		name: "Deprecated",
+		cmd: func(cmd *Command) error {
+			cmd.Deprecated = deprecated
+			return nil
+		},
+		flag: func(g *Flag) error {
+			g.Deprecated = deprecated
+			return nil
+		},
+	}
+}
+
 // Hook is a [Flag] option to set a hook for a flag.
 func Hook(f func(context.Context) error) FlagOption {
 	return option{
@@ -590,9 +630,6 @@ func Sections(sections ...string) HelpOption {
 			return nil
 		},
 		post: func(cmd *Command) error {
-			if cmd.Help == nil {
-				return fmt.Errorf("%w: cannot be used with nil CommandHelp", ErrInvalidType)
-			}
 			if help, ok := cmd.Help.(*CommandHelp); ok {
 				help.CommandSections = sections
 			}
@@ -690,7 +727,7 @@ func addHelp(cmd *Command) error {
 		return nil
 	}
 	for _, c := range cmd.Commands {
-		if err := NewHelpFor(c); err != nil {
+		if err := NewHelp(c); err != nil {
 			return err
 		}
 		if err := addHelp(c); err != nil {

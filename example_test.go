@@ -228,11 +228,11 @@ func Example_sections() {
 			ox.Section(0),
 		),
 		ox.Sub(
-			ox.Usage("sub2.a", "the sub2.a command"),
-			ox.Section(1),
+			ox.Usage("sub2.b", "the sub2.b command"),
 		),
 		ox.Sub(
-			ox.Usage("sub2.b", "the sub2.b command"),
+			ox.Usage("sub2.a", "the sub2.a command"),
+			ox.Section(1),
 		),
 		ox.Sections(
 			"Primary commands",
@@ -252,13 +252,16 @@ func Example_sections() {
 	// Usage:
 	//   tree [flags] [command] [args]
 	//
+	// Available Commands:
+	//   completion  generate completion script for a shell
+	//
 	// Primary commands:
-	//   sub1    the sub1 command
-	//   help    show help for any command
+	//   help        show help for any command
+	//   sub1        the sub1 command
 	//
 	// Secondary commands:
-	//   sub2.a  the sub2.a command
-	//   sub2.b  the sub2.b command
+	//   sub2.a      the sub2.a command
+	//   sub2.b      the sub2.b command
 	//
 	// Flags:
 	//   -U, --url-map int=url  urls

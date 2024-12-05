@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -45,6 +46,8 @@ type Command struct {
 	Help io.WriterTo
 	// Special is the special value.
 	Special string
+	// Templates are the completion template files.
+	Templates fs.FS
 }
 
 // NewCommand creates a new command.
@@ -90,6 +93,11 @@ func (cmd *Command) Tree() []string {
 // Path returns the execution path for the command.
 func (cmd *Command) Path() []string {
 	return cmd.Tree()[1:]
+}
+
+// RootName returns the root name for the command.
+func (cmd *Command) RootName() string {
+	return cmd.Tree()[0]
 }
 
 // Populate populates vars with all the command's flags values, overwriting any
