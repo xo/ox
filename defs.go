@@ -491,12 +491,12 @@ func loadTemplates(tpls fs.FS) (map[string]string, map[string]string, error) {
 
 // templates are the default embedded completion templates.
 //
-//go:embed bash.sh
 //go:embed bash.txt
-//go:embed fish.sh
+//go:embed bash.bash
 //go:embed fish.txt
-//go:embed zsh.zsh
+//go:embed fish.fish
 //go:embed zsh.txt
-//go:embed powershell.ps1
+//go:embed zsh.zsh
 //go:embed powershell.txt
+//go:embed powershell.ps1
 var templates embed.FS

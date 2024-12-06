@@ -2,10 +2,11 @@
 
 `xo/ox` is a Go and TinyGo package for command-line argument and flag parsing.
 
-[Using][] | [Example][] | [About][]
+[Using][] | [Example][] | [Applications][] | [About][]
 
 [Using]: #using "Using"
 [Example]: #example "Example"
+[Applications]: #applications "Applications"
 [About]: #about "About"
 
 [![Unit Tests][ox-ci-status]][ox-ci]
@@ -19,6 +20,23 @@
 [discord]: https://discord.gg/yJKEzc7prt "Discord Discussion"
 [discord-status]: https://img.shields.io/discord/829150509658013727.svg?label=Discord&logo=Discord&colorB=7289da&style=flat-square "Discord Discussion"
 
+## Features
+
+- Long (`--arg`) and Short (`-a`) flag parsing
+- POSIX-style/compatible flag parsing (`-vvv`, `-mfoo=bar` `-m foo=bar`, `--map=foo=bar`)
+- Commands and sub commands heirarchy
+- Support for standard library types, including slices and maps
+- Register different types
+- Testable commands/sub-commands
+- Simple/flexible API [see example][Example].
+- Generics enabled
+- Extremely fast
+- TinyGo compatible
+- Standard help, version and shell completion
+- Environment, YAML, TOML, HCL config loading
+- Argument validation (count and values)
+- Reflection, Bind, and Context style APIs
+
 ## Using
 
 Add to a Go project in the usual way:
@@ -29,136 +47,27 @@ $ go get -u github.com/xo/ox@latest
 
 ## Example
 
-```go
-// _examples/simple/main.go
-package main
+Examples are available in [the package overview examples][pkg-overview], as
+well as [in the `_examples` directory](_examples).
 
-import (
-	"context"
-	"fmt"
-	"math/big"
-	"net/url"
-	"reflect"
+[pkg-overview]: https://pkg.go.dev/github.com/xo/ox#pkg-overview
 
-	"github.com/xo/ox"
-	_ "github.com/xo/ox/toml"
-	_ "github.com/xo/ox/yaml"
-)
+## Applications
 
-func main() {
-	ox.Run(
-		ox.Exec(run),
-		ox.Usage("simple", "a simple demo of the ox api"),
-		ox.Version("0.0.0-dev"),
-		ox.Help(),
-		ox.Comp(),
-		ox.UserConfigFile(),
-		ox.Flags().
-			Var("param-a", "parameter a", ox.Short("a"), ox.Key("", "param-a"), ox.Key("yaml", "my_param_a"), ox.Key("toml", "paramA")).
-			Int("param-b", "parameter b", ox.Short("b"), ox.Default(125)).
-			Slice("floats", "a slice of float64", ox.Float64T, ox.Short("f")).
-			URL("url", "a url", ox.Alias("my-url", "other url flag alias"), ox.Short("u")).
-			Count("verbose", "verbose", ox.Short("v")),
-		ox.Sub(
-			ox.Exec(sub),
-			ox.Usage("sub", "a sub command"),
-			ox.Alias("subCommand", "a sub command alias"),
-			ox.Flags().
-				Var("sub", "sub param").
-				Slice("strings", "a slice of strings", ox.Short("s")).
-				Slice("bigint", "a slice of big ints", ox.BigIntT, ox.Short("t")).
-				Map("ints", "a map of integers", ox.IntT, ox.Short("i")),
-			ox.ValidArgs(0, 10),
-		),
-	)
-}
+The following applications make use of the `xo/ox` package for command-line
+parsing:
 
-func run(ctx context.Context, args []string) error {
-	fmt.Println("run args:", args)
-
-	// get param-a
-	paramA := ox.Get[string](ctx, "param-a")
-	fmt.Println("paramA:", paramA)
-
-	// convert param-b (int) into a string
-	paramB := ox.String(ctx, "param-b")
-	fmt.Println("paramB:", paramB)
-
-	// a slice
-	floats := ox.Slice[float64](ctx, "floats")
-	fmt.Println("floats:", floats)
-
-	// convert a slice's values to strings
-	floatStrings := ox.Slice[string](ctx, "floats")
-	fmt.Println("floatStrings:", floatStrings)
-
-	// sub param is not available in this command, as it was defined on a sub
-	// command and not on the root command
-	sub := ox.Get[string](ctx, "sub")
-	fmt.Println("sub:", sub)
-
-	// a url
-	if u := ox.URL(ctx, "url"); u != nil {
-		// NOTE: this is wrapped in a if block, because when no flag has been
-		// NOTE: passed, tinygo's fmt.Println will panic with a *url.URL(nil),
-		// NOTE: however Go's fmt.Println does not
-		fmt.Println("url:", u)
-		// url alternate
-		urlAlt := ox.Get[*url.URL](ctx, "url")
-		fmt.Println("urlAlt:", urlAlt)
-	}
-
-	// verbose as its own type
-	type Verbosity int64
-	v := ox.Get[Verbosity](ctx, "verbose")
-	fmt.Println("verbosity:", v, reflect.TypeOf(v))
-
-	return nil
-}
-
-func sub(ctx context.Context, args []string) error {
-	fmt.Println("sub args:", args)
-
-	// get param-a, as any parent's
-	paramA := ox.Get[string](ctx, "param-a")
-	fmt.Println("paramA:", paramA)
-
-	// convert param-b (int) into a uint32
-	paramB := ox.Uint32(ctx, "param-b")
-	fmt.Println("paramB:", paramB)
-
-	// the floats param is available, as this is a sub command
-	floats := ox.Slice[float64](ctx, "floats")
-	fmt.Println("floats:", floats)
-
-	// sub is available here
-	sub := ox.Get[string](ctx, "sub")
-	fmt.Println("subParam:", sub)
-
-	// get strings
-	slice := ox.Slice[string](ctx, "strings")
-	fmt.Println("slice:", slice)
-
-	// slice of *big.Int
-	bigint := ox.Slice[*big.Int](ctx, "bigint")
-	fmt.Println("bigint:", bigint)
-
-	// map of ints, converted to int64
-	ints := ox.Map[string, int64](ctx, "ints")
-	fmt.Println("ints:", ints)
-	return nil
-}
-```
-
-### Additional Examples
-
-Please see the [`usql`][usql], [`iv`][iv], [`fv`][fv], and [`xo`][xo]
-application's source trees for additional, real-world examples.
+- [`usql`][usql] - a universal command-line interface for SQL databases
+- [`xo`][xo] - a templated code generator for databases
+- [`iv`][iv] - a command-line terminal graphics image viewer
+- [`fv`][fv] - a command-line terminal graphics font viewer
+- [`wallgrab`][wallgrab] - a Apple Aerial wallpaper downloader
 
 [usql]: https://github.com/xo/usql
+[xo]: https://github.com/xo/xo
 [iv]: https://github.com/xo/iv
 [fv]: https://github.com/xo/fv
-[xo]: https://github.com/xo/xo
+[wallgrab]: https://github.com/kenshaw/wallgrab
 
 ## About
 
@@ -206,15 +115,26 @@ Other command-line packages:
 - [urfave/cli][urfave]
 - [alecthomas/kong][kong]
 - [alecthomas/kingpin][kingpin]
+- [jessevdk/go-flags][go-flags]
+- [mow.cli][mowcli]
+- [peterbourgon/ff][pbff]
+
+Articles:
+
+- [Matt Turner, Choosing a Go CLI Library][mtgocli]
 
 [cobra]: https://github.com/spf13/cobra
+[go-flags]: https://github.com/jessevdk/go-flags
 [golang]: https://go.dev
 [hcl]: https://github.com/hashicorp/hcl
 [kingpin]: https://github.com/alecthomas/kingpin
 [kong]: https://github.com/alecthomas/kong
+[mowcli]: https://github.com/jawher/mow.cli
+[pbff]: https://github.com/peterbourgon/ff
 [pflag]: https://github.com/spf13/pflag
 [tinygo]: https://tinygo.org
 [toml]: https://toml.io
 [urfave]: https://github.com/urfave/cli
 [viper]: https://github.com/spf13/viper
 [yaml]: https://yaml.org
+[mtgocli]: https://mt165.co.uk/blog/golang-cli-library/
