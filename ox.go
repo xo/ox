@@ -388,8 +388,8 @@ func Wrap(s string, width, prefixWidth int) string {
 	return wrapped
 }
 
-// ldist is a levenshtein distance implementation.
-func ldist[T []E, E cmp.Ordered](a, b T) int {
+// Ldist is a Levenshtein distance implementation.
+func Ldist[T []E, E cmp.Ordered](a, b T) int {
 	m, n := len(a), len(b)
 	v := make([]int, m+1)
 	for i := range m + 1 {

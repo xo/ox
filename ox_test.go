@@ -29,7 +29,7 @@ func TestLdist(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.a+"::"+test.b, func(t *testing.T) {
 			a, b := []rune(strings.ToLower(test.a)), []rune(strings.ToLower(test.b))
-			if i := ldist(a, b); i != test.exp {
+			if i := Ldist(a, b); i != test.exp {
 				t.Errorf("expected %d, got: %d", test.exp, i)
 			}
 		})

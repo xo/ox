@@ -37,13 +37,15 @@ const (
 	Float32T    Type = "float32"
 	Complex128T Type = "complex128"
 	Complex64T  Type = "complex64"
-	TimestampT  Type = "timestamp"
-	DateTimeT   Type = "datetime"
-	DateT       Type = "date"
-	TimeT       Type = "time"
-	DurationT   Type = "duration"
-	CountT      Type = "count"
-	PathT       Type = "path"
+
+	TimestampT Type = "timestamp"
+	DateTimeT  Type = "datetime"
+	DateT      Type = "date"
+	TimeT      Type = "time"
+
+	DurationT Type = "duration"
+	CountT    Type = "count"
+	PathT     Type = "path"
 
 	BigIntT   Type = "bigint"
 	BigFloatT Type = "bigfloat"

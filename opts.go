@@ -202,7 +202,7 @@ func Help(opts ...Option) CommandOption {
 				}
 			}
 			// add to all sub commands
-			if err := addHelp(cmd); err != nil {
+			if err := AddHelp(cmd); err != nil {
 				return err
 			}
 			return nil
@@ -709,22 +709,6 @@ func (opt option) apply(val any) error {
 	}
 	if err != nil {
 		return fmt.Errorf("%s (%T): %w", opt.name, val, err)
-	}
-	return nil
-}
-
-// addHelp adds help for all sub commands on cmd.
-func addHelp(cmd *Command) error {
-	if len(cmd.Commands) == 0 {
-		return nil
-	}
-	for _, c := range cmd.Commands {
-		if err := NewHelpFlag(c); err != nil {
-			return err
-		}
-		if err := addHelp(c); err != nil {
-			return err
-		}
 	}
 	return nil
 }

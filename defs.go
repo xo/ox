@@ -513,6 +513,22 @@ func loadTemplates(tpls fs.FS) (map[string]string, map[string]string, error) {
 	return txt, tpl, nil
 }
 
+// AddHelp recursively adds help for all sub commands on the command.
+func AddHelp(cmd *Command) error {
+	if len(cmd.Commands) == 0 {
+		return nil
+	}
+	for _, c := range cmd.Commands {
+		if err := NewHelpFlag(c); err != nil {
+			return err
+		}
+		if err := AddHelp(c); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // templates are the default embedded completion templates.
 //
 //go:embed bash.txt
