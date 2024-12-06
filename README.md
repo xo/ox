@@ -2,12 +2,13 @@
 
 `xo/ox` is a Go and TinyGo package for command-line argument and flag parsing.
 
-[Using][] | [Example][] | [Applications][] | [About][]
+[Using][] | [Example][] | [Applications][] | [About][] | [License][]
 
 [Using]: #using "Using"
 [Example]: #example "Example"
 [Applications]: #applications "Applications"
 [About]: #about "About"
+[License]: #license "License"
 
 [![Unit Tests][ox-ci-status]][ox-ci]
 [![Go Reference][goref-ox-status]][goref-ox]
@@ -76,7 +77,7 @@ common command-line use-cases in [Go][golang].
 
 `ox` was built to streamline/simplify complexity found in the powerful (and
 popular!) [`cobra`][cobra]/ [`pflag`][pflag]/[`viper`][viper] combo. `ox` is
-written in pure Go, with no external package dependencies, and provides a
+written in pure Go, with no non-standard package dependencies, and provides a
 robust, extensible type system, as well as configuration loaders for
 [YAML][yaml], [TOML][toml], [HCL][hcl] that can be optionally enabled/disabled
 through imports.
@@ -85,9 +86,26 @@ through imports.
 members or other internal logic is hidden or obscured. When using `ox`, the
 user can manually build commands/flags however they see fit.
 
-Wherever an external package is used, the logic is encapsulated via a simple,
-anonymous import, thus allowing downstream users of the package to have a clean
-dependency heirarchy and to pick and choose the functionality that `ox` has.
+Wherever an a non-standard package has been used, such as for the [YAML][yaml],
+[TOML][toml], or [HCL][hcl] loaders, or for the built-in support for
+[colors](color), and [UUIDs](uuid), the external dependencies are fully
+optional, requiring a import of a `xo/ox` subpackage, for example:
+
+```go
+import (
+  // base package
+  "github.com/xo/ox"
+
+  // import config loaders
+  _ "github.com/xo/ox/hcl"
+  _ "github.com/xo/ox/toml"
+  _ "github.com/xo/ox/yaml"
+
+  // well-known types
+  _ "github.com/xo/ox/color"
+  _ "github.com/xo/ox/uuid"
+)
+```
 
 `ox` has been designed to use generics, and is built with Go 1.23+ applications
 in mind and works with [TinyGo][tinygo].
@@ -119,22 +137,30 @@ Other command-line packages:
 - [mow.cli][mowcli]
 - [peterbourgon/ff][pbff]
 
-Articles:
-
-- [Matt Turner, Choosing a Go CLI Library][mtgocli]
-
 [cobra]: https://github.com/spf13/cobra
 [go-flags]: https://github.com/jessevdk/go-flags
 [golang]: https://go.dev
-[hcl]: https://github.com/hashicorp/hcl
 [kingpin]: https://github.com/alecthomas/kingpin
 [kong]: https://github.com/alecthomas/kong
 [mowcli]: https://github.com/jawher/mow.cli
 [pbff]: https://github.com/peterbourgon/ff
 [pflag]: https://github.com/spf13/pflag
 [tinygo]: https://tinygo.org
-[toml]: https://toml.io
 [urfave]: https://github.com/urfave/cli
 [viper]: https://github.com/spf13/viper
-[yaml]: https://yaml.org
+
+Articles:
+
+- [Matt Turner, Choosing a Go CLI Library][mtgocli]
+
 [mtgocli]: https://mt165.co.uk/blog/golang-cli-library/
+
+## License
+
+`xo/ox` is licensed under the [MIT License](LICENSE). `ox`'s completion scripts
+are originally cribbed from the [cobra][cobra] project, and are made available
+under the [Apache License](LICENSE.completions.txt).
+
+[hcl]: https://github.com/hashicorp/hcl
+[toml]: https://toml.io
+[yaml]: https://yaml.org
