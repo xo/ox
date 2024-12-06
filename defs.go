@@ -140,7 +140,7 @@ func NewComp(cmd *Command, opts ...Option) error {
 }
 
 // NewCompFlags adds `--completion-script-<type>` flags to a command, or
-// hooking any existing command flags with `Special == "hook:comp:<type>"`
+// hooking any existing flags with `Special == "hook:comp:<type>"`.
 func NewCompFlags(cmd *Command, opts ...Option) error {
 	tpls := cmd.Templates
 	if tpls == nil {

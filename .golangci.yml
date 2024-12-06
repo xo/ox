@@ -8,6 +8,7 @@ linters:
     - exhaustive
     - exhaustruct
     - exportloopref
+    - forcetypeassert
     - funlen
     - gci
     - gochecknoglobals
@@ -35,3 +36,7 @@ linters:
     - wastedassign
     - wrapcheck
     - wsl
+linters-settings:
+  gocritic:
+    disabled-checks:
+      - deprecatedComment
