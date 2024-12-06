@@ -9,8 +9,6 @@ import (
 	"slices"
 	"strings"
 	"unicode/utf8"
-
-	"github.com/xo/ox/text"
 )
 
 // Option is the interface for options that can be passed when creating a
@@ -172,7 +170,7 @@ func Version() CommandOption {
 			if cmd.Parent != nil {
 				return ErrCanOnlyBeUsedWithRootCommand
 			}
-			return NewVersion(cmd)
+			return NewVersionFlag(cmd)
 		},
 	}
 }
@@ -194,22 +192,16 @@ func Help(opts ...Option) CommandOption {
 			if cmd.Parent != nil {
 				return ErrCanOnlyBeUsedWithRootCommand
 			}
-			if err := NewHelp(cmd, opts...); err != nil {
+			if err := NewHelpFlag(cmd, opts...); err != nil {
 				return err
 			}
 			// add help sub command
 			if len(cmd.Commands) != 0 {
-				if err := cmd.Sub(
-					Exec(func(ctx context.Context) error {
-						c, _ := Ctx(ctx)
-						_, _ = cmd.HelpContext(c).WriteTo(c.Stdout)
-						return ErrExit
-					}),
-					Usage(text.HelpCommandName, text.HelpCommandDesc),
-				); err != nil {
+				if err := NewHelp(cmd); err != nil {
 					return err
 				}
 			}
+			// add to all sub commands
 			if err := addHelp(cmd); err != nil {
 				return err
 			}
@@ -727,7 +719,7 @@ func addHelp(cmd *Command) error {
 		return nil
 	}
 	for _, c := range cmd.Commands {
-		if err := NewHelp(c); err != nil {
+		if err := NewHelpFlag(c); err != nil {
 			return err
 		}
 		if err := addHelp(c); err != nil {

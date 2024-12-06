@@ -14,6 +14,10 @@ var (
 	Flags = `Flags`
 	// GlobalFlags is the `Global Flags:` section name.
 	GlobalFlags = `Global Flags`
+	// VersionCommandName is the version command name.
+	VersionCommandName = `version`
+	// VersionCommandDesc is the version command description.
+	VersionCommandDesc = `show version for any command`
 	// VersionFlagName is the version flag name.
 	VersionFlagName = `version`
 	// VersionFlagDesc is the version flag description.

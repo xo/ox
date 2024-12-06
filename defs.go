@@ -15,9 +15,21 @@ import (
 	"github.com/xo/ox/text"
 )
 
-// NewVersion adds a `--version` flag to the command, or hooks the command's
-// flag with `Special == "hook:version"`.
+// NewVersion adds a `version` sub command to the command.
 func NewVersion(cmd *Command) error {
+	return cmd.Sub(
+		Exec(func(ctx context.Context) error {
+			c, _ := Ctx(ctx)
+			_ = DefaultVersion(c)
+			return ErrExit
+		}),
+		Usage(text.VersionCommandName, text.VersionCommandDesc),
+	)
+}
+
+// NewVersionFlag adds a `--version` flag to the command, or hooks the command's
+// flag with `Special == "hook:version"`.
+func NewVersionFlag(cmd *Command) error {
 	if g := cmd.FlagSpecial("hook:version"); g != nil {
 		g.Type, g.Def, g.NoArg, g.NoArgDef = HookT, DefaultVersion, true, ""
 	} else {
@@ -30,9 +42,21 @@ func NewVersion(cmd *Command) error {
 	return nil
 }
 
-// NewHelp adds a `--help` flag to the command, or hooks the command's flag
-// with `Special == "hook:help"`.
+// NewHelp adds a `help` sub command to the command.
 func NewHelp(cmd *Command, opts ...Option) error {
+	return cmd.Sub(
+		Exec(func(ctx context.Context) error {
+			c, _ := Ctx(ctx)
+			_, _ = cmd.HelpContext(c).WriteTo(c.Stdout)
+			return ErrExit
+		}),
+		Usage(text.HelpCommandName, text.HelpCommandDesc),
+	)
+}
+
+// NewHelpFlag adds a `--help` flag to the command, or hooks the command's flag
+// with `Special == "hook:help"`.
+func NewHelpFlag(cmd *Command, opts ...Option) error {
 	var err error
 	if cmd.Help, err = NewCommandHelp(cmd, opts...); err != nil {
 		return err
@@ -49,6 +73,106 @@ func NewHelp(cmd *Command, opts ...Option) error {
 			opts = append(opts, Short(text.HelpFlagShort))
 		}
 		cmd.Flags = cmd.Flags.Hook(text.HelpFlagName, text.HelpFlagDesc, f, opts...)
+	}
+	return nil
+}
+
+// NewComp adds a `completion` sub command to the command.
+func NewComp(cmd *Command, opts ...Option) error {
+	tpls := cmd.Templates
+	if tpls == nil {
+		tpls = templates
+	}
+	// base command
+	comp, err := NewCommand(prepend(
+		opts,
+		Parent(cmd),
+		Usage(text.CompCommandName, fmt.Sprintf(text.CompDesc, text.CompCommandAShellDesc)),
+		Special("comp"),
+	)...)
+	if err != nil {
+		return err
+	}
+	// add help
+	if comp.Help, err = NewCommandHelp(
+		comp,
+		Banner(fmt.Sprintf(text.CompCommandBanner, cmd.RootName(), text.CompCommandAShellDesc)),
+	); err != nil {
+		return err
+	}
+	// load shells from templates
+	txt, tpl, err := loadTemplates(tpls)
+	if err != nil {
+		return err
+	}
+	// build completion commands
+	for _, shell := range slices.Sorted(maps.Keys(txt)) {
+		templ, ok := tpl[shell]
+		if !ok {
+			continue
+		}
+		sub, err := NewCommand(
+			Parent(comp),
+			Usage(shell, ""),
+			Special("comp:"+shell),
+			Exec(func(ctx context.Context) error {
+				c, _ := Ctx(ctx)
+				_, _ = fmt.Fprintf(c.Stdout, templ, cmd.RootName())
+				return nil
+			}),
+		)
+		if err != nil {
+			return err
+		}
+		var banner string
+		if t, ok := txt[shell]; ok && t != "" {
+			banner = fmt.Sprintf(t, cmd.RootName(), strings.Join(sub.Tree(), " "))
+		} else {
+			banner = fmt.Sprintf(text.CompCommandBanner, cmd.RootName(), shell)
+		}
+		if sub.Help, err = NewCommandHelp(sub, Banner(banner)); err != nil {
+			return err
+		}
+		comp.Commands = append(comp.Commands, sub)
+	}
+	cmd.Commands = append(cmd.Commands, comp)
+	return nil
+}
+
+// NewCompFlags adds `--completion-script-<type>` flags to a command, or
+// hooking any existing command flags with `Special == "hook:comp:<type>"`
+func NewCompFlags(cmd *Command, opts ...Option) error {
+	tpls := cmd.Templates
+	if tpls == nil {
+		tpls = templates
+	}
+	// load shells from templates
+	txt, tpl, err := loadTemplates(tpls)
+	if err != nil {
+		return err
+	}
+	// add flags
+	for _, shell := range slices.Sorted(maps.Keys(txt)) {
+		templ, ok := tpl[shell]
+		if !ok {
+			continue
+		}
+		special := "hook:comp:" + shell
+		f := func(ctx *Context) error {
+			_, _ = fmt.Fprintf(ctx.Stdout, templ, cmd.RootName())
+			return ErrExit
+		}
+		if g := cmd.FlagSpecial(special); g != nil {
+			g.Type, g.Def, g.NoArg, g.NoArgDef, g.Hidden, g.Special = HookT, f, true, "", true, special
+		} else {
+			cmd.Flags = cmd.Flags.Hook(
+				fmt.Sprintf(text.CompFlagName, shell),
+				fmt.Sprintf(text.CompDesc, shell),
+				f,
+				Hidden(true),
+				Special(special),
+			)
+		}
 	}
 	return nil
 }
@@ -329,106 +453,6 @@ func (help *CommandHelp) writeFooter(sb *strings.Builder) {
 		writeBreak(sb)
 		_, _ = sb.WriteString(footer)
 	}
-}
-
-// NewComp adds a `completion` sub command to the command.
-func NewComp(cmd *Command, opts ...Option) error {
-	tpls := cmd.Templates
-	if tpls == nil {
-		tpls = templates
-	}
-	// base command
-	comp, err := NewCommand(prepend(
-		opts,
-		Parent(cmd),
-		Usage(text.CompCommandName, fmt.Sprintf(text.CompDesc, text.CompCommandAShellDesc)),
-		Special("comp"),
-	)...)
-	if err != nil {
-		return err
-	}
-	// add help
-	if comp.Help, err = NewCommandHelp(
-		comp,
-		Banner(fmt.Sprintf(text.CompCommandBanner, cmd.RootName(), text.CompCommandAShellDesc)),
-	); err != nil {
-		return err
-	}
-	// load shells from templates
-	txt, tpl, err := loadTemplates(tpls)
-	if err != nil {
-		return err
-	}
-	// build completion commands
-	for _, shell := range slices.Sorted(maps.Keys(txt)) {
-		templ, ok := tpl[shell]
-		if !ok {
-			continue
-		}
-		sub, err := NewCommand(
-			Parent(comp),
-			Usage(shell, ""),
-			Special("comp:"+shell),
-			Exec(func(ctx context.Context) error {
-				c, _ := Ctx(ctx)
-				_, _ = fmt.Fprintf(c.Stdout, templ, cmd.RootName())
-				return nil
-			}),
-		)
-		if err != nil {
-			return err
-		}
-		var banner string
-		if t, ok := txt[shell]; ok && t != "" {
-			banner = fmt.Sprintf(t, cmd.RootName(), strings.Join(sub.Tree(), " "))
-		} else {
-			banner = fmt.Sprintf(text.CompCommandBanner, cmd.RootName(), shell)
-		}
-		if sub.Help, err = NewCommandHelp(sub, Banner(banner)); err != nil {
-			return err
-		}
-		comp.Commands = append(comp.Commands, sub)
-	}
-	cmd.Commands = append(cmd.Commands, comp)
-	return nil
-}
-
-// NewCompFlags adds `--completion-script-<type>` flags to a command, or
-// hooking any existing command flags with `Special == "hook:comp:<type>"`
-func NewCompFlags(cmd *Command, opts ...Option) error {
-	tpls := cmd.Templates
-	if tpls == nil {
-		tpls = templates
-	}
-	// load shells from templates
-	txt, tpl, err := loadTemplates(tpls)
-	if err != nil {
-		return err
-	}
-	// add flags
-	for _, shell := range slices.Sorted(maps.Keys(txt)) {
-		templ, ok := tpl[shell]
-		if !ok {
-			continue
-		}
-		special := "hook:comp:" + shell
-		f := func(ctx *Context) error {
-			_, _ = fmt.Fprintf(ctx.Stdout, templ, cmd.RootName())
-			return ErrExit
-		}
-		if g := cmd.FlagSpecial(special); g != nil {
-			g.Type, g.Def, g.NoArg, g.NoArgDef, g.Hidden, g.Special = HookT, f, true, "", true, special
-		} else {
-			cmd.Flags = cmd.Flags.Hook(
-				fmt.Sprintf(text.CompFlagName, shell),
-				fmt.Sprintf(text.CompDesc, shell),
-				f,
-				Hidden(true),
-				Special(special),
-			)
-		}
-	}
-	return nil
 }
 
 // spec returns the spec text for the flag.
