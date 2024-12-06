@@ -55,7 +55,7 @@ func NewCommand(opts ...Option) (*Command, error) {
 	cmd := &Command{
 		Section: -1,
 	}
-	if err := applyOpts(cmd, opts...); err != nil {
+	if err := Apply(cmd, opts...); err != nil {
 		return nil, err
 	}
 	switch noName := cmd.Name == ""; {
@@ -64,7 +64,7 @@ func NewCommand(opts ...Option) (*Command, error) {
 	case noName:
 		return nil, fmt.Errorf("command: %w", ErrUsageNotSet)
 	}
-	if err := applyPostOpts(cmd, opts...); err != nil {
+	if err := ApplyPost(cmd, opts...); err != nil {
 		return nil, err
 	}
 	return cmd, nil
@@ -497,11 +497,11 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 		Usage:   usage,
 		Section: -1,
 	}
-	if err := applyOpts(g, opts...); err != nil {
+	if err := Apply(g, opts...); err != nil {
 		return nil, err
 	}
 	if extra, ok := typeFlagOpts[g.Type]; ok {
-		if err := applyOpts(g, extra...); err != nil {
+		if err := Apply(g, extra...); err != nil {
 			return nil, err
 		}
 	}

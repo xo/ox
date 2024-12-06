@@ -174,7 +174,7 @@ func NewContext(opts ...Option) (*Context, error) {
 		}
 		return true
 	}
-	if err := applyOpts(ctx, opts...); err != nil {
+	if err := Apply(ctx, opts...); err != nil {
 		return ctx, err
 	}
 	if ctx.Vars == nil {

@@ -223,7 +223,7 @@ func NewCommandHelp(cmd *Command, opts ...Option) (*CommandHelp, error) {
 		Command:     cmd,
 		CommandSort: true,
 	}
-	if err := applyOpts(help, opts...); err != nil {
+	if err := Apply(help, opts...); err != nil {
 		return nil, err
 	}
 	return help, nil

@@ -113,10 +113,10 @@ func Defaults(opts ...Option) CommandOption {
 	return option{
 		name: "Defaults",
 		cmd: func(cmd *Command) error {
-			return applyOpts(cmd, options...)
+			return Apply(cmd, options...)
 		},
 		post: func(cmd *Command) error {
-			return applyPostOpts(cmd, options...)
+			return ApplyPost(cmd, options...)
 		},
 	}
 }
@@ -729,8 +729,8 @@ func addHelp(cmd *Command) error {
 	return nil
 }
 
-// applyOpts applies the options to v.
-func applyOpts(v any, opts ...Option) error {
+// Apply applies the options to v.
+func Apply(v any, opts ...Option) error {
 	for _, o := range opts {
 		if err := o.Option().apply(v); err != nil {
 			return err
@@ -739,8 +739,8 @@ func applyOpts(v any, opts ...Option) error {
 	return nil
 }
 
-// postOpts applies post options to the command.
-func applyPostOpts(cmd *Command, opts ...Option) error {
+// ApplyPost applies post options to the command.
+func ApplyPost(cmd *Command, opts ...Option) error {
 	for _, o := range opts {
 		if opt := o.Option(); opt.post != nil {
 			if err := opt.post(cmd); err != nil {
