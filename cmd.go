@@ -13,6 +13,8 @@ import (
 	"strings"
 	"unicode"
 	"unicode/utf8"
+
+	"github.com/xo/ox/text"
 )
 
 // Command is a command.
@@ -153,7 +155,7 @@ func (cmd *Command) Suggest(args ...string) error {
 			}
 		}
 	}
-	return fmt.Errorf("%w %q", ErrUnknownCommand, args[0])
+	return fmt.Errorf(text.SuggestionErrorMessage, ErrUnknownCommand, args[0], cmd.Name)
 }
 
 // Lookup returns the furthest matching command in the command tree.

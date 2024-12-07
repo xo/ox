@@ -13,16 +13,20 @@ func TestSuggestions(t *testing.T) {
 		args []string
 		exp  string
 	}{
-		{ss("on"), `error: unknown command "on" for "cmd"
+		{
+			ss("subfoo"), `error: unknown command "subfoo" for "cmd"`,
+		},
+		{
+			ss("on"), `error: unknown command "on" for "cmd"
 
 Did you mean this?
   one
-
-`},
+`,
+		},
 	} {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var code int
-			c := testContext(t, &code, "on")
+			c := testContext(t, &code, test.args...)
 			if err := c.Parse(); err != nil {
 				t.Fatalf("expected no error, got: %v", err)
 			}
@@ -30,16 +34,13 @@ Did you mean this?
 			if err == nil {
 				t.Fatalf("expected non-nil error")
 			}
-			if s, exp := err.Error(), `unknown command "on" for "cmd"`; s != exp {
-				t.Fatalf("expected %q, got: %q", exp, s)
-			}
 			if !c.Handler(err) {
 				t.Fatalf("expected Handler to return true")
 			}
 			if code == 0 {
 				t.Fatalf("expected Handler to set non-zero code")
 			}
-			if s := c.Stderr.(*bytes.Buffer).String(); s != test.exp {
+			if s := strings.TrimSuffix(c.Stderr.(*bytes.Buffer).String(), "\n"); s != test.exp {
 				t.Errorf("\nexpected:\n%s\ngot:\n%s", test.exp, s)
 			}
 		})
