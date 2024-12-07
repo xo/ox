@@ -109,10 +109,14 @@ var (
 					w = ctx.Stderr
 				}
 				fmt.Fprintf(w, text.ErrorMessage, err)
-				if e, ok := err.(interface{ ErrorDetails() string }); ok {
-					fmt.Fprint(w, e.ErrorDetails())
+				if v, ok := err.(interface{ ErrorDetails() string }); ok {
+					fmt.Fprint(w, v.ErrorDetails())
 				}
-				ctx.Exit(1)
+				code := 1
+				if v, ok := err.(interface{ ErrorCode() int }); ok {
+					code = v.ErrorCode()
+				}
+				ctx.Exit(code)
 			case ctx.OnErr == OnErrPanic:
 				ctx.Panic(err)
 			}
