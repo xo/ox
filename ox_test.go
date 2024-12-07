@@ -30,6 +30,13 @@ Did you mean this?
   one
 `,
 		},
+		{
+			ss(`rmove`), `error: unknown command "rmove" for "cmd"
+
+Did you mean this?
+  one
+`,
+		},
 	} {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var code int
