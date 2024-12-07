@@ -32,6 +32,7 @@ func main() {
 func run(args *args) func(context.Context, []string) error {
 	return func(ctx context.Context, v []string) error {
 		fmt.Println("arg:", args.Arg)
+		fmt.Println("url set:", args.URLSet)
 		if args.URL != nil {
 			fmt.Println("u:", args.URL)
 		} else {

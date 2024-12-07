@@ -119,7 +119,7 @@ func testContext(t *testing.T, code *int, args ...string) *Context {
 			*code = c
 		},
 		Panic: func(v any) {
-			t.Fatal(v)
+			t.Fatalf("context panic: %v", v)
 		},
 		Root:   cmd,
 		Stderr: new(bytes.Buffer),

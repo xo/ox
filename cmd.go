@@ -581,7 +581,7 @@ func FlagsFrom[T *E, E any](val T) ([]*Flag, error) {
 			continue
 		}
 		// build flag opts
-		opts, err := buildFlagOpts(typ, v.Field(i).Addr(), f.Name, tag[1:])
+		opts, err := buildFlagOpts(v, v.Field(i).Addr(), tag[1:])
 		if err != nil {
 			return nil, fmt.Errorf("field %s: %w", f.Name, err)
 		}
@@ -682,14 +682,14 @@ func NewExec[T ExecType](f T) (ExecFunc, error) {
 }
 
 // buildFlagOpts builds flag options for v from the passed struct tag values.
-func buildFlagOpts(refType reflect.Type, value reflect.Value, name string, s []string) ([]Option, error) {
+func buildFlagOpts(parent, value reflect.Value, options []string) ([]Option, error) {
 	var set *bool
 	typ, mapKey, elem, err := defaultType(value.Elem().Type())
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", value.Type().String(), err)
 	}
 	opts := []Option{typ, MapKey(mapKey), Elem(elem)}
-	for _, opt := range s {
+	for _, opt := range options {
 		key, val, _ := strings.Cut(opt, ":")
 		switch key {
 		case "type":
@@ -734,12 +734,8 @@ func buildFlagOpts(refType reflect.Type, value reflect.Value, name string, s []s
 		case "deprecated":
 			opts = append(opts, Deprecated(true))
 		case "set":
-			for i := range refType.NumField() {
-				field := refType.Field(i)
-				if field.Name == name || field.Name != val {
-					continue
-				}
-				break
+			if set, err = setField(parent, val); err != nil {
+				return nil, err
 			}
 		default:
 			return nil, fmt.Errorf("%w: %q", ErrUnknownTagOption, key)
@@ -747,6 +743,25 @@ func buildFlagOpts(refType reflect.Type, value reflect.Value, name string, s []s
 	}
 	// prepend bind to opt
 	return prepend(opts, BindRef(value, set)), nil
+}
+
+// setField returns the pointer to the bool for name.
+func setField(value reflect.Value, name string) (*bool, error) {
+	if r := []rune(name); !unicode.IsUpper(r[0]) {
+		return nil, fmt.Errorf("%w: set: %q is not an exported field", ErrInvalidType, name)
+	}
+	refType := value.Type()
+	for i := range refType.NumField() {
+		f := refType.Field(i)
+		switch {
+		case f.Name != name:
+			continue
+		case f.Type.Kind() != reflect.Bool:
+			return nil, fmt.Errorf("%w: set: field %q is not bool", ErrInvalidType, name)
+		}
+		return value.Field(i).Addr().Interface().(*bool), nil
+	}
+	return nil, fmt.Errorf("%w: set: field %q was not found", ErrInvalidType, name)
 }
 
 // newCommandError creates a command error.
