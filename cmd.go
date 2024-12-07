@@ -130,14 +130,28 @@ func (cmd *Command) Populate(ctx *Context, all, overwrite bool, vars Vars) error
 	return nil
 }
 
-// Command returns the sub command with the name.
-func (cmd *Command) Command(name string) *Command {
+// Suggest returns a [SuggestionError] if there is a matching sub command
+// within the command's help distance.
+func (cmd *Command) Suggest(args ...string) error {
+	if len(args) == 0 {
+		return nil
+	}
+	var minDist int
+	if help, ok := cmd.Help.(*CommandHelp); ok {
+		minDist = help.MinDist
+	}
+	if minDist <= 0 {
+		minDist = DefaultMinDist
+	}
+	arg := []rune(args[0])
 	for _, c := range cmd.Commands {
-		if c.Name == name || slices.Contains(c.Aliases, name) {
-			return c
+		for _, name := range prepend(c.Aliases, c.Name) {
+			if Ldist(arg, []rune(name)) <= minDist {
+				return NewSuggestionError(cmd, args[0], c)
+			}
 		}
 	}
-	return nil
+	return fmt.Errorf("%w %q", ErrUnknownCommand, args[0])
 }
 
 // Lookup returns the furthest matching command in the command tree.
@@ -151,6 +165,16 @@ func (cmd *Command) Lookup(names ...string) *Command {
 		break
 	}
 	return ret
+}
+
+// Command returns the sub command with the name.
+func (cmd *Command) Command(name string) *Command {
+	for _, c := range cmd.Commands {
+		if c.Name == name || slices.Contains(c.Aliases, name) {
+			return c
+		}
+	}
+	return nil
 }
 
 // CommandSpecial returns the sub command with the special value.

@@ -58,4 +58,8 @@ var (
 	// CompCommandAShellDesc is the default `a shell` completion command
 	// description.
 	CompCommandAShellDesc = `a shell`
+	// SuggestionError is the suggestion error text.
+	SuggestionError = `%s %q for %q`
+	// SuggestionDetails is the suggestion error details.
+	SuggestionDetails = "\nDid you mean this?\n  %s\n\n"
 )

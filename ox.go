@@ -38,6 +38,8 @@ var (
 	DefaultStripGoTestFlags = true
 	// DefaultWrapWidth is the default wrap width.
 	DefaultWrapWidth = 95
+	// DefaultMinDist is the default minimum distance for suggestions.
+	DefaultMinDist = 2
 	// DefaultWrap wraps a line of text with [Wrap] using [DefaultWrapWidth]
 	// for the width.
 	DefaultWrap = func(s string, prefixWidth int) string {
@@ -93,6 +95,30 @@ var (
 		}
 		return name, ver
 	}
+	// DefaultErrorHandler is the default error handler used by
+	// [Run]/[RunContext].
+	DefaultErrorHandler = func(ctx *Context) func(error) bool {
+		return func(err error) bool {
+			switch {
+			case errors.Is(err, ErrExit):
+			case ctx.OnErr == OnErrContinue:
+				return false
+			case ctx.OnErr == OnErrExit:
+				var w io.Writer = os.Stderr
+				if ctx.Stderr != nil {
+					w = ctx.Stderr
+				}
+				fmt.Fprintf(w, "%s%v\n", text.ErrorMessagePrefix, err)
+				if e, ok := err.(interface{ ErrorDetails() string }); ok {
+					fmt.Fprint(w, e.ErrorDetails())
+				}
+				ctx.Exit(1)
+			case ctx.OnErr == OnErrPanic:
+				ctx.Panic(err)
+			}
+			return true
+		}
+	}
 )
 
 // Run creates a [Context] and builds a [Command] and its [FlagSet] based on
@@ -107,25 +133,29 @@ func Run(opts ...Option) {
 func RunContext(ctx context.Context, opts ...Option) {
 	// build context
 	c, err := NewContext(opts...)
-	if err != nil && c.Handle(err) {
+	if err != nil && c.Handler(err) {
 		return
 	}
 	// parse
-	if err = c.Parse(); err != nil && c.Handle(err) {
+	if err = c.Parse(); err != nil && c.Handler(err) {
 		return
 	}
 	// validate
-	if err = c.Validate(); err != nil && c.Handle(err) {
+	if err = c.Validate(); err != nil && c.Handler(err) {
 		return
 	}
 	// execute
-	if err = c.Run(ctx); err != nil && c.Handle(err) {
+	if err = c.Run(ctx); err != nil && c.Handler(err) {
 		return
 	}
 }
 
 // Context is a [Run]/[RunContext] context.
 type Context struct {
+	// Exit is the exit func.
+	Exit func(int)
+	// Panic is the panic func.
+	Panic func(any)
 	// Args are the arguments to parse, normally [os.Args][1:].
 	Args []string
 	// Stdin is the standard in to use, normally [os.Stdin].
@@ -136,8 +166,8 @@ type Context struct {
 	Stderr io.Writer
 	// OnErr is the on error handling. Used by the default Handle func.
 	OnErr OnErr
-	// Handle is the func used to handle errors within [Run]/[RunContext].
-	Handle func(error) bool
+	// Handler is the func used to handle errors within [Run]/[RunContext].
+	Handler func(error) bool
 	// Root is the root command created within [Run]/[RunContext].
 	Root *Command
 	// Exec is the exec target, determined by the Root's definition and after Args.
@@ -152,28 +182,16 @@ type Context struct {
 // NewContext creates a new run context.
 func NewContext(opts ...Option) (*Context, error) {
 	ctx := &Context{
+		Exit: os.Exit,
+		Panic: func(v any) {
+			panic(v)
+		},
 		Stdin:  os.Stdin,
 		Stdout: os.Stdout,
 		Stderr: os.Stderr,
 		Args:   stripTestFlags(os.Args[1:]),
 	}
-	ctx.Handle = func(err error) bool {
-		var w io.Writer = os.Stderr
-		if ctx.Stderr != nil {
-			w = ctx.Stderr
-		}
-		switch {
-		case errors.Is(err, ErrExit):
-		case ctx.OnErr == OnErrContinue:
-			return false
-		case ctx.OnErr == OnErrExit:
-			fmt.Fprintf(w, "%s%v\n", text.ErrorMessagePrefix, err)
-			os.Exit(1)
-		case ctx.OnErr == OnErrPanic:
-			panic(err)
-		}
-		return true
-	}
+	ctx.Handler = DefaultErrorHandler(ctx)
 	if err := Apply(ctx, opts...); err != nil {
 		return ctx, err
 	}
@@ -203,8 +221,13 @@ func (ctx *Context) Validate() error {
 
 // Run runs the command.
 func (ctx *Context) Run(parent context.Context) error {
-	if ctx.Exec.Exec != nil {
+	switch {
+	case ctx.Exec.Exec != nil:
 		return ctx.Exec.Exec(WithContext(parent, ctx), ctx.Args)
+	case len(ctx.Exec.Commands) != 0 && len(ctx.Args) != 0:
+		if err := ctx.Exec.Suggest(ctx.Args...); err != nil {
+			return err
+		}
 	}
 	_, _ = ctx.Exec.HelpContext(ctx).WriteTo(ctx.Stdout)
 	return nil
@@ -347,6 +370,8 @@ const (
 	ErrInvalidShortName Error = "invalid short name"
 	// ErrCouldNotCreateValue is the could not create value error.
 	ErrCouldNotCreateValue Error = "could not create value"
+	// ErrUnknownCommand is the unknown command error.
+	ErrUnknownCommand Error = "unknown command"
 	// ErrUnknownFlag is the unknown flag error.
 	ErrUnknownFlag Error = "unknown flag"
 	// ErrMissingArgument is the missing argument error.
@@ -366,6 +391,37 @@ const (
 	// ErrExit is the exit error.
 	ErrExit Error = "exit"
 )
+
+// SuggestionError is a suggestion error.
+type SuggestionError struct {
+	Parent  *Command
+	Arg     string
+	Command *Command
+}
+
+// NewSuggestionError creates a suggestion error.
+func NewSuggestionError(parent *Command, arg string, command *Command) error {
+	return &SuggestionError{
+		Parent:  parent,
+		Arg:     arg,
+		Command: command,
+	}
+}
+
+// Error satisfies the [error] interface.
+func (err *SuggestionError) Error() string {
+	return fmt.Sprintf(text.SuggestionError, ErrUnknownCommand, err.Arg, err.Parent.Name)
+}
+
+// Unwrap satisfies the [errors.Unwrap] interface.
+func (err *SuggestionError) Unwrap() error {
+	return ErrUnknownCommand
+}
+
+// ErrorDetails returns error details. Used by [DefaultErrorHandler].
+func (err *SuggestionError) ErrorDetails() string {
+	return fmt.Sprintf(text.SuggestionDetails, err.Command.Name)
+}
 
 // Wrap wraps a line of text to the specified width, and adding a prefix of
 // empty prefixWidth to each wrapped line.

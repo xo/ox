@@ -613,8 +613,8 @@ func Footer(footer string) HelpOption {
 	}
 }
 
-// Sort is a [Command] option to set the s sort for flags when used with
-// a [Command] .
+// Sort is a [Command] option to set the sort for flags when used with a
+// [Command].
 func Sort(sort bool) CommandOption {
 	return option{
 		name: "Sort",
@@ -629,6 +629,48 @@ func Sort(sort bool) CommandOption {
 		},
 		help: func(help *CommandHelp) error {
 			help.Sort = sort
+			return nil
+		},
+	}
+}
+
+// CommandSort is a [Command] option to set the sort for sub commands when used
+// with a [Command].
+func CommandSort(commandSort bool) CommandOption {
+	return option{
+		name: "CommandSort",
+		cmd: func(cmd *Command) error {
+			return nil
+		},
+		post: func(cmd *Command) error {
+			if help, ok := cmd.Help.(*CommandHelp); ok {
+				help.CommandSort = commandSort
+			}
+			return nil
+		},
+		help: func(help *CommandHelp) error {
+			help.CommandSort = commandSort
+			return nil
+		},
+	}
+}
+
+// MinDist is a [Command] option to set the minimum Levenshtein for flags when
+// used with a [Command].
+func MinDist(minDist int) CommandOption {
+	return option{
+		name: "MinDist",
+		cmd: func(cmd *Command) error {
+			return nil
+		},
+		post: func(cmd *Command) error {
+			if help, ok := cmd.Help.(*CommandHelp); ok {
+				help.MinDist = minDist
+			}
+			return nil
+		},
+		help: func(help *CommandHelp) error {
+			help.MinDist = minDist
 			return nil
 		},
 	}

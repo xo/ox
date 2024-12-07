@@ -217,6 +217,8 @@ type CommandHelp struct {
 	Hidden bool
 	// Deprecated includes deprecated commands/flags.
 	Deprecated bool
+	// MinDist is the minimum Levenshtein distance for suggestions.
+	MinDist int
 }
 
 // NewCommandHelp creates command help based on the passed options.
@@ -521,12 +523,12 @@ func AddHelp(cmd *Command) error {
 	if len(cmd.Commands) == 0 {
 		return nil
 	}
-	sort := false
+	sort, commandSort, minDist := false, true, 0
 	if help, ok := cmd.Help.(*CommandHelp); ok {
-		sort = help.Sort
+		sort, commandSort, minDist = help.Sort, help.CommandSort, help.MinDist
 	}
 	for _, c := range cmd.Commands {
-		if err := NewHelpFlag(c, Sort(sort)); err != nil {
+		if err := NewHelpFlag(c, Sort(sort), CommandSort(commandSort), MinDist(minDist)); err != nil {
 			return err
 		}
 		if err := AddHelp(c); err != nil {
