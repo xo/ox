@@ -558,25 +558,29 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 	return g, nil
 }
 
-// FlagFrom creates flags for a value of type *struct using reflection. Builds
+// FlagsFrom creates flags for a value of type *struct using reflection. Builds
 // flags for all exported fields with a `ox` tag, and a non-empty description.
+//
+// A `ox` tag starts with the flag's description, followed by one or more
+// options separated by `,`. If a flag description must contain a comma (`,`)
+// it can be escaped with a double `\\`. The flag's name is determined by the
+// result of calling [DefaultFlagNameMapper], or it can be set with the `name:`
+// option (see below).
+//
+// Example:
 //
 //	args := struct{
 //		MyFlag      string   `ox:"my flag,short:f,default:$USER"`
 //		MyVerbosity int      `ox:"my verbosity,type:count,short:v"`
 //		MyURL       *url.URL `ox:"my url,set:MyURLSet"`
 //		MyURLSet    bool
+//		MyOtherFlag string   `ox:"a long\\, long description,short:F"`
 //		MyFloat     float64  `ox:"my float,hidden,name:MYF"`
 //	}{}
 //
-// A flag's long name is initially set by to the value of a call to the
-// [DefaultFlagNameMapper] func, or can be set with the `name:` option (see
-// below).
+//	ox.FromFlags(&args)
 //
-// A `default:` option value will be expanded by the call to [Context.Expand].
-//
-// The `ox` tag starts with the flag's description, followed by any of the
-// following options:
+// Recognized options:
 //
 //	type - sets the flag's field type
 //	mapkey - sets the flag's map key type
@@ -589,14 +593,16 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 //	default - sets the flag's default value
 //	noarg - set's the flag as requiring no argument, and the default value for the flag when toggled
 //	key - set's the flag's lookup config key
-//	hook - set's the flag's special value to a hook, such as `version` or `help`
+//	hook - set's the flag's special value to `hook:<type>`, and can be used to hook [Defaults]'s flags
 //	section - set's the flag's section
 //	hidden - marks the flag as hidden
 //	deprecated - marks the flag as deprecated
 //	set - bind's the flag's set value to a bool field in the *struct of the name
 //
-// The default reflect tag name (`ox`) can be changed through the [DefaultTagName]
-// variable.
+// A `default:` option value will be expanded by [Context.Expand].
+//
+// The reflect tag name (`ox`) can be changed by setting the [DefaultTagName]
+// variable if necessary.
 func FlagsFrom[T *E, E any](val T) ([]*Flag, error) {
 	v := reflect.ValueOf(val).Elem()
 	if v.Kind() != reflect.Struct {
