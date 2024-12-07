@@ -239,6 +239,7 @@ func (ctx *Context) Run(parent context.Context) error {
 
 // Expand expands s.
 //
+//	$APPNAME - the root command's name
 //	$HOME - the current user's home directory
 //	$USER - the current user's user name
 //	$CONFIG - the current user's config directory
@@ -294,6 +295,8 @@ func (ctx *Context) Expand(v any) (string, error) {
 			}
 			return filepath.Join(dir, ctx.Root.Name), nil
 		}
+	case "$APPNAME":
+		return ctx.Root.Name, nil
 	case "$NUMCPU":
 		return strconv.Itoa(runtime.NumCPU()), nil
 	case "$ARCH":
