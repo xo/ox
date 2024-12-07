@@ -121,8 +121,26 @@ func Defaults(opts ...Option) CommandOption {
 	}
 }
 
-// From is a [Command] option to build the command's flags from val. See
-// [FlagsFrom] for documentation on the supported reflect tag.
+// From is a [Command] option to build the command's flags from a value of type
+// *struct using reflection. Adds flags for all exported fields of the passed
+// value having a `ox` tag and a non-empty description.
+//
+// Example:
+//
+//	args := struct{
+//		MyFlag      string   `ox:"my flag,short:f,default:$USER"`
+//		MyVerbosity int      `ox:"my verbosity,type:count,short:v"`
+//		MyURL       *url.URL `ox:"my url,set:MyURLSet"`
+//		MyURLSet    bool
+//		MyOtherFlag string   `ox:"a long\\, long description,short:F"`
+//		MyFloat     float64  `ox:"my float,hidden,name:MYF"`
+//	}{}
+//
+//	ox.Run(
+//		ox.From(&args),
+//	)
+//
+// See [FlagsFrom] for more information of the available tag options.
 func From[T *E, E any](val T) CommandOption {
 	return option{
 		name: "From",
