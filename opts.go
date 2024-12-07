@@ -613,6 +613,27 @@ func Footer(footer string) HelpOption {
 	}
 }
 
+// Sort is a [Command] option to set the s sort for flags when used with
+// a [Command] .
+func Sort(sort bool) CommandOption {
+	return option{
+		name: "Sort",
+		cmd: func(cmd *Command) error {
+			return nil
+		},
+		post: func(cmd *Command) error {
+			if help, ok := cmd.Help.(*CommandHelp); ok {
+				help.Sort = sort
+			}
+			return nil
+		},
+		help: func(help *CommandHelp) error {
+			help.Sort = sort
+			return nil
+		},
+	}
+}
+
 // Sections is a [Help] option to set section names for commands when used with
 // a [Command] or flag sections when used with [Help].
 func Sections(sections ...string) HelpOption {

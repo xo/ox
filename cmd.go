@@ -140,6 +140,19 @@ func (cmd *Command) Command(name string) *Command {
 	return nil
 }
 
+// Lookup returns the furthest matching command in the command tree.
+func (cmd *Command) Lookup(names ...string) *Command {
+	ret := cmd
+	for _, name := range names {
+		if c := ret.Command(name); c != nil {
+			ret = c
+			continue
+		}
+		break
+	}
+	return ret
+}
+
 // CommandSpecial returns the sub command with the special value.
 func (cmd *Command) CommandSpecial(special string) *Command {
 	for _, c := range cmd.Commands {

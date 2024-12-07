@@ -278,3 +278,44 @@ func Example_sections() {
 	//
 	// Use "tree [command] --help" for more information about a command.
 }
+
+// Example_help shows help output.
+func Example_help() {
+	ox.Run(
+		ox.Usage("cmdtree", "help command tree"),
+		ox.Defaults(ox.Sort(true)),
+		ox.Sub(
+			ox.Usage("sub1", "sub1 tree"),
+			ox.Sub(
+				ox.Usage("sub2", "sub2 tree", "sb", "s"),
+				ox.Flags().
+					String("my-flag", "my flag").
+					BigInt("big-int", "big int", ox.Short("B")).
+					Int("a", "the a int"),
+				ox.Sub(ox.Usage("sub3", "sub3 tree")),
+				ox.Sub(ox.Usage("a", "another command")),
+			),
+		),
+		ox.Args("help", "sub1", "sb", "--bad-flag", "-b"),
+	)
+	// Output:
+	// sub2 sub2 tree
+	//
+	// Usage:
+	//   cmdtree sub1 sub2 [flags] [command] [args]
+	//
+	// Aliases:
+	//   sub2, sb, s
+	//
+	// Available Commands:
+	//   a     another command
+	//   sub3  sub3 tree
+	//
+	// Flags:
+	//       --a int           the a int
+	//   -B, --big-int bigint  big int
+	//   -h, --help            show help, then exit
+	//       --my-flag string  my flag
+	//
+	// Use "cmdtree sub1 sub2 [command] --help" for more information about a command.
+}

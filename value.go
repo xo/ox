@@ -645,9 +645,12 @@ func inc(val any, delta uint64) {
 
 // invalid returns true if the value is invalid.
 func invalid(val any) bool {
-	// interface for netip.{Addr,AddrPort,Prefix} and timev
-	if v, ok := val.(interface{ IsValid() bool }); ok {
+	switch v := val.(type) {
+	case interface{ IsValid() bool }:
+		// netip.{Addr,AddrPort,Prefix} and FormattedTime
 		return !v.IsValid()
+	case interface{ IsZero() bool }:
+		return v.IsZero()
 	}
 	return false
 }

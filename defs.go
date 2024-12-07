@@ -16,24 +16,24 @@ import (
 )
 
 // NewVersion adds a `version` sub command to the command.
-func NewVersion(cmd *Command) error {
-	return cmd.Sub(
+func NewVersion(cmd *Command, opts ...Option) error {
+	return cmd.Sub(prepend(
+		opts,
+		Usage(text.VersionCommandName, text.VersionCommandDesc),
 		Exec(func(ctx context.Context) error {
 			c, _ := Ctx(ctx)
 			_ = DefaultVersion(c)
 			return ErrExit
 		}),
-		Usage(text.VersionCommandName, text.VersionCommandDesc),
-	)
+	)...)
 }
 
 // NewVersionFlag adds a `--version` flag to the command, or hooks the command's
 // flag with `Special == "hook:version"`.
-func NewVersionFlag(cmd *Command) error {
+func NewVersionFlag(cmd *Command, opts ...Option) error {
 	if g := cmd.FlagSpecial("hook:version"); g != nil {
 		g.Type, g.Def, g.NoArg, g.NoArgDef = HookT, DefaultVersion, true, ""
 	} else {
-		var opts []Option
 		if cmd.Flag(text.VersionFlagShort, false, true) == nil {
 			opts = append(opts, Short(text.VersionFlagShort))
 		}
@@ -44,14 +44,16 @@ func NewVersionFlag(cmd *Command) error {
 
 // NewHelp adds a `help` sub command to the command.
 func NewHelp(cmd *Command, opts ...Option) error {
-	return cmd.Sub(
-		Exec(func(ctx context.Context) error {
+	return cmd.Sub(prepend(
+		opts,
+		Usage(text.HelpCommandName, text.HelpCommandDesc),
+		Exec(func(ctx context.Context, args []string) error {
 			c, _ := Ctx(ctx)
-			_, _ = cmd.HelpContext(c).WriteTo(c.Stdout)
+			_, _ = cmd.Lookup(args...).HelpContext(c).WriteTo(c.Stdout)
 			return ErrExit
 		}),
-		Usage(text.HelpCommandName, text.HelpCommandDesc),
-	)
+		Option(OnErrContinue),
+	)...)
 }
 
 // NewHelpFlag adds a `--help` flag to the command, or hooks the command's flag
@@ -141,7 +143,7 @@ func NewComp(cmd *Command, opts ...Option) error {
 
 // NewCompFlags adds `--completion-script-<type>` flags to a command, or
 // hooking any existing flags with `Special == "hook:comp:<type>"`.
-func NewCompFlags(cmd *Command, opts ...Option) error {
+func NewCompFlags(cmd *Command, _ ...Option) error {
 	tpls := cmd.Templates
 	if tpls == nil {
 		tpls = templates
@@ -513,13 +515,18 @@ func loadTemplates(tpls fs.FS) (map[string]string, map[string]string, error) {
 	return txt, tpl, nil
 }
 
-// AddHelp recursively adds help for all sub commands on the command.
+// AddHelp recursively adds help for all sub commands on the command,
+// selectively copying certain settings.
 func AddHelp(cmd *Command) error {
 	if len(cmd.Commands) == 0 {
 		return nil
 	}
+	sort := false
+	if help, ok := cmd.Help.(*CommandHelp); ok {
+		sort = help.Sort
+	}
 	for _, c := range cmd.Commands {
-		if err := NewHelpFlag(c); err != nil {
+		if err := NewHelpFlag(c, Sort(sort)); err != nil {
 			return err
 		}
 		if err := AddHelp(c); err != nil {
