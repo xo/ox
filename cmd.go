@@ -558,7 +558,45 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 	return g, nil
 }
 
-// FlagFrom creates flags for the value using reflection.
+// FlagFrom creates flags for a value of type *struct using reflection. Builds
+// flags for all exported fields with a `ox` tag, and a non-empty description.
+//
+//	args := struct{
+//		MyFlag      string   `ox:"my flag,short:f,default:$USER"`
+//		MyVerbosity int      `ox:"my verbosity,type:count,short:v"`
+//		MyURL       *url.URL `ox:"my url,set:MyURLSet"`
+//		MyURLSet    bool
+//		MyFloat     float64  `ox:"my float,hidden,name:MYF"`
+//	}{}
+//
+// A flag's long name is initially set by to the value of a call to the
+// [DefaultFlagNameMapper] func, or can be set with the `name:` option (see
+// below).
+//
+// A `default:` option value will be expanded by the call to [Context.Expand].
+//
+// The `ox` tag starts with the flag's description, followed by any of the
+// following options:
+//
+//	type - sets the flag's field type
+//	mapkey - sets the flag's map key type
+//	elem - sets the flag's map/slice element type
+//	name - sets the flag's name
+//	short - sets the flag's short (single character) name
+//	alias - adds a alias to the flag
+//	aliases - adds multiple aliases, separated by `|` to the flag
+//	spec - sets the flag's use spec
+//	default - sets the flag's default value
+//	noarg - set's the flag as requiring no argument, and the default value for the flag when toggled
+//	key - set's the flag's lookup config key
+//	hook - set's the flag's special value to a hook, such as `version` or `help`
+//	section - set's the flag's section
+//	hidden - marks the flag as hidden
+//	deprecated - marks the flag as deprecated
+//	set - bind's the flag's set value to a bool field in the *struct of the name
+//
+// The default reflect tag name (`ox`) can be changed through the [DefaultTagName]
+// variable.
 func FlagsFrom[T *E, E any](val T) ([]*Flag, error) {
 	v := reflect.ValueOf(val).Elem()
 	if v.Kind() != reflect.Struct {
@@ -681,15 +719,15 @@ func NewExec[T ExecType](f T) (ExecFunc, error) {
 	return nil, fmt.Errorf("%w: invalid exec func %T", ErrInvalidType, f)
 }
 
-// buildFlagOpts builds flag options for v from the passed struct tag values.
-func buildFlagOpts(parent, value reflect.Value, options []string) ([]Option, error) {
+// buildFlagOpts builds flag options for value from the passed struct tags.
+func buildFlagOpts(parent, value reflect.Value, tags []string) ([]Option, error) {
 	var set *bool
 	typ, mapKey, elem, err := defaultType(value.Elem().Type())
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", value.Type().String(), err)
 	}
 	opts := []Option{typ, MapKey(mapKey), Elem(elem)}
-	for _, opt := range options {
+	for _, opt := range tags {
 		key, val, _ := strings.Cut(opt, ":")
 		switch key {
 		case "type":
@@ -700,9 +738,6 @@ func buildFlagOpts(parent, value reflect.Value, options []string) ([]Option, err
 			opts = append(opts, Elem(Type(val)))
 		case "name":
 			opts = append(opts, Name(val))
-		case "usage":
-			name, usage, _ := strings.Cut(val, "|")
-			opts = append(opts, Usage(name, usage))
 		case "short":
 			opts = append(opts, Short(val))
 		case "alias":
@@ -752,8 +787,7 @@ func setField(value reflect.Value, name string) (*bool, error) {
 	}
 	refType := value.Type()
 	for i := range refType.NumField() {
-		f := refType.Field(i)
-		switch {
+		switch f := refType.Field(i); {
 		case f.Name != name:
 			continue
 		case f.Type.Kind() != reflect.Bool:

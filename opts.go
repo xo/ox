@@ -121,7 +121,8 @@ func Defaults(opts ...Option) CommandOption {
 	}
 }
 
-// From is a [Command] option to build the command's flags from val.
+// From is a [Command] option to build the command's flags from val. See
+// [FlagsFrom] for documentation on the supported reflect tag.
 func From[T *E, E any](val T) CommandOption {
 	return option{
 		name: "From",
