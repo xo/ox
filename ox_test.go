@@ -61,22 +61,42 @@ func TestLdist(t *testing.T) {
 		{"", "", 0},
 		{"", "a", 1},
 		{"a", "", 1},
+		{"ab", "aa", 1},
+		{"ab", "aaa", 2},
+		{"ab", "ba", 2},
+		{"a very long string that is meant to exceed", "another very long string that is meant to exceed", 6},
+		{"bar", "br", 1},
+		{"bbb", "a", 3},
+		{"book", "back", 2},
+		{"br", "bar", 1},
+		{"distance", "difference", 5},
+		{"fod", "Food", 1},
 		{"foo", "", 3},
 		{"foo", "bar", 3},
-		{"foo", "food", 1},
 		{"Food", "foo", 1},
-		{"fod", "Food", 1},
-		{"br", "bar", 1},
-		{"bar", "br", 1},
-		{"test", "t", 3},
-		{"book", "back", 2},
+		{"foo", "food", 1},
+		{"", "hello", 5},
+		{"hello", "", 5},
+		{"hello", "hello", 0},
 		{"kitten", "sitting", 3},
 		{"Kitten", "Sitting", 3},
+		{"levenshtein", "frankenstein", 6},
+		{"resume and cafe", "resumes and cafes", 2},
+		{"test", "t", 3},
+		// Testing acutes and umlauts
+		{"resumé and café", "resumés and cafés", 2},
+		{"resume and cafe", "resumé and café", 2},
+		{"Hafþór Júlíus Björnsson", "Hafþor Julius Bjornsson", 4},
+		// Only 2 characters are less in the 2nd string
+		{"།་གམ་འས་པ་་མ།", "།་གམའས་པ་་མ", 2},
 	}
 	for _, test := range tests {
 		t.Run(test.a+"::"+test.b, func(t *testing.T) {
 			a, b := []rune(strings.ToLower(test.a)), []rune(strings.ToLower(test.b))
 			if i := Ldist(a, b); i != test.exp {
+				t.Errorf("expected %d, got: %d", test.exp, i)
+			}
+			if i := Ldist(b, a); i != test.exp {
 				t.Errorf("expected %d, got: %d", test.exp, i)
 			}
 		})

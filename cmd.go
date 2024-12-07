@@ -143,10 +143,10 @@ func (cmd *Command) Suggest(args ...string) error {
 	if minDist <= 0 {
 		minDist = DefaultMinDist
 	}
-	arg := []rune(args[0])
+	arg := []rune(strings.ToLower(args[0]))
 	for _, c := range cmd.Commands {
 		for _, name := range prepend(c.Aliases, c.Name) {
-			if Ldist(arg, []rune(name)) <= minDist {
+			if Ldist(arg, []rune(strings.ToLower(name))) <= minDist {
 				return NewSuggestionError(cmd, args[0], c)
 			}
 		}

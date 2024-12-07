@@ -127,7 +127,7 @@ func parseShort(ctx *Context, cmd *Command, s string, args []string, vars Vars) 
 // Vars is a map of argument variables.
 type Vars map[string]Value
 
-// String satisfies the [fmt.Stringer] interfaec.
+// String satisfies the [fmt.Stringer] interface.
 func (vars Vars) String() string {
 	var v []string
 	for _, k := range slices.Sorted(maps.Keys(vars)) {

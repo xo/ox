@@ -23,20 +23,34 @@
 
 ## Features
 
-- Long (`--arg`) and Short (`-a`) flag parsing
+- Long (`--arg`, `--arg val`) and Short (`-a`, `-a val`) flag parsing
 - POSIX-style/compatible flag parsing (`-vvv`, `-mfoo=bar` `-m foo=bar`, `--map=foo=bar`)
-- Commands and sub commands heirarchy
-- Support for standard library types, including slices and maps
-- Register different types
+- Flags can have optional arguments (via `NoArg`) and type specific defaults
+- Full command tree and sub command heirarchy
+- Support for all scalars:
+  - `[]byte`, `string`, `[]rune`, `byte`, `rune`
+  - `int64`, `int32`, `int16`, `int8`, `int`
+  - `uint64`, `uint32`, `uint16`, `uint8`, `uint`
+  - `float64`, `float32`
+  - `complex128`, `complex64`
+- Support for standard library types:
+  - `time.Time`, `time.Duration`
+  - `*big.Int`, `*big.Float`, `*big.Rat`
+  - `*url.URL`
+  - `*netip.Addr`, `*netip.AddrPort`, `*netip.Prefix`
+- Support for compound types of all above (slices/maps):
+  - `[]int`, `[][]byte`, `[]string`, `[]float64`, `[]*big.Int`, etc.
+  - `map[int]string`, `map[float64]*url.URL`, etc...
+- Registerable user defined types, which work with all API styles
 - Testable commands/sub-commands
-- Simple/flexible API [see example][Example].
-- Generics enabled
-- Extremely fast
-- TinyGo compatible
-- Standard help, version and shell completion
+- Simple/flexible APIs for Reflection, Bind, and Context style use cases
+- Generics used where it makes sense
+- Fast
 - Environment, YAML, TOML, HCL config loading
-- Argument validation (count and values)
-- Reflection, Bind, and Context style APIs
+- Deferred default value expansion
+- Standard help, version and shell completion
+- Argument validation and advanced shell completion support
+- TinyGo compatible
 
 ## Using
 
@@ -86,10 +100,10 @@ through imports.
 members or other internal logic is hidden or obscured. When using `ox`, the
 user can manually build commands/flags however they see fit.
 
-Wherever an a non-standard package has been used, such as for the [YAML][yaml],
+Wherever a non-standard package has been used, such as for the [YAML][yaml],
 [TOML][toml], or [HCL][hcl] loaders, or for the built-in support for
-[colors](color), and [UUIDs](uuid), the external dependencies are fully
-optional, requiring a import of a `xo/ox` subpackage, for example:
+[colors](color), and [UUIDs](uuid), the external dependencies are optional,
+requiring a import of a `xo/ox` subpackage, for example:
 
 ```go
 import (
@@ -112,20 +126,17 @@ in mind and works with [TinyGo][tinygo].
 
 Specific design considerations of the `ox` package:
 
-- Work with TinyGo out of the box
-- No reflection (unless TinyGo supports it)
-- No magic, sane defaults, easy overrideable defaults
-- Evolving, simple API and maintained
-- Constrained "good enough" feature set, no ambition to support every use case/scenario
+- Constrained "good enough" feature set, no ambition to support every use
+  case/scenario
+- No magic, sane defaults, overrideable defaults
 - Functional option and interface smuggling
 - Use generics, iterators and other go1.23+ features where prudent
-- Out-of-the-box command completion for bash, fish, zsh, powershell
-- **Optional** YAML/TOML support, but easy to enable/disable
-- Case sensitive key names from config files
-- Allow configuring different lookup keys for different config file types
-- Allow registering additional type handlers (marhsalers/unmarshalers) with
-  minimal hassle, compatible with standard Go interfaces/types
+- Work with TinyGo out of the box
+- Minimal use of reflection (unless TinyGo supports it)
+- Case sensitive
+- Enable registration for config file loaders, types with minimal hassle
 - Man page generation
+- **Optional** support for common use-cases, via package dependencies
 
 Other command-line packages:
 
