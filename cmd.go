@@ -46,8 +46,10 @@ type Command struct {
 	Help io.WriterTo
 	// Special is the special value.
 	Special string
-	// Templates are the completion template files.
-	Templates fs.FS
+	// Comp contains the completion templates for the command.
+	Comp fs.FS
+	// Suggested are suggested names for the command.
+	Suggested []string
 }
 
 // NewCommand creates a new command.
@@ -145,7 +147,7 @@ func (cmd *Command) Suggest(args ...string) error {
 	}
 	arg := []rune(strings.ToLower(args[0]))
 	for _, c := range cmd.Commands {
-		for _, name := range prepend(c.Aliases, c.Name) {
+		for _, name := range append(prepend(c.Aliases, c.Name), c.Suggested...) {
 			if Ldist(arg, []rune(strings.ToLower(name))) <= minDist {
 				return NewSuggestionError(cmd, args[0], c)
 			}

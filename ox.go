@@ -123,6 +123,9 @@ var (
 			return true
 		}
 	}
+	// DefaultSuggestionsEnabled sets whether command name suggestions are
+	// given.
+	DefaultSuggestionsEnabled = true
 )
 
 // Run creates a [Context] and builds a [Command] and its [FlagSet] based on
@@ -228,7 +231,7 @@ func (ctx *Context) Run(parent context.Context) error {
 	switch {
 	case ctx.Exec.Exec != nil:
 		return ctx.Exec.Exec(WithContext(parent, ctx), ctx.Args)
-	case len(ctx.Exec.Commands) != 0 && len(ctx.Args) != 0:
+	case DefaultSuggestionsEnabled && len(ctx.Exec.Commands) != 0 && len(ctx.Args) != 0:
 		if err := ctx.Exec.Suggest(ctx.Args...); err != nil {
 			return err
 		}

@@ -49,6 +49,7 @@
 - Environment, YAML, TOML, HCL config loading
 - Deferred default value expansion
 - Standard help, version and shell completion
+- Suggestions for command names, aliases, and forced suggestions
 - Argument validation and advanced shell completion support
 - TinyGo compatible
 

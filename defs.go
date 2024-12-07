@@ -81,7 +81,7 @@ func NewHelpFlag(cmd *Command, opts ...Option) error {
 
 // NewComp adds a `completion` sub command to the command.
 func NewComp(cmd *Command, opts ...Option) error {
-	tpls := cmd.Templates
+	tpls := cmd.Comp
 	if tpls == nil {
 		tpls = templates
 	}
@@ -144,7 +144,7 @@ func NewComp(cmd *Command, opts ...Option) error {
 // NewCompFlags adds `--completion-script-<type>` flags to a command, or
 // hooking any existing flags with `Special == "hook:comp:<type>"`.
 func NewCompFlags(cmd *Command, _ ...Option) error {
-	tpls := cmd.Templates
+	tpls := cmd.Comp
 	if tpls == nil {
 		tpls = templates
 	}

@@ -3,52 +3,46 @@ package ox
 import (
 	"bytes"
 	"context"
+	"strconv"
 	"strings"
 	"testing"
 )
 
 func TestSuggestions(t *testing.T) {
-	stderr := new(bytes.Buffer)
-	var code int
-	cmd := testCommand(t)
-	cmd.Exec = nil
-	c := &Context{
-		Exit: func(c int) {
-			code = c
-		},
-		Panic: func(v any) {
-			panic(v)
-		},
-		Root:   cmd,
-		Stderr: stderr,
-		Args:   []string{"on"},
-		Vars:   make(Vars),
-	}
-	c.Handler = DefaultErrorHandler(c)
-	if err := c.Parse(); err != nil {
-		t.Fatalf("expected no error, got: %v", err)
-	}
-	err := c.Run(context.Background())
-	if err == nil {
-		t.Fatalf("expected non-nil error")
-	}
-	if s, exp := err.Error(), `unknown command "on" for "cmd"`; s != exp {
-		t.Fatalf("expected %q, got: %q", exp, s)
-	}
-	if !c.Handler(err) {
-		t.Fatalf("expected Handler to return true")
-	}
-	if code == 0 {
-		t.Fatalf("expected Handler to set non-zero code")
-	}
-	exp := `error: unknown command "on" for "cmd"
+	for i, test := range []struct {
+		args []string
+		exp  string
+	}{
+		{ss("on"), `error: unknown command "on" for "cmd"
 
 Did you mean this?
   one
 
-`
-	if s := stderr.String(); s != exp {
-		t.Errorf("\nexpected:\n%s\ngot:\n%s", exp, s)
+`},
+	} {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			var code int
+			c := testContext(t, &code, "on")
+			if err := c.Parse(); err != nil {
+				t.Fatalf("expected no error, got: %v", err)
+			}
+			err := c.Run(context.Background())
+			if err == nil {
+				t.Fatalf("expected non-nil error")
+			}
+			if s, exp := err.Error(), `unknown command "on" for "cmd"`; s != exp {
+				t.Fatalf("expected %q, got: %q", exp, s)
+			}
+			if !c.Handler(err) {
+				t.Fatalf("expected Handler to return true")
+			}
+			if code == 0 {
+				t.Fatalf("expected Handler to set non-zero code")
+			}
+			if s := c.Stderr.(*bytes.Buffer).String(); s != test.exp {
+				t.Errorf("\nexpected:\n%s\ngot:\n%s", test.exp, s)
+			}
+		})
 	}
 }
 
@@ -78,6 +72,7 @@ func TestLdist(t *testing.T) {
 		{"hello", "hello", 0},
 		{"kitten", "sitting", 3},
 		{"levenshtein", "frankenstein", 6},
+		{"mississippi", "swiss miss", 8},
 		{"resume and cafe", "resumé and café", 2},
 		{"resume and cafe", "resumes and cafes", 2},
 		{"resumé and café", "resumés and cafés", 2},
@@ -86,6 +81,7 @@ func TestLdist(t *testing.T) {
 		{"sitten", "sittin", 1},
 		{"sittin", "sitting", 1},
 		{"sleep", "fleeting", 5},
+		{"stop", "tops", 2},
 		{"test", "t", 3},
 		{"།་གམ་འས་པ་་མ།", "།་གམའས་པ་་མ", 2},
 	}
@@ -100,4 +96,24 @@ func TestLdist(t *testing.T) {
 			}
 		})
 	}
+}
+
+func testContext(t *testing.T, code *int, args ...string) *Context {
+	t.Helper()
+	cmd := testCommand(t)
+	cmd.Exec = nil
+	c := &Context{
+		Exit: func(c int) {
+			*code = c
+		},
+		Panic: func(v any) {
+			t.Fatal(v)
+		},
+		Root:   cmd,
+		Stderr: new(bytes.Buffer),
+		Args:   args,
+		Vars:   make(Vars),
+	}
+	c.Handler = DefaultErrorHandler(c)
+	return c
 }

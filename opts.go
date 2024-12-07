@@ -379,6 +379,17 @@ func Short(short string) FlagOption {
 	}
 }
 
+// Suggested is a [Command] option to add suggested names for the command.
+func Suggested(suggested ...string) CommandOption {
+	return option{
+		name: "Suggested",
+		cmd: func(cmd *Command) error {
+			cmd.Suggested = append(cmd.Suggested, suggested...)
+			return nil
+		},
+	}
+}
+
 // MapKey is a [Flag] option to set the flag's map key type.
 func MapKey(mapKey Type) FlagOption {
 	return option{

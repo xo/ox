@@ -91,7 +91,7 @@ func (typ Type) String() string {
 // New creates a new [Value] for the registered type.
 func (typ Type) New() (Value, error) {
 	if typ == HookT {
-		return nil, nil
+		return nil, fmt.Errorf("%w (hook)", ErrCouldNotCreateValue)
 	}
 	f, ok := typeNews[typ]
 	if !ok {
