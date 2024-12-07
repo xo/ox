@@ -410,7 +410,7 @@ func NewSuggestionError(parent *Command, arg string, command *Command) error {
 
 // Error satisfies the [error] interface.
 func (err *SuggestionError) Error() string {
-	return fmt.Sprintf(text.SuggestionError, ErrUnknownCommand, err.Arg, err.Parent.Name)
+	return fmt.Sprintf(text.SuggestionErrorMessage, ErrUnknownCommand, err.Arg, err.Parent.Name)
 }
 
 // Unwrap satisfies the [errors.Unwrap] interface.
@@ -420,7 +420,7 @@ func (err *SuggestionError) Unwrap() error {
 
 // ErrorDetails returns error details. Used by [DefaultErrorHandler].
 func (err *SuggestionError) ErrorDetails() string {
-	return fmt.Sprintf(text.SuggestionDetails, err.Command.Name)
+	return fmt.Sprintf(text.SuggestionErrorDetails, err.Command.Name)
 }
 
 // Wrap wraps a line of text to the specified width, and adding a prefix of
