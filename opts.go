@@ -447,7 +447,7 @@ func BindRef(value reflect.Value, b *bool) FlagOption {
 	return option{
 		name: "BindRef",
 		flag: func(g *Flag) error {
-			val, err := NewRef(value, b)
+			val, err := NewBindRef(value, b)
 			if err != nil {
 				return err
 			}

@@ -20,6 +20,7 @@ func NewVersion(cmd *Command, opts ...Option) error {
 	return cmd.Sub(prepend(
 		opts,
 		Usage(text.VersionCommandName, text.VersionCommandDesc),
+		Special(`version`),
 		Exec(func(ctx context.Context) error {
 			c, _ := Ctx(ctx)
 			_ = DefaultVersion(c)
@@ -47,6 +48,7 @@ func NewHelp(cmd *Command, opts ...Option) error {
 	return cmd.Sub(prepend(
 		opts,
 		Usage(text.HelpCommandName, text.HelpCommandDesc),
+		Special(`help`),
 		Exec(func(ctx context.Context, args []string) error {
 			c, _ := Ctx(ctx)
 			_, _ = cmd.Lookup(args...).HelpContext(c).WriteTo(c.Stdout)
@@ -242,13 +244,12 @@ func (help *CommandHelp) SetContext(ctx *Context) {
 func (help *CommandHelp) WriteTo(w io.Writer) (int64, error) {
 	sb := new(strings.Builder)
 	for _, f := range []func(*strings.Builder){
-		help.writeBanner,
-		help.writeUsage,
-		help.writeAliases,
-		help.writeCommands,
-		help.writeGlobalFlags,
-		help.writeFlags,
-		help.writeFooter,
+		help.AddBanner,
+		help.AddUsage,
+		help.AddAliases,
+		help.AddCommands,
+		help.AddFlags,
+		help.AddFooter,
 	} {
 		f(sb)
 	}
@@ -256,8 +257,8 @@ func (help *CommandHelp) WriteTo(w io.Writer) (int64, error) {
 	return int64(n), err
 }
 
-// writeBanner writes the command's banner.
-func (help *CommandHelp) writeBanner(sb *strings.Builder) {
+// AddBanner adds the command's banner.
+func (help *CommandHelp) AddBanner(sb *strings.Builder) {
 	if help.NoBanner {
 		return
 	}
@@ -266,17 +267,17 @@ func (help *CommandHelp) writeBanner(sb *strings.Builder) {
 		banner = help.Command.Name + " " + help.Command.Usage
 	}
 	if banner = strings.TrimSpace(banner); banner != "" {
-		writeBreak(sb)
+		addBreak(sb)
 		_, _ = sb.WriteString(strings.TrimSpace(banner))
 	}
 }
 
-// writeUsage writes the command's usage.
-func (help *CommandHelp) writeUsage(sb *strings.Builder) {
+// AddUsage adds the command's usage.
+func (help *CommandHelp) AddUsage(sb *strings.Builder) {
 	if help.NoUsage {
 		return
 	}
-	writeBreak(sb)
+	addBreak(sb)
 	_, _ = sb.WriteString(text.Usage)
 	_, _ = sb.WriteString(":\n  ")
 	_, _ = sb.WriteString(strings.Join(help.Command.Tree(), " "))
@@ -301,19 +302,19 @@ func (help *CommandHelp) writeUsage(sb *strings.Builder) {
 	}
 }
 
-// writeAliases writes the command's aliases.
-func (help *CommandHelp) writeAliases(sb *strings.Builder) {
+// AddAliases adds the command's aliases.
+func (help *CommandHelp) AddAliases(sb *strings.Builder) {
 	if help.NoAliases || len(help.Command.Aliases) == 0 {
 		return
 	}
-	writeBreak(sb)
+	addBreak(sb)
 	_, _ = sb.WriteString(text.Aliases)
 	_, _ = sb.WriteString(":\n  ")
 	_, _ = sb.WriteString(strings.Join(prepend(help.Command.Aliases, help.Command.Name), ", "))
 }
 
-// writeCommands writes the command's sub commands.
-func (help *CommandHelp) writeCommands(sb *strings.Builder) {
+// AddCommands adds the command's sub commands.
+func (help *CommandHelp) AddCommands(sb *strings.Builder) {
 	if help.NoCommands || len(help.Command.Commands) == 0 {
 		return
 	}
@@ -347,7 +348,7 @@ func (help *CommandHelp) writeCommands(sb *strings.Builder) {
 		}
 		i++
 	}
-	writeBreak(sb)
+	addBreak(sb)
 	// write commands
 	for j, section := range slices.Sorted(maps.Keys(indexes)) {
 		if j != 0 {
@@ -365,12 +366,8 @@ func (help *CommandHelp) writeCommands(sb *strings.Builder) {
 	}
 }
 
-// writeGlobalFlags writes the command's global flags.
-func (help *CommandHelp) writeGlobalFlags(sb *strings.Builder) {
-}
-
-// writeFlags writes the command's flags.
-func (help *CommandHelp) writeFlags(sb *strings.Builder) {
+// AddFlags adds the command's flags.
+func (help *CommandHelp) AddFlags(sb *strings.Builder) {
 	if help.NoFlags || help.Command.Flags == nil || len(help.Command.Flags.Flags) == 0 {
 		return
 	}
@@ -398,7 +395,7 @@ func (help *CommandHelp) writeFlags(sb *strings.Builder) {
 	var specs []string
 	i, width, indexes, hasShort := 0, 0, make(map[int][]int), false
 	for _, g := range flags {
-		specs = append(specs, spec(g))
+		specs = append(specs, g.SpecString())
 		indexes[g.Section] = append(indexes[g.Section], i)
 		width = max(width, len(specs[i]))
 		if _, ok := sections[g.Section]; !ok {
@@ -411,7 +408,7 @@ func (help *CommandHelp) writeFlags(sb *strings.Builder) {
 	if hasShort {
 		offset = 10
 	}
-	writeBreak(sb)
+	addBreak(sb)
 	// write flags
 	for j, section := range slices.Sorted(maps.Keys(indexes)) {
 		if j != 0 {
@@ -444,8 +441,8 @@ func (help *CommandHelp) writeFlags(sb *strings.Builder) {
 	}
 }
 
-// writeFooter writes the command's footer.
-func (help *CommandHelp) writeFooter(sb *strings.Builder) {
+// AddFooter adds the command's footer.
+func (help *CommandHelp) AddFooter(sb *strings.Builder) {
 	if help.NoFooter {
 		return
 	}
@@ -454,28 +451,34 @@ func (help *CommandHelp) writeFooter(sb *strings.Builder) {
 		footer = fmt.Sprintf(text.Footer, strings.Join(help.Command.Tree(), " "))
 	}
 	if footer = strings.TrimSpace(footer); footer != "" {
-		writeBreak(sb)
+		addBreak(sb)
 		_, _ = sb.WriteString(footer)
 	}
 }
 
-// spec returns the spec text for the flag.
-func spec(g *Flag) string {
-	switch {
-	case g.NoArg || g.Type == HookT:
-		return g.Name
-	case g.Spec != "":
-		return g.Name + text.FlagSpecSpacer + g.Spec
-	case g.Type == SliceT:
-		return g.Name + text.FlagSpecSpacer + g.Elem.String()
-	case g.Type == MapT:
-		return g.Name + text.FlagSpecSpacer + g.MapKey.String() + "=" + g.Elem.String()
+// AddHelp recursively adds help for all sub commands on the command, copying
+// settings selectively.
+func AddHelp(cmd *Command) error {
+	if len(cmd.Commands) == 0 {
+		return nil
 	}
-	return g.Name + text.FlagSpecSpacer + g.Type.String()
+	sort, commandSort, minDist := false, true, 0
+	if help, ok := cmd.Help.(*CommandHelp); ok {
+		sort, commandSort, minDist = help.Sort, help.CommandSort, help.MinDist
+	}
+	for _, c := range cmd.Commands {
+		if err := NewHelpFlag(c, Sort(sort), CommandSort(commandSort), MinDist(minDist)); err != nil {
+			return err
+		}
+		if err := AddHelp(c); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
-// writeBreak writes a break.
-func writeBreak(sb *strings.Builder) {
+// addBreak conditionally adds a section break.
+func addBreak(sb *strings.Builder) {
 	if sb.Len() != 0 {
 		_, _ = sb.WriteString("\n\n")
 	}
@@ -517,28 +520,7 @@ func loadTemplates(tpls fs.FS) (map[string]string, map[string]string, error) {
 	return txt, tpl, nil
 }
 
-// AddHelp recursively adds help for all sub commands on the command,
-// selectively copying certain settings.
-func AddHelp(cmd *Command) error {
-	if len(cmd.Commands) == 0 {
-		return nil
-	}
-	sort, commandSort, minDist := false, true, 0
-	if help, ok := cmd.Help.(*CommandHelp); ok {
-		sort, commandSort, minDist = help.Sort, help.CommandSort, help.MinDist
-	}
-	for _, c := range cmd.Commands {
-		if err := NewHelpFlag(c, Sort(sort), CommandSort(commandSort), MinDist(minDist)); err != nil {
-			return err
-		}
-		if err := AddHelp(c); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// templates are the default embedded completion templates.
+// templates are the embedded completion templates.
 //
 //go:embed bash.txt
 //go:embed bash.bash

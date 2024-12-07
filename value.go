@@ -367,15 +367,15 @@ type Binder interface {
 
 // bindVal is a bound value.
 type bindVal[T *E, E any] struct {
-	v T
-	b *bool
+	v   T
+	set *bool
 }
 
-// NewBind binds a value.
-func NewBind[T *E, E any](v T, b *bool) (Binder, error) {
+// NewBind binds a value and its set flag.
+func NewBind[T *E, E any](v T, set *bool) (Binder, error) {
 	return &bindVal[T, E]{
-		v: v,
-		b: b,
+		v:   v,
+		set: set,
 	}, nil
 }
 
@@ -384,15 +384,15 @@ func (val *bindVal[T, E]) Bind(s string) error {
 	switch typ.Kind() {
 	case reflect.Slice:
 		if sliceSet(reflect.ValueOf(val.v), s) {
-			if val.b != nil {
-				*val.b = true
+			if val.set != nil {
+				*val.set = true
 			}
 			return nil
 		}
 	case reflect.Map:
 		if mapSet(reflect.ValueOf(val.v), s) {
-			if val.b != nil {
-				*val.b = true
+			if val.set != nil {
+				*val.set = true
 			}
 			return nil
 		}
@@ -400,8 +400,8 @@ func (val *bindVal[T, E]) Bind(s string) error {
 		if v, err := as[E](s, layout(val.v)); err == nil {
 			var ok bool
 			if *val.v, ok = v.(E); ok {
-				if val.b != nil {
-					*val.b = true
+				if val.set != nil {
+					*val.set = true
 				}
 				return nil
 			}
@@ -418,57 +418,57 @@ func (val *bindVal[T, E]) Get() any {
 	return *val.v
 }
 
-// refVal is a reflection bound value.
-type refVal struct {
-	v reflect.Value
-	b *bool
+// bindRefVal is a reflection bound value.
+type bindRefVal struct {
+	v   reflect.Value
+	set *bool
 }
 
-// NewRef binds [reflect.Value] value and its set flag.
-func NewRef(value reflect.Value, b *bool) (Binder, error) {
+// NewBindRef binds [reflect.Value] value and its set flag.
+func NewBindRef(value reflect.Value, set *bool) (Binder, error) {
 	switch {
 	case value.Kind() != reflect.Pointer, value.IsNil():
 		return nil, fmt.Errorf("%w: not a pointer or is nil", ErrInvalidValue)
 	}
-	return &refVal{
-		v: value,
-		b: b,
+	return &bindRefVal{
+		v:   value,
+		set: set,
 	}, nil
 }
 
-func (val *refVal) String() string {
+func (val *bindRefVal) String() string {
 	return val.v.Type().String()
 }
 
-func (val *refVal) Bind(s string) error {
+func (val *bindRefVal) Bind(s string) error {
 	typ := val.v.Elem().Type()
 	switch typ.Kind() {
 	case reflect.Slice:
 		if sliceSet(val.v, s) {
-			if val.b != nil {
-				*val.b = true
+			if val.set != nil {
+				*val.set = true
 			}
 			return nil
 		}
 	case reflect.Map:
 		if mapSet(val.v, s) {
-			if val.b != nil {
-				*val.b = true
+			if val.set != nil {
+				*val.set = true
 			}
 			return nil
 		}
 	case reflect.Pointer:
 		if v, err := asUnmarshal(reflectType(typ), s); err == nil {
 			reflect.Indirect(val.v).Set(reflect.ValueOf(v))
-			if val.b != nil {
-				*val.b = true
+			if val.set != nil {
+				*val.set = true
 			}
 			return nil
 		}
 	default:
 		if asValue(val.v, s) {
-			if val.b != nil {
-				*val.b = true
+			if val.set != nil {
+				*val.set = true
 			}
 			return nil
 		}
@@ -476,7 +476,7 @@ func (val *refVal) Bind(s string) error {
 	return fmt.Errorf("%w: cannot convert %T->%s", ErrInvalidConversion, s, typ)
 }
 
-func (val *refVal) Get() any {
+func (val *bindRefVal) Get() any {
 	return val.v.Elem().Interface()
 }
 
@@ -530,7 +530,7 @@ func newHook(ctx *Context, v any) (Value, error) {
 			return nil
 		}
 	default:
-		return nil, fmt.Errorf("%w: invalid hook func", ErrInvalidValue)
+		return nil, fmt.Errorf("%w: invalid hook func %T", ErrInvalidValue, v)
 	}
 	return val, nil
 }

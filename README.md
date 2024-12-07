@@ -40,7 +40,12 @@
   - `*netip.Addr`, `*netip.AddrPort`, `*netip.Prefix`
 - Support for compound types of all above (slices/maps):
   - `[]int`, `[][]byte`, `[]string`, `[]float64`, `[]*big.Int`, etc.
-  - `map[int]string`, `map[float64]*url.URL`, etc...
+  - `map[string]string`, `map[int]string`, `map[float64]*url.URL`, etc...
+- Additional types:
+  - `ox.FormattedTime` - formatted time values, set to a specific `time.Layout`
+  - `ox.CountT` / `type:count` - incrementing counter, such as for verbosity `-vvvv`
+  - `ox.PathT` / `type:path` - a file system path
+  - `ox.HookT` - argument `func` hook
 - Registerable user defined types, which work with all API styles
 - Testable commands/sub-commands
 - Simple/flexible APIs for Reflection, Bind, and Context style use cases
@@ -49,7 +54,7 @@
 - Environment, YAML, TOML, HCL config loading
 - Deferred default value expansion
 - Standard help, version and shell completion
-- Suggestions for command names, aliases, and forced suggestions
+- Suggestions for command names, aliases, and suggested names
 - Argument validation and advanced shell completion support
 - TinyGo compatible
 

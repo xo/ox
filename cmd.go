@@ -19,39 +19,39 @@ import (
 
 // Command is a command.
 type Command struct {
-	// Parent is the parent command.
+	// Parent is the command's parent.
 	Parent *Command
-	// Exec is the func to be executed.
+	// Exec is the command's exec func.
 	Exec ExecFunc
-	// Name is the command name.
+	// Name is the command's name.
 	Name string
-	// Usage is the command usage.
+	// Usage is the command's usage.
 	Usage string
-	// Aliases are the command aliases.
+	// Aliases are the command's aliases.
 	Aliases []string
+	// Suggested are the command's suggested names.
+	Suggested []string
 	// Flags are the command's flags.
 	Flags *FlagSet
-	// Commands are sub commands.
+	// Commands are the command's sub commands.
 	Commands []*Command
 	// Args are the command's argument validation func's.
 	Args []func([]string) error
 	// OnErr indicates whether to continue, panic, or to error when
 	// flag/argument parsing fails.
 	OnErr OnErr
+	// Help is the command's help emitter.
+	Help io.WriterTo
+	// Comp is the command's completion templates.
+	Comp fs.FS
+	// Special is the special value.
+	Special string
 	// Hidden indicates the command is hidden from help output.
 	Hidden bool
 	// Deprecated indicates the command is deprecated.
 	Deprecated bool
 	// Section is the help section.
 	Section int
-	// Help is the help emitter.
-	Help io.WriterTo
-	// Special is the special value.
-	Special string
-	// Comp contains the completion templates for the command.
-	Comp fs.FS
-	// Suggested are suggested names for the command.
-	Suggested []string
 }
 
 // NewCommand creates a new command.
@@ -491,41 +491,42 @@ func (fs *FlagSet) Hook(name, desc string, f any, opts ...Option) *FlagSet {
 
 // Flag is a command-line flag variable definition.
 type Flag struct {
-	// Type is the flag [Type].
+	// Type is the flag's [Type].
 	Type Type
 	// MapKey is the flag's map key type when the flag is a [MapT].
 	MapKey Type
 	// Elem is the flag's element type when the flag is a [SliceT] or [MapT].
 	Elem Type
-	// Name is the flag's name.
+	// Name is the flag's long name (`--arg`).
 	Name string
 	// Usage is the flag's usage.
 	Usage string
-	// Short is the flag's short name.
+	// Short is the flag's short, single letter name (`-a`).
 	Short string
-	// Aliases are the flag's aliases.
+	// Aliases are the flag's long and short aliases.
 	Aliases []string
-	// Def is the default value for the flag.
-	Def any
-	// NoArg indicates that flag does takes an optional argument.
-	NoArg bool
-	// NoArgDef is the default value for the flag when no argument was passed
-	// for the flag.
-	NoArgDef any
-	// Binds are variables that will be set.
-	Binds []Binder
-	// Hidden indicates the command is hidden from help output.
-	Hidden bool
-	// Deprecated indicates the command is deprecated.
-	Deprecated bool
-	// Keys are config look up keys.
-	Keys map[string]string
-	// Spec is the help spec.
+	// Spec is the flag's help spec.
 	Spec string
-	// Section is the help section.
-	Section int
-	// Special is the special value.
+	// Def is the flag's default value.
+	Def any
+	// NoArg when true, indicates that the flag does not require an argument.
+	NoArg bool
+	// NoArgDef is the flag's default value when no argument was passed for the
+	// flag.
+	NoArgDef any
+	// Binds are the bound variables that will be additionally set when the
+	// flag is encountered on the command-line.
+	Binds []Binder
+	// Keys are the flag's config look up keys.
+	Keys map[string]string
+	// Special is the flag's special value.
 	Special string
+	// Section is the flag's help section.
+	Section int
+	// Hidden indicates the flag is hidden from help output.
+	Hidden bool
+	// Deprecated indicates the flag is deprecated.
+	Deprecated bool
 }
 
 // NewFlag creates a new command-line flag.
@@ -557,7 +558,7 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 	return g, nil
 }
 
-// FlagFrom creates flags for the value.
+// FlagFrom creates flags for the value using reflection.
 func FlagsFrom[T *E, E any](val T) ([]*Flag, error) {
 	v := reflect.ValueOf(val).Elem()
 	if v.Kind() != reflect.Struct {
@@ -584,7 +585,7 @@ func FlagsFrom[T *E, E any](val T) ([]*Flag, error) {
 		if err != nil {
 			return nil, fmt.Errorf("field %s: %w", f.Name, err)
 		}
-		// TODO: add name mapping here
+		// create flag
 		g, err := NewFlag(DefaultFlagNameMapper(f.Name), tag[0], opts...)
 		if err != nil {
 			return nil, fmt.Errorf("field %s: cannot create flag: %w", f.Name, err)
@@ -605,6 +606,21 @@ func (g *Flag) New(ctx *Context) (Value, error) {
 		return newHook(ctx, g.Def)
 	}
 	return g.Type.New()
+}
+
+// SpecString returns the spec string for the flag.
+func (g *Flag) SpecString() string {
+	switch {
+	case g.NoArg || g.Type == HookT:
+		return g.Name
+	case g.Spec != "":
+		return g.Name + text.FlagSpecSpacer + g.Spec
+	case g.Type == SliceT:
+		return g.Name + text.FlagSpecSpacer + g.Elem.String()
+	case g.Type == MapT:
+		return g.Name + text.FlagSpecSpacer + g.MapKey.String() + "=" + g.Elem.String()
+	}
+	return g.Name + text.FlagSpecSpacer + g.Type.String()
 }
 
 // ExecType is the interface for func's that can be used with [Run],
@@ -667,7 +683,7 @@ func NewExec[T ExecType](f T) (ExecFunc, error) {
 
 // buildFlagOpts builds flag options for v from the passed struct tag values.
 func buildFlagOpts(refType reflect.Type, value reflect.Value, name string, s []string) ([]Option, error) {
-	var b *bool
+	var set *bool
 	typ, mapKey, elem, err := defaultType(value.Elem().Type())
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", value.Type().String(), err)
@@ -676,14 +692,14 @@ func buildFlagOpts(refType reflect.Type, value reflect.Value, name string, s []s
 	for _, opt := range s {
 		key, val, _ := strings.Cut(opt, ":")
 		switch key {
-		case "name":
-			opts = append(opts, Name(val))
 		case "type":
 			opts = append(opts, Type(val))
-		case "elem":
-			opts = append(opts, Elem(Type(val)))
 		case "mapkey":
 			opts = append(opts, MapKey(Type(val)))
+		case "elem":
+			opts = append(opts, Elem(Type(val)))
+		case "name":
+			opts = append(opts, Name(val))
 		case "usage":
 			name, usage, _ := strings.Cut(val, "|")
 			opts = append(opts, Usage(name, usage))
@@ -691,21 +707,32 @@ func buildFlagOpts(refType reflect.Type, value reflect.Value, name string, s []s
 			opts = append(opts, Short(val))
 		case "alias":
 			opts = append(opts, Aliases(val))
+		case "aliases":
+			opts = append(opts, Aliases(strings.Split(val, "|")...))
+		case "spec":
+			opts = append(opts, Spec(val))
 		case "default":
 			opts = append(opts, Default(val))
+		case "noarg":
+			opts = append(opts, NoArg(true, val))
 		case "key":
 			typ, key, _ := strings.Cut(val, "|")
+			if key == "" {
+				typ, key = key, typ
+			}
 			opts = append(opts, Key(typ, key))
+		case "hook":
+			opts = append(opts, Special("hook:"+val))
 		case "section":
 			section, err := strconv.Atoi(val)
 			if err != nil {
 				return nil, fmt.Errorf("%w: section %s: %w", ErrInvalidConversion, val, err)
 			}
 			opts = append(opts, Section(section))
-		case "spec":
-			opts = append(opts, Spec(val))
-		case "hook":
-			opts = append(opts, Special("hook:"+val))
+		case "hidden":
+			opts = append(opts, Hidden(true))
+		case "deprecated":
+			opts = append(opts, Deprecated(true))
 		case "set":
 			for i := range refType.NumField() {
 				field := refType.Field(i)
@@ -719,7 +746,7 @@ func buildFlagOpts(refType reflect.Type, value reflect.Value, name string, s []s
 		}
 	}
 	// prepend bind to opt
-	return prepend(opts, BindRef(value, b)), nil
+	return prepend(opts, BindRef(value, set)), nil
 }
 
 // newCommandError creates a command error.
