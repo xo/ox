@@ -214,6 +214,7 @@ func testCommand(t *testing.T) *Command {
 				Exec(testDump(t, "four")),
 				Usage("four", ""),
 			),
+			Suggested("remove"),
 		),
 		Sub(
 			Exec(testDump(t, "five")),

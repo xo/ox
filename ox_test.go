@@ -14,10 +14,17 @@ func TestSuggestions(t *testing.T) {
 		exp  string
 	}{
 		{
-			ss("subfoo"), `error: unknown command "subfoo" for "cmd"`,
+			ss(`subfoo`), `error: unknown command "subfoo" for "cmd"`,
 		},
 		{
-			ss("on"), `error: unknown command "on" for "cmd"
+			ss(`on`), `error: unknown command "on" for "cmd"
+
+Did you mean this?
+  one
+`,
+		},
+		{
+			ss(`remove`), `error: unknown command "remove" for "cmd"
 
 Did you mean this?
   one
@@ -27,9 +34,6 @@ Did you mean this?
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var code int
 			c := testContext(t, &code, test.args...)
-			if err := c.Parse(); err != nil {
-				t.Fatalf("expected no error, got: %v", err)
-			}
 			err := c.Run(context.Background())
 			if err == nil {
 				t.Fatalf("expected non-nil error")
@@ -116,5 +120,8 @@ func testContext(t *testing.T, code *int, args ...string) *Context {
 		Vars:   make(Vars),
 	}
 	c.Handler = DefaultErrorHandler(c)
+	if err := c.Parse(); err != nil {
+		t.Fatalf("expected no error, got: %v", err)
+	}
 	return c
 }
