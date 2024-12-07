@@ -2,8 +2,12 @@
 package text
 
 var (
-	// ErrorMessagePrefix is the 'error: ' message prefix.
-	ErrorMessagePrefix = `error: `
+	// ErrorMessage is the 'error: ' message.
+	ErrorMessage = "error: %v\n"
+	// SuggestionErrorMessage is the suggestion error message.
+	SuggestionErrorMessage = `%s %q for %q`
+	// SuggestionErrorDetails is the suggestion error details.
+	SuggestionErrorDetails = "\nDid you mean this?\n  %s\n\n"
 	// Usage is the `Usage:` section name.
 	Usage = `Usage`
 	// Aliases is the `Aliases:` section name.
@@ -58,8 +62,4 @@ var (
 	// CompCommandAShellDesc is the default `a shell` completion command
 	// description.
 	CompCommandAShellDesc = `a shell`
-	// SuggestionError is the suggestion error text.
-	SuggestionError = `%s %q for %q`
-	// SuggestionDetails is the suggestion error details.
-	SuggestionDetails = "\nDid you mean this?\n  %s\n\n"
 )

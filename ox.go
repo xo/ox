@@ -108,7 +108,7 @@ var (
 				if ctx.Stderr != nil {
 					w = ctx.Stderr
 				}
-				fmt.Fprintf(w, "%s%v\n", text.ErrorMessagePrefix, err)
+				fmt.Fprintf(w, text.ErrorMessage, err)
 				if e, ok := err.(interface{ ErrorDetails() string }); ok {
 					fmt.Fprint(w, e.ErrorDetails())
 				}
