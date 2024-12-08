@@ -128,15 +128,33 @@ var (
 	DefaultSuggestionsEnabled = true
 )
 
-// Run creates a [Context] and builds a [Command] and its [FlagSet] based on
-// the options and then executing the command. See [RunContext] to pass a
-// [context.Context] to the executed command, or set the [DefaultContext].
+// Run creates a [Context] and builds a execution [Context] and root [Command]
+// based on the passed options. Accepts any [ContextOption], [CommandOption] or
+// [CommandFlagOption]. After building a execution [Context] and root
+// [Command], either [os.Args] or the provided [Args] will be [Parse]'d and
+// validated.
+//
+// After args have been parsed and validated, [Context] will have its
+// [Context.Exec] set to either the root command, or to the user's requested
+// command. The determined [Command.Exec] will be executed, or if it was not
+// set, then the [Command.Help]'s will be written to the [Context.Stdout].
+//
+// See [RunContext] to pass a [context.Context] to the executed command, or set
+// the [DefaultContext].
 func Run(opts ...Option) {
 	RunContext(DefaultContext, opts...)
 }
 
-// RunContext creates a [Command] for f using [os.Args] by default, unless
-// arguments were specified using a [ContextOption].
+// RunContext creates a [Context] and builds a execution [Context] and root
+// [Command] based on the passed options. Accepts any [ContextOption],
+// [CommandOption] or [CommandFlagOption]. After building a execution [Context]
+// and root [Command], either [os.Args] or the provided [Args] will be
+// [Parse]'d and validated.
+//
+// After args have been parsed and validated, [Context] will have its
+// [Context.Exec] set to either the root command, or to the user's requested
+// command. The determined [Command.Exec] will be executed, or if it was not
+// set, then the [Command.Help]'s will be written to the [Context.Stdout].
 func RunContext(ctx context.Context, opts ...Option) {
 	// build context
 	c, err := NewContext(opts...)

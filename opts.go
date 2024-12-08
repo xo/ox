@@ -19,7 +19,7 @@ import (
 // provided for ease-of-use, readibility, and categorization within
 // documentation.
 //
-// A [ContextOption] can be applied to a [Context] and passed to [Run].
+// A [ContextOption] can be applied to a [Context] and passed to [Run]/[RunContext].
 //
 // A [CommandOption] can be applied to a [Command] and passed to [NewCommand].
 //
