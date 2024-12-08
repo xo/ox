@@ -137,14 +137,11 @@ func as[T any](val any, layout string) (any, error) {
 		return asDuration(val)
 	}
 	// unmarshal
-	if v, err := asUnmarshal(typeRef(res), val); err == nil {
-		return v, nil
+	v, err := asUnmarshal(typeRef(res), val)
+	if err != nil {
+		return nil, err
 	}
-	// reflect
-	if asValue(reflect.ValueOf(&res), val) {
-		return res, nil
-	}
-	return nil, fmt.Errorf("%w: %T->%T", ErrInvalidConversion, val, res)
+	return v, nil
 }
 
 // asString converts the value to a string.
@@ -522,52 +519,74 @@ func asNew(typ Type) (any, func([]byte) error, error) {
 }
 
 // asValue converts a value -- expects reflect.Value(&<target>).
-func asValue(value reflect.Value, val any) (ok bool) {
+func asValue(value reflect.Value, val any) (err error) {
 	defer func() {
-		if err := recover(); err != nil {
-			ok = false
+		if e := recover(); e != nil {
+			err = fmt.Errorf("%v", e)
 		}
 	}()
 	switch el := value.Elem(); el.Kind() {
 	case reflect.Slice:
 		// TODO: implement []byte/[]rune
 	case reflect.String:
-		if s, err := asString[string](val); err == nil {
-			el.SetString(s)
-			return true
+		s, err := asString[string](val)
+		if err != nil {
+			return err
 		}
+		el.SetString(s)
+		return nil
 	case reflect.Bool:
-		if b, err := asBool(val); err == nil {
-			el.SetBool(b)
-			return true
+		b, err := asBool(val)
+		if err != nil {
+			return err
 		}
+		el.SetBool(b)
+		return nil
 	case reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8, reflect.Int:
-		if i, err := asInt[int64](val); err == nil && !el.OverflowInt(i) {
+		switch i, err := asInt[int64](val); {
+		case err != nil:
+			return err
+		case el.OverflowInt(i):
+		default:
 			el.SetInt(i)
-			return true
+			return nil
 		}
 	case reflect.Uint64, reflect.Uint32, reflect.Uint16, reflect.Uint8, reflect.Uint:
-		if u, err := asUint[uint64](val); err == nil && !el.OverflowUint(u) {
+		switch u, err := asUint[uint64](val); {
+		case err != nil:
+			return err
+		case el.OverflowUint(u):
+		default:
 			el.SetUint(u)
-			return true
+			return nil
 		}
 	case reflect.Float64, reflect.Float32:
-		if f, err := asFloat[float64](val); err == nil && !el.OverflowFloat(f) {
+		switch f, err := asFloat[float64](val); {
+		case err != nil:
+			return err
+		case el.OverflowFloat(f):
+		default:
 			el.SetFloat(f)
-			return true
+			return nil
 		}
 	case reflect.Complex128, reflect.Complex64:
-		if c, err := asComplex[complex128](val); err == nil && !overflowComplex(el, c) {
+		switch c, err := asComplex[complex128](val); {
+		case err != nil:
+			return err
+		case overflowComplex(el, c):
+		default:
 			el.SetComplex(c)
-			return true
+			return nil
 		}
 	case reflect.Pointer:
-		if v, err := asUnmarshal(reflectType(el.Type()), val); err == nil {
-			reflect.Indirect(value).Set(reflect.ValueOf(v))
-			return true
+		v, err := asUnmarshal(reflectType(el.Type()), val)
+		if err != nil {
+			return err
 		}
+		reflect.Indirect(value).Set(reflect.ValueOf(v))
+		return nil
 	}
-	return false
+	return ErrInvalidConversion
 }
 
 // toString converts a value to string.

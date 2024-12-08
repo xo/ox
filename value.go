@@ -383,19 +383,21 @@ func (val *bindVal[T, E]) Bind(s string) error {
 	typ := reflect.TypeOf(*val.v)
 	switch typ.Kind() {
 	case reflect.Slice:
-		if sliceSet(reflect.ValueOf(val.v), s) {
-			if val.set != nil {
-				*val.set = true
-			}
-			return nil
+		switch err := sliceSet(reflect.ValueOf(val.v), s); {
+		case err != nil:
+			return err
+		case val.set != nil:
+			*val.set = true
 		}
+		return nil
 	case reflect.Map:
-		if mapSet(reflect.ValueOf(val.v), s) {
-			if val.set != nil {
-				*val.set = true
-			}
-			return nil
+		switch err := mapSet(reflect.ValueOf(val.v), s); {
+		case err != nil:
+			return err
+		case val.set != nil:
+			*val.set = true
 		}
+		return nil
 	default:
 		if v, err := as[E](s, layout(val.v)); err == nil {
 			var ok bool
@@ -444,36 +446,39 @@ func (val *bindRefVal) Bind(s string) error {
 	typ := val.v.Elem().Type()
 	switch typ.Kind() {
 	case reflect.Slice:
-		if sliceSet(val.v, s) {
-			if val.set != nil {
-				*val.set = true
-			}
-			return nil
+		switch err := sliceSet(val.v, s); {
+		case err != nil:
+			return err
+		case val.set != nil:
+			*val.set = true
 		}
+		return nil
 	case reflect.Map:
-		if mapSet(val.v, s) {
-			if val.set != nil {
-				*val.set = true
-			}
-			return nil
+		switch err := mapSet(val.v, s); {
+		case err != nil:
+			return err
+		case val.set != nil:
+			*val.set = true
 		}
+		return nil
 	case reflect.Pointer:
-		if v, err := asUnmarshal(reflectType(typ), s); err == nil {
-			reflect.Indirect(val.v).Set(reflect.ValueOf(v))
-			if val.set != nil {
-				*val.set = true
-			}
-			return nil
+		v, err := asUnmarshal(reflectType(typ), s)
+		if err != nil {
+			return err
 		}
-	default:
-		if asValue(val.v, s) {
-			if val.set != nil {
-				*val.set = true
-			}
-			return nil
+		reflect.Indirect(val.v).Set(reflect.ValueOf(v))
+		if val.set != nil {
+			*val.set = true
 		}
+		return nil
 	}
-	return fmt.Errorf("%w: cannot convert %T->%s", ErrInvalidConversion, s, typ)
+	switch err := asValue(val.v, s); {
+	case err != nil:
+		return err
+	case val.set != nil:
+		*val.set = true
+	}
+	return nil
 }
 
 func (val *bindRefVal) Get() any {
@@ -602,20 +607,21 @@ func (val FormattedTime) IsValid() bool {
 }
 
 // sliceSet sets a value on a slice -- expects reflect.ValueOf(&<target>).
-func sliceSet(value reflect.Value, s string) bool {
+func sliceSet(value reflect.Value, s string) error {
 	v := reflect.New(value.Elem().Type().Elem())
-	if asValue(v, s) {
-		reflect.Indirect(value).Set(reflect.Append(value.Elem(), reflect.Indirect(v)))
-		return true
+	err := asValue(v, s)
+	if err != nil {
+		return err
 	}
-	return false
+	reflect.Indirect(value).Set(reflect.Append(value.Elem(), reflect.Indirect(v)))
+	return nil
 }
 
 // mapSet sets a value on a map -- expects reflect.ValueOf(&<target>).
-func mapSet(val reflect.Value, s string) bool {
+func mapSet(val reflect.Value, s string) error {
 	key, value, ok := strings.Cut(s, "=")
 	if !ok || key == "" {
-		return false
+		return ErrInvalidValue
 	}
 	typ := val.Elem().Type()
 	// create map if nil
@@ -624,16 +630,16 @@ func mapSet(val reflect.Value, s string) bool {
 	}
 	// convert key
 	k := reflect.New(typ.Key())
-	if !asValue(k, key) {
-		return false
+	if err := asValue(k, key); err != nil {
+		return err
 	}
 	// convert value
 	v := reflect.New(typ.Elem())
-	if !asValue(v, value) {
-		return false
+	if err := asValue(v, value); err != nil {
+		return err
 	}
 	reflect.Indirect(val).SetMapIndex(reflect.Indirect(k), reflect.Indirect(v))
-	return true
+	return nil
 }
 
 // inc increments the value.

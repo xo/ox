@@ -331,6 +331,7 @@ func typeTests(t *testing.T) []typeTest {
 				{"", mustURL(t, "")},
 				{"https://www.google.com", mustURL(t, "https://www.google.com")},
 				{"file:test", mustURL(t, "file:test")},
+				{":foo", ErrInvalidValue},
 			},
 		},
 	}

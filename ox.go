@@ -175,7 +175,7 @@ func RunContext(ctx context.Context, opts ...Option) {
 	}
 }
 
-// Context is a [Run]/[RunContext] context.
+// Context is a [Run]/[RunContext] execution context.
 type Context struct {
 	// Exit is the exit func.
 	Exit func(int)
@@ -195,7 +195,8 @@ type Context struct {
 	Handler func(error) bool
 	// Root is the root command created within [Run]/[RunContext].
 	Root *Command
-	// Exec is the exec target, determined by the Root's definition and after Args.
+	// Exec is the exec target, determined by the Root's definition and after
+	// Args.
 	Exec *Command
 	// Vars are the variables parsed from the flag definitions of the Root
 	// command and its sub-commands.
@@ -258,7 +259,7 @@ func (ctx *Context) Run(parent context.Context) error {
 	return nil
 }
 
-// Expand expands s.
+// Expand expands v when v is any string of the following:
 //
 //	$APPNAME - the root command's name
 //	$HOME - the current user's home directory
