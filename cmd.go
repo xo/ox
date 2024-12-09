@@ -44,14 +44,14 @@ type Command struct {
 	Help io.WriterTo
 	// Comp is the command's completion templates.
 	Comp fs.FS
-	// Special is the special value.
-	Special string
+	// Section is the help section.
+	Section int
 	// Hidden indicates the command is hidden from help output.
 	Hidden bool
 	// Deprecated indicates the command is deprecated.
 	Deprecated bool
-	// Section is the help section.
-	Section int
+	// Special is the special value.
+	Special string
 }
 
 // NewCommand creates a new command.
@@ -519,14 +519,14 @@ type Flag struct {
 	Binds []Binder
 	// Keys are the flag's config look up keys.
 	Keys map[string]string
-	// Special is the flag's special value.
-	Special string
 	// Section is the flag's help section.
 	Section int
 	// Hidden indicates the flag is hidden from help output.
 	Hidden bool
 	// Deprecated indicates the flag is deprecated.
 	Deprecated bool
+	// Special is the flag's special value.
+	Special string
 }
 
 // NewFlag creates a new command-line flag.

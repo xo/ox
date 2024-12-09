@@ -205,6 +205,10 @@ type CommandHelp struct {
 	CommandSections []string
 	// NoAliases when true will not output the command's aliases.
 	NoAliases bool
+	// NoExample when true will not output the command's examples.
+	NoExample bool
+	// Example is the command's examples.
+	Example string
 	// NoFlags when true will not output the command's flags.
 	NoFlags bool
 	// Sort when true will sort flags.
@@ -247,6 +251,7 @@ func (help *CommandHelp) WriteTo(w io.Writer) (int64, error) {
 		help.AddBanner,
 		help.AddUsage,
 		help.AddAliases,
+		help.AddExample,
 		help.AddCommands,
 		help.AddFlags,
 		help.AddFooter,
@@ -311,6 +316,21 @@ func (help *CommandHelp) AddAliases(sb *strings.Builder) {
 	_, _ = sb.WriteString(text.Aliases)
 	_, _ = sb.WriteString(":\n  ")
 	_, _ = sb.WriteString(strings.Join(prepend(help.Command.Aliases, help.Command.Name), ", "))
+}
+
+// AddExample adds the command's example.
+func (help *CommandHelp) AddExample(sb *strings.Builder) {
+	if help.NoExample {
+		return
+	}
+	example := strings.TrimSpace(help.Example)
+	if example == "" {
+		return
+	}
+	addBreak(sb)
+	_, _ = sb.WriteString(text.Examples)
+	_, _ = sb.WriteString(":\n  ")
+	_, _ = sb.WriteString(example)
 }
 
 // AddCommands adds the command's sub commands.

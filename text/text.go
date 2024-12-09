@@ -12,6 +12,8 @@ var (
 	Usage = `Usage`
 	// Aliases is the `Aliases:` section name.
 	Aliases = `Aliases`
+	// Examples is the `Examples:` section name.
+	Examples = `Examples`
 	// Commands is the `Available Commands` section name.
 	Commands = `Available Commands`
 	// Flags is the `Flags:` section name.

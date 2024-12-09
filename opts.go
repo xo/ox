@@ -643,6 +643,17 @@ func Footer(footer string) HelpOption {
 	}
 }
 
+// Example is a [Help] option to set the example.
+func Example(example string) HelpOption {
+	return option{
+		name: "Example",
+		help: func(help *CommandHelp) error {
+			help.Example, help.NoExample = example, example == ""
+			return nil
+		},
+	}
+}
+
 // Sort is a [Command] option to set the sort for flags when used with a
 // [Command].
 func Sort(sort bool) CommandOption {
