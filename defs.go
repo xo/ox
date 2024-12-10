@@ -15,6 +15,27 @@ import (
 	"github.com/xo/ox/text"
 )
 
+// AddHelp recursively adds help for all sub commands on the command, copying
+// settings selectively.
+func AddHelp(cmd *Command) error {
+	if len(cmd.Commands) == 0 {
+		return nil
+	}
+	sort, commandSort, minDist := false, true, 0
+	if help, ok := cmd.Help.(*CommandHelp); ok {
+		sort, commandSort, minDist = help.Sort, help.CommandSort, help.MinDist
+	}
+	for _, c := range cmd.Commands {
+		if err := NewHelpFlag(c, Sort(sort), CommandSort(commandSort), MinDist(minDist)); err != nil {
+			return err
+		}
+		if err := AddHelp(c); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // NewVersion adds a `version` sub command to the command.
 func NewVersion(cmd *Command, opts ...Option) error {
 	return cmd.Sub(prepend(
@@ -271,10 +292,11 @@ func (help *CommandHelp) AddBanner(sb *strings.Builder) {
 	if banner == "" {
 		banner = help.Command.Name + " " + help.Command.Usage
 	}
-	if banner = strings.TrimSpace(banner); banner != "" {
-		addBreak(sb)
-		_, _ = sb.WriteString(strings.TrimSpace(banner))
+	if strings.TrimSpace(banner) == "" {
+		return
 	}
+	addBreak(sb)
+	_, _ = sb.WriteString(strings.TrimSpace(banner))
 }
 
 // AddUsage adds the command's usage.
@@ -320,17 +342,13 @@ func (help *CommandHelp) AddAliases(sb *strings.Builder) {
 
 // AddExample adds the command's example.
 func (help *CommandHelp) AddExample(sb *strings.Builder) {
-	if help.NoExample {
-		return
-	}
-	example := strings.TrimSpace(help.Example)
-	if example == "" {
+	if help.NoExample || strings.TrimSpace(help.Example) == "" {
 		return
 	}
 	addBreak(sb)
 	_, _ = sb.WriteString(text.Examples)
-	_, _ = sb.WriteString(":\n  ")
-	_, _ = sb.WriteString(example)
+	_, _ = sb.WriteString(":\n")
+	_, _ = sb.WriteString(help.Example)
 }
 
 // AddCommands adds the command's sub commands.
@@ -470,31 +488,11 @@ func (help *CommandHelp) AddFooter(sb *strings.Builder) {
 	if footer == "" && len(help.Command.Commands) != 0 {
 		footer = fmt.Sprintf(text.Footer, strings.Join(help.Command.Tree(), " "))
 	}
-	if footer = strings.TrimSpace(footer); footer != "" {
-		addBreak(sb)
-		_, _ = sb.WriteString(footer)
+	if strings.TrimSpace(footer) == "" {
+		return
 	}
-}
-
-// AddHelp recursively adds help for all sub commands on the command, copying
-// settings selectively.
-func AddHelp(cmd *Command) error {
-	if len(cmd.Commands) == 0 {
-		return nil
-	}
-	sort, commandSort, minDist := false, true, 0
-	if help, ok := cmd.Help.(*CommandHelp); ok {
-		sort, commandSort, minDist = help.Sort, help.CommandSort, help.MinDist
-	}
-	for _, c := range cmd.Commands {
-		if err := NewHelpFlag(c, Sort(sort), CommandSort(commandSort), MinDist(minDist)); err != nil {
-			return err
-		}
-		if err := AddHelp(c); err != nil {
-			return err
-		}
-	}
-	return nil
+	addBreak(sb)
+	_, _ = sb.WriteString(footer)
 }
 
 // addBreak conditionally adds a section break.
