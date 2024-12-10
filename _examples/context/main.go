@@ -1,4 +1,4 @@
-// _examples/simple/main.go
+// _examples/context/main.go
 package main
 
 import (
@@ -17,7 +17,7 @@ import (
 func main() {
 	ox.Run(
 		ox.Exec(run),
-		ox.Usage("simple", "a simple demo of the ox api"),
+		ox.Usage("context", "a context demo of the ox api"),
 		ox.Defaults(),
 		ox.UserConfigFile(),
 		ox.Flags().
