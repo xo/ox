@@ -377,7 +377,7 @@ func (help *CommandHelp) AddCommands(sb *strings.Builder) {
 	for i, section := range help.CommandSections {
 		sections[i] = section
 	}
-	i, width, indexes := 0, 0, make(map[int][]int)
+	i, width, indexes := 0, DefaultCommandWidth, make(map[int][]int)
 	for _, c := range commands {
 		indexes[c.Section] = append(indexes[c.Section], i)
 		width = max(width, DefaultWidth(c.Name))
@@ -431,7 +431,7 @@ func (help *CommandHelp) AddFlags(sb *strings.Builder) {
 		sections[i] = section
 	}
 	var specs []string
-	i, width, indexes, hasShort := 0, 0, make(map[int][]int), false
+	i, width, indexes, hasShort := 0, DefaultFlagWidth, make(map[int][]int), false
 	for _, g := range flags {
 		specs = append(specs, g.SpecString())
 		indexes[g.Section] = append(indexes[g.Section], i)

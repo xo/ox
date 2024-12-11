@@ -126,6 +126,11 @@ var (
 	// DefaultSuggestionsEnabled sets whether command name suggestions are
 	// given.
 	DefaultSuggestionsEnabled = true
+	// DefaultFlagWidth is the default flag width. Does not include the
+	// additional spaces.
+	DefaultFlagWidth = 8
+	// DefaultCommandWidth is the default command width.
+	DefaultCommandWidth = 6
 )
 
 // Run creates a [Context] and builds a execution [Context] and root [Command]

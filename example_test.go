@@ -75,8 +75,8 @@ func Example_argsTest() {
 	//   extest sub [flags] [args]
 	//
 	// Flags:
-	//   -u, --url url  a url
-	//   -h, --help     show help, then exit
+	//   -u, --url url   a url
+	//   -h, --help      show help, then exit
 }
 
 // Example_psql demonstrates building complex help output, based on original
@@ -308,8 +308,8 @@ func Example_help() {
 	//   sub2, sb, s
 	//
 	// Available Commands:
-	//   a     another command
-	//   sub3  sub3 tree
+	//   a       another command
+	//   sub3    sub3 tree
 	//
 	// Flags:
 	//       --a int           the a int
