@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -42,8 +41,8 @@ type Command struct {
 	OnErr OnErr
 	// Help is the command's help emitter.
 	Help io.WriterTo
-	// Comp is the command's completion templates.
-	Comp fs.FS
+	// Comp enables completion for the command.
+	Comp bool
 	// Section is the help section.
 	Section int
 	// Hidden indicates the command is hidden from help output.

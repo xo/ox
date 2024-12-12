@@ -2,7 +2,7 @@
 // flag and argument parsing library.
 package ox
 
-//go:generate stringer -type OnErr
+//go:generate stringer -type OnErr,CompDirective -output stringer.go
 
 import (
 	"cmp"
@@ -131,6 +131,18 @@ var (
 	DefaultFlagWidth = 8
 	// DefaultCommandWidth is the default command width.
 	DefaultCommandWidth = 6
+	// DefaultCompTemplates are the default completion templates.
+	DefaultCompTemplates = templates
+	// DefaultCompName is the name for the completion script hook.
+	DefaultCompName = "__complete"
+	// DefaultCompNameNoDesc is the name for the completion script hook without
+	// descriptions.
+	DefaultCompNameNoDesc = "__completeNoDesc"
+	// DefaultComp is the default completion func.
+	DefaultComp = func(ctx *Context) error {
+		// noDesc := ctx.Args[0] == DefaultCompNameNoDesc
+		return ErrExit
+	}
 )
 
 // Run creates a [Context] and builds a execution [Context] and root [Command]
@@ -240,6 +252,9 @@ func NewContext(opts ...Option) (*Context, error) {
 
 // Parse parses the context args.
 func (ctx *Context) Parse() error {
+	if ctx.Root.Comp && len(ctx.Args) != 0 && strings.HasPrefix(ctx.Args[0], DefaultCompName) {
+		return DefaultComp(ctx)
+	}
 	var err error
 	ctx.Exec, ctx.Args, err = Parse(ctx, ctx.Root, ctx.Args, ctx.Vars)
 	return err

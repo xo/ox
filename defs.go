@@ -104,10 +104,6 @@ func NewHelpFlag(cmd *Command, opts ...Option) error {
 
 // NewComp adds a `completion` sub command to the command.
 func NewComp(cmd *Command, opts ...Option) error {
-	tpls := cmd.Comp
-	if tpls == nil {
-		tpls = templates
-	}
 	// base command
 	comp, err := NewCommand(prepend(
 		opts,
@@ -126,7 +122,7 @@ func NewComp(cmd *Command, opts ...Option) error {
 		return err
 	}
 	// load shells from templates
-	txt, tpl, err := loadTemplates(tpls)
+	txt, tpl, err := loadTemplates(DefaultCompTemplates)
 	if err != nil {
 		return err
 	}
@@ -136,6 +132,8 @@ func NewComp(cmd *Command, opts ...Option) error {
 		if !ok {
 			continue
 		}
+		// TODO: move these variable names so they are generated from defaults, or
+		// TODO: some better long-lived, documented location
 		rootName := cmd.RootName()
 		varName := strings.ReplaceAll(strings.ReplaceAll(rootName, "-", "_"), ":", "_")
 		activeHelp := strings.ToUpper(varName) + "_ACTIVE_HELP"
@@ -150,7 +148,7 @@ func NewComp(cmd *Command, opts ...Option) error {
 					templ,
 					rootName,
 					varName,
-					"__complete",
+					DefaultCompName,
 					activeHelp,
 				)
 				return nil
@@ -177,12 +175,8 @@ func NewComp(cmd *Command, opts ...Option) error {
 // NewCompFlags adds `--completion-script-<type>` flags to a command, or
 // hooking any existing flags with `Special == "hook:comp:<type>"`.
 func NewCompFlags(cmd *Command, _ ...Option) error {
-	tpls := cmd.Comp
-	if tpls == nil {
-		tpls = templates
-	}
 	// load shells from templates
-	txt, tpl, err := loadTemplates(tpls)
+	txt, tpl, err := loadTemplates(DefaultCompTemplates)
 	if err != nil {
 		return err
 	}
@@ -547,6 +541,38 @@ func loadTemplates(tpls fs.FS) (map[string]string, map[string]string, error) {
 	}
 	return txt, tpl, nil
 }
+
+// CompDirective is a bit map representing the different behaviors the
+// shell can be instructed to have once completions have been provided.
+//
+// Cribbed from cobra for compatibility purposes.
+type CompDirective int
+
+// Comp directives.
+//
+// Cribbed from cobra for compatibility purposes.
+const (
+	// CompError indicates an error occurred and completions should be ignored.
+	CompError CompDirective = 1 << iota
+	// CompNoSpace indicates that the shell should not add a space after the
+	// completion even if there is a single completion provided.
+	CompNoSpace
+	// CompNoFileComp indicates that the shell should not provide file
+	// completion even when no completion is provided.
+	CompNoFileComp
+	// CompFilterFileExt indicates that the provided completions should be used
+	// as file extension filters.
+	CompFilterFileExt
+	// CompFilterDirs indicates that only directory names should be provided in
+	// file completion. To request directory names within another directory,
+	// the returned completions should specify the directory within which to
+	// search. The BashCompSubdirsInDir annotation can be used to obtain the
+	// same behavior but only for flags.
+	CompFilterDirs
+	// CompDefault indicates to let the shell perform its default
+	// behavior after completions have been provided.
+	CompDefault CompDirective = 0
+)
 
 // templates are the embedded completion templates.
 //

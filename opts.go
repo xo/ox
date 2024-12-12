@@ -247,7 +247,11 @@ func Comp() CommandOption {
 			if len(cmd.Commands) != 0 {
 				f = NewComp
 			}
-			return f(cmd)
+			if err := f(cmd); err != nil {
+				return err
+			}
+			cmd.Comp = true
+			return nil
 		},
 	}
 }
