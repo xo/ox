@@ -7,7 +7,7 @@ function __%[1]s_debug {
 }
 
 filter __%[1]s_escapeStringWithSpecialChars {
-`+"    $_ -replace '\\s|#|@|\\$|;|,|''|\\{|\\}|\\(|\\)|\"|`|\\||<|>|&','`$&'"+`
+    $_ -replace '\s|#|@|\$|;|,|''|\{|\}|\(|\)|"|`|\||<|>|&','`$&'
 }
 
 [scriptblock]${__%[2]sCompleterBlock} = {
@@ -35,12 +35,12 @@ filter __%[1]s_escapeStringWithSpecialChars {
     }
     __%[1]s_debug "Truncated command: $Command"
 
-    $ShellCompDirectiveError=%[4]d
-    $ShellCompDirectiveNoSpace=%[5]d
-    $ShellCompDirectiveNoFileComp=%[6]d
-    $ShellCompDirectiveFilterFileExt=%[7]d
-    $ShellCompDirectiveFilterDirs=%[8]d
-    $ShellCompDirectiveKeepOrder=%[9]d
+    $ShellCompDirectiveError=1
+    $ShellCompDirectiveNoSpace=2
+    $ShellCompDirectiveNoFileComp=4
+    $ShellCompDirectiveFilterFileExt=8
+    $ShellCompDirectiveFilterDirs=16
+    $ShellCompDirectiveKeepOrder=32
 
     # Prepare the command to request completions for the program.
     # Split the command at the first space to separate the program and arguments.
@@ -72,12 +72,12 @@ filter __%[1]s_escapeStringWithSpecialChars {
         __%[1]s_debug "Adding extra empty parameter"
         # PowerShell 7.2+ changed the way how the arguments are passed to executables,
         # so for pre-7.2 or when Legacy argument passing is enabled we need to use
-`+"        # `\"`\" to pass an empty argument, a \"\" or '' does not work!!!"+`
+        # `"`" to pass an empty argument, a "" or '' does not work!!!
         if ($PSVersionTable.PsVersion -lt [version]'7.2.0' -or
             ($PSVersionTable.PsVersion -lt [version]'7.3.0' -and -not [ExperimentalFeature]::IsEnabled("PSNativeCommandArgumentPassing")) -or
             (($PSVersionTable.PsVersion -ge [version]'7.3.0' -or [ExperimentalFeature]::IsEnabled("PSNativeCommandArgumentPassing")) -and
               $PSNativeCommandArgumentPassing -eq 'Legacy')) {
-`+"             $RequestComp=\"$RequestComp\" + ' `\"`\"'"+`
+             $RequestComp="$RequestComp" + ' `"`"'
         } else {
              $RequestComp="$RequestComp" + ' ""'
         }
@@ -85,7 +85,7 @@ filter __%[1]s_escapeStringWithSpecialChars {
 
     __%[1]s_debug "Calling $RequestComp"
     # First disable ActiveHelp which is not supported for Powershell
-    ${env:%[10]s}=0
+    ${env:%[4]s}=0
 
     #call the command store the output in $out and redirect stderr and stdout to null
     # $Out is an array contains each line per element
@@ -112,7 +112,7 @@ filter __%[1]s_escapeStringWithSpecialChars {
     $Longest = 0
     [Array]$Values = $Out | ForEach-Object {
         #Split the output in name and description
-`+"        $Name, $Description = $_.Split(\"`t\",2)"+`
+        $Name, $Description = $_.Split("`t",2)
         __%[1]s_debug "Name: $Name Description: $Description"
 
         # Look for the longest completion so that we can format things nicely

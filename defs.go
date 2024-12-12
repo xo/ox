@@ -136,13 +136,23 @@ func NewComp(cmd *Command, opts ...Option) error {
 		if !ok {
 			continue
 		}
+		rootName := cmd.RootName()
+		varName := strings.ReplaceAll(strings.ReplaceAll(rootName, "-", "_"), ":", "_")
+		activeHelp := strings.ToUpper(varName) + "_ACTIVE_HELP"
 		sub, err := NewCommand(
 			Parent(comp),
 			Usage(shell, ""),
 			Special("comp:"+shell),
 			Exec(func(ctx context.Context) error {
 				c, _ := Ctx(ctx)
-				_, _ = fmt.Fprintf(c.Stdout, templ, cmd.RootName())
+				_, _ = fmt.Fprintf(
+					c.Stdout,
+					templ,
+					rootName,
+					varName,
+					"__complete",
+					activeHelp,
+				)
 				return nil
 			}),
 		)
