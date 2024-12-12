@@ -1,4 +1,5 @@
 # bash completion for %[1]s
+
 __%[1]s_debug()
 {
     if [[ -n ${BASH_COMP_DEBUG_FILE-} ]]; then
@@ -22,7 +23,7 @@ __%[1]s_get_completion_results() {
     # Prepare the command to request completions for the program.
     # Calling ${words[0]} instead of directly %[1]s allows handling aliases
     args=("${words[@]:1}")
-    requestComp="${words[0]} %[2]s ${args[*]}"
+    requestComp="${words[0]} %[3]s ${args[*]}"
 
     lastParam=${words[$((${#words[@]}-1))]}
     lastChar=${lastParam:$((${#lastParam}-1)):1}
@@ -59,12 +60,12 @@ __%[1]s_get_completion_results() {
 }
 
 __%[1]s_process_completion_results() {
-    local shellCompDirectiveError=%[3]d
-    local shellCompDirectiveNoSpace=%[4]d
-    local shellCompDirectiveNoFileComp=%[5]d
-    local shellCompDirectiveFilterFileExt=%[6]d
-    local shellCompDirectiveFilterDirs=%[7]d
-    local shellCompDirectiveKeepOrder=%[8]d
+    local shellCompDirectiveError=1
+    local shellCompDirectiveNoSpace=2
+    local shellCompDirectiveNoFileComp=4
+    local shellCompDirectiveFilterFileExt=8
+    local shellCompDirectiveFilterDirs=16
+    local shellCompDirectiveKeepOrder=32
 
     if (((directive & shellCompDirectiveError) != 0)); then
         # Error code.  No completion.
@@ -160,7 +161,7 @@ __%[1]s_process_completion_results() {
 # Separate activeHelp lines from real completions.
 # Fills the $activeHelp and $completions arrays.
 __%[1]s_extract_activeHelp() {
-    local activeHelpMarker="%[9]s"
+    local activeHelpMarker="_activeHelp_ "
     local endIndex=${#activeHelpMarker}
 
     while IFS='' read -r comp; do
