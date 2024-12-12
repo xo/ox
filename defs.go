@@ -8,6 +8,7 @@ import (
 	"io/fs"
 	"maps"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"sort"
 	"strings"
@@ -15,21 +16,26 @@ import (
 	"github.com/xo/ox/text"
 )
 
-// AddHelp recursively adds help for all sub commands on the command, copying
-// settings selectively.
-func AddHelp(cmd *Command) error {
+// AddHelpFlag recursively adds a `--help` flag for all commands in the command
+// tree, copying the command's [CommandHelp.Sort], [CommandHelp.CommandSort],
+// and [CommandHelp.MinDist] settings.
+func AddHelpFlag(cmd *Command) error {
 	if len(cmd.Commands) == 0 {
 		return nil
 	}
-	sort, commandSort, minDist := false, true, 0
+	var opts []Option
 	if help, ok := cmd.Help.(*CommandHelp); ok {
-		sort, commandSort, minDist = help.Sort, help.CommandSort, help.MinDist
+		opts = append(opts,
+			Sort(help.Sort),
+			CommandSort(help.CommandSort),
+			MinDist(help.MinDist),
+		)
 	}
 	for _, c := range cmd.Commands {
-		if err := NewHelpFlag(c, Sort(sort), CommandSort(commandSort), MinDist(minDist)); err != nil {
+		if err := NewHelpFlag(c, opts...); err != nil {
 			return err
 		}
-		if err := AddHelp(c); err != nil {
+		if err := AddHelpFlag(c); err != nil {
 			return err
 		}
 	}
@@ -41,6 +47,7 @@ func NewVersion(cmd *Command, opts ...Option) error {
 	return cmd.Sub(prepend(
 		opts,
 		Usage(text.VersionCommandName, text.VersionCommandDesc),
+		Banner(fmt.Sprintf(text.VersionCommandBanner, cmd.RootName())),
 		Special(`version`),
 		Exec(func(ctx context.Context) error {
 			c, _ := Ctx(ctx)
@@ -53,7 +60,7 @@ func NewVersion(cmd *Command, opts ...Option) error {
 // NewVersionFlag adds a `--version` flag to the command, or hooks the command's
 // flag with `Special == "hook:version"`.
 func NewVersionFlag(cmd *Command, opts ...Option) error {
-	if g := cmd.FlagSpecial("hook:version"); g != nil {
+	if g := cmd.FlagSpecial(`hook:version`); g != nil {
 		g.Type, g.Def, g.NoArg, g.NoArgDef = HookT, DefaultVersion, true, ""
 	} else {
 		if cmd.Flag(text.VersionFlagShort, false, true) == nil {
@@ -69,6 +76,7 @@ func NewHelp(cmd *Command, opts ...Option) error {
 	return cmd.Sub(prepend(
 		opts,
 		Usage(text.HelpCommandName, text.HelpCommandDesc),
+		Banner(fmt.Sprintf(text.HelpCommandBanner, cmd.RootName())),
 		Special(`help`),
 		Exec(func(ctx context.Context, args []string) error {
 			c, _ := Ctx(ctx)
@@ -83,14 +91,21 @@ func NewHelp(cmd *Command, opts ...Option) error {
 // with `Special == "hook:help"`.
 func NewHelpFlag(cmd *Command, opts ...Option) error {
 	var err error
-	if cmd.Help, err = NewCommandHelp(cmd, opts...); err != nil {
+	if cmd.Help != nil {
+		if help, ok := cmd.Help.(*CommandHelp); ok {
+			err = Apply(help, opts...)
+		}
+	} else {
+		cmd.Help, err = NewCommandHelp(cmd, opts...)
+	}
+	if err != nil {
 		return err
 	}
 	f := func(ctx *Context) error {
 		_, _ = cmd.HelpContext(ctx).WriteTo(ctx.Stdout)
 		return ErrExit
 	}
-	if g := cmd.FlagSpecial("hook:help"); g != nil {
+	if g := cmd.FlagSpecial(`hook:help`); g != nil {
 		g.Type, g.Def, g.NoArg, g.NoArgDef = HookT, f, true, ""
 	} else {
 		var opts []Option
@@ -104,12 +119,21 @@ func NewHelpFlag(cmd *Command, opts ...Option) error {
 
 // NewComp adds a `completion` sub command to the command.
 func NewComp(cmd *Command, opts ...Option) error {
+	var noDescriptions bool
 	// base command
 	comp, err := NewCommand(prepend(
 		opts,
 		Parent(cmd),
-		Usage(text.CompCommandName, fmt.Sprintf(text.CompDesc, text.CompCommandAShellDesc)),
-		Special("comp"),
+		Usage(text.CompCommandName, fmt.Sprintf(text.CompFlagDesc, text.CompCommandAnyShellDesc)),
+		Banner(fmt.Sprintf(text.CompCommandBanner, text.CompCommandAnyShellDesc)),
+		/*
+			// should this be on the parent?
+			Option(
+				Flags().
+					Bool(text.CompCommandFlagNoDescriptionsName, text.CompCommandFlagNoDescriptionsDesc, Bind(&noDescriptions)),
+			),
+		*/
+		Special(`comp`),
 	)...)
 	if err != nil {
 		return err
@@ -117,7 +141,7 @@ func NewComp(cmd *Command, opts ...Option) error {
 	// add help
 	if comp.Help, err = NewCommandHelp(
 		comp,
-		Banner(fmt.Sprintf(text.CompCommandBanner, cmd.RootName(), text.CompCommandAShellDesc)),
+		Banner(fmt.Sprintf(text.CompCommandBanner, cmd.RootName(), text.CompCommandAnyShellDesc)),
 	); err != nil {
 		return err
 	}
@@ -135,24 +159,30 @@ func NewComp(cmd *Command, opts ...Option) error {
 		// TODO: move these variable names so they are generated from defaults, or
 		// TODO: some better long-lived, documented location
 		rootName := cmd.RootName()
-		varName := strings.ReplaceAll(strings.ReplaceAll(rootName, "-", "_"), ":", "_")
+		varName := identifierCleanRE.ReplaceAllString(rootName, "_")
 		activeHelp := strings.ToUpper(varName) + "_ACTIVE_HELP"
 		sub, err := NewCommand(
 			Parent(comp),
-			Usage(shell, ""),
-			Special("comp:"+shell),
+			Usage(shell, fmt.Sprintf(text.CompFlagDesc, shell)),
+			Flags().
+				Bool(text.CompCommandFlagNoDescriptionsName, text.CompCommandFlagNoDescriptionsDesc, Bind(&noDescriptions)),
 			Exec(func(ctx context.Context) error {
 				c, _ := Ctx(ctx)
+				compName := DefaultCompName
+				if noDescriptions {
+					compName = DefaultCompNameNoDesc
+				}
 				_, _ = fmt.Fprintf(
 					c.Stdout,
 					templ,
 					rootName,
 					varName,
-					DefaultCompName,
+					compName,
 					activeHelp,
 				)
 				return nil
 			}),
+			Special(`comp:`+shell),
 		)
 		if err != nil {
 			return err
@@ -186,7 +216,7 @@ func NewCompFlags(cmd *Command, _ ...Option) error {
 		if !ok {
 			continue
 		}
-		special := "hook:comp:" + shell
+		special := `hook:comp:` + shell
 		f := func(ctx *Context) error {
 			_, _ = fmt.Fprintf(ctx.Stdout, templ, cmd.RootName())
 			return ErrExit
@@ -196,7 +226,7 @@ func NewCompFlags(cmd *Command, _ ...Option) error {
 		} else {
 			cmd.Flags = cmd.Flags.Hook(
 				fmt.Sprintf(text.CompFlagName, shell),
-				fmt.Sprintf(text.CompDesc, shell),
+				fmt.Sprintf(text.CompFlagDesc, shell),
 				f,
 				Hidden(true),
 				Special(special),
@@ -573,6 +603,33 @@ const (
 	// behavior after completions have been provided.
 	CompDefault CompDirective = 0
 )
+
+// String satisfies the [fmt.Stringer] interface.
+func (dir CompDirective) String() string {
+	sb := new(strings.Builder)
+	has(sb, dir, CompError, "CompError")
+	has(sb, dir, CompNoSpace, "CompNoSpace")
+	has(sb, dir, CompNoFileComp, "CompNoFileComp")
+	has(sb, dir, CompFilterFileExt, "CompFilterFileExt")
+	has(sb, dir, CompFilterDirs, "CompFilterDirs")
+	if s := sb.String(); s != "" {
+		return s
+	}
+	return "CompDefault"
+}
+
+// has builds a string for a.
+func has[T inti | uinti](sb *strings.Builder, a, b T, s string) {
+	if a&b != 0 {
+		if sb.Len() != 0 {
+			sb.WriteString("|")
+		}
+		sb.WriteString(s)
+	}
+}
+
+// identifierCleanRE is matches characters to remove from an identifier.
+var identifierCleanRE = regexp.MustCompile(`[^A-Z0-9_]`)
 
 // templates are the embedded completion templates.
 //

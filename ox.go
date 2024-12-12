@@ -2,7 +2,7 @@
 // flag and argument parsing library.
 package ox
 
-//go:generate stringer -type OnErr,CompDirective -output stringer.go
+//go:generate stringer -type OnErr
 
 import (
 	"cmp"

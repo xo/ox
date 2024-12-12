@@ -253,7 +253,7 @@ func Example_sections() {
 	//   tree [flags] [command] [args]
 	//
 	// Available Commands:
-	//   completion  generate completion script for a shell
+	//   completion  generate completion script for a specified shell
 	//
 	// Primary commands:
 	//   help        show help for any command

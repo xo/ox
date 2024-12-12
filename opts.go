@@ -106,10 +106,10 @@ func Exec[F ExecType](f F) CommandOption {
 	}
 }
 
-// Defaults is a [Command] option to add [Version], [Help], and [Comp] options
-// to the command.
+// Defaults is a [Command] option to add [Version], [Comp], and [Help] options
+// to the command. Note that the order is important.
 func Defaults(opts ...Option) CommandOption {
-	options := []Option{Version(), Help(opts...), Comp()}
+	options := []Option{Version(), Comp(), Help(opts...)}
 	return option{
 		name: "Defaults",
 		cmd: func(cmd *Command) error {
@@ -221,7 +221,7 @@ func Help(opts ...Option) CommandOption {
 				}
 			}
 			// add to all sub commands
-			if err := AddHelp(cmd); err != nil {
+			if err := AddHelpFlag(cmd); err != nil {
 				return err
 			}
 			return nil
@@ -614,6 +614,18 @@ func Hook(f func(context.Context) error) FlagOption {
 func Banner(banner string) HelpOption {
 	return option{
 		name: "Banner",
+		cmd: func(cmd *Command) error {
+			return nil
+		},
+		post: func(cmd *Command) error {
+			if cmd.Help == nil {
+				cmd.Help, _ = NewCommandHelp(cmd)
+			}
+			if help, ok := cmd.Help.(*CommandHelp); ok {
+				help.Banner, help.NoBanner = banner, banner == ""
+			}
+			return nil
+		},
 		help: func(help *CommandHelp) error {
 			help.Banner, help.NoBanner = banner, banner == ""
 			return nil
@@ -625,6 +637,18 @@ func Banner(banner string) HelpOption {
 func Spec(spec string) FlagHelpOption {
 	return option{
 		name: "Spec",
+		cmd: func(cmd *Command) error {
+			return nil
+		},
+		post: func(cmd *Command) error {
+			if cmd.Help == nil {
+				cmd.Help, _ = NewCommandHelp(cmd)
+			}
+			if help, ok := cmd.Help.(*CommandHelp); ok {
+				help.Spec, help.NoSpec = spec, spec == ""
+			}
+			return nil
+		},
 		flag: func(g *Flag) error {
 			g.Spec = spec
 			return nil
@@ -640,6 +664,18 @@ func Spec(spec string) FlagHelpOption {
 func Footer(footer string) HelpOption {
 	return option{
 		name: "Footer",
+		cmd: func(cmd *Command) error {
+			return nil
+		},
+		post: func(cmd *Command) error {
+			if cmd.Help == nil {
+				cmd.Help, _ = NewCommandHelp(cmd)
+			}
+			if help, ok := cmd.Help.(*CommandHelp); ok {
+				help.Footer, help.NoFooter = footer, footer == ""
+			}
+			return nil
+		},
 		help: func(help *CommandHelp) error {
 			help.Footer, help.NoSpec = footer, footer == ""
 			return nil
@@ -651,6 +687,18 @@ func Footer(footer string) HelpOption {
 func Example(example string) HelpOption {
 	return option{
 		name: "Example",
+		cmd: func(cmd *Command) error {
+			return nil
+		},
+		post: func(cmd *Command) error {
+			if cmd.Help == nil {
+				cmd.Help, _ = NewCommandHelp(cmd)
+			}
+			if help, ok := cmd.Help.(*CommandHelp); ok {
+				help.Example, help.NoExample = example, example == ""
+			}
+			return nil
+		},
 		help: func(help *CommandHelp) error {
 			help.Example, help.NoExample = example, example == ""
 			return nil
@@ -667,6 +715,9 @@ func Sort(sort bool) CommandOption {
 			return nil
 		},
 		post: func(cmd *Command) error {
+			if cmd.Help == nil {
+				cmd.Help, _ = NewCommandHelp(cmd)
+			}
 			if help, ok := cmd.Help.(*CommandHelp); ok {
 				help.Sort = sort
 			}
@@ -688,6 +739,9 @@ func CommandSort(commandSort bool) CommandOption {
 			return nil
 		},
 		post: func(cmd *Command) error {
+			if cmd.Help == nil {
+				cmd.Help, _ = NewCommandHelp(cmd)
+			}
 			if help, ok := cmd.Help.(*CommandHelp); ok {
 				help.CommandSort = commandSort
 			}
@@ -709,6 +763,9 @@ func MinDist(minDist int) CommandOption {
 			return nil
 		},
 		post: func(cmd *Command) error {
+			if cmd.Help == nil {
+				cmd.Help, _ = NewCommandHelp(cmd)
+			}
 			if help, ok := cmd.Help.(*CommandHelp); ok {
 				help.MinDist = minDist
 			}
@@ -730,6 +787,9 @@ func Sections(sections ...string) HelpOption {
 			return nil
 		},
 		post: func(cmd *Command) error {
+			if cmd.Help == nil {
+				cmd.Help, _ = NewCommandHelp(cmd)
+			}
 			if help, ok := cmd.Help.(*CommandHelp); ok {
 				help.CommandSections = sections
 			}
