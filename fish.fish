@@ -1,4 +1,5 @@
 # fish completion for %[1]s
+
 function __%[1]s_debug
     set -l file "$BASH_COMP_DEBUG_FILE"
     if test -n "$file"
@@ -18,7 +19,7 @@ function __%[1]s_perform_completion
     __%[1]s_debug "last arg: $lastArg"
 
     # Disable ActiveHelp which is not supported for fish shell
-    set -l requestComp "%[10]s=0 $args[1] %[3]s $args[2..-1] $lastArg"
+    set -l requestComp "%[4]s=0 $args[1] %[3]s $args[2..-1] $lastArg"
 
     __%[1]s_debug "Calling $requestComp"
     set -l results (eval $requestComp 2> /dev/null)
@@ -94,7 +95,7 @@ function __%[1]s_requires_order_preservation
     set -l directive (string sub --start 2 $__%[1]s_perform_completion_once_result[-1])
     __%[1]s_debug "Directive is: $directive"
 
-    set -l shellCompDirectiveKeepOrder %[9]d
+    set -l shellCompDirectiveKeepOrder 32
     set -l keeporder (math (math --scale 0 $directive / $shellCompDirectiveKeepOrder) %% 2)
     __%[1]s_debug "Keeporder is: $keeporder"
 
@@ -133,11 +134,11 @@ function __%[1]s_prepare_completions
     __%[1]s_debug "Completions are: $__%[1]s_comp_results"
     __%[1]s_debug "Directive is: $directive"
 
-    set -l shellCompDirectiveError %[4]d
-    set -l shellCompDirectiveNoSpace %[5]d
-    set -l shellCompDirectiveNoFileComp %[6]d
-    set -l shellCompDirectiveFilterFileExt %[7]d
-    set -l shellCompDirectiveFilterDirs %[8]d
+    set -l shellCompDirectiveError 1
+    set -l shellCompDirectiveNoSpace 2
+    set -l shellCompDirectiveNoFileComp 4
+    set -l shellCompDirectiveFilterFileExt 8
+    set -l shellCompDirectiveFilterDirs 16
 
     if test -z "$directive"
         set directive 0
