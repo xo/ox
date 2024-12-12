@@ -210,4 +210,3 @@ _%[1]s()
 if [ "$funcstack[1]" = "_%[1]s" ]; then
     _%[1]s
 fi
-compdef _%[1]s %[1]s
