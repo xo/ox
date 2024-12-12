@@ -61,10 +61,10 @@ var (
 
 	// CompCommandName is the `completion` command name.
 	CompCommandName = `completion`
+	// CompCommandDesc is the `completion` command description.
+	CompCommandDesc = `generate completion script for %s`
 	// CompCommandBanner is the `completion` command banner.
 	CompCommandBanner = "Generate %s completion script for %s.\n\nSee each sub-command's help for details on using the generated completion script."
-	// CompCommandSubBanner is the `completion <type>` command banner.
-	CompCommandSubBanner = `Generate %s completion script for %s.`
 	// CompFlagName is the `--completion-script-<type>` flag name.
 	CompFlagName = `completion-script-%s`
 	// CompFlagDesc is the `--completion-script-<type>` flag description.

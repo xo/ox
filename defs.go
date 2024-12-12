@@ -124,15 +124,8 @@ func NewComp(cmd *Command, opts ...Option) error {
 	comp, err := NewCommand(prepend(
 		opts,
 		Parent(cmd),
-		Usage(text.CompCommandName, fmt.Sprintf(text.CompFlagDesc, text.CompCommandAnyShellDesc)),
+		Usage(text.CompCommandName, fmt.Sprintf(text.CompCommandDesc, text.CompCommandAnyShellDesc)),
 		Banner(fmt.Sprintf(text.CompCommandBanner, text.CompCommandAnyShellDesc)),
-		/*
-			// should this be on the parent?
-			Option(
-				Flags().
-					Bool(text.CompCommandFlagNoDescriptionsName, text.CompCommandFlagNoDescriptionsDesc, Bind(&noDescriptions)),
-			),
-		*/
 		Special(`comp`),
 	)...)
 	if err != nil {
@@ -163,7 +156,7 @@ func NewComp(cmd *Command, opts ...Option) error {
 		activeHelp := strings.ToUpper(varName) + "_ACTIVE_HELP"
 		sub, err := NewCommand(
 			Parent(comp),
-			Usage(shell, fmt.Sprintf(text.CompFlagDesc, shell)),
+			Usage(shell, fmt.Sprintf(text.CompCommandDesc, shell)),
 			Flags().
 				Bool(text.CompCommandFlagNoDescriptionsName, text.CompCommandFlagNoDescriptionsDesc, Bind(&noDescriptions)),
 			Exec(func(ctx context.Context) error {
