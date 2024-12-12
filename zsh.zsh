@@ -13,12 +13,12 @@ __%[1]s_debug()
 
 _%[1]s()
 {
-    local shellCompDirectiveError=%[3]d
-    local shellCompDirectiveNoSpace=%[4]d
-    local shellCompDirectiveNoFileComp=%[5]d
-    local shellCompDirectiveFilterFileExt=%[6]d
-    local shellCompDirectiveFilterDirs=%[7]d
-    local shellCompDirectiveKeepOrder=%[8]d
+    local shellCompDirectiveError=1
+    local shellCompDirectiveNoSpace=2
+    local shellCompDirectiveNoFileComp=4
+    local shellCompDirectiveFilterFileExt=8
+    local shellCompDirectiveFilterDirs=16
+    local shellCompDirectiveKeepOrder=32
 
     local lastParam lastChar flagPrefix requestComp out directive comp lastComp noSpace keepOrder
     local -a completions
@@ -46,7 +46,7 @@ _%[1]s()
     fi
 
     # Prepare the command to obtain completions
-    requestComp="${words[1]} %[2]s ${words[2,-1]}"
+    requestComp="${words[1]} %[3]s ${words[2,-1]}"
     if [ "${lastChar}" = "" ]; then
         # If the last parameter is complete (there is a space following it)
         # We add an extra empty parameter so we can indicate this to the go completion code.
@@ -88,7 +88,7 @@ _%[1]s()
         return
     fi
 
-    local activeHelpMarker="%[9]s"
+    local activeHelpMarker="_activeHelp_ "
     local endIndex=${#activeHelpMarker}
     local startIndex=$((${#activeHelpMarker}+1))
     local hasActiveHelp=0
@@ -210,3 +210,4 @@ _%[1]s()
 if [ "$funcstack[1]" = "_%[1]s" ]; then
     _%[1]s
 fi
+compdef _%[1]s %[1]s
