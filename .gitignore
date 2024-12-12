@@ -4,8 +4,14 @@
 /_examples/bind/bind.exe
 /_examples/reflect/reflect
 /_examples/reflect/reflect.exe
-/_examples/podboy/podboy
-/_examples/podboy/podboy.exe
+/_examples/tree/tree
+/_examples/tree/tree.exe
 /ox.test
 /ox.test.exe
+
 *.txt
+
+*.bash
+*.fish
+*.ps1
+*.zsh
