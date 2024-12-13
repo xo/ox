@@ -8,7 +8,6 @@ import (
 	"io/fs"
 	"maps"
 	"path/filepath"
-	"regexp"
 	"slices"
 	"sort"
 	"strings"
@@ -619,9 +618,6 @@ func has[T inti | uinti](sb *strings.Builder, a, b T, s string) {
 		sb.WriteString(s)
 	}
 }
-
-// identifierCleanRE is matches characters to remove from an identifier.
-var identifierCleanRE = regexp.MustCompile(`[^A-Z0-9_]`)
 
 // templates are the embedded completion templates.
 //

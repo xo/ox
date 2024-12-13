@@ -147,7 +147,7 @@ var (
 	// completion script from the passed template.
 	DefaultCompWrite = func(ctx *Context, cmd *Command, noDescriptions bool, shell, templ string) error {
 		rootName := cmd.RootName()
-		varName := identifierCleanRE.ReplaceAllString(rootName, "_")
+		varName := regexp.MustCompile(`[^A-Za-z0-9_]`).ReplaceAllString(rootName, "_")
 		activeHelp := strings.ToUpper(varName) + "_ACTIVE_HELP"
 		compName := DefaultCompName
 		if noDescriptions {
