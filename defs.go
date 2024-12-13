@@ -149,31 +149,20 @@ func NewComp(cmd *Command, opts ...Option) error {
 		if !ok {
 			continue
 		}
-		// TODO: move these variable names so they are generated from defaults, or
-		// TODO: some better long-lived, documented location
-		rootName := cmd.RootName()
-		varName := identifierCleanRE.ReplaceAllString(rootName, "_")
-		activeHelp := strings.ToUpper(varName) + "_ACTIVE_HELP"
+		// create `completion <shell>` command
 		sub, err := NewCommand(
 			Parent(comp),
 			Usage(shell, fmt.Sprintf(text.CompCommandDesc, shell)),
 			Flags().
-				Bool(text.CompCommandFlagNoDescriptionsName, text.CompCommandFlagNoDescriptionsDesc, Bind(&noDescriptions)),
+				Bool(
+					text.CompCommandFlagNoDescriptionsName,
+					text.CompCommandFlagNoDescriptionsDesc,
+					Special(`comp:no-desc`),
+					Bind(&noDescriptions),
+				),
 			Exec(func(ctx context.Context) error {
 				c, _ := Ctx(ctx)
-				compName := DefaultCompName
-				if noDescriptions {
-					compName = DefaultCompNameNoDesc
-				}
-				_, _ = fmt.Fprintf(
-					c.Stdout,
-					templ,
-					rootName,
-					varName,
-					compName,
-					activeHelp,
-				)
-				return nil
+				return DefaultCompWrite(cmd, noDescriptions, shell, templ)(c)
 			}),
 			Special(`comp:`+shell),
 		)
@@ -203,17 +192,27 @@ func NewCompFlags(cmd *Command, _ ...Option) error {
 	if err != nil {
 		return err
 	}
+	noDescriptions := false
+	// add `--no-descriptions` flag if not defined
+	if cmd.Flag(text.CompCommandFlagNoDescriptionsName, true, len(text.CompCommandFlagNoDescriptionsName) == 1) == nil {
+		cmd.Flags = cmd.Flags.Bool(
+			text.CompCommandFlagNoDescriptionsName,
+			text.CompCommandFlagNoDescriptionsDesc,
+			Hidden(true),
+			Special(`comp:no-desc`),
+			Bind(&noDescriptions),
+		)
+	}
 	// add flags
 	for _, shell := range slices.Sorted(maps.Keys(txt)) {
 		templ, ok := tpl[shell]
 		if !ok {
 			continue
 		}
-		special := `hook:comp:` + shell
 		f := func(ctx *Context) error {
-			_, _ = fmt.Fprintf(ctx.Stdout, templ, cmd.RootName())
-			return ErrExit
+			return DefaultCompWrite(cmd, noDescriptions, shell, templ)(ctx)
 		}
+		special := `hook:comp:` + shell
 		if g := cmd.FlagSpecial(special); g != nil {
 			g.Type, g.Def, g.NoArg, g.NoArgDef, g.Hidden, g.Special = HookT, f, true, "", true, special
 		} else {
