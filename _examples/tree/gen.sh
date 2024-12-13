@@ -5,9 +5,12 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
+target=$1
+shift
+
 (set -x
   rm -f *.{txt,bash,fish,zsh,ps1}
-  go build -ldflags "-X main.name=$1"
+  go build -ldflags "-X main.name=$target"
 )
 
 for name in bash fish zsh powershell; do
@@ -16,7 +19,7 @@ for name in bash fish zsh powershell; do
     ext="ps1"
   fi
   (set -x;
-    $1 completion $name > $1.$ext
-    ./tree completion $name > tree.$ext
+    $target completion $name $@ > $target.$ext
+    ./tree completion $name $@ > tree.$ext
   )
 done

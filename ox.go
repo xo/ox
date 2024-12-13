@@ -145,25 +145,23 @@ var (
 	}
 	// DefaultCompWrite is the default completion write func, that writes the
 	// completion script from the passed template.
-	DefaultCompWrite = func(cmd *Command, noDescriptions bool, shell, templ string) func(*Context) error {
+	DefaultCompWrite = func(ctx *Context, cmd *Command, noDescriptions bool, shell, templ string) error {
 		rootName := cmd.RootName()
 		varName := identifierCleanRE.ReplaceAllString(rootName, "_")
 		activeHelp := strings.ToUpper(varName) + "_ACTIVE_HELP"
-		return func(ctx *Context) error {
-			compName := DefaultCompName
-			if noDescriptions {
-				compName = DefaultCompNameNoDesc
-			}
-			_, _ = fmt.Fprintf(
-				ctx.Stdout,
-				templ,
-				rootName,
-				varName,
-				compName,
-				activeHelp,
-			)
-			return ErrExit
+		compName := DefaultCompName
+		if noDescriptions {
+			compName = DefaultCompNameNoDesc
 		}
+		_, _ = fmt.Fprintf(
+			ctx.Stdout,
+			templ,
+			rootName,
+			varName,
+			compName,
+			activeHelp,
+		)
+		return ErrExit
 	}
 )
 

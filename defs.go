@@ -162,7 +162,7 @@ func NewComp(cmd *Command, opts ...Option) error {
 				),
 			Exec(func(ctx context.Context) error {
 				c, _ := Ctx(ctx)
-				return DefaultCompWrite(cmd, noDescriptions, shell, templ)(c)
+				return DefaultCompWrite(c, cmd, noDescriptions, shell, templ)
 			}),
 			Special(`comp:`+shell),
 		)
@@ -210,7 +210,7 @@ func NewCompFlags(cmd *Command, _ ...Option) error {
 			continue
 		}
 		f := func(ctx *Context) error {
-			return DefaultCompWrite(cmd, noDescriptions, shell, templ)(ctx)
+			return DefaultCompWrite(ctx, cmd, noDescriptions, shell, templ)
 		}
 		special := `hook:comp:` + shell
 		if g := cmd.FlagSpecial(special); g != nil {
