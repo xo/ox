@@ -140,13 +140,7 @@ func (cmd *Command) Suggest(args ...string) error {
 	if len(args) == 0 {
 		return nil
 	}
-	var minDist int
-	if help, ok := cmd.Help.(*CommandHelp); ok {
-		minDist = help.MinDist
-	}
-	if minDist <= 0 {
-		minDist = DefaultMinDist
-	}
+	minDist := minDist(cmd)
 	arg := []rune(strings.ToLower(args[0]))
 	for _, c := range cmd.Commands {
 		for _, name := range append(prepend(c.Aliases, c.Name), c.Suggested...) {
@@ -346,14 +340,7 @@ func (cmd *Command) CompCommands(name string) ([]Completion, CompDirective) {
 			continue
 		}
 	}
-	var minDist int
-	if help, ok := cmd.Help.(*CommandHelp); ok {
-		minDist = help.MinDist
-	}
-	if minDist <= 0 {
-		minDist = DefaultMinDist
-	}
-	if minDist != 0 {
+	if minDist := minDist(cmd); minDist != 0 {
 		l := []rune(lower)
 		// check distance
 		for _, c := range cmd.Commands {
@@ -985,4 +972,16 @@ func prev(s []string, n int) string {
 		return s[n-1]
 	}
 	return ""
+}
+
+// minDist gets the minimum distance from the command.
+func minDist(cmd *Command) int {
+	var minDist int
+	if help, ok := cmd.Help.(*CommandHelp); ok {
+		minDist = help.MinDist
+	}
+	if minDist <= 0 {
+		minDist = DefaultMinDist
+	}
+	return minDist
 }
