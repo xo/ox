@@ -95,6 +95,20 @@ var (
 		}
 		return name, ver
 	}
+	// DefaultContinueHandler is the default continue handler used by
+	// [Run]/[RunContext].
+	DefaultContinueHandler = func(ctx *Context) func(*Command, error) bool {
+		var onErr OnErr
+		if ctx != nil {
+			onErr = ctx.OnErr
+		}
+		return func(cmd *Command, err error) bool {
+			if cmd != nil {
+				onErr = cmd.OnErr
+			}
+			return err == nil || onErr == OnErrContinue
+		}
+	}
 	// DefaultErrorHandler is the default error handler used by
 	// [Run]/[RunContext].
 	DefaultErrorHandler = func(ctx *Context) func(error) bool {
@@ -138,17 +152,17 @@ var (
 	// DefaultCompNameNoDesc is the name for the completion script hook without
 	// descriptions.
 	DefaultCompNameNoDesc = "__completeNoDesc"
-	// DefaultComp is the default completion func.
-	DefaultComp = func(ctx *Context) error {
-		// noDesc := ctx.Args[0] == DefaultCompNameNoDesc
-		return ErrExit
-	}
+	// DefaultCompEnvNoDescName is the name for the environment variable for
+	// disabling completion descriptions.
+	DefaultCompEnvNoDescName = "COMPLETION_DESCRIPTIONS"
+	// DefaultCompActiveHelpSuffix is the active help suffix.
+	DefaultCompActiveHelpSuffix = "_ACTIVE_HELP"
 	// DefaultCompWrite is the default completion write func, that writes the
 	// completion script from the passed template.
 	DefaultCompWrite = func(ctx *Context, cmd *Command, noDescriptions bool, shell, templ string) error {
 		rootName := cmd.RootName()
 		varName := regexp.MustCompile(`[^A-Za-z0-9_]`).ReplaceAllString(rootName, "_")
-		activeHelp := strings.ToUpper(varName) + "_ACTIVE_HELP"
+		activeHelp := strings.ToUpper(varName) + DefaultCompActiveHelpSuffix
 		compName := DefaultCompName
 		if noDescriptions {
 			compName = DefaultCompNameNoDesc
@@ -161,6 +175,32 @@ var (
 			compName,
 			activeHelp,
 		)
+		return ErrExit
+	}
+	// DefaultComp is the default completion func.
+	DefaultComp = func(ctx *Context) error {
+		noDescriptions := ctx.Args[0] == DefaultCompNameNoDesc
+		for _, name := range []string{ctx.Root.Name + "_" + DefaultCompEnvNoDescName, DefaultCompEnvNoDescName} {
+			if s := os.Getenv(name); s != "" {
+				if b, err := asBool(s); err == nil {
+					noDescriptions = !b
+				}
+			}
+		}
+		comps, dir, err := ctx.Root.Comps(ctx.Args[1:]...)
+		if err != nil {
+			ctx.Handler(err)
+			ctx.Exit(1)
+		}
+		for _, comp := range comps {
+			if !noDescriptions {
+				_, _ = fmt.Fprintln(ctx.Stdout, comp.Name+"\t"+comp.Usage)
+			} else {
+				_, _ = fmt.Fprintln(ctx.Stdout, comp.Name)
+			}
+		}
+		_, _ = fmt.Fprintf(ctx.Stdout, ":%d\n", dir)
+		_, _ = fmt.Fprintf(ctx.Stderr, "COMP ENDED: %s\n", dir)
 		return ErrExit
 	}
 )
@@ -228,6 +268,8 @@ type Context struct {
 	Stderr io.Writer
 	// OnErr is the on error handling. Used by the default Handle func.
 	OnErr OnErr
+	// Continue is the func used to decide if it should continue on an error.
+	Continue func(*Command, error) bool
 	// Handler is the func used to handle errors within [Run]/[RunContext].
 	Handler func(error) bool
 	// Root is the root command created within [Run]/[RunContext].
@@ -254,6 +296,7 @@ func NewContext(opts ...Option) (*Context, error) {
 		Stderr: os.Stderr,
 		Args:   stripTestFlags(os.Args[1:]),
 	}
+	ctx.Continue = DefaultContinueHandler(ctx)
 	ctx.Handler = DefaultErrorHandler(ctx)
 	if err := Apply(ctx, opts...); err != nil {
 		return ctx, err

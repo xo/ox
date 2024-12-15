@@ -590,6 +590,9 @@ const (
 	// search. The BashCompSubdirsInDir annotation can be used to obtain the
 	// same behavior but only for flags.
 	CompFilterDirs
+	// CompKeepOrder indicates that the shell should preserve the order in
+	// which the completions are provided.
+	CompKeepOrder
 	// CompDefault indicates to let the shell perform its default
 	// behavior after completions have been provided.
 	CompDefault CompDirective = 0
@@ -603,10 +606,28 @@ func (dir CompDirective) String() string {
 	has(sb, dir, CompNoFileComp, "CompNoFileComp")
 	has(sb, dir, CompFilterFileExt, "CompFilterFileExt")
 	has(sb, dir, CompFilterDirs, "CompFilterDirs")
+	has(sb, dir, CompKeepOrder, "CompKeepOrder")
 	if s := sb.String(); s != "" {
 		return s
 	}
 	return "CompDefault"
+}
+
+// Completion is a completion.
+type Completion struct {
+	Name  string
+	Usage string
+}
+
+// NewCompletion creates a completion.
+func NewCompletion(name, usage string) Completion {
+	if i := strings.Index(usage, "\n"); i != -1 {
+		usage = usage[:i]
+	}
+	return Completion{
+		Name:  strings.TrimSpace(name),
+		Usage: strings.TrimSpace(usage),
+	}
 }
 
 // has builds a string for a.

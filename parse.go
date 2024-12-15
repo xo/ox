@@ -47,11 +47,15 @@ func parse(ctx *Context, cmd *Command, args []string, vars Vars) (*Command, []st
 			return cmd, append(v, args...), nil
 		case s[1] == '-':
 			if args, err = parseLong(ctx, cmd, s, args, vars); err != nil {
-				return nil, nil, err
+				if !ctx.Continue(cmd, err) {
+					return nil, nil, err
+				}
 			}
 		default:
 			if args, err = parseShort(ctx, cmd, s, args, vars); err != nil {
-				return nil, nil, err
+				if !ctx.Continue(cmd, err) {
+					return nil, nil, err
+				}
 			}
 		}
 	}
@@ -63,7 +67,7 @@ func parseLong(ctx *Context, cmd *Command, s string, args []string, vars Vars) (
 	arg, value, ok := strings.Cut(strings.TrimPrefix(s, "--"), "=")
 	g := cmd.Flag(arg, true, false)
 	switch {
-	case g == nil && cmd.OnErr == OnErrContinue:
+	case g == nil && ctx.Continue(cmd, ErrUnknownFlag):
 		return args, nil
 	case g == nil:
 		return nil, newFlagError(arg, ErrUnknownFlag)
@@ -89,7 +93,7 @@ func parseShort(ctx *Context, cmd *Command, s string, args []string, vars Vars) 
 	for v := []rune(s[1:]); len(v) != 0; v = v[1:] {
 		arg := string(v[0])
 		switch g, n := cmd.Flag(arg, true, true), len(v[1:]); {
-		case g == nil && cmd.OnErr == OnErrContinue:
+		case g == nil && ctx.Continue(cmd, ErrUnknownFlag):
 			return args, nil
 		case g == nil:
 			return nil, newFlagError(arg, ErrUnknownFlag)

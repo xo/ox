@@ -2,6 +2,7 @@ package ox
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -254,6 +255,132 @@ func (cmd *Command) WriteTo(w io.Writer) (int64, error) {
 		}
 	}
 	return help.WriteTo(w)
+}
+
+// Comps returns the completions for args.
+func (cmd *Command) Comps(args ...string) ([]Completion, CompDirective, error) {
+	ctx := &Context{
+		Root:   cmd,
+		Stdout: io.Discard,
+		Stderr: io.Discard,
+		Panic:  func(any) {},
+		Exit:   func(int) {},
+		Continue: func(cmd *Command, err error) bool {
+			fmt.Fprintf(os.Stderr, "COMP CONTINUE ERR: %v\n", err)
+			switch {
+			case errors.Is(err, ErrUnknownFlag),
+				errors.Is(err, ErrExit):
+				return true
+			}
+			return false
+		},
+		Vars: make(Vars),
+	}
+	n := len(args)
+	if n == 0 {
+		return nil, CompError, ErrInvalidArgCount
+	}
+	fmt.Fprintf(ctx.Stderr, "COMP ARGS: %v\n", args)
+	var err error
+	if ctx.Exec, _, err = Parse(ctx, cmd, args[:n-1], ctx.Vars); err != nil {
+		fmt.Fprintf(ctx.Stderr, "COMP PARSE ERR: %v\n", err)
+		return nil, CompError, err
+	}
+	fmt.Fprintf(os.Stderr, "COMP COMMAND: %s\n", ctx.Exec.Name)
+	var comps []Completion
+	dir := CompNoFileComp
+	// build completions
+	switch prev, arg := prev(args, n), args[n-1]; {
+	case strings.HasPrefix(arg, "--"):
+		comps, dir = cmd.CompFlags(arg[2:], true, false)
+	case strings.HasPrefix(arg, "-"):
+		comps, dir = cmd.CompFlags(arg[1:], true, true)
+	case strings.HasPrefix(prev, "-"):
+		switch g := cmd.Flag(prev, true, len([]rune(prev)) == 2); {
+		case g == nil, g.NoArg, strings.Contains(prev, "="):
+			comps, dir = cmd.CompCommands(arg)
+		default:
+			// TODO: handle completion for certain flag types
+		}
+	default:
+		comps, dir = cmd.CompCommands(arg)
+	}
+	return comps, dir, nil
+}
+
+// CompCommands returns completions for the sub commands with the provided
+// name.
+func (cmd *Command) CompCommands(name string) ([]Completion, CompDirective) {
+	m := make(map[string]bool)
+	var comps []Completion
+	var ok bool
+	dir := CompNoFileComp
+	lower := strings.ToLower(name)
+	// exact or case insensitive name/alias
+	for _, c := range cmd.Commands {
+		if comps, ok = addComp(comps, c, m, name == c.Name); ok {
+			continue
+		}
+		if comps, ok = addComp(comps, c, m, slices.ContainsFunc(c.Aliases, func(s string) bool {
+			return name == s
+		})); ok {
+			continue
+		}
+		if comps, ok = addComp(comps, c, m, strings.ToLower(c.Name) == lower); ok {
+			continue
+		}
+		if comps, ok = addComp(comps, c, m, slices.ContainsFunc(c.Aliases, func(s string) bool {
+			return lower == strings.ToLower(s)
+		})); ok {
+			continue
+		}
+	}
+	// prefix
+	for _, c := range cmd.Commands {
+		if comps, ok = addComp(comps, c, m, strings.HasPrefix(strings.ToLower(c.Name), lower)); ok {
+			continue
+		}
+	}
+	var minDist int
+	if help, ok := cmd.Help.(*CommandHelp); ok {
+		minDist = help.MinDist
+	}
+	if minDist <= 0 {
+		minDist = DefaultMinDist
+	}
+	if minDist != 0 {
+		l := []rune(lower)
+		// check distance
+		for _, c := range cmd.Commands {
+			if comps, ok = addComp(comps, c, m, Ldist([]rune(strings.ToLower(c.Name)), l) <= minDist); ok {
+				continue
+			}
+			if comps, ok = addComp(comps, c, m, slices.ContainsFunc(c.Aliases, func(s string) bool {
+				return Ldist([]rune(strings.ToLower(s)), l) <= minDist
+			})); ok {
+				continue
+			}
+		}
+	}
+	return comps, dir
+}
+
+// CompFlags returns completions for a flag.
+func (cmd *Command) CompFlags(name string, parents, short bool) ([]Completion, CompDirective) {
+	dir := CompNoFileComp
+	return nil, dir
+}
+
+// addComp adds a completion to
+func addComp(comps []Completion, cmd *Command, m map[string]bool, b bool) ([]Completion, bool) {
+	switch {
+	case m[cmd.Name]:
+		return comps, true
+	case b:
+		m[cmd.Name] = true
+		return append(comps, NewCompletion(cmd.Name, cmd.Usage)), true
+	}
+	return comps, false
 }
 
 // FlagSet is a set of command-line flag definitions.
@@ -845,4 +972,12 @@ func peek(r []rune, i, n int) rune {
 		return r[i]
 	}
 	return 0
+}
+
+// prev
+func prev(s []string, n int) string {
+	if n != 0 {
+		return s[n-1]
+	}
+	return ""
 }
