@@ -316,7 +316,7 @@ func (cmd *Command) CompCommands(name string) ([]Completion, CompDirective) {
 	var ok bool
 	dir := CompNoFileComp
 	lower := strings.ToLower(name)
-	// exact or case insensitive name/alias
+	// check exact or case insensitive name/alias
 	for _, c := range cmd.Commands {
 		if comps, ok = addComp(comps, c, m, name == c.Name); ok {
 			continue
@@ -335,9 +335,14 @@ func (cmd *Command) CompCommands(name string) ([]Completion, CompDirective) {
 			continue
 		}
 	}
-	// prefix
+	// check prefix
 	for _, c := range cmd.Commands {
 		if comps, ok = addComp(comps, c, m, strings.HasPrefix(strings.ToLower(c.Name), lower)); ok {
+			continue
+		}
+		if comps, ok = addComp(comps, c, m, slices.ContainsFunc(c.Aliases, func(s string) bool {
+			return strings.HasPrefix(strings.ToLower(s), lower)
+		})); ok {
 			continue
 		}
 	}
