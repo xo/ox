@@ -681,9 +681,9 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 //
 // A `ox` tag starts with the flag's description, followed by one or more
 // options separated by `,`. If a flag description must contain a comma (`,`)
-// it can be escaped with a double `\\`. The flag's name is determined by the
-// result of calling [DefaultFlagNameMapper], or it can be set with the `name:`
-// option (see below).
+// it can be escaped with a double backslash (`\\`). The flag's name is
+// determined by the result of calling [DefaultFlagNameMapper], or it can be
+// set with the `name:` option (see below).
 //
 // Example:
 //
@@ -915,7 +915,7 @@ func setField(value reflect.Value, name string) (*bool, error) {
 		case f.Name != name:
 			continue
 		case f.Type.Kind() != reflect.Bool:
-			return nil, fmt.Errorf("%w: set: field %q is not bool", ErrInvalidType, name)
+			return nil, fmt.Errorf("%w: set: field %q is not a bool", ErrInvalidType, name)
 		}
 		return value.Field(i).Addr().Interface().(*bool), nil
 	}
