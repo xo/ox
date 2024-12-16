@@ -283,28 +283,31 @@ func (cmd *Command) Comps(args ...string) ([]Completion, CompDirective, error) {
 	fmt.Fprintf(os.Stderr, "COMP COMMAND: %s\n", ctx.Exec.Name)
 	var comps []Completion
 	dir := CompNoFileComp
+	// TODO: expose variables to script allow hidden/deprecated
+	hidden, deprecated := false, true
 	// build completions
 	switch prev, arg := prev(args, n), args[n-1]; {
 	case strings.HasPrefix(arg, "--"):
-		comps, dir = cmd.CompFlags(arg[2:], true, false)
+		comps, dir = cmd.CompFlags(arg[2:], true, false, hidden, deprecated)
 	case strings.HasPrefix(arg, "-"):
-		comps, dir = cmd.CompFlags(arg[1:], true, true)
+		comps, dir = cmd.CompFlags(arg[1:], true, true, hidden, deprecated)
 	case strings.HasPrefix(prev, "-"):
 		switch g := cmd.Flag(prev, true, len([]rune(prev)) == 2); {
 		case g == nil, g.NoArg, strings.Contains(prev, "="):
-			comps, dir = cmd.CompCommands(arg)
+			comps, dir = cmd.CompCommands(arg, hidden, deprecated)
 		default:
 			// TODO: handle completion for certain flag types
 		}
 	default:
-		comps, dir = cmd.CompCommands(arg)
+		comps, dir = cmd.CompCommands(arg, hidden, deprecated)
 	}
 	return comps, dir, nil
 }
 
 // CompCommands returns completions for the sub commands with the provided
 // name.
-func (cmd *Command) CompCommands(name string) ([]Completion, CompDirective) {
+func (cmd *Command) CompCommands(name string, hidden, deprecated bool) ([]Completion, CompDirective) {
+	// TODO: expose case sensitivity to script
 	m := make(map[string]bool)
 	var comps []Completion
 	var ok bool
@@ -312,44 +315,44 @@ func (cmd *Command) CompCommands(name string) ([]Completion, CompDirective) {
 	lower := strings.ToLower(name)
 	// check exact or case insensitive name/alias
 	for _, c := range cmd.Commands {
-		if comps, ok = addComp(comps, c, m, name == c.Name); ok {
+		if comps, ok = addCommandComp(comps, c, m, name == c.Name, hidden, deprecated); ok {
 			continue
 		}
-		if comps, ok = addComp(comps, c, m, slices.ContainsFunc(c.Aliases, func(s string) bool {
+		if comps, ok = addCommandComp(comps, c, m, slices.ContainsFunc(c.Aliases, func(s string) bool {
 			return name == s
-		})); ok {
+		}), hidden, deprecated); ok {
 			continue
 		}
-		if comps, ok = addComp(comps, c, m, strings.ToLower(c.Name) == lower); ok {
+		if comps, ok = addCommandComp(comps, c, m, strings.ToLower(c.Name) == lower, hidden, deprecated); ok {
 			continue
 		}
-		if comps, ok = addComp(comps, c, m, slices.ContainsFunc(c.Aliases, func(s string) bool {
+		if comps, ok = addCommandComp(comps, c, m, slices.ContainsFunc(c.Aliases, func(s string) bool {
 			return lower == strings.ToLower(s)
-		})); ok {
+		}), hidden, deprecated); ok {
 			continue
 		}
 	}
 	// check prefix
 	for _, c := range cmd.Commands {
-		if comps, ok = addComp(comps, c, m, strings.HasPrefix(strings.ToLower(c.Name), lower)); ok {
+		if comps, ok = addCommandComp(comps, c, m, strings.HasPrefix(strings.ToLower(c.Name), lower), hidden, deprecated); ok {
 			continue
 		}
-		if comps, ok = addComp(comps, c, m, slices.ContainsFunc(c.Aliases, func(s string) bool {
+		if comps, ok = addCommandComp(comps, c, m, slices.ContainsFunc(c.Aliases, func(s string) bool {
 			return strings.HasPrefix(strings.ToLower(s), lower)
-		})); ok {
+		}), hidden, deprecated); ok {
 			continue
 		}
 	}
-	if minDist := minDist(cmd); minDist != 0 {
+	if minDist := minDist(cmd); 0 < minDist {
 		l := []rune(lower)
 		// check distance
 		for _, c := range cmd.Commands {
-			if comps, ok = addComp(comps, c, m, Ldist([]rune(strings.ToLower(c.Name)), l) <= minDist); ok {
+			if comps, ok = addCommandComp(comps, c, m, Ldist([]rune(strings.ToLower(c.Name)), l) <= minDist, hidden, deprecated); ok {
 				continue
 			}
-			if comps, ok = addComp(comps, c, m, slices.ContainsFunc(c.Aliases, func(s string) bool {
+			if comps, ok = addCommandComp(comps, c, m, slices.ContainsFunc(c.Aliases, func(s string) bool {
 				return Ldist([]rune(strings.ToLower(s)), l) <= minDist
-			})); ok {
+			}), hidden, deprecated); ok {
 				continue
 			}
 		}
@@ -358,21 +361,9 @@ func (cmd *Command) CompCommands(name string) ([]Completion, CompDirective) {
 }
 
 // CompFlags returns completions for a flag.
-func (cmd *Command) CompFlags(name string, parents, short bool) ([]Completion, CompDirective) {
+func (cmd *Command) CompFlags(name string, parents, short, hidden, deprecated bool) ([]Completion, CompDirective) {
 	dir := CompNoFileComp
 	return nil, dir
-}
-
-// addComp adds a completion to
-func addComp(comps []Completion, cmd *Command, m map[string]bool, b bool) ([]Completion, bool) {
-	switch {
-	case m[cmd.Name]:
-		return comps, true
-	case b:
-		m[cmd.Name] = true
-		return append(comps, NewCompletion(cmd.Name, cmd.Usage)), true
-	}
-	return comps, false
 }
 
 // FlagSet is a set of command-line flag definitions.
@@ -966,12 +957,40 @@ func peek(r []rune, i, n int) rune {
 	return 0
 }
 
-// prev
+// prev returns the n-1 element in s.
 func prev(s []string, n int) string {
-	if n != 0 {
+	if 0 < n {
 		return s[n-1]
 	}
 	return ""
+}
+
+// addCommandComp appends a completion to comps, if not already added to m, b
+// is true.
+func addCommandComp(comps []Completion, cmd *Command, m map[string]bool, b, hidden, deprecated bool) ([]Completion, bool) {
+	switch {
+	case m[cmd.Name]:
+		return comps, true
+	case !hidden && cmd.Hidden, !deprecated && cmd.Deprecated:
+	case b:
+		m[cmd.Name] = true
+		return append(comps, NewCompletion(cmd.Name, cmd.Usage)), true
+	}
+	return comps, false
+}
+
+// addFlagComp appends a completion to comps, if not already added to m, b
+// is true.
+func addFlagComp(comps []Completion, g *Flag, m map[string]bool, b, hidden, deprecated bool) ([]Completion, bool) {
+	switch {
+	case m[g.Name]:
+		return comps, true
+	case !hidden && g.Hidden, !deprecated && g.Deprecated:
+	case b:
+		m[g.Name] = true
+		return append(comps, NewCompletion(g.Name, g.Usage)), true
+	}
+	return comps, false
 }
 
 // minDist gets the minimum distance from the command.
