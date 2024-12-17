@@ -29,11 +29,12 @@ func main() {
 		ox.Usage(name, "runs a command"),
 		ox.Flags().
 			String("config", "config file").
+			String("my-string", "my string on "+name).
 			Int("int", "an int", ox.Short("i")),
 		ox.Sub(
 			ox.Usage("sub1", "a sub command"),
 			ox.Flags().
-				String("my-string", "my string"),
+				String("my-string", "my string on sub1"),
 		),
 		ox.Sub(
 			ox.Usage("sub2", "sub2 command"),

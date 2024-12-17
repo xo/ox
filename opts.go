@@ -754,11 +754,11 @@ func CommandSort(commandSort bool) CommandOption {
 	}
 }
 
-// MinDist is a [Command] option to set the minimum Levenshtein for flags when
+// MaxDist is a [Command] option to set the maximum Levenshtein for flags when
 // used with a [Command].
-func MinDist(minDist int) CommandOption {
+func MaxDist(maxDist int) CommandOption {
 	return option{
-		name: "MinDist",
+		name: "MaxDist",
 		cmd: func(cmd *Command) error {
 			return nil
 		},
@@ -767,12 +767,12 @@ func MinDist(minDist int) CommandOption {
 				cmd.Help, _ = NewCommandHelp(cmd)
 			}
 			if help, ok := cmd.Help.(*CommandHelp); ok {
-				help.MinDist = minDist
+				help.MaxDist = maxDist
 			}
 			return nil
 		},
 		help: func(help *CommandHelp) error {
-			help.MinDist = minDist
+			help.MaxDist = maxDist
 			return nil
 		},
 	}

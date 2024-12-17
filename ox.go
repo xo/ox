@@ -38,8 +38,8 @@ var (
 	DefaultStripGoTestFlags = true
 	// DefaultWrapWidth is the default wrap width.
 	DefaultWrapWidth = 95
-	// DefaultMinDist is the default minimum distance for suggestions.
-	DefaultMinDist = 2
+	// DefaultMaxDist is the default maximum distance for suggestions.
+	DefaultMaxDist = 2
 	// DefaultWrap wraps a line of text with [Wrap] using [DefaultWrapWidth]
 	// for the width.
 	DefaultWrap = func(s string, prefixWidth int) string {
@@ -187,7 +187,7 @@ var (
 				}
 			}
 		}
-		comps, dir, err := ctx.Root.Comps(ctx.Args[1:]...)
+		comps, dir, err := ctx.Comps()
 		if err != nil {
 			ctx.Handler(err)
 			ctx.Exit(1)
@@ -321,6 +321,60 @@ func (ctx *Context) Parse() error {
 	var err error
 	ctx.Exec, ctx.Args, err = Parse(ctx, ctx.Root, ctx.Args, ctx.Vars)
 	return err
+}
+
+// Comps returns the completions for the context.
+func (ctx *Context) Comps() ([]Completion, CompDirective, error) {
+	c := &Context{
+		Root:   ctx.Root,
+		Stdout: io.Discard,
+		Stderr: io.Discard,
+		Panic:  func(any) {},
+		Exit:   func(int) {},
+		Continue: func(cmd *Command, err error) bool {
+			fmt.Fprintf(os.Stderr, "COMP CONTINUE ERR: %v\n", err)
+			switch {
+			// errors.Is(err, ErrUnknownCommand),
+			case errors.Is(err, ErrUnknownFlag),
+				errors.Is(err, ErrExit):
+				return true
+			}
+			return false
+		},
+		Vars: make(Vars),
+	}
+	n := len(ctx.Args) - 1
+	if n <= 0 {
+		return nil, CompError, ErrInvalidArgCount
+	}
+	args := ctx.Args[1:]
+	fmt.Fprintf(ctx.Stderr, "COMP ARGS: %v\n", args)
+	exec, _, err := Parse(ctx, c.Root, args[:n-1], ctx.Vars)
+	if err != nil {
+		fmt.Fprintf(ctx.Stderr, "COMP PARSE ERR: %v\n", err)
+		return nil, CompError, err
+	}
+	fmt.Fprintf(os.Stderr, "COMP COMMAND: %s\n", exec.Name)
+	var comps []Completion
+	dir := CompNoFileComp
+	// TODO: expose variables to script allow hidden/deprecated
+	hidden, deprecated := false, true
+	// build completions
+	switch prev, arg := prev(args, n), args[n-1]; {
+	case strings.HasPrefix(arg, "-"):
+		comps, dir = exec.CompFlags(strings.TrimLeft(arg, "-"), hidden, deprecated, !strings.HasPrefix(arg, "--"))
+	case strings.HasPrefix(prev, "-"):
+		// TODO: logic incorrect; need to strip the `-` and `=` from the flag
+		switch g := exec.Flag(prev, true, len([]rune(prev)) == 2); {
+		case g == nil, g.NoArg, strings.Contains(prev, "="):
+			comps, dir = exec.CompCommands(arg, hidden, deprecated)
+		default:
+			// TODO: handle completion for certain flag types
+		}
+	default:
+		comps, dir = exec.CompCommands(arg, hidden, deprecated)
+	}
+	return comps, dir, nil
 }
 
 // Validate validates the args.

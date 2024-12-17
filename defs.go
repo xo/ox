@@ -17,7 +17,7 @@ import (
 
 // AddHelpFlag recursively adds a `--help` flag for all commands in the command
 // tree, copying the command's [CommandHelp.Sort], [CommandHelp.CommandSort],
-// and [CommandHelp.MinDist] settings.
+// and [CommandHelp.MaxDist] settings.
 func AddHelpFlag(cmd *Command) error {
 	if len(cmd.Commands) == 0 {
 		return nil
@@ -27,7 +27,7 @@ func AddHelpFlag(cmd *Command) error {
 		opts = append(opts,
 			Sort(help.Sort),
 			CommandSort(help.CommandSort),
-			MinDist(help.MinDist),
+			MaxDist(help.MaxDist),
 		)
 	}
 	for _, c := range cmd.Commands {
@@ -269,8 +269,8 @@ type CommandHelp struct {
 	Hidden bool
 	// Deprecated includes deprecated commands/flags.
 	Deprecated bool
-	// MinDist is the minimum Levenshtein distance for suggestions.
-	MinDist int
+	// MaxDist is the maximum Levenshtein distance for suggestions.
+	MaxDist int
 }
 
 // NewCommandHelp creates command help based on the passed options.
