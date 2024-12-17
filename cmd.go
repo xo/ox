@@ -291,7 +291,7 @@ loop:
 			}
 		}
 	}
-	if maxDist := maxDist(cmd); maxDist != 0 && len(comps) == 0 {
+	if maxDist := maxDist(cmd); 0 < maxDist && len(comps) == 0 {
 		var dists []int
 		r := []rune(lower)
 	loop2:
@@ -319,11 +319,50 @@ loop:
 // CompFlags returns flag completions for the command.
 func (cmd *Command) CompFlags(name string, hidden, deprecated, short bool) ([]Completion, CompDirective) {
 	var comps []Completion
-	/*
-		lower, m := strings.ToLower(name), make(map[string]bool)
-		for g := range cmd.WalkFlags(hidden, deprecated) {
+	lower, m := strings.ToLower(name), make(map[string]bool)
+	for g := range cmd.WalkFlags(hidden, deprecated) {
+		if !short || len(name) == 0 {
+			for _, s := range prepend(g.Aliases, g.Name) {
+				switch long := "--" + g.Name; {
+				case m[long]:
+					continue
+				case strings.HasPrefix(strings.ToLower(s), lower):
+					comps = append(comps, NewCompletion(long, g.Usage))
+					m[long] = true
+				}
+			}
 		}
-	*/
+		if short {
+			for _, s := range prepend(g.Aliases, g.Short) {
+				switch shortstr := "-" + s; {
+				case m[shortstr]:
+					continue
+				case len(s) == 1 && strings.HasPrefix(s, name):
+					comps = append(comps, NewCompletion(shortstr, g.Usage))
+					m[shortstr] = true
+				}
+			}
+		}
+	}
+	// distance match
+	if maxDist := maxDist(cmd); 0 < maxDist && len(comps) == 0 && len(name) != 1 {
+		r := []rune(lower)
+		for g := range cmd.WalkFlags(hidden, deprecated) {
+			long := "--" + g.Name
+			if m[long] {
+				continue
+			}
+			for _, s := range prepend(g.Aliases, g.Name) {
+				switch long := "--" + g.Name; {
+				case m[long]:
+					continue
+				case Ldist([]rune(strings.ToLower(s)), r) <= maxDist:
+					comps = append(comps, NewCompletion(long, g.Usage))
+					m[long] = true
+				}
+			}
+		}
+	}
 	return comps, CompKeepOrder
 }
 
@@ -928,12 +967,8 @@ func prev(s []string, n int) string {
 
 // maxDist gets the maximum distance from the command.
 func maxDist(cmd *Command) int {
-	var maxDist int
-	if help, ok := cmd.Help.(*CommandHelp); ok {
-		maxDist = help.MaxDist
+	if help, ok := cmd.Help.(*CommandHelp); ok && help.MaxDist != 0 {
+		return help.MaxDist
 	}
-	if maxDist <= 0 {
-		maxDist = DefaultMaxDist
-	}
-	return maxDist
+	return DefaultMaxDist
 }
