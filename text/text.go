@@ -28,15 +28,15 @@ var (
 	Examples = `Examples`
 	// Commands is the `Available Commands:` section name.
 	Commands = `Available Commands`
-	// Flags is the `Flags:` section name.
-	Flags = `Flags`
 	// GlobalFlags is the `Global Flags:` section name.
 	GlobalFlags = `Global Flags`
+	// Flags is the `Flags:` section name.
+	Flags = `Flags`
 
 	// VersionCommandName is the `version` command name.
 	VersionCommandName = `version`
 	// VersionCommandDesc is the `version` command description.
-	VersionCommandDesc = `show version for any command`
+	VersionCommandDesc = `show version, then exit`
 	// VersionCommandBanner is the `version` command banner.
 	VersionCommandBanner = `Shows the %s version and exits.`
 	// VersionFlagName is the `--version` flag name.
@@ -75,7 +75,7 @@ var (
 	// CompCommandFlagNoDescriptionsDesc is the `completion` command
 	// `no-descriptions` flag description.
 	CompCommandFlagNoDescriptionsDesc = `disable completion descriptions`
-	// CompCommandAnyShellDesc is the default `a shell` completion command
+	// CompCommandAnyShellDesc is the `completion` command `a specified shell`
 	// description.
 	CompCommandAnyShellDesc = `a specified shell`
 
