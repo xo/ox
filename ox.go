@@ -205,8 +205,8 @@ var (
 	}
 )
 
-// Run creates a [Context] and builds a execution [Context] and root [Command]
-// based on the passed options. Accepts any [ContextOption], [CommandOption] or
+// Run creates and builds the execution [Context] based on the passed
+// [Option]s. Accepts any [ContextOption], [CommandOption] or
 // [CommandFlagOption]. After building a execution [Context] and root
 // [Command], either [os.Args] or the provided [Args] will be [Parse]'d and
 // validated.
