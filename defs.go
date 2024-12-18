@@ -617,16 +617,18 @@ func (dir CompDirective) String() string {
 type Completion struct {
 	Name  string
 	Usage string
+	Dist  int
 }
 
 // NewCompletion creates a completion.
-func NewCompletion(name, usage string) Completion {
+func NewCompletion(name, usage string, dist int) Completion {
 	if i := strings.Index(usage, "\n"); i != -1 {
 		usage = usage[:i]
 	}
 	return Completion{
 		Name:  strings.TrimSpace(name),
 		Usage: strings.TrimSpace(usage),
+		Dist:  dist,
 	}
 }
 

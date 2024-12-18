@@ -10,6 +10,7 @@
 /ox.test.exe
 
 *.txt
+*.log
 
 *.bash
 *.fish

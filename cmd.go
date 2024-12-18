@@ -141,14 +141,27 @@ func (cmd *Command) Suggest(args ...string) error {
 	if len(args) == 0 {
 		return nil
 	}
-	maxDist := maxDist(cmd)
-	arg := []rune(strings.ToLower(args[0]))
+	r, maxDist := []rune(strings.ToLower(args[0])), maxDist(cmd)
+	type suggest struct {
+		cmd  *Command
+		dist int
+	}
+	var suggested []suggest
 	for _, c := range cmd.Commands {
 		for _, name := range append(prepend(c.Aliases, c.Name), c.Suggested...) {
-			if Ldist(arg, []rune(strings.ToLower(name))) <= maxDist {
-				return NewSuggestionError(cmd, args[0], c)
+			if dist := Ldist(r, []rune(strings.ToLower(name))); dist <= maxDist {
+				suggested = append(suggested, suggest{
+					cmd:  c,
+					dist: dist,
+				})
 			}
 		}
+	}
+	if len(suggested) != 0 {
+		sort.Slice(suggested, func(i, j int) bool {
+			return suggested[i].dist < suggested[j].dist
+		})
+		return NewSuggestionError(cmd, args[0], suggested[0].cmd)
 	}
 	return fmt.Errorf(text.SuggestionErrorMessage, ErrUnknownCommand, args[0], cmd.Name)
 }
@@ -285,14 +298,13 @@ loop:
 		}
 		for _, s := range prepend(c.Aliases, c.Name) {
 			if strings.HasPrefix(strings.ToLower(s), lower) {
-				comps = append(comps, NewCompletion(c.Name, c.Usage))
+				comps = append(comps, NewCompletion(c.Name, c.Usage, 0))
 				m[c.Name] = true
 				continue loop
 			}
 		}
 	}
 	if maxDist := maxDist(cmd); 0 < maxDist && len(comps) == 0 {
-		var dists []int
 		r := []rune(lower)
 	loop2:
 		for _, c := range cmd.Commands {
@@ -302,15 +314,14 @@ loop:
 			}
 			for _, s := range prepend(c.Aliases, c.Name) {
 				if dist := Ldist([]rune(strings.ToLower(s)), r); dist <= maxDist {
-					comps = append(comps, NewCompletion(c.Name, c.Usage))
-					dists = append(dists, dist)
+					comps = append(comps, NewCompletion(c.Name, c.Usage, dist))
 					m[c.Name] = true
 					continue loop2
 				}
 			}
 		}
 		sort.Slice(comps, func(i, j int) bool {
-			return dists[i] < dists[j]
+			return comps[i].Dist < comps[j].Dist
 		})
 	}
 	return comps, CompKeepOrder
@@ -327,7 +338,7 @@ func (cmd *Command) CompFlags(name string, hidden, deprecated, short bool) ([]Co
 				case m[long]:
 					continue
 				case strings.HasPrefix(strings.ToLower(s), lower):
-					comps = append(comps, NewCompletion(long, g.Usage))
+					comps = append(comps, NewCompletion(long, g.Usage, 0))
 					m[long] = true
 				}
 			}
@@ -338,7 +349,7 @@ func (cmd *Command) CompFlags(name string, hidden, deprecated, short bool) ([]Co
 				case m[shortstr]:
 					continue
 				case len(s) == 1 && strings.HasPrefix(s, name):
-					comps = append(comps, NewCompletion(shortstr, g.Usage))
+					comps = append(comps, NewCompletion(shortstr, g.Usage, 0))
 					m[shortstr] = true
 				}
 			}
@@ -353,15 +364,19 @@ func (cmd *Command) CompFlags(name string, hidden, deprecated, short bool) ([]Co
 				continue
 			}
 			for _, s := range prepend(g.Aliases, g.Name) {
-				switch long := "--" + g.Name; {
-				case m[long]:
+				long := "--" + g.Name
+				if m[long] {
 					continue
-				case Ldist([]rune(strings.ToLower(s)), r) <= maxDist:
-					comps = append(comps, NewCompletion(long, g.Usage))
+				}
+				if dist := Ldist([]rune(strings.ToLower(s)), r); dist <= maxDist {
+					comps = append(comps, NewCompletion(long, g.Usage, dist))
 					m[long] = true
 				}
 			}
 		}
+		sort.Slice(comps, func(i, j int) bool {
+			return comps[i].Dist < comps[j].Dist
+		})
 	}
 	return comps, CompKeepOrder
 }
