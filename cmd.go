@@ -167,16 +167,16 @@ func (cmd *Command) Suggest(args ...string) error {
 }
 
 // Lookup returns the furthest matching command in the command tree.
-func (cmd *Command) Lookup(names ...string) *Command {
-	ret := cmd
-	for _, name := range names {
-		if c := ret.Command(name); c != nil {
-			ret = c
+func (cmd *Command) Lookup(args ...string) *Command {
+	c := cmd
+	for _, arg := range args {
+		if next := c.Command(arg); next != nil {
+			c = next
 			continue
 		}
 		break
 	}
-	return ret
+	return c
 }
 
 // Command returns the sub command with the name.
