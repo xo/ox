@@ -204,15 +204,15 @@ func RegisterBinaryType[T BinaryMarshalUnmarshaler](f func() (T, error)) {
 }
 
 // registerMarshaler registers a type marshaler.
-func registerMarshaler[T any](f func() (any, error), descs map[Type]func() (any, error)) {
+func registerMarshaler[T any](f func() (any, error), m map[Type]func() (any, error)) {
 	typ := typeType[T]()
 	if _, ok := typeNews[typ]; ok {
 		return
 	}
-	if _, ok := descs[typ]; ok {
+	if _, ok := m[typ]; ok {
 		return
 	}
-	typeNews[typ], descs[typ] = NewVal[T](typ), f
+	typeNews[typ], m[typ] = NewVal[T](typ), f
 }
 
 // TextMarshalUnmarshaler is the text marshal interface.

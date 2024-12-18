@@ -403,11 +403,11 @@ func (fs *FlagSet) Option() option {
 }
 
 // Var adds a variable to the flag set.
-func (fs *FlagSet) Var(name, desc string, opts ...Option) *FlagSet {
+func (fs *FlagSet) Var(name, usage string, opts ...Option) *FlagSet {
 	if fs == nil {
 		fs = Flags()
 	}
-	g, err := NewFlag(name, desc, opts...)
+	g, err := NewFlag(name, usage, opts...)
 	if err != nil {
 		panic(err)
 	}
@@ -416,201 +416,201 @@ func (fs *FlagSet) Var(name, desc string, opts ...Option) *FlagSet {
 }
 
 // String adds a string variable to the flag set.
-func (fs *FlagSet) String(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(StringT))...)
+func (fs *FlagSet) String(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(StringT))...)
 }
 
 // Bytes adds a []byte variable to the flag set.
-func (fs *FlagSet) Bytes(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(BytesT))...)
+func (fs *FlagSet) Bytes(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(BytesT))...)
 }
 
 // Base64 adds a base64 encoded []byte variable to the flag set.
-func (fs *FlagSet) Base64(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(Base64T))...)
+func (fs *FlagSet) Base64(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(Base64T))...)
 }
 
 // Hex adds a hex encoded []byte variable to the flag set.
-func (fs *FlagSet) Hex(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(HexT))...)
+func (fs *FlagSet) Hex(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(HexT))...)
 }
 
 // Bool adds a bool variable to the flag set.
-func (fs *FlagSet) Bool(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(BoolT))...)
+func (fs *FlagSet) Bool(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(BoolT))...)
 }
 
 // Byte adds a byte variable to the flag set.
-func (fs *FlagSet) Byte(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(ByteT))...)
+func (fs *FlagSet) Byte(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(ByteT))...)
 }
 
 // Rune adds a rune variable to the flag set.
-func (fs *FlagSet) Rune(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(RuneT))...)
+func (fs *FlagSet) Rune(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(RuneT))...)
 }
 
 // Int64 adds a int64 variable to the flag set.
-func (fs *FlagSet) Int64(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(Int64T))...)
+func (fs *FlagSet) Int64(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(Int64T))...)
 }
 
 // Int32 adds a int32 variable to the flag set.
-func (fs *FlagSet) Int32(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(Int32T))...)
+func (fs *FlagSet) Int32(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(Int32T))...)
 }
 
 // Int16 adds a int16 variable to the flag set.
-func (fs *FlagSet) Int16(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(Int16T))...)
+func (fs *FlagSet) Int16(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(Int16T))...)
 }
 
 // Int8 adds a int8 variable to the flag set.
-func (fs *FlagSet) Int8(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(Int8T))...)
+func (fs *FlagSet) Int8(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(Int8T))...)
 }
 
 // Int adds a int variable to the flag set.
-func (fs *FlagSet) Int(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(IntT))...)
+func (fs *FlagSet) Int(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(IntT))...)
 }
 
 // Uint64 adds a uint64 variable to the flag set.
-func (fs *FlagSet) Uint64(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(Uint64T))...)
+func (fs *FlagSet) Uint64(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(Uint64T))...)
 }
 
 // Uint32 adds a uint32 variable to the flag set.
-func (fs *FlagSet) Uint32(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(Uint32T))...)
+func (fs *FlagSet) Uint32(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(Uint32T))...)
 }
 
 // Uint16 adds a uint16 variable to the flag set.
-func (fs *FlagSet) Uint16(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(Uint16T))...)
+func (fs *FlagSet) Uint16(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(Uint16T))...)
 }
 
 // Uint8 adds a uint8 variable to the flag set.
-func (fs *FlagSet) Uint8(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(Uint8T))...)
+func (fs *FlagSet) Uint8(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(Uint8T))...)
 }
 
 // Uint adds a uint variable to the flag set.
-func (fs *FlagSet) Uint(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(UintT))...)
+func (fs *FlagSet) Uint(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(UintT))...)
 }
 
 // Float64 adds a float64 variable to the flag set.
-func (fs *FlagSet) Float64(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(Float64T))...)
+func (fs *FlagSet) Float64(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(Float64T))...)
 }
 
 // Float32 adds a float32 variable to the flag set.
-func (fs *FlagSet) Float32(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(Float32T))...)
+func (fs *FlagSet) Float32(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(Float32T))...)
 }
 
 // Complex128 adds a complex128 variable to the flag set.
-func (fs *FlagSet) Complex128(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(Complex128T))...)
+func (fs *FlagSet) Complex128(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(Complex128T))...)
 }
 
 // Complex64 adds a complex64 variable to the flag set.
-func (fs *FlagSet) Complex64(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(Complex64T))...)
+func (fs *FlagSet) Complex64(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(Complex64T))...)
 }
 
 // Timestamp adds a [time.Time] variable to the flag set in the expected format of
 // [time.RFC3339].
-func (fs *FlagSet) Timestamp(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(TimestampT))...)
+func (fs *FlagSet) Timestamp(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(TimestampT))...)
 }
 
 // DateTime adds a [time.Time] variable to the flag set in the expected format of
 // [time.DateTime].
-func (fs *FlagSet) DateTime(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(DateTimeT))...)
+func (fs *FlagSet) DateTime(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(DateTimeT))...)
 }
 
 // Date adds a [time.Time] variable to the flag set in the expected format of
 // [time.DateOnly].
-func (fs *FlagSet) Date(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(DateT))...)
+func (fs *FlagSet) Date(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(DateT))...)
 }
 
 // Duration adds a [time.Duration] variable to the flag set.
-func (fs *FlagSet) Duration(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(DurationT))...)
+func (fs *FlagSet) Duration(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(DurationT))...)
 }
 
 // Path adds a path variable to the flag set.
-func (fs *FlagSet) Path(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(PathT))...)
+func (fs *FlagSet) Path(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(PathT))...)
 }
 
 // Count adds a count variable to the flag set.
-func (fs *FlagSet) Count(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(CountT))...)
+func (fs *FlagSet) Count(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(CountT))...)
 }
 
 // BigInt adds a [math/big.Int] variable to the flag set.
-func (fs *FlagSet) BigInt(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(BigIntT))...)
+func (fs *FlagSet) BigInt(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(BigIntT))...)
 }
 
 // BigFloat adds a [math/big.Float] variable to the flag set.
-func (fs *FlagSet) BigFloat(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(BigFloatT))...)
+func (fs *FlagSet) BigFloat(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(BigFloatT))...)
 }
 
 // BigRat adds a [math/big.Rat] variable to the flag set.
-func (fs *FlagSet) BigRat(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(BigRatT))...)
+func (fs *FlagSet) BigRat(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(BigRatT))...)
 }
 
 // Addr adds a [netip.Addr] variable to the flag set.
-func (fs *FlagSet) Addr(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(AddrT))...)
+func (fs *FlagSet) Addr(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(AddrT))...)
 }
 
 // AddrPort adds a [netip.AddrPort] variable to the flag set.
-func (fs *FlagSet) AddrPort(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(AddrPortT))...)
+func (fs *FlagSet) AddrPort(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(AddrPortT))...)
 }
 
 // CIDR adds a [netip.Prefix] variable to the flag set.
-func (fs *FlagSet) CIDR(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(CIDRT))...)
+func (fs *FlagSet) CIDR(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(CIDRT))...)
 }
 
 // URL adds a [url.URL] variable to the flag set.
-func (fs *FlagSet) URL(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(URLT))...)
+func (fs *FlagSet) URL(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(URLT))...)
 }
 
 // UUID adds a uuid variable to the flag set.
-func (fs *FlagSet) UUID(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(UUIDT))...)
+func (fs *FlagSet) UUID(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(UUIDT))...)
 }
 
 // Color adds a color variable to the flag set.
-func (fs *FlagSet) Color(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(ColorT))...)
+func (fs *FlagSet) Color(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(ColorT))...)
 }
 
 // Slice adds a slice variable to the flag set.
-func (fs *FlagSet) Slice(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(SliceT))...)
+func (fs *FlagSet) Slice(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(SliceT))...)
 }
 
 // Map adds a map variable to the flag set.
-func (fs *FlagSet) Map(name, desc string, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(MapT))...)
+func (fs *FlagSet) Map(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(MapT))...)
 }
 
 // Hook adds a hook to the flag set.
-func (fs *FlagSet) Hook(name, desc string, f any, opts ...Option) *FlagSet {
-	return fs.Var(name, desc, prepend(opts, Option(HookT), NoArg(true, ""), Default(f))...)
+func (fs *FlagSet) Hook(name, usage string, f any, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(HookT), NoArg(true, ""), Default(f))...)
 }
 
 // Flag is a command-line flag variable definition.

@@ -35,46 +35,46 @@ var (
 
 	// VersionCommandName is the `version` command name.
 	VersionCommandName = `version`
-	// VersionCommandDesc is the `version` command description.
-	VersionCommandDesc = `show version, then exit`
+	// VersionCommandUsage is the `version` command description.
+	VersionCommandUsage = `show version, then exit`
 	// VersionCommandBanner is the `version` command banner.
 	VersionCommandBanner = `Shows the %s version and exits.`
 	// VersionFlagName is the `--version` flag name.
 	VersionFlagName = `version`
-	// VersionFlagDesc is the `--version` flag description.
-	VersionFlagDesc = `show version, then exit`
+	// VersionFlagUsage is the `--version` flag description.
+	VersionFlagUsage = `show version, then exit`
 	// VersionFlagShort is the `--version` short flag name.
 	VersionFlagShort = `v`
 
 	// HelpCommandName is the `help` command name.
 	HelpCommandName = `help`
-	// HelpCommandDesc is the `help` command description.
-	HelpCommandDesc = `show help for any command`
+	// HelpCommandUsage is the `help` command description.
+	HelpCommandUsage = `show help for any command`
 	// HelpCommandBanner is the `help` command banner.
 	HelpCommandBanner = "Help provides help for any %[1]s command.\n\nSimply type %[1]s help [path to command] for full details."
 	// HelpFlagName is the `--help` flag name.
 	HelpFlagName = `help`
-	// HelpFlagDesc is the `--help` flag description.
-	HelpFlagDesc = `show help, then exit`
+	// HelpFlagUsage is the `--help` flag description.
+	HelpFlagUsage = `show help, then exit`
 	// HelpFlagShort is the `--help` short flag name.
 	HelpFlagShort = `h`
 
 	// CompCommandName is the `completion` command name.
 	CompCommandName = `completion`
-	// CompCommandDesc is the `completion` command description.
-	CompCommandDesc = `generate completion script for %s`
+	// CompCommandUsage is the `completion` command description.
+	CompCommandUsage = `generate completion script for %s`
 	// CompCommandBanner is the `completion` command banner.
 	CompCommandBanner = "Generate %s completion script for %s.\n\nSee each sub-command's help for details on using the generated completion script."
 	// CompFlagName is the `--completion-script-<type>` flag name.
 	CompFlagName = `completion-script-%s`
-	// CompFlagDesc is the `--completion-script-<type>` flag description.
-	CompFlagDesc = `generate completion script for %s`
+	// CompFlagUsage is the `--completion-script-<type>` flag description.
+	CompFlagUsage = `generate completion script for %s`
 	// CompCommandFlagNoDescriptionsName is the `completion` command
 	// `no-descriptions` flag name.
 	CompCommandFlagNoDescriptionsName = `no-descriptions`
-	// CompCommandFlagNoDescriptionsDesc is the `completion` command
+	// CompCommandFlagNoDescriptionsUsage is the `completion` command
 	// `no-descriptions` flag description.
-	CompCommandFlagNoDescriptionsDesc = `disable completion descriptions`
+	CompCommandFlagNoDescriptionsUsage = `disable completion descriptions`
 	// CompCommandAnyShellDesc is the `completion` command `a specified shell`
 	// description.
 	CompCommandAnyShellDesc = `a specified shell`

@@ -45,7 +45,7 @@ func AddHelpFlag(cmd *Command) error {
 func NewVersion(cmd *Command, opts ...Option) error {
 	return cmd.Sub(prepend(
 		opts,
-		Usage(text.VersionCommandName, text.VersionCommandDesc),
+		Usage(text.VersionCommandName, text.VersionCommandUsage),
 		Banner(fmt.Sprintf(text.VersionCommandBanner, cmd.RootName())),
 		Special(`version`),
 		Exec(func(ctx context.Context) error {
@@ -65,7 +65,7 @@ func NewVersionFlag(cmd *Command, opts ...Option) error {
 		if cmd.Flag(text.VersionFlagShort, false, true) == nil {
 			opts = append(opts, Short(text.VersionFlagShort))
 		}
-		cmd.Flags = cmd.Flags.Hook(text.VersionFlagName, text.VersionFlagDesc, DefaultVersion, opts...)
+		cmd.Flags = cmd.Flags.Hook(text.VersionFlagName, text.VersionFlagUsage, DefaultVersion, opts...)
 	}
 	return nil
 }
@@ -74,7 +74,7 @@ func NewVersionFlag(cmd *Command, opts ...Option) error {
 func NewHelp(cmd *Command, opts ...Option) error {
 	return cmd.Sub(prepend(
 		opts,
-		Usage(text.HelpCommandName, text.HelpCommandDesc),
+		Usage(text.HelpCommandName, text.HelpCommandUsage),
 		Banner(fmt.Sprintf(text.HelpCommandBanner, cmd.RootName())),
 		Special(`help`),
 		Exec(func(ctx context.Context, args []string) error {
@@ -111,7 +111,7 @@ func NewHelpFlag(cmd *Command, opts ...Option) error {
 		if cmd.Flag(text.HelpFlagShort, false, true) == nil {
 			opts = append(opts, Short(text.HelpFlagShort))
 		}
-		cmd.Flags = cmd.Flags.Hook(text.HelpFlagName, text.HelpFlagDesc, f, opts...)
+		cmd.Flags = cmd.Flags.Hook(text.HelpFlagName, text.HelpFlagUsage, f, opts...)
 	}
 	return nil
 }
@@ -123,7 +123,7 @@ func NewComp(cmd *Command, opts ...Option) error {
 	comp, err := NewCommand(prepend(
 		opts,
 		Parent(cmd),
-		Usage(text.CompCommandName, fmt.Sprintf(text.CompCommandDesc, text.CompCommandAnyShellDesc)),
+		Usage(text.CompCommandName, fmt.Sprintf(text.CompCommandUsage, text.CompCommandAnyShellDesc)),
 		Banner(fmt.Sprintf(text.CompCommandBanner, text.CompCommandAnyShellDesc)),
 		Special(`comp`),
 	)...)
@@ -151,11 +151,11 @@ func NewComp(cmd *Command, opts ...Option) error {
 		// create `completion <shell>` command
 		sub, err := NewCommand(
 			Parent(comp),
-			Usage(shell, fmt.Sprintf(text.CompCommandDesc, shell)),
+			Usage(shell, fmt.Sprintf(text.CompCommandUsage, shell)),
 			Flags().
 				Bool(
 					text.CompCommandFlagNoDescriptionsName,
-					text.CompCommandFlagNoDescriptionsDesc,
+					text.CompCommandFlagNoDescriptionsUsage,
 					Special(`comp:no-desc`),
 					Bind(&noDescriptions),
 				),
@@ -196,7 +196,7 @@ func NewCompFlags(cmd *Command, _ ...Option) error {
 	if cmd.Flag(text.CompCommandFlagNoDescriptionsName, true, len(text.CompCommandFlagNoDescriptionsName) == 1) == nil {
 		cmd.Flags = cmd.Flags.Bool(
 			text.CompCommandFlagNoDescriptionsName,
-			text.CompCommandFlagNoDescriptionsDesc,
+			text.CompCommandFlagNoDescriptionsUsage,
 			Hidden(true),
 			Special(`comp:no-desc`),
 			Bind(&noDescriptions),
@@ -217,7 +217,7 @@ func NewCompFlags(cmd *Command, _ ...Option) error {
 		} else {
 			cmd.Flags = cmd.Flags.Hook(
 				fmt.Sprintf(text.CompFlagName, shell),
-				fmt.Sprintf(text.CompFlagDesc, shell),
+				fmt.Sprintf(text.CompFlagUsage, shell),
 				f,
 				Hidden(true),
 				Special(special),
