@@ -214,7 +214,7 @@ func (cmd *command) parseSect(section string) (sectType, error) {
 
 func (cmd *command) parseSectDocker(sect string) (sectType, error) {
 	switch sect {
-	case "docker endpoint config":
+	case "docker endpoint config", "experimental":
 		return sectNone, nil
 	}
 	return sectNone, fmt.Errorf("unknown doctl section %q", sect)
