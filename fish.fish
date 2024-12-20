@@ -173,7 +173,8 @@ function __%[1]s_prepare_completions
         set -l prefix (commandline -t | string escape --style=regex)
         __%[1]s_debug "prefix: $prefix"
 
-        set -l completions (string match -r -- "^$prefix.*" $__%[1]s_comp_results)
+        set -l completions (string match -r -- "^.*" $__%[1]s_comp_results)
+        #set -l completions (string match -r -- "^$prefix.*" $__%[1]s_comp_results)
         set --global __%[1]s_comp_results $completions
         __%[1]s_debug "Filtered completions are: $__%[1]s_comp_results"
 

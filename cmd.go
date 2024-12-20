@@ -323,8 +323,14 @@ loop:
 		sort.Slice(comps, func(i, j int) bool {
 			return comps[i].Dist < comps[j].Dist
 		})
+		if len(comps) != 0 {
+			d := comps[0].Dist
+			comps = slices.DeleteFunc(comps, func(c Completion) bool {
+				return d < c.Dist
+			})
+		}
 	}
-	return comps, CompKeepOrder
+	return comps, CompNoFileComp | CompKeepOrder
 }
 
 // CompFlags returns flag completions for the command.
@@ -377,8 +383,14 @@ func (cmd *Command) CompFlags(name string, hidden, deprecated, short bool) ([]Co
 		sort.Slice(comps, func(i, j int) bool {
 			return comps[i].Dist < comps[j].Dist
 		})
+		if len(comps) != 0 {
+			d := comps[0].Dist
+			comps = slices.DeleteFunc(comps, func(c Completion) bool {
+				return d < c.Dist
+			})
+		}
 	}
-	return comps, CompKeepOrder
+	return comps, CompNoFileComp | CompKeepOrder
 }
 
 // FlagSet is a set of command-line flag definitions.

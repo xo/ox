@@ -146,7 +146,8 @@ filter __%[1]s_escapeStringWithSpecialChars {
 
     $Values = $Values | Where-Object {
         # filter the result
-        $_.Name -like "$WordToComplete*"
+        $_.Name -like "*"
+        #$_.Name -like "$WordToComplete*"
 
         # Join the flag back if we have an equal sign flag
         if ( $IsEqualFlag ) {

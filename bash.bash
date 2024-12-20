@@ -193,9 +193,9 @@ __%[1]s_handle_completion_types() {
             # Strip any description
             comp=${comp%%%%$tab*}
             # Only consider the completions that match
-            if [[ $comp == "$cur"* ]]; then
+            #if [[ $comp == "$cur"* ]]; then
                 COMPREPLY+=("$comp")
-            fi
+            #fi
         done < <(printf "%%s\n" "${completions[@]}")
         ;;
 
@@ -223,7 +223,7 @@ __%[1]s_handle_standard_completion_case() {
         # Strip any description before checking the length
         comp=${compline%%%%$tab*}
         # Only consider the completions that match
-        [[ $comp == "$cur"* ]] || continue
+        #[[ $comp == "$cur"* ]] || continue
         COMPREPLY+=("$compline")
         if ((${#comp}>longest)); then
             longest=${#comp}
