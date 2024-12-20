@@ -103,7 +103,7 @@ type command struct {
 }
 
 func (cmd *command) parse(ctx context.Context) error {
-	logger("run: %s %s --help", cmd.exec, strings.Join(cmd.names()[1:], " "))
+	logger("run: %s help %s", cmd.exec, strings.Join(cmd.names()[1:], " "))
 	buf, err := runCommand(ctx, cmd.exec, append([]string{"help"}, cmd.names()[1:]...)...)
 	if err != nil {
 		return err
