@@ -48,7 +48,7 @@ func run(args *Args) func(ctx context.Context) error {
 			apps = []string{args.Command}
 		} else {
 			apps = []string{
-				//"docker",
+				"docker",
 				"doctl",
 				"gh",
 				"helm",
@@ -180,10 +180,9 @@ func (cmd *command) parseCommands(ctx context.Context, sect, s string) error {
 }
 
 func (cmd *command) skipCommand(name string) bool {
-	switch {
-	/*case cmd.String()+" "+name == "gh extension exec":
-	return true
-	*/
+	switch cmd.String() + " " + name {
+	case "docker context create":
+		return true
 	}
 	return false
 }
