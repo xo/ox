@@ -191,7 +191,7 @@ func (cmd *command) parseSect(section string) (sectType, error) {
 	switch sect := strings.ToLower(section); {
 	case sect == "usage":
 		return sectUsage, nil
-	case sect == "examples":
+	case sect == "examples", sect == "example":
 		return sectExamples, nil
 	case sect == "aliases":
 		return sectAliases, nil
@@ -201,6 +201,8 @@ func (cmd *command) parseSect(section string) (sectType, error) {
 		return sectCommands, nil
 	default:
 		switch cmd.app {
+		case "docker":
+			return cmd.parseSectDocker(sect)
 		case "doctl":
 			return cmd.parseSectDoctl(sect)
 		case "gh":
@@ -208,6 +210,14 @@ func (cmd *command) parseSect(section string) (sectType, error) {
 		}
 	}
 	return sectNone, fmt.Errorf("unknown section %q", section)
+}
+
+func (cmd *command) parseSectDocker(sect string) (sectType, error) {
+	switch sect {
+	case "docker endpoint config":
+		return sectNone, nil
+	}
+	return sectNone, fmt.Errorf("unknown doctl section %q", sect)
 }
 
 func (cmd *command) parseSectDoctl(sect string) (sectType, error) {
