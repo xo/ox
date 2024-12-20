@@ -189,6 +189,9 @@ func Version() CommandOption {
 			if cmd.Parent != nil {
 				return ErrCanOnlyBeUsedWithRootCommand
 			}
+			if len(cmd.Commands) != 0 {
+				return NewVersion(cmd)
+			}
 			return NewVersionFlag(cmd)
 		},
 	}

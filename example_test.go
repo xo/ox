@@ -254,6 +254,7 @@ func Example_sections() {
 	//
 	// Available Commands:
 	//   completion  generate completion script for a specified shell
+	//   version     show version, then exit
 	//
 	// Primary commands:
 	//   help        show help for any command
@@ -265,7 +266,6 @@ func Example_sections() {
 	//
 	// Flags:
 	//   -U, --url-map int=url  urls
-	//   -v, --version          show version, then exit
 	//
 	// Normal flags:
 	//   -h, --help             show help, then exit
