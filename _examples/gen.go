@@ -49,12 +49,12 @@ func run(args *Args) func(ctx context.Context) error {
 		} else {
 			apps = []string{
 				//"docker",
-				//"doctl",
+				"doctl",
 				"gh",
-				//"helm",
-				//"hugo",
-				//"kubectl",
-				//"podman",
+				"helm",
+				"hugo",
+				"kubectl",
+				"podman",
 			}
 		}
 		for _, app := range apps {
@@ -104,13 +104,11 @@ type command struct {
 
 func (cmd *command) parse(ctx context.Context) error {
 	logger("run: %s %s --help", cmd.exec, strings.Join(cmd.names()[1:], " "))
-	buf, err := runCommand(ctx, cmd.exec, append(cmd.names()[1:], "--help")...)
+	buf, err := runCommand(ctx, cmd.exec, append([]string{"help"}, cmd.names()[1:]...)...)
 	if err != nil {
 		return err
 	}
-	var next string
-	var n int
-	buf, next, n = cmd.firstSection(buf)
+	next, n := cmd.firstSection(buf)
 	if n == -1 {
 		return nil
 	}
@@ -126,19 +124,17 @@ func (cmd *command) parse(ctx context.Context) error {
 		}
 		// parse the section
 		logger("  parsing %q: %q to %q", cmd.String(), section, next)
-		switch sect := strings.ToLower(section); {
-		case sect == "usage":
-		case sect == "examples":
-		case sect == "aliases":
-		case sect == "learn more":
-		case sect == "arguments":
-		case strings.Contains(sect, "options"), strings.Contains(sect, "flags"):
-		case strings.Contains(sect, "commands"):
+		typ, err := cmd.parseSect(section)
+		if err != nil {
+			return err
+		}
+		logger("  section %q --> %s", section, typ)
+		switch typ {
+		case sectNone:
+		case sectCommands:
 			if err := cmd.parseCommands(ctx, section, s); err != nil {
 				return fmt.Errorf("parsing commands: %w", err)
 			}
-		default:
-			return fmt.Errorf("parsing unknown section %q", section)
 		}
 		// no next section, so bail
 		if next == "" {
@@ -148,7 +144,7 @@ func (cmd *command) parse(ctx context.Context) error {
 	return nil
 }
 
-func (cmd *command) parseCommands(ctx context.Context, section, s string) error {
+func (cmd *command) parseCommands(ctx context.Context, sect, s string) error {
 	// parse all lines
 	for _, line := range strings.Split(strings.TrimSpace(s), "\n") {
 		if line = strings.TrimSpace(line); line == "" {
@@ -159,8 +155,8 @@ func (cmd *command) parseCommands(ctx context.Context, section, s string) error 
 			return fmt.Errorf("%q: unable to parse command description: %q", cmd.String(), line)
 		}
 		name, usage := strings.TrimSuffix(strings.TrimSpace(v[0]), ":"), strings.TrimSpace(v[1])
-		switch name {
-		case "help", "completion", "version":
+		switch {
+		case name == "help", name == "completion", name == "version", cmd.skipCommand(name):
 			continue
 		}
 		c := &command{
@@ -172,8 +168,8 @@ func (cmd *command) parseCommands(ctx context.Context, section, s string) error 
 			section: -1,
 		}
 		logger("  command %q -- %q", c.String(), usage)
-		if strings.ToLower(section) != "available commands" {
-			cmd.commandSections = append(cmd.commandSections, section)
+		if strings.ToLower(sect) != "available commands" {
+			cmd.commandSections = append(cmd.commandSections, sect)
 			cmd.section = len(cmd.commandSections) - 1
 		}
 		if err := c.parse(ctx); err != nil {
@@ -181,6 +177,58 @@ func (cmd *command) parseCommands(ctx context.Context, section, s string) error 
 		}
 	}
 	return nil
+}
+
+func (cmd *command) skipCommand(name string) bool {
+	switch {
+	/*case cmd.String()+" "+name == "gh extension exec":
+	return true
+	*/
+	}
+	return false
+}
+
+func (cmd *command) parseSect(section string) (sectType, error) {
+	switch sect := strings.ToLower(section); {
+	case sect == "usage":
+		return sectUsage, nil
+	case sect == "examples":
+		return sectExamples, nil
+	case sect == "aliases":
+		return sectAliases, nil
+	case strings.Contains(sect, "options"), strings.Contains(sect, "flags"):
+		return sectFlags, nil
+	case strings.Contains(sect, "commands"):
+		return sectCommands, nil
+	default:
+		switch cmd.app {
+		case "doctl":
+			return cmd.parseSectDoctl(sect)
+		case "gh":
+			return cmd.parseSectGh(sect)
+		}
+	}
+	return sectNone, fmt.Errorf("unknown section %q", section)
+}
+
+func (cmd *command) parseSectDoctl(sect string) (sectType, error) {
+	switch {
+	case strings.Contains(sect, "manage"),
+		strings.Contains(sect, "configure"),
+		strings.Contains(sect, "view"):
+		return sectCommands, nil
+	}
+	return sectNone, fmt.Errorf("unknown doctl section %q", sect)
+}
+
+func (cmd *command) parseSectGh(sect string) (sectType, error) {
+	switch sect {
+	case "arguments", "environment variables", "json fields", "help topics":
+		return sectNone, nil
+	case "learn more":
+		return sectFooter, nil
+	}
+	return sectNone, fmt.Errorf("unknown doctl section %q", sect)
 }
 
 func (cmd *command) names() []string {
@@ -196,10 +244,25 @@ func (cmd *command) String() string {
 	return strings.Join(cmd.names(), " ")
 }
 
-func (cmd *command) firstSection(buf []byte) ([]byte, string, string, int) {
-	// strip out usage
-
-	return buf, "", "", -1
+func (cmd *command) firstSection(buf []byte) (string, int) {
+	const expstr = "Experimental: "
+	offset := 0
+	if bytes.HasPrefix(buf, []byte(expstr)) {
+		offset = len(expstr)
+	}
+	var re *regexp.Regexp
+	switch cmd.app {
+	case "helm", "doctl", "hugo", "podman":
+		re = regexp.MustCompile(`(?m)^(Usage):\n`)
+	default:
+		re = cmd.sectRE()
+	}
+	m := re.FindSubmatchIndex(buf[offset:])
+	if m == nil {
+		return "", -1
+	}
+	cmd.banner = trimRight(string(buf[offset:m[2]]))
+	return string(buf[offset+m[2] : offset+m[3]]), offset + m[1]
 }
 
 // nextSection gets the next section in buf.
@@ -228,18 +291,6 @@ func (cmd *command) sectRE() *regexp.Regexp {
 	return sectionRE
 }
 
-func (cmd *command) usageRE() *regexp.Regexp {
-	if cmd.capsSections() {
-		return usageCapsRE
-	}
-	return usageRE
-}
-
-// parseType parses a type.
-func (cmd *command) parseType(s string) (string, error) {
-	return "", nil
-}
-
 // globalFlags is a map of global flags commands.
 var globalFlags = map[string][]string{
 	"kubectl": {"options"},
@@ -263,15 +314,43 @@ func allNames(app string, names []string) string {
 	return strings.Join(append([]string{app}, names...), " ")
 }
 
+type sectType int
+
+const (
+	sectNone sectType = iota
+	sectUsage
+	sectAliases
+	sectCommands
+	sectExamples
+	sectFlags
+	sectFooter
+)
+
+func (typ sectType) String() string {
+	switch typ {
+	case sectNone:
+		return "none"
+	case sectUsage:
+		return "usage"
+	case sectAliases:
+		return "aliases"
+	case sectCommands:
+		return "commands"
+	case sectExamples:
+		return "examples"
+	case sectFlags:
+		return "flags"
+	case sectFooter:
+		return "footer"
+	}
+	return fmt.Sprintf("sectType(%d)", int(typ))
+}
+
 var (
 	// sectionRE matches sections in help output
-	sectionRE = regexp.MustCompile(`(?m)^([A-Z][a-zA-Z0-9 ()]{3,50}):$`)
+	sectionRE = regexp.MustCompile(`(?m)^([A-Z][a-zA-Z0-9 ()]{3,50}):`)
 	// sectionCapsRE matches all caps sections.
 	sectionCapsRE = regexp.MustCompile(`(?m)^([A-Z][A-Z0-9 ]{3,50})$`)
-	// usageRE
-	usageRE = regexp.MustCompile(`\nUsage:\s{1,10}([^\n]+)\n\n`)
-	// usageCapsRE
-	usageCapsRE = regexp.MustCompile(`\nUSAGE\s{1,10}([^\n]+)\n\n`)
 )
 
 var logger = func(string, ...any) {
