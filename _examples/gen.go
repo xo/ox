@@ -259,18 +259,20 @@ func (cmd *command) parseFlagType(sect, name, typstr, desc string) (ox.Type, ox.
 		return ox.BoolT, "", "", "", "", nil
 	case "false", "true":
 		return ox.BoolT, "", "", "", u, nil
-	case "[]":
+	case "[]", "list":
 		return ox.SliceT, "", ox.StringT, "", "", nil
-	case "int", "uint", "duration", "string", "float32", "float64", "UUID", "uuid", "URL", "url", "date", "int32":
+	case "stringToString", "map":
+		return ox.MapT, ox.StringT, ox.StringT, "", "", nil
+	case "int", "uint", "duration", "string", "float32", "float64", "UUID", "uuid", "URL", "url", "date", "int32", "uint16":
 		return ox.Type(strings.ToLower(u)), "", "", "", "", nil
+	case "byte":
+		return ox.UintT, "", "", "", "", nil
 	case "number":
 		return ox.IntT, "", "", "", u, nil
-	case "float":
+	case "float", "decimal":
 		return ox.Float32T, "", "", "", u, nil
 	case "ip":
 		return ox.AddrT, "", "", "", "", nil
-	case "stringToString":
-		return ox.MapT, ox.StringT, ox.StringT, "", "", nil
 	case "0.0.0.0", "127.0.0.1":
 		return ox.AddrT, "", "", u, "", nil
 	case "10.116.0.0/20":
@@ -279,11 +281,13 @@ func (cmd *command) parseFlagType(sect, name, typstr, desc string) (ox.Type, ox.
 		return ox.BoolT, "", "", u, "", nil
 	case "[localhost]":
 		return ox.SliceT, "", ox.StringT, "localhost", "", nil
-	case "format",
+	case
+		"format",
 		"postRendererString",
 		"postRendererArgsSlice",
 		"path/to/file.yaml",
 		"path/to/file.json",
+		"PATH",
 		"argfile.conf",
 		"host:ip",
 		"[username[:password]]",
@@ -315,6 +319,8 @@ func (cmd *command) parseFlagType(sect, name, typstr, desc string) (ox.Type, ox.
 		"architecture",
 		"Variant",
 		"subject",
+		"ulimit",
+		"filter",
 		"386734086,391669331",
 		"entry_protocol:tcp,entry_port:3306,target_protocol:tcp,target_port:3306",
 		"ip:1.2.3.4,cidr:1.2.0.0/16",
