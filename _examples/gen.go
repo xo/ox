@@ -57,7 +57,10 @@ func run(args *Args) func(ctx context.Context) error {
 				"podman",
 			}
 		}
-		for _, app := range apps {
+		for i, app := range apps {
+			if i != 0 {
+				logger("\n\n\n")
+			}
 			if err := args.gen(ctx, app); err != nil {
 				return err
 			}
@@ -93,13 +96,14 @@ type command struct {
 	usage           string
 	section         int
 	banner          string
+	spec            string
 	example         string
 	aliases         []string
 	footer          string
 	sections        []string
 	commandSections []string
-	flags           [][]string
 	commands        []*command
+	flags           []flag
 }
 
 func (cmd *command) parse(ctx context.Context) error {
@@ -121,6 +125,12 @@ func (cmd *command) parse(ctx context.Context) error {
 			// at the end, so this is the footer -- split s by '\n\n'
 			s, cmd.footer, _ = strings.Cut(s, "\n\n")
 			cmd.footer = trimRight(cmd.footer)
+			if footer := cmd.footer; footer != "" {
+				if len(footer) > 30 {
+					footer = footer[:30] + "..."
+				}
+				logger("  footer: %q", footer)
+			}
 		}
 		// parse the section
 		logger("  parsing %q: %q to %q", cmd.String(), section, next)
@@ -128,20 +138,344 @@ func (cmd *command) parse(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		logger("  section %q --> %s", section, typ)
+		logger("  process %s %q", typ, section)
 		switch typ {
 		case sectNone:
+		case sectUsage:
+			spec, _, _ := strings.Cut(strings.TrimSpace(s), "\n")
+			spec = strings.TrimSpace(strings.TrimPrefix(spec, cmd.String()))
+			logger("    spec: %q", spec)
+			cmd.spec = spec
+		case sectAliases:
+			for _, str := range strings.Split(strings.TrimSpace(s), ",") {
+				if str = strings.TrimSpace(strings.TrimPrefix(str, cmd.String())); str != "" {
+					cmd.aliases = append(cmd.aliases, str)
+				}
+			}
+			logger("    aliases: %v", cmd.aliases)
+		case sectExample:
+			cmd.example = trimRight(s)
+		case sectFooter:
+			cmd.footer += trimRight(s)
+		case sectFlags:
+			if err := cmd.parseFlags(section, s); err != nil {
+				return fmt.Errorf("parsing flags: %w", err)
+			}
 		case sectCommands:
 			if err := cmd.parseCommands(ctx, section, s); err != nil {
 				return fmt.Errorf("parsing commands: %w", err)
 			}
 		}
-		// no next section, so bail
 		if next == "" {
 			break
 		}
 	}
 	return nil
+}
+
+func (cmd *command) parseFlags(sect, s string) error {
+	m := flagRE.FindAllStringSubmatch(s, -1)
+	if m == nil {
+		logger("  section %q has no flags!", sect)
+		return nil
+	}
+	for _, v := range m {
+		short, name, typstr, desc := v[1], v[2], strings.TrimSuffix(v[3], ":"), strings.TrimSpace(v[4])
+		shortstr := ""
+		if short != "" {
+			shortstr = " (-" + short + ")"
+		}
+		logger("    flag --%s%s (%s): %q", name, shortstr, typstr, desc)
+		if name == "help" || name == "version" {
+			continue
+		}
+		if err := cmd.addFlag(sect, name, short, typstr, desc); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (cmd *command) addFlag(sect, name, short, typstr, desc string) error {
+	const defaultprefix = "(default "
+	typ, key, elem, dflt, spec, err := cmd.parseFlagType(sect, name, typstr, desc)
+	if err != nil {
+		return err
+	}
+	if i := strings.LastIndex(desc, defaultprefix); i != -1 && strings.HasSuffix(desc, ")") {
+		dflt = strings.TrimSpace(unquote(desc[i+len(defaultprefix) : len(desc)-1]))
+		desc = desc[:i]
+	}
+	if dflt != "" {
+		c := &ox.Context{
+			Root: &ox.Command{
+				Name: cmd.app,
+			},
+		}
+		for _, s := range []string{
+			"$APPNAME",
+			"$HOME",
+			"$USER",
+			"$CONFIG",
+			"$APPCONFIG",
+			"$CACHE",
+			"$APPCACHE",
+			"$NUMCPU",
+			"$ARCH",
+			"$OS",
+		} {
+			val, err := c.Expand(s)
+			if err != nil {
+				panic(err)
+			}
+			if strings.HasPrefix(dflt, val) {
+				dflt = strings.TrimPrefix(dflt, val)
+			}
+		}
+	}
+	desc = strings.TrimSpace(strings.ReplaceAll(desc, "\n", " "))
+	cmd.flags = append(cmd.flags, flag{
+		name:  name,
+		short: short,
+		typ:   typ,
+		key:   key,
+		elem:  elem,
+		desc:  desc,
+		dflt:  dflt,
+		spec:  spec,
+	})
+	return nil
+}
+
+var flagRE = regexp.MustCompile(`(?im)^\s{1,}(?:-(.),\s+)?--([^\s=]+)[ =]([^\s]+)?\s+(.*)$`)
+
+func (cmd *command) parseFlagType(sect, name, typstr, desc string) (ox.Type, ox.Type, ox.Type, string, string, error) {
+	if typstr == "''" || typstr == `""` {
+		return ox.StringT, "", "", "", "", nil
+	}
+	u := unquote(typstr)
+	switch u {
+	case "":
+		return ox.BoolT, "", "", "", "", nil
+	case "false", "true":
+		return ox.BoolT, "", "", "", u, nil
+	case "[]":
+		return ox.SliceT, "", ox.StringT, "", "", nil
+	case "int", "uint", "duration", "string", "float32", "float64", "UUID", "uuid", "URL", "url", "date", "int32":
+		return ox.Type(strings.ToLower(u)), "", "", "", "", nil
+	case "number":
+		return ox.IntT, "", "", "", u, nil
+	case "float":
+		return ox.Float32T, "", "", "", u, nil
+	case "ip":
+		return ox.AddrT, "", "", "", "", nil
+	case "stringToString":
+		return ox.MapT, ox.StringT, ox.StringT, "", "", nil
+	case "0.0.0.0", "127.0.0.1":
+		return ox.AddrT, "", "", u, "", nil
+	case "10.116.0.0/20":
+		return ox.CIDRT, "", "", u, "", nil
+	case "Y", "N", "Yes", "No":
+		return ox.BoolT, "", "", u, "", nil
+	case "[localhost]":
+		return ox.SliceT, "", ox.StringT, "localhost", "", nil
+	case "format",
+		"postRendererString",
+		"postRendererArgsSlice",
+		"path/to/file.yaml",
+		"path/to/file.json",
+		"argfile.conf",
+		"host:ip",
+		"[username[:password]]",
+		"pathname",
+		"path",
+		"type",
+		"feature",
+		"version",
+		"OS/ARCH[/VARIANT]",
+		"strategy",
+		"command",
+		"<number><unit>",
+		"containerGID:hostGID:length",
+		"variant",
+		"VARIANT",
+		"DEVICE_NAME:WEIGHT",
+		"<number>[<unit>]",
+		"Format",
+		"ARCH",
+		"OS",
+		"choice",
+		"tmpfs",
+		"preset",
+		"image",
+		"containerUID:hostUID:length",
+		"Credential",
+		"Pathname",
+		"annotation",
+		"architecture",
+		"Variant",
+		"subject",
+		"386734086,391669331",
+		"entry_protocol:tcp,entry_port:3306,target_protocol:tcp,target_port:3306",
+		"ip:1.2.3.4,cidr:1.2.0.0/16",
+		"protocol:http,port:80,path:/index.html,check_interval_seconds:10,response_timeout_seconds:5,healthy_threshold:5,unhealthy_threshold:3",
+		"12,33",
+		"215,378",
+		"protocol:http,",
+		"IP",
+		"SLUG",
+		"ID",
+		"file",
+		"type:value",
+		"type:cookies,",
+		"https://hooks.slack.com/services/T1234567/AAAAAAAA/ZZZZZZ",
+		"v1/insights/droplet/memory_utilization_percent",
+		"name",
+		"[HOST/]OWNER/REPO",
+		"login",
+		"username",
+		"expression",
+		"field",
+		"title",
+		"query",
+		"branch",
+		"handle",
+		"SHA",
+		"directory",
+		"repository",
+		"key:value",
+		"event",
+		"user",
+		"owner/number",
+		"environment",
+		"organization",
+		"repositories",
+		"doctl":
+		return ox.StringT, "", "", "", u, nil
+	case
+		"URN",
+		"Development",
+		"Digest",
+		"Update",
+		"text",
+		"MonthToDateBalance",
+		"Date",
+		"ResourceID",
+		"Tag",
+		"Datetime",
+		"Label",
+		"A",
+		"Day",
+		"Domain",
+		"Email",
+		"Limit",
+		"Name",
+		"Size",
+		"Slug",
+		"URI",
+		"User",
+		"completed",
+		"greater_than",
+		"DropletCPUUtilizationPercent",
+		"create",
+		"custom",
+		"db-s-1vcpu-1gb",
+		"droplet",
+		"frontend,backend",
+		"issue",
+		"key",
+		"lb-small",
+		"mysql",
+		"none",
+		"nyc",
+		"nyc1",
+		"pg",
+		"protocol:tcp,ports:22,address:0.0.0.0/0",
+		"protocol:tcp,ports:22,address:192.0.2.0/24",
+		"s-1vcpu-1gb",
+		"s-2vcpu-2gb",
+		"session",
+		"sfo2",
+		"strict",
+		"ubuntu-20-04-x64",
+		"{{.ID}}",
+		"nyc3",
+		"caching_sha2_password",
+		"k8s",
+		"Volumes",
+		"any",
+		"GreaterThan",
+		"production-alerts",
+		"latency",
+		"us_east",
+		"ping",
+		"PreemptLowerPriority",
+		"https://index.docker.io/v1/",
+		"merge",
+		"strategic",
+		"helm",
+		"LoadRestrictionsRootOnly",
+		"bridge",
+		"background",
+		"Always",
+		"plaintext",
+		"json",
+		"yaml",
+		"legacy",
+		"*":
+		return ox.StringT, "", "", u, "", nil
+	}
+	switch {
+	case isDuration(u):
+		return ox.DurationT, "", "", u, "", nil
+	case isNumber(u):
+		return ox.IntT, "", "", u, "", nil
+	case strings.HasSuffix(u, "s"):
+		if typ, _, _, _, _, err := cmd.parseFlagType(sect, name, strings.TrimSuffix(u, "s"), desc); err == nil {
+			return ox.SliceT, "", typ, "", "", nil
+		}
+	case strings.HasSuffix(u, "Array"):
+		if typ, _, _, _, _, err := cmd.parseFlagType(sect, name, strings.TrimSuffix(u, "Array"), desc); err == nil {
+			return ox.SliceT, "", typ, "", "", nil
+		}
+	case strings.HasSuffix(u, "Slice"):
+		if typ, _, _, _, _, err := cmd.parseFlagType(sect, name, strings.TrimSuffix(u, "Slice"), desc); err == nil {
+			return ox.SliceT, "", typ, "", "", nil
+		}
+	case strings.HasPrefix(u, "--") && strings.HasSuffix(u, "=false"):
+		return ox.BoolT, "", "", "", "", nil
+	case strings.HasPrefix(u, "--"):
+		return ox.StringT, "", "", "", u, nil
+	case strings.Contains(typstr, "="):
+		return ox.MapT, ox.StringT, ox.StringT, "", u, nil
+	case strings.HasPrefix(u, "kubectl-"):
+		return ox.StringT, "", "", u, "", nil
+	case strings.HasPrefix(u, "^"):
+		return ox.StringT, "", "", u, "regexp", nil
+	case strings.HasPrefix(u, "["):
+		return ox.StringT, "", "", u, "glob", nil
+	case strings.HasPrefix(u, "/"):
+		return ox.StringT, "", "", u, "path", nil
+	}
+	cmd.logUnknownFlagType(sect, name, typstr, desc)
+	return ox.StringT, "", "", "", u, nil
+}
+
+func (cmd *command) logUnknownFlagType(sect, name, typstr, desc string) {
+	f, err := os.OpenFile("unknown-flag-types.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	fmt.Fprintf(
+		f,
+		"----------\ncmnd: %s --help\nsect: %q\nflag: %s\ntype: %q\ndesc:\n\n  %s\n\n",
+		cmd.String(),
+		sect,
+		name,
+		unquote(typstr),
+		ox.DefaultWrap(desc, 2),
+	)
 }
 
 func (cmd *command) parseCommands(ctx context.Context, sect, s string) error {
@@ -192,7 +526,7 @@ func (cmd *command) parseSect(section string) (sectType, error) {
 	case sect == "usage":
 		return sectUsage, nil
 	case sect == "examples", sect == "example":
-		return sectExamples, nil
+		return sectExample, nil
 	case sect == "aliases":
 		return sectAliases, nil
 	case strings.Contains(sect, "options"), strings.Contains(sect, "flags"):
@@ -271,6 +605,12 @@ func (cmd *command) firstSection(buf []byte) (string, int) {
 		return "", -1
 	}
 	cmd.banner = trimRight(string(buf[offset:m[2]]))
+	if banner := cmd.banner; banner != "" {
+		if len(banner) > 30 {
+			banner = banner[:30] + "..."
+		}
+		logger("  banner: %q", banner)
+	}
 	return string(buf[offset+m[2] : offset+m[3]]), offset + m[1]
 }
 
@@ -323,16 +663,27 @@ func allNames(app string, names []string) string {
 	return strings.Join(append([]string{app}, names...), " ")
 }
 
+type flag struct {
+	name  string
+	short string
+	desc  string
+	dflt  string
+	spec  string
+	typ   ox.Type
+	key   ox.Type
+	elem  ox.Type
+}
+
 type sectType int
 
 const (
 	sectNone sectType = iota
 	sectUsage
 	sectAliases
-	sectCommands
-	sectExamples
-	sectFlags
+	sectExample
 	sectFooter
+	sectFlags
+	sectCommands
 )
 
 func (typ sectType) String() string {
@@ -343,14 +694,14 @@ func (typ sectType) String() string {
 		return "usage"
 	case sectAliases:
 		return "aliases"
-	case sectCommands:
-		return "commands"
-	case sectExamples:
-		return "examples"
-	case sectFlags:
-		return "flags"
+	case sectExample:
+		return "example"
 	case sectFooter:
 		return "footer"
+	case sectFlags:
+		return "flags"
+	case sectCommands:
+		return "commands"
 	}
 	return fmt.Sprintf("sectType(%d)", int(typ))
 }
@@ -363,4 +714,31 @@ var (
 )
 
 var logger = func(string, ...any) {
+}
+
+func isDuration(s string) bool {
+	if s != "" {
+		return durationRE.MatchString(s)
+	}
+	return false
+}
+
+var durationRE = regexp.MustCompile(`^([0-9]+h)?([0-9]+m)?([0-9]+s)?$`)
+
+func isNumber(s string) bool {
+	if s != "" {
+		return numRE.MatchString(s)
+	}
+	return false
+}
+
+var numRE = regexp.MustCompile(`^-?[0-9]+$`)
+
+func unquote(s string) string {
+	switch {
+	case strings.HasPrefix(s, "'") && strings.HasSuffix(s, "'"),
+		strings.HasPrefix(s, `"`) && strings.HasSuffix(s, `"`):
+		return s[1 : len(s)-1]
+	}
+	return s
 }

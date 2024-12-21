@@ -411,7 +411,7 @@ func (ctx *Context) Run(parent context.Context) error {
 //	$ENV{KEY} - the environment value for $KEY
 //	$CFG{[TYPE::]KEY} - the registered config file loader type and key value
 //
-// TODO: finish implementation for $ENV/$CFG
+// TODO: finish implementation for $ENV/$CFG, expand $ as prefixes
 func (ctx *Context) Expand(v any) (string, error) {
 	s, ok := v.(string)
 	if !ok {
