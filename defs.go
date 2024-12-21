@@ -424,7 +424,7 @@ func (help *CommandHelp) AddCommands(sb *strings.Builder) {
 			_, _ = sb.WriteString("\n  ")
 			_, _ = sb.WriteString(c.Name)
 			_, _ = sb.WriteString(strings.Repeat(" ", width-len(c.Name)+2))
-			_, _ = sb.WriteString(DefaultWrap(c.Usage, width+4))
+			_, _ = sb.WriteString(DefaultWrap(c.Usage, DefaultWrapWidth, width+4))
 		}
 	}
 }
@@ -499,7 +499,7 @@ func (help *CommandHelp) AddFlags(sb *strings.Builder) {
 					usage += " " + fmt.Sprintf(text.FlagDefault, def)
 				}
 			}
-			_, _ = sb.WriteString(DefaultWrap(usage, width+offset))
+			_, _ = sb.WriteString(DefaultWrap(usage, DefaultWrapWidth, width+offset))
 		}
 	}
 }

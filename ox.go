@@ -42,8 +42,16 @@ var (
 	DefaultMaxDist = 2
 	// DefaultWrap wraps a line of text with [Wrap] using [DefaultWrapWidth]
 	// for the width.
-	DefaultWrap = func(s string, prefixWidth int) string {
-		return Wrap(s, DefaultWrapWidth, prefixWidth)
+	DefaultWrap = func(s string, wrapWidth, prefixWidth int) string {
+		sb := new(strings.Builder)
+		for i, line := range strings.Split(s, "\n\n") {
+			if i != 0 {
+				_, _ = sb.WriteString("\n\n")
+				_, _ = sb.WriteString(strings.Repeat(" ", prefixWidth))
+			}
+			_, _ = sb.WriteString(Wrap(line, wrapWidth, prefixWidth))
+		}
+		return sb.String()
 	}
 	// DefaultWidth returns the width of a string used by [Wrap].
 	DefaultWidth = func(s string) int {

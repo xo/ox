@@ -1,6 +1,9 @@
 // Command gen parses and generates xo/ox style run entries for well-known,
 // commmon commands `kubectl`, `podman`, `docker`, `helm`, `hugo`, `doctl`,
-// `gh` based on their `cmd help ...` output.
+// `gh`.
+//
+// Generates the xo/ox API calls based on the command's `<command> help ...`
+// output.
 package main
 
 import (
@@ -17,13 +20,16 @@ import (
 	"github.com/xo/ox"
 )
 
+const banner = "Parses and generates xo/ox style run entries for well-known, commmon commands " +
+	"`kubectl`, `podman`, `docker`, `helm`, `hugo`, `doctl`, `gh`. \n\n" +
+	"Generates the xo/ox API calls based on the command's `<command> help " +
+	"...` output."
+
 func main() {
 	args := &Args{}
 	ox.RunContext(
 		context.Background(),
-		ox.Defaults(
-			ox.Banner(`Parses and generates xo/ox style run entires for well-known, common commands.`),
-		),
+		ox.Defaults(ox.Banner(ox.DefaultWrap(banner, 80, 0))),
 		ox.From(args),
 		ox.Exec(run(args)),
 	)
@@ -48,7 +54,7 @@ func run(args *Args) func(ctx context.Context) error {
 			apps = []string{args.Command}
 		} else {
 			apps = []string{
-				"docker",
+				//"docker",
 				"doctl",
 				"gh",
 				"helm",
@@ -512,7 +518,7 @@ func (cmd *command) logUnknownFlagType(sect, name, typstr, desc string) {
 		sect,
 		name,
 		unquote(typstr),
-		ox.DefaultWrap(desc, 2),
+		ox.DefaultWrap(desc, ox.DefaultWrapWidth, 2),
 	)
 }
 
