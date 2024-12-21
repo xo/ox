@@ -347,6 +347,7 @@ func (cmd *command) parseFlagType(sect, name, typstr, desc string) (ox.Type, ox.
 		"enum",
 		"option",
 		"FINGERPRINT",
+		"schedule",
 		"386734086,391669331",
 		"entry_protocol:tcp,entry_port:3306,target_protocol:tcp,target_port:3306",
 		"ip:1.2.3.4,cidr:1.2.0.0/16",
@@ -386,6 +387,8 @@ func (cmd *command) parseFlagType(sect, name, typstr, desc string) (ox.Type, ox.
 		return ox.StringT, "", "", "", u, nil
 	case
 		"URN",
+		"DropletID",
+		"Index",
 		"EXTERNAL",
 		"REGIONAL",
 		"Development",
