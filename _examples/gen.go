@@ -278,7 +278,7 @@ func (cmd *command) parseFlagType(sect, name, typstr, desc string) (ox.Type, ox.
 	case "ipNet":
 		return ox.CIDRT, "", "", "", "", nil
 	case "node-addr":
-		return ox.AddrPortT, "", "", "", nil
+		return ox.AddrPortT, "", "", "", "", nil
 	case "10.116.0.0/20", "10.244.0.0/16", "10.245.0.0/16":
 		return ox.CIDRT, "", "", u, "", nil
 	case "Y", "N", "Yes", "No":
