@@ -263,10 +263,10 @@ func (cmd *command) parseFlagType(sect, name, typstr, desc string) (ox.Type, ox.
 		return ox.SliceT, "", ox.StringT, "", "", nil
 	case "stringToString", "map":
 		return ox.MapT, ox.StringT, ox.StringT, "", "", nil
-	case "int", "uint", "duration", "string", "float32", "float64", "UUID", "uuid", "URL", "url", "date", "int32", "uint16":
+	case "int", "uint", "duration", "string", "float32", "float64", "UUID", "uuid", "URL", "url", "date", "int32", "uint16", "uint32":
 		return ox.Type(strings.ToLower(u)), "", "", "", "", nil
-	case "byte":
-		return ox.UintT, "", "", "", "", nil
+	case "byte", "port":
+		return ox.UintT, "", "", "", u, nil
 	case "number":
 		return ox.IntT, "", "", "", u, nil
 	case "float", "decimal":
@@ -275,7 +275,11 @@ func (cmd *command) parseFlagType(sect, name, typstr, desc string) (ox.Type, ox.
 		return ox.AddrT, "", "", "", "", nil
 	case "0.0.0.0", "127.0.0.1":
 		return ox.AddrT, "", "", u, "", nil
-	case "10.116.0.0/20":
+	case "ipNet":
+		return ox.CIDRT, "", "", "", "", nil
+	case "node-addr":
+		return ox.AddrPortT, "", "", "", nil
+	case "10.116.0.0/20", "10.244.0.0/16", "10.245.0.0/16":
 		return ox.CIDRT, "", "", u, "", nil
 	case "Y", "N", "Yes", "No":
 		return ox.BoolT, "", "", u, "", nil
@@ -321,6 +325,28 @@ func (cmd *command) parseFlagType(sect, name, typstr, desc string) (ox.Type, ox.
 		"subject",
 		"ulimit",
 		"filter",
+		"gpu-request",
+		"mount",
+		"network",
+		"credential-spec",
+		"pref",
+		"secret",
+		"config",
+		"pem-file",
+		"external-ca",
+		"name:test-domain-1",
+		"Certificate",
+		"topic:permission",
+		"index:permission",
+		"application",
+		"is_enabled:true",
+		"target_protocol:http,target_port:80",
+		"node-pool",
+		"size",
+		"tag",
+		"enum",
+		"option",
+		"FINGERPRINT",
 		"386734086,391669331",
 		"entry_protocol:tcp,entry_port:3306,target_protocol:tcp,target_port:3306",
 		"ip:1.2.3.4,cidr:1.2.0.0/16",
@@ -360,6 +386,8 @@ func (cmd *command) parseFlagType(sect, name, typstr, desc string) (ox.Type, ox.
 		return ox.StringT, "", "", "", u, nil
 	case
 		"URN",
+		"EXTERNAL",
+		"REGIONAL",
 		"Development",
 		"Digest",
 		"Update",
@@ -378,6 +406,7 @@ func (cmd *command) parseFlagType(sect, name, typstr, desc string) (ox.Type, ox.
 		"Name",
 		"Size",
 		"Slug",
+		"slug",
 		"URI",
 		"User",
 		"completed",
