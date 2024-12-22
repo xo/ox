@@ -18,19 +18,19 @@ func main() {
 		ox.Spec("<command> <subcommand> [flags]"),
 		ox.Example("\n  $ gh issue create\n  $ gh repo clone cli/cli\n  $ gh pr checkout 321"),
 		ox.Sections("CORE COMMANDS", "GITHUB ACTIONS COMMANDS", "ALIAS COMMANDS", "ADDITIONAL COMMANDS"),
-		ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+		ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 		ox.Sub(
 			ox.Banner("Authenticate gh and git with GitHub"),
 			ox.Usage("auth", "Authenticate gh and git with GitHub"),
 			ox.Spec("<command> [flags]"),
 			ox.Section(0),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Sub(
 				ox.Banner("Authenticate with a GitHub host.\n\nThe default hostname is `github.com`. This can be overridden using the `--hostname`\nflag.\n\nThe default authentication mode is a web-based browser flow. After completion, an\nauthentication token will be stored securely in the system credential store.\nIf a credential store is not found or there is an issue using it gh will fallback\nto writing the token to a plain text file. See `gh auth status` for its\nstored location.\n\nAlternatively, use `--with-token` to pass in a token on standard input.\nThe minimum required scopes for the token are: `repo`, `read:org`, and `gist`.\n\nAlternatively, gh will use the authentication token found in environment variables.\nThis method is most suitable for \"headless\" use of gh such as in automation. See\n`gh help environment` for more info.\n\nTo use gh in GitHub Actions, add `GH_TOKEN: ${{ github.token }}` to `env`.\n\nThe git protocol to use for git operations on this host can be set with `--git-protocol`,\nor during the interactive prompting. Although login is for a single account on a host, setting\nthe git protocol will take effect for all users on the host.\n\nSpecifying `ssh` for the git protocol will detect existing SSH keys to upload,\nprompting to create and upload a new key if one is not found. This can be skipped with\n`--skip-ssh-key` flag."),
 				ox.Usage("login", "Log in to a GitHub account"),
 				ox.Spec("[flags]"),
 				ox.Example("\n  # Start interactive setup\n  $ gh auth login\n  \n  # Authenticate against github.com by reading the token from a file\n  $ gh auth login --with-token < mytoken.txt\n  \n  # Authenticate with specific host\n  $ gh auth login --hostname enterprise.internal"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("git-protocol", "The protocol to use for git operations on this host: {ssh|https}", ox.Short("p")).
 					String("hostname", "The hostname of the GitHub instance to authenticate with", ox.Short("h")).
@@ -44,7 +44,7 @@ func main() {
 				ox.Usage("logout", "Log out of a GitHub account"),
 				ox.Spec("[flags]"),
 				ox.Example("\n  # Select what host and account to log out of via a prompt\n  $ gh auth logout\n  \n  # Log out of a specific host and specific account\n  $ gh auth logout --hostname enterprise.internal --user monalisa"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("hostname", "The hostname of the GitHub instance to log out of", ox.Short("h")).
 					String("user", "The account to log out of", ox.Short("u")),
@@ -53,7 +53,7 @@ func main() {
 				ox.Usage("refresh", "Refresh stored authentication credentials"),
 				ox.Spec("[flags]"),
 				ox.Example("\n  $ gh auth refresh --scopes write:org,read:public_key\n  # => open a browser to add write:org and read:public_key scopes\n  \n  $ gh auth refresh\n  # => open a browser to ensure your authentication credentials have the correct minimum scopes\n  \n  $ gh auth refresh --remove-scopes delete_repo\n  # => open a browser to idempotently remove the delete_repo scope\n  \n  $ gh auth refresh --reset-scopes\n  # => open a browser to re-authenticate with the default minimum scopes"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("hostname", "The GitHub host to use for authentication", ox.Short("h")).
 					Bool("insecure-storage", "Save authentication credentials in plain text instead of credential store").
@@ -65,7 +65,7 @@ func main() {
 				ox.Usage("setup-git", "Setup git with GitHub CLI"),
 				ox.Spec("[flags]"),
 				ox.Example("\n  # Configure git to use GitHub CLI as the credential helper for all authenticated hosts\n  $ gh auth setup-git\n  \n  # Configure git to use GitHub CLI as the credential helper for enterprise.internal host\n  $ gh auth setup-git --hostname enterprise.internal"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("force", "Force setup even if the host is not known. Must be used in conjunction with --hostname", ox.Spec("--hostname"), ox.Short("f")).
 					String("hostname", "The hostname to configure git for", ox.Short("h")),
@@ -73,7 +73,7 @@ func main() {
 				ox.Banner("Display active account and authentication state on each known GitHub host.\n\nFor each host, the authentication state of each known account is tested and any issues are included in the output.\nEach host section will indicate the active account, which will be used when targeting that host.\nIf an account on any host (or only the one given via `--hostname`) has authentication issues,\nthe command will exit with 1 and output to stderr.\n\nTo change the active account for a host, see `gh auth switch`."),
 				ox.Usage("status", "Display active account and authentication state on each known GitHub host"),
 				ox.Spec("[flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("active", "Display the active account only", ox.Short("a")).
 					String("hostname", "Check only a specific hostname's auth status", ox.Short("h")).
@@ -83,7 +83,7 @@ func main() {
 				ox.Usage("switch", "Switch active GitHub account"),
 				ox.Spec("[flags]"),
 				ox.Example("\n  # Select what host and account to switch to via a prompt\n  $ gh auth switch\n  \n  # Switch the active account on a specific host to a specific user\n  $ gh auth switch --hostname enterprise.internal --user monalisa"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("hostname", "The hostname of the GitHub instance to switch account for", ox.Short("h")).
 					String("user", "The account to switch to", ox.Short("u")),
@@ -91,7 +91,7 @@ func main() {
 				ox.Banner("This command outputs the authentication token for an account on a given GitHub host.\n\nWithout the `--hostname` flag, the default host is chosen.\n\nWithout the `--user` flag, the active account for the host is chosen."),
 				ox.Usage("token", "Print the authentication token gh uses for a hostname and account"),
 				ox.Spec("[flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("hostname", "The hostname of the GitHub instance authenticated with", ox.Short("h")).
 					String("user", "The account to output the token for", ox.Short("u")),
@@ -101,7 +101,7 @@ func main() {
 			ox.Spec("[<number> | <path> | <commit-SHA>] [flags]"),
 			ox.Example("\n  $ gh browse\n  #=> Open the home page of the current repository\n  \n  $ gh browse script/\n  #=> Open the script directory of the current repository\n  \n  $ gh browse 217\n  #=> Open issue or pull request 217\n  \n  $ gh browse 77507cd94ccafcf568f8560cfecde965fcfa63\n  #=> Open commit page\n  \n  $ gh browse --settings\n  #=> Open repository settings\n  \n  $ gh browse main.go:312\n  #=> Open main.go at line 312\n  \n  $ gh browse main.go --branch bug-fix\n  #=> Open main.go with the repository at head of bug-fix branch\n  \n  $ gh browse main.go --commit=77507cd94ccafcf568f8560cfecde965fcfa63\n  #=> Open main.go with the repository at commit 775007cd"),
 			ox.Section(0),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Flags().
 				String("branch", "Select another branch by passing in the branch name", ox.Short("b")).
 				Map("commit", "Select another commit by passing in the commit SHA, default is the last commit", ox.Spec("string[=\"last\"]"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Short("c")).
@@ -117,12 +117,12 @@ func main() {
 			ox.Spec("[flags]"),
 			ox.Aliases("gh cs"),
 			ox.Section(0),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Sub(
 				ox.Banner("Open a codespace in Visual Studio Code"),
 				ox.Usage("code", "Open a codespace in Visual Studio Code"),
 				ox.Spec("[flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("codespace", "Name of the codespace", ox.Short("c")).
 					Bool("insiders", "Use the insiders version of Visual Studio Code").
@@ -134,7 +134,7 @@ func main() {
 				ox.Usage("cp", "Copy files between local and remote file systems"),
 				ox.Spec("[-e] [-r] [-- [<scp flags>...]] <sources>... <dest>"),
 				ox.Example("\n  $ gh codespace cp -e README.md 'remote:/workspaces/$RepositoryName/'\n  $ gh codespace cp -e 'remote:~/*.go' ./gofiles/\n  $ gh codespace cp -e 'remote:/workspaces/myproj/go.{mod,sum}' ./gofiles/\n  $ gh codespace cp -e -- -F ~/.ssh/codespaces_config 'remote:~/*.go' ./gofiles/"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("codespace", "Name of the codespace", ox.Short("c")).
 					Bool("expand", "Expand remote file names on remote shell", ox.Short("e")).
@@ -146,7 +146,7 @@ func main() {
 				ox.Banner("Create a codespace"),
 				ox.Usage("create", "Create a codespace"),
 				ox.Spec("[flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("branch", "repository branch", ox.Short("b")).
 					Bool("default-permissions", "do not prompt to accept additional permissions requested by the codespace").
@@ -163,7 +163,7 @@ func main() {
 				ox.Banner("Delete codespaces based on selection criteria.\n\nAll codespaces for the authenticated user can be deleted, as well as codespaces for a\nspecific repository. Alternatively, only codespaces older than N days can be deleted.\n\nOrganization administrators may delete any codespace billed to the organization."),
 				ox.Usage("delete", "Delete codespaces"),
 				ox.Spec("[flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("all", "Delete all codespaces").
 					String("codespace", "Name of the codespace", ox.Short("c")).
@@ -177,7 +177,7 @@ func main() {
 				ox.Banner("Edit a codespace"),
 				ox.Usage("edit", "Edit a codespace"),
 				ox.Spec("[flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("codespace", "Name of the codespace", ox.Short("c")).
 					String("display-name", "Set the display name", ox.Short("d")).
@@ -188,7 +188,7 @@ func main() {
 				ox.Banner("Open a codespace in JupyterLab"),
 				ox.Usage("jupyter", "Open a codespace in JupyterLab"),
 				ox.Spec("[flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("codespace", "Name of the codespace", ox.Short("c")).
 					String("repo", "Filter codespace selection by repository name (user/repo)", ox.Short("R")).
@@ -198,7 +198,7 @@ func main() {
 				ox.Usage("list", "List codespaces"),
 				ox.Spec("[flags]"),
 				ox.Aliases("gh codespace ls", "gh cs ls"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q")).
 					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT)).
@@ -212,7 +212,7 @@ func main() {
 				ox.Banner("Access codespace logs"),
 				ox.Usage("logs", "Access codespace logs"),
 				ox.Spec("[flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("codespace", "Name of the codespace", ox.Short("c")).
 					Bool("follow", "Tail and follow the logs", ox.Short("f")).
@@ -222,12 +222,12 @@ func main() {
 				ox.Banner("List ports in a codespace\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("ports", "List ports in a codespace"),
 				ox.Spec("[flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Sub(
 					ox.Banner("Forward ports"),
 					ox.Usage("forward", "Forward ports"),
 					ox.Spec("<remote-port>:<local-port>... [flags]"),
-					ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+					ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 					ox.Flags().
 						String("codespace", "Name of the codespace", ox.Short("c")).
 						String("repo", "Filter codespace selection by repository name (user/repo)", ox.Short("R")).
@@ -237,7 +237,7 @@ func main() {
 					ox.Usage("visibility", "Change the visibility of the forwarded port"),
 					ox.Spec("<port>:{public|private|org}... [flags]"),
 					ox.Example("\n  gh codespace ports visibility 80:org 3000:private 8000:public"),
-					ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+					ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 					ox.Flags().
 						String("codespace", "Name of the codespace", ox.Short("c")).
 						String("repo", "Filter codespace selection by repository name (user/repo)", ox.Short("R")).
@@ -253,7 +253,7 @@ func main() {
 				ox.Banner("Rebuilding recreates your codespace.\n\nYour code and any current changes will be preserved. Your codespace will be rebuilt using\nyour working directory's dev container. A full rebuild also removes cached Docker images."),
 				ox.Usage("rebuild", "Rebuild a codespace"),
 				ox.Spec("[flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("codespace", "Name of the codespace", ox.Short("c")).
 					Bool("full", "perform a full rebuild").
@@ -264,7 +264,7 @@ func main() {
 				ox.Usage("ssh", "SSH into a codespace"),
 				ox.Spec("[<flags>...] [-- <ssh-flags>...] [<command>]"),
 				ox.Example("\n  $ gh codespace ssh\n  \n  $ gh codespace ssh --config > ~/.ssh/codespaces\n  $ printf 'Match all\\nInclude ~/.ssh/codespaces\\n' >> ~/.ssh/config"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("codespace", "Name of the codespace", ox.Short("c")).
 					Bool("config", "Write OpenSSH configuration to stdout").
@@ -278,7 +278,7 @@ func main() {
 				ox.Banner("Stop a running codespace"),
 				ox.Usage("stop", "Stop a running codespace"),
 				ox.Spec("[flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("codespace", "Name of the codespace", ox.Short("c")).
 					String("org", "The login handle of the organization (admin-only)", ox.Spec("login"), ox.Short("o")).
@@ -290,7 +290,7 @@ func main() {
 				ox.Usage("view", "View details about a codespace"),
 				ox.Spec("[flags]"),
 				ox.Example("\n  # select a codespace from a list of all codespaces you own\n  $ gh cs view\t\n  \n  # view the details of a specific codespace\n  $ gh cs view -c codespace-name-12345\n  \n  # view the list of all available fields for a codespace\n  $ gh cs view --json\n  \n  # view specific fields for a codespace\n  $ gh cs view --json displayName,machineDisplayName,state"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("codespace", "Name of the codespace", ox.Short("c")).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q")).
@@ -303,19 +303,19 @@ func main() {
 			ox.Usage("gist", "Manage gists"),
 			ox.Spec("<command> [flags]"),
 			ox.Section(0),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Sub(
 				ox.Banner("Clone a GitHub gist locally.\n\nA gist can be supplied as argument in either of the following formats:\n- by ID, e.g. `5b0e0062eb8e9654adad7bb1d81cc75f`\n- by URL, e.g. `https://gist.github.com/OWNER/5b0e0062eb8e9654adad7bb1d81cc75f`\n\nPass additional `git clone` flags by listing them after `--`."),
 				ox.Usage("clone", "Clone a gist locally"),
 				ox.Spec("<gist> [<directory>] [-- <gitflags>...]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			), ox.Sub(
 				ox.Banner("Create a new GitHub gist with given contents.\n\nGists can be created from one or multiple files. Alternatively, pass `-` as\nfile name to read from standard input.\n\nBy default, gists are secret; use `--public` to make publicly listed ones."),
 				ox.Usage("create", "Create a new gist"),
 				ox.Spec("[<filename>... | -] [flags]"),
 				ox.Aliases("gh gist new"),
 				ox.Example("\n  # publish file 'hello.py' as a public gist\n  $ gh gist create --public hello.py\n  \n  # create a gist with a description\n  $ gh gist create hello.py -d \"my Hello-World program in Python\"\n  \n  # create a gist containing several files\n  $ gh gist create hello.py world.py cool.txt\n  \n  # read from standard input to create a gist\n  $ gh gist create -\n  \n  # create a gist from output piped from another command\n  $ cat cool.txt | gh gist create"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("desc", "A description for this gist", ox.Short("d")).
 					String("filename", "Provide a filename to be used when reading from standard input", ox.Short("f")).
@@ -325,12 +325,12 @@ func main() {
 				ox.Banner("Delete a gist"),
 				ox.Usage("delete", "Delete a gist"),
 				ox.Spec("{<id> | <url>} [flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			), ox.Sub(
 				ox.Banner("Edit one of your gists"),
 				ox.Usage("edit", "Edit one of your gists"),
 				ox.Spec("{<id> | <url>} [<filename>] [flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("add", "Add a new file to the gist", ox.Short("a")).
 					String("desc", "New description for the gist", ox.Short("d")).
@@ -342,7 +342,7 @@ func main() {
 				ox.Spec("[flags]"),
 				ox.Aliases("gh gist ls"),
 				ox.Example("\n  # list all secret gists from your user account\n  $ gh gist list --secret\n  \n  # find all gists from your user account mentioning \"octo\" anywhere\n  $ gh gist list --filter octo --include-content"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("filter", "Filter gists using a regular expression", ox.Spec("expression")).
 					Bool("include-content", "Include gists' file content when filtering").
@@ -353,12 +353,12 @@ func main() {
 				ox.Banner("Rename a file in the given gist ID / URL."),
 				ox.Usage("rename", "Rename a file in a gist"),
 				ox.Spec("{<id> | <url>} <oldFilename> <newFilename> [flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			), ox.Sub(
 				ox.Banner("View the given gist or select from recent gists."),
 				ox.Usage("view", "View a gist"),
 				ox.Spec("[<id> | <url>] [flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("filename", "Display a single file from the gist", ox.Short("f")).
 					Bool("files", "List file names from the gist").
@@ -371,7 +371,7 @@ func main() {
 			ox.Example("\n  $ gh issue list\n  $ gh issue create --label bug\n  $ gh issue view 123 --web"),
 			ox.Sections("GENERAL COMMANDS", "TARGETED COMMANDS"),
 			ox.Section(0),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Sub(
 				ox.Banner("Create an issue on GitHub.\n\nAdding an issue to projects requires authorization with the `project` scope.\nTo authorize, run `gh auth refresh -s project`."),
 				ox.Usage("create", "Create a new issue"),
@@ -379,7 +379,7 @@ func main() {
 				ox.Aliases("gh issue new"),
 				ox.Example("\n  $ gh issue create --title \"I found a bug\" --body \"Nothing works\"\n  $ gh issue create --label \"bug,help wanted\"\n  $ gh issue create --label bug --label \"help wanted\"\n  $ gh issue create --assignee monalisa,hubot\n  $ gh issue create --assignee \"@me\"\n  $ gh issue create --project \"Roadmap\"\n  $ gh issue create --template \"bug_report.md\""),
 				ox.Section(0),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("assignee", "Assign people by their login. Use \"@me\" to self-assign.", ox.Spec("login"), ox.Short("a")).
 					String("body", "Supply a body. Will prompt for one otherwise.", ox.Short("b")).
@@ -400,7 +400,7 @@ func main() {
 				ox.Aliases("gh issue ls"),
 				ox.Example("\n  $ gh issue list --label \"bug\" --label \"help wanted\"\n  $ gh issue list --author monalisa\n  $ gh issue list --assignee \"@me\"\n  $ gh issue list --milestone \"The big 1.0\"\n  $ gh issue list --search \"error no:assignee sort:created-asc\""),
 				ox.Section(0),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("app", "Filter by GitHub App author").
 					String("assignee", "Filter by assignee", ox.Short("a")).
@@ -421,7 +421,7 @@ func main() {
 				ox.Usage("status", "Show status of relevant issues"),
 				ox.Spec("[flags]"),
 				ox.Section(0),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q")).
 					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT)).
@@ -432,7 +432,7 @@ func main() {
 				ox.Usage("close", "Close issue"),
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("comment", "Leave a closing comment", ox.Short("c")).
 					String("reason", "Reason for closing: {completed|not planned}", ox.Short("r")).
@@ -443,7 +443,7 @@ func main() {
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Example("\n  $ gh issue comment 12 --body \"Hi from GitHub CLI\""),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("body", "The comment body text", ox.Default("text"), ox.Short("b")).
 					String("body-file", "Read body text from file (use \"-\" to read from standard input)", ox.Spec("file"), ox.Short("F")).
@@ -456,7 +456,7 @@ func main() {
 				ox.Usage("delete", "Delete issue"),
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("yes", "confirm deletion without prompting").
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R")),
@@ -466,7 +466,7 @@ func main() {
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Example("\n  # List branches for issue 123\n  $ gh issue develop --list 123\n  \n  # List branches for issue 123 in repo cli/cli\n  $ gh issue develop --list --repo cli/cli 123\n  \n  # Create a branch for issue 123 based on the my-feature branch\n  $ gh issue develop 123 --base my-feature\n  \n  # Create a branch for issue 123 and checkout it out\n  $ gh issue develop 123 --checkout\n  \n  # Create a branch in repo monalisa/cli for issue 123 in repo cli/cli\n  $ gh issue develop 123 --repo cli/cli --branch-repo monalisa/cli"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("base", "Name of the remote branch you want to make your new branch from", ox.Short("b")).
 					String("branch-repo", "Name or URL of the repository where you want to create your new branch").
@@ -480,7 +480,7 @@ func main() {
 				ox.Spec("{<numbers> | <urls>} [flags]"),
 				ox.Example("\n  $ gh issue edit 23 --title \"I found a bug\" --body \"Nothing works\"\n  $ gh issue edit 23 --add-label \"bug,help wanted\" --remove-label \"core\"\n  $ gh issue edit 23 --add-assignee \"@me\" --remove-assignee monalisa,hubot\n  $ gh issue edit 23 --add-project \"Roadmap\" --remove-project v1,v2\n  $ gh issue edit 23 --milestone \"Version 1\"\n  $ gh issue edit 23 --remove-milestone\n  $ gh issue edit 23 --body-file body.txt\n  $ gh issue edit 23 34 --add-label \"help wanted\""),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("add-assignee", "Add assigned users by their login. Use \"@me\" to assign yourself.", ox.Spec("login")).
 					String("add-label", "Add labels by name", ox.Spec("name")).
@@ -499,7 +499,7 @@ func main() {
 				ox.Usage("lock", "Lock issue conversation"),
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("reason", "Optional reason for locking conversation (off_topic, resolved, spam, too_heated).", ox.Short("r")).
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R")),
@@ -509,7 +509,7 @@ func main() {
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Example("\n  # Pin an issue to the current repository\n  $ gh issue pin 23\n  \n  # Pin an issue by URL\n  $ gh issue pin https://github.com/owner/repo/issues/23\n  \n  # Pin an issue to specific repository\n  $ gh issue pin 23 --repo owner/repo"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R")),
 			), ox.Sub(
@@ -517,7 +517,7 @@ func main() {
 				ox.Usage("reopen", "Reopen issue"),
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("comment", "Add a reopening comment", ox.Short("c")).
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R")),
@@ -526,7 +526,7 @@ func main() {
 				ox.Usage("transfer", "Transfer issue to another repository"),
 				ox.Spec("{<number> | <url>} <destination-repo> [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R")),
 			), ox.Sub(
@@ -534,7 +534,7 @@ func main() {
 				ox.Usage("unlock", "Unlock issue conversation"),
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R")),
 			), ox.Sub(
@@ -543,7 +543,7 @@ func main() {
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Example("\n  # Unpin issue from the current repository\n  $ gh issue unpin 23\n  \n  # Unpin issue by URL\n  $ gh issue unpin https://github.com/owner/repo/issues/23\n  \n  # Unpin an issue from specific repository\n  $ gh issue unpin 23 --repo owner/repo"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R")),
 			), ox.Sub(
@@ -551,7 +551,7 @@ func main() {
 				ox.Usage("view", "View an issue"),
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("comments", "View issue comments", ox.Short("c")).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q")).
@@ -568,7 +568,7 @@ func main() {
 			ox.Example("\n  $ gh org list"),
 			ox.Sections("GENERAL COMMANDS"),
 			ox.Section(0),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Sub(
 				ox.Banner("List organizations for the authenticated user."),
 				ox.Usage("list", "List organizations for the authenticated user."),
@@ -576,7 +576,7 @@ func main() {
 				ox.Aliases("gh org ls"),
 				ox.Example("\n  # List the first 30 organizations\n  $ gh org list\n  \n  # List more organizations\n  $ gh org list --limit 100"),
 				ox.Section(0),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Int("limit", "Maximum number of organizations to list", ox.Default("30"), ox.Short("L")),
 			)), ox.Sub(
@@ -586,7 +586,7 @@ func main() {
 			ox.Example("\n  $ gh pr checkout 353\n  $ gh pr create --fill\n  $ gh pr view --web"),
 			ox.Sections("GENERAL COMMANDS", "TARGETED COMMANDS"),
 			ox.Section(0),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Sub(
 				ox.Banner("Create a pull request on GitHub.\n\nWhen the current branch isn't fully pushed to a git remote, a prompt will ask where\nto push the branch and offer an option to fork the base repository. Use `--head` to\nexplicitly skip any forking or pushing behavior.\n\nA prompt will also ask for the title and the body of the pull request. Use `--title` and\n`--body` to skip this, or use `--fill` to autofill these values from git commits.\nIt's important to notice that if the `--title` and/or `--body` are also provided\nalongside `--fill`, the values specified by `--title` and/or `--body` will\ntake precedence and overwrite any autofilled content.\n\nLink an issue to the pull request by referencing the issue in the body of the pull\nrequest. If the body text mentions `Fixes #123` or `Closes #123`, the referenced issue\nwill automatically get closed when the pull request gets merged.\n\nBy default, users with write access to the base repository can push new commits to the\nhead branch of the pull request. Disable this with `--no-maintainer-edit`.\n\nAdding a pull request to projects requires authorization with the `project` scope.\nTo authorize, run `gh auth refresh -s project`."),
 				ox.Usage("create", "Create a pull request"),
@@ -594,7 +594,7 @@ func main() {
 				ox.Aliases("gh pr new"),
 				ox.Example("\n  $ gh pr create --title \"The bug is fixed\" --body \"Everything works again\"\n  $ gh pr create --reviewer monalisa,hubot  --reviewer myorg/team-name\n  $ gh pr create --project \"Roadmap\"\n  $ gh pr create --base develop --head monalisa:feature\n  $ gh pr create --template \"pull_request_template.md\""),
 				ox.Section(0),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("assignee", "Assign people by their login. Use \"@me\" to self-assign.", ox.Spec("login"), ox.Short("a")).
 					String("base", "The branch into which you want your code merged", ox.Spec("branch"), ox.Short("B")).
@@ -624,7 +624,7 @@ func main() {
 				ox.Aliases("gh pr ls"),
 				ox.Example("\n  List PRs authored by you\n  $ gh pr list --author \"@me\"\n  \n  List only PRs with all of the given labels\n  $ gh pr list --label bug --label \"priority 1\"\n  \n  Filter PRs using search syntax\n  $ gh pr list --search \"status:success review:required\"\n  \n  Find a PR that introduced a given commit\n  $ gh pr list --search \"<SHA>\" --state merged"),
 				ox.Section(0),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("app", "Filter by GitHub App author").
 					String("assignee", "Filter by assignee", ox.Short("a")).
@@ -646,7 +646,7 @@ func main() {
 				ox.Usage("status", "Show status of relevant pull requests"),
 				ox.Spec("[flags]"),
 				ox.Section(0),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("conflict-status", "Display the merge conflict status of each pull request", ox.Short("c")).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q")).
@@ -658,7 +658,7 @@ func main() {
 				ox.Usage("checkout", "Check out a pull request in git"),
 				ox.Spec("{<number> | <url> | <branch>} [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("branch", "Local branch name to use", ox.Default("[the name of the head branch]"), ox.Short("b")).
 					Bool("detach", "Checkout PR with a detached HEAD").
@@ -670,7 +670,7 @@ func main() {
 				ox.Usage("checks", "Show CI status for a single pull request"),
 				ox.Spec("[<number> | <url> | <branch>] [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("fail-fast", "Exit watch mode on first check failure").
 					String("interval", "Refresh interval in seconds when using --watch flag", ox.Spec("--watch"), ox.Default("10"), ox.Short("i")).
@@ -686,7 +686,7 @@ func main() {
 				ox.Usage("close", "Close a pull request"),
 				ox.Spec("{<number> | <url> | <branch>} [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("comment", "Leave a closing comment", ox.Short("c")).
 					Bool("delete-branch", "Delete the local and remote branch after close", ox.Short("d")).
@@ -697,7 +697,7 @@ func main() {
 				ox.Spec("[<number> | <url> | <branch>] [flags]"),
 				ox.Example("\n  $ gh pr comment 13 --body \"Hi from GitHub CLI\""),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("body", "The comment body text", ox.Default("text"), ox.Short("b")).
 					String("body-file", "Read body text from file (use \"-\" to read from standard input)", ox.Spec("file"), ox.Short("F")).
@@ -710,7 +710,7 @@ func main() {
 				ox.Usage("diff", "View changes in a pull request"),
 				ox.Spec("[<number> | <url> | <branch>] [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("color", "Use color in diff output: {always|never|auto}", ox.Default("auto")).
 					Bool("name-only", "Display only names of changed files").
@@ -723,7 +723,7 @@ func main() {
 				ox.Spec("[<number> | <url> | <branch>] [flags]"),
 				ox.Example("\n  $ gh pr edit 23 --title \"I found a bug\" --body \"Nothing works\"\n  $ gh pr edit 23 --add-label \"bug,help wanted\" --remove-label \"core\"\n  $ gh pr edit 23 --add-reviewer monalisa,hubot  --remove-reviewer myorg/team-name\n  $ gh pr edit 23 --add-assignee \"@me\" --remove-assignee monalisa,hubot\n  $ gh pr edit 23 --add-project \"Roadmap\" --remove-project v1,v2\n  $ gh pr edit 23 --milestone \"Version 1\"\n  $ gh pr edit 23 --remove-milestone"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("add-assignee", "Add assigned users by their login. Use \"@me\" to assign yourself.", ox.Spec("login")).
 					String("add-label", "Add labels by name", ox.Spec("name")).
@@ -745,7 +745,7 @@ func main() {
 				ox.Usage("lock", "Lock pull request conversation"),
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("reason", "Optional reason for locking conversation (off_topic, resolved, spam, too_heated).", ox.Short("r")).
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R")),
@@ -754,7 +754,7 @@ func main() {
 				ox.Usage("merge", "Merge a pull request"),
 				ox.Spec("[<number> | <url> | <branch>] [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("admin", "Use administrator privileges to merge a pull request that does not meet requirements").
 					String("author-email", "Email text for merge commit author", ox.Default("text"), ox.Short("A")).
@@ -774,7 +774,7 @@ func main() {
 				ox.Usage("ready", "Mark a pull request as ready for review"),
 				ox.Spec("[<number> | <url> | <branch>] [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("undo", "Convert a pull request to \"draft\"").
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R")),
@@ -783,7 +783,7 @@ func main() {
 				ox.Usage("reopen", "Reopen a pull request"),
 				ox.Spec("{<number> | <url> | <branch>} [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("comment", "Add a reopening comment", ox.Short("c")).
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R")),
@@ -793,7 +793,7 @@ func main() {
 				ox.Spec("[<number> | <url> | <branch>] [flags]"),
 				ox.Example("\n  # approve the pull request of the current branch\n  $ gh pr review --approve\n  \n  # leave a review comment for the current branch\n  $ gh pr review --comment -b \"interesting\"\n  \n  # add a review for a specific pull request\n  $ gh pr review 123\n  \n  # request changes on a specific pull request\n  $ gh pr review 123 -r -b \"needs more ASCII art\""),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("approve", "Approve pull request", ox.Short("a")).
 					String("body", "Specify the body of a review", ox.Short("b")).
@@ -806,7 +806,7 @@ func main() {
 				ox.Usage("unlock", "Unlock pull request conversation"),
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R")),
 			), ox.Sub(
@@ -815,7 +815,7 @@ func main() {
 				ox.Spec("[<number> | <url> | <branch>] [flags]"),
 				ox.Example("\n  $ gh pr update-branch 23\n  $ gh pr update-branch 23 --rebase\n  $ gh pr update-branch 23 --repo owner/repo"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("rebase", "Update PR branch by rebasing on top of latest base branch").
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R")),
@@ -824,7 +824,7 @@ func main() {
 				ox.Usage("view", "View a pull request"),
 				ox.Spec("[<number> | <url> | <branch>] [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("comments", "View pull request comments", ox.Short("c")).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q")).
@@ -840,13 +840,13 @@ func main() {
 			ox.Spec("<command> [flags]"),
 			ox.Example("\n  $ gh project create --owner monalisa --title \"Roadmap\"\n  $ gh project view 1 --owner cli --web\n  $ gh project field-list 1 --owner cli\n  $ gh project item-list 1 --owner cli"),
 			ox.Section(0),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Sub(
 				ox.Banner("Close a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("close", "Close a project"),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # close project \"1\" owned by monalisa\n  gh project close 1 --owner monalisa\n  \n  # reopen closed project \"1\" owned by github\n  gh project close 1 --owner github --undo"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("format", "Output format: {json}").
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q")).
@@ -858,7 +858,7 @@ func main() {
 				ox.Usage("copy", "Copy a project"),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # copy project \"1\" owned by monalisa to github\n  gh project copy 1 --source-owner monalisa --target-owner github --title \"a new project\""),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("drafts", "Include draft issues when copying").
 					String("format", "Output format: {json}").
@@ -872,7 +872,7 @@ func main() {
 				ox.Usage("create", "Create a project"),
 				ox.Spec("[flags]"),
 				ox.Example("\n  # create a new project owned by login monalisa\n  gh project create --owner monalisa --title \"a new project\""),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("format", "Output format: {json}").
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q")).
@@ -884,7 +884,7 @@ func main() {
 				ox.Usage("delete", "Delete a project"),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # delete the current user's project \"1\"\n  gh project delete 1 --owner \"@me\""),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("format", "Output format: {json}").
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q")).
@@ -895,7 +895,7 @@ func main() {
 				ox.Usage("edit", "Edit a project"),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # edit the title of monalisa's project \"1\"\n  gh project edit 1 --owner monalisa --title \"New title\""),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("description", "New description of the project", ox.Short("d")).
 					String("format", "Output format: {json}").
@@ -910,7 +910,7 @@ func main() {
 				ox.Usage("field-create", "Create a field in a project"),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # create a field in the current user's project \"1\"\n  gh project field-create 1 --owner \"@me\" --name \"new field\" --data-type \"text\"\n  \n  # create a field with three options to select from for owner monalisa\n  gh project field-create 1 --owner monalisa --name \"new field\" --data-type \"SINGLE_SELECT\" --single-select-options \"one,two,three\""),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("data-type", "DataType of the new field.: {TEXT|SINGLE_SELECT|DATE|NUMBER}").
 					String("format", "Output format: {json}").
@@ -923,7 +923,7 @@ func main() {
 				ox.Banner("Delete a field in a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("field-delete", "Delete a field in a project"),
 				ox.Spec("[flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("format", "Output format: {json}").
 					String("id", "ID of the field to delete").
@@ -934,7 +934,7 @@ func main() {
 				ox.Usage("field-list", "List the fields in a project"),
 				ox.Spec("number [flags]"),
 				ox.Example("\n  # list fields in the current user's project \"1\"\n  gh project field-list 1 --owner \"@me\""),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("format", "Output format: {json}").
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q")).
@@ -946,7 +946,7 @@ func main() {
 				ox.Usage("item-add", "Add a pull request or an issue to a project"),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # add an item to monalisa's project \"1\"\n  gh project item-add 1 --owner monalisa --url https://github.com/monalisa/myproject/issues/23"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("format", "Output format: {json}").
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q")).
@@ -958,7 +958,7 @@ func main() {
 				ox.Usage("item-archive", "Archive an item in a project"),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # archive an item in the current user's project \"1\"\n  gh project item-archive 1 --owner \"@me\" --id <item-ID>"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("format", "Output format: {json}").
 					String("id", "ID of the item to archive").
@@ -971,7 +971,7 @@ func main() {
 				ox.Usage("item-create", "Create a draft issue item in a project"),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # create a draft issue in the current user's project \"1\"\n  gh project item-create 1 --owner \"@me\" --title \"new item\" --body \"new item body\""),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("body", "Body for the draft issue").
 					String("format", "Output format: {json}").
@@ -984,7 +984,7 @@ func main() {
 				ox.Usage("item-delete", "Delete an item from a project by ID"),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # delete an item in the current user's project \"1\"\n  gh project item-delete 1 --owner \"@me\" --id <item-ID>"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("format", "Output format: {json}").
 					String("id", "ID of the item to delete").
@@ -996,7 +996,7 @@ func main() {
 				ox.Usage("item-edit", "Edit an item in a project"),
 				ox.Spec("[flags]"),
 				ox.Example("\n  # edit an item's text field value\n  gh project item-edit --id <item-ID> --field-id <field-ID> --project-id <project-ID> --text \"new text\"\n  \n  # clear an item's field value\n  gh project item-edit --id <item-ID> --field-id <field-ID> --project-id <project-ID> --clear"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("body", "Body of the draft issue item").
 					Bool("clear", "Remove field value").
@@ -1017,7 +1017,7 @@ func main() {
 				ox.Usage("item-list", "List the items in a project"),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # list the items in the current users's project \"1\"\n  gh project item-list 1 --owner \"@me\""),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("format", "Output format: {json}").
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q")).
@@ -1029,7 +1029,7 @@ func main() {
 				ox.Usage("link", "Link a project to a repository or a team"),
 				ox.Spec("[<number>] [flag] [flags]"),
 				ox.Example("\n  # link monalisa's project 1 to her repository \"my_repo\"\n  gh project link 1 --owner monalisa --repo my_repo\n  \n  # link monalisa's organization's project 1 to her team \"my_team\"\n  gh project link 1 --owner my_organization --team my_team\n  \n  # link monalisa's project 1 to the repository of current directory if neither --repo nor --team is specified\n  gh project link 1"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("owner", "Login of the owner. Use \"@me\" for the current user.").
 					String("repo", "The repository to be linked to this project", ox.Short("R")).
@@ -1040,7 +1040,7 @@ func main() {
 				ox.Spec("[flags]"),
 				ox.Aliases("gh project ls"),
 				ox.Example("\n  # list the current user's projects\n  gh project list\n  \n  # list the projects for org github including closed projects\n  gh project list --owner github --closed"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("closed", "Include closed projects").
 					String("format", "Output format: {json}").
@@ -1054,7 +1054,7 @@ func main() {
 				ox.Usage("mark-template", "Mark a project as a template"),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # mark the github org's project \"1\" as a template\n  gh project mark-template 1 --owner \"github\"\n  \n  # unmark the github org's project \"1\" as a template\n  gh project mark-template 1 --owner \"github\" --undo"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("format", "Output format: {json}").
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q")).
@@ -1066,7 +1066,7 @@ func main() {
 				ox.Usage("unlink", "Unlink a project from a repository or a team"),
 				ox.Spec("[<number>] [flag] [flags]"),
 				ox.Example("\n  # unlink monalisa's project 1 from her repository \"my_repo\"\n  gh project unlink 1 --owner monalisa --repo my_repo\n  \n  # unlink monalisa's organization's project 1 from her team \"my_team\"\n  gh project unlink 1 --owner my_organization --team my_team\n  \n  # unlink monalisa's project 1 from the repository of current directory if neither --repo nor --team is specified\n  gh project unlink 1"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("owner", "Login of the owner. Use \"@me\" for the current user.").
 					String("repo", "The repository to be unlinked from this project", ox.Short("R")).
@@ -1076,7 +1076,7 @@ func main() {
 				ox.Usage("view", "View a project"),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # view the current user's project \"1\"\n  gh project view 1\n  \n  # open user monalisa's project \"1\" in the browser\n  gh project view 1 --owner monalisa --web"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("format", "Output format: {json}").
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q")).
@@ -1089,7 +1089,7 @@ func main() {
 			ox.Spec("<command> [flags]"),
 			ox.Sections("GENERAL COMMANDS", "TARGETED COMMANDS"),
 			ox.Section(0),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Sub(
 				ox.Banner("Create a new GitHub Release for a repository.\n\nA list of asset files may be given to upload to the new release. To define a\ndisplay label for an asset, append text starting with `#` after the file name.\n\nIf a matching git tag does not yet exist, one will automatically get created\nfrom the latest state of the default branch.\nUse `--target` to point to a different branch or commit for the automatic tag creation.\nUse `--verify-tag` to abort the release if the tag doesn't already exist.\nTo fetch the new tag locally after the release, do `git fetch --tags origin`.\n\nTo create a release from an annotated git tag, first create one locally with\ngit, push the tag to GitHub, then run this command.\nUse `--notes-from-tag` to automatically generate the release notes\nfrom the annotated git tag.\n\nWhen using automatically generated release notes, a release title will also be automatically\ngenerated unless a title was explicitly passed. Additional release notes can be prepended to\nautomatically generated notes by using the `--notes` flag."),
 				ox.Usage("create", "Create a new release"),
@@ -1097,7 +1097,7 @@ func main() {
 				ox.Aliases("gh release new"),
 				ox.Example("\n  Interactively create a release\n  $ gh release create\n  \n  Interactively create a release from specific tag\n  $ gh release create v1.2.3\n  \n  Non-interactively create a release\n  $ gh release create v1.2.3 --notes \"bugfix release\"\n  \n  Use automatically generated release notes\n  $ gh release create v1.2.3 --generate-notes\n  \n  Use release notes from a file\n  $ gh release create v1.2.3 -F release-notes.md\n  \n  Use annotated tag notes\n  $ gh release create v1.2.3 --notes-from-tag\n  \n  Don't mark the release as latest\n  $ gh release create v1.2.3 --latest=false \n  \n  Upload all tarballs in a directory as release assets\n  $ gh release create v1.2.3 ./dist/*.tgz\n  \n  Upload a release asset with a display label\n  $ gh release create v1.2.3 '/path/to/asset.zip#My display label'\n  \n  Create a release and start a discussion\n  $ gh release create v1.2.3 --discussion-category \"General\""),
 				ox.Section(0),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("discussion-category", "Start a discussion in the specified category").
 					Bool("draft", "Save the release as a draft instead of publishing it", ox.Short("d")).
@@ -1118,7 +1118,7 @@ func main() {
 				ox.Spec("[flags]"),
 				ox.Aliases("gh release ls"),
 				ox.Section(0),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("exclude-drafts", "Exclude draft releases").
 					Bool("exclude-pre-releases", "Exclude pre-releases").
@@ -1133,7 +1133,7 @@ func main() {
 				ox.Usage("delete", "Delete a release"),
 				ox.Spec("<tag> [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("cleanup-tag", "Delete the specified tag in addition to its release").
 					Bool("yes", "Skip the confirmation prompt", ox.Short("y")).
@@ -1143,7 +1143,7 @@ func main() {
 				ox.Usage("delete-asset", "Delete an asset from a release"),
 				ox.Spec("<tag> <asset-name> [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("yes", "Skip the confirmation prompt", ox.Short("y")).
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R")),
@@ -1153,7 +1153,7 @@ func main() {
 				ox.Spec("[<tag>] [flags]"),
 				ox.Example("\n  # download all assets from a specific release\n  $ gh release download v1.2.3\n  \n  # download only Debian packages for the latest release\n  $ gh release download --pattern '*.deb'\n  \n  # specify multiple file patterns\n  $ gh release download -p '*.deb' -p '*.rpm'\n  \n  # download the archive of the source code for a release\n  $ gh release download v1.2.3 --archive=zip"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("archive", "Download the source code archive in the specified format (zip or tar.gz)", ox.Spec("format"), ox.Short("A")).
 					Bool("clobber", "Overwrite existing files of the same name").
@@ -1168,7 +1168,7 @@ func main() {
 				ox.Spec("<tag>"),
 				ox.Example("\n  Publish a release that was previously a draft\n  $ gh release edit v1.0 --draft=false\n  \n  Update the release notes from the content of a file\n  $ gh release edit v1.0 --notes-file /path/to/release_notes.md"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("discussion-category", "Start a discussion in the specified category when publishing a draft").
 					Bool("draft", "Save the release as a draft instead of publishing it").
@@ -1186,7 +1186,7 @@ func main() {
 				ox.Usage("upload", "Upload assets to a release"),
 				ox.Spec("<tag> <files>... [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("clobber", "Overwrite existing assets of the same name").
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R")),
@@ -1195,7 +1195,7 @@ func main() {
 				ox.Usage("view", "View information about a release"),
 				ox.Spec("[<tag>] [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q")).
 					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT)).
@@ -1211,7 +1211,7 @@ func main() {
 			ox.Example("\n  $ gh repo create\n  $ gh repo clone cli/cli\n  $ gh repo view --web"),
 			ox.Sections("GENERAL COMMANDS", "TARGETED COMMANDS"),
 			ox.Section(0),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Sub(
 				ox.Banner("Create a new GitHub repository.\n\nTo create a repository interactively, use `gh repo create` with no arguments.\n\nTo create a remote repository non-interactively, supply the repository name and one of `--public`, `--private`, or `--internal`.\nPass `--clone` to clone the new repository locally.\n\nIf the `OWNER/` portion of the `OWNER/REPO` name argument is omitted, it\ndefaults to the name of the authenticating user.\n\nTo create a remote repository from an existing local repository, specify the source directory with `--source`.\nBy default, the remote repository name will be the name of the source directory.\n\nPass `--push` to push any local commits to the new repository. If the repo is bare, this will mirror all refs.\n\nFor language or platform .gitignore templates to use with `--gitignore`, <https://github.com/github/gitignore>.\n\nFor license keywords to use with `--license`, run `gh repo license list` or visit <https://choosealicense.com>."),
 				ox.Usage("create", "Create a new repository"),
@@ -1219,7 +1219,7 @@ func main() {
 				ox.Aliases("gh repo new"),
 				ox.Example("\n  # create a repository interactively\n  gh repo create\n  \n  # create a new remote repository and clone it locally\n  gh repo create my-project --public --clone\n  \n  # create a new remote repository in a different organization\n  gh repo create my-org/my-project --public\n  \n  # create a remote repository from the current directory\n  gh repo create my-project --private --source=. --remote=upstream"),
 				ox.Section(0),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("add-readme", "Add a README file to the new repository").
 					Bool("clone", "Clone the new repository to the current directory", ox.Short("c")).
@@ -1244,7 +1244,7 @@ func main() {
 				ox.Spec("[<owner>] [flags]"),
 				ox.Aliases("gh repo ls"),
 				ox.Section(0),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("archived", "Show only archived repositories").
 					Bool("fork", "Show only forks").
@@ -1262,7 +1262,7 @@ func main() {
 				ox.Usage("archive", "Archive a repository"),
 				ox.Spec("[<repository>] [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("yes", "Skip the confirmation prompt", ox.Short("y")),
 			), ox.Sub(
@@ -1271,7 +1271,7 @@ func main() {
 				ox.Spec("<repository> [<directory>] [-- <gitflags>...]"),
 				ox.Example("\n  # Clone a repository from a specific org\n  $ gh repo clone cli/cli\n  \n  # Clone a repository from your own account\n  $ gh repo clone myrepo\n  \n  # Clone a repo, overriding git protocol configuration\n  $ gh repo clone https://github.com/cli/cli\n  $ gh repo clone git@github.com:cli/cli.git\n  \n  # Clone a repository to a custom directory\n  $ gh repo clone cli/cli workspace/cli\n  \n  # Clone a repository with additional git clone flags\n  $ gh repo clone cli/cli -- --depth=1"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("upstream-remote-name", "Upstream remote name when cloning a fork", ox.Default("upstream"), ox.Short("u")),
 			), ox.Sub(
@@ -1279,7 +1279,7 @@ func main() {
 				ox.Usage("delete", "Delete a repository"),
 				ox.Spec("[<repository>] [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("yes", "confirm deletion without prompting"),
 			), ox.Sub(
@@ -1287,13 +1287,13 @@ func main() {
 				ox.Usage("deploy-key", "Manage deploy keys in a repository"),
 				ox.Spec("<command> [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Sub(
 					ox.Banner("Add a deploy key to a GitHub repository.\n\nNote that any key added by gh will be associated with the current authentication token.\nIf you de-authorize the GitHub CLI app or authentication token from your account, any\ndeploy keys added by GitHub CLI will be removed as well."),
 					ox.Usage("add", "Add a deploy key to a GitHub repository"),
 					ox.Spec("<key-file> [flags]"),
 					ox.Example("\n  # generate a passwordless SSH key and add it as a deploy key to a repository\n  $ ssh-keygen -t ed25519 -C \"my description\" -N \"\" -f ~/.ssh/gh-test\n  $ gh repo deploy-key add ~/.ssh/gh-test.pub"),
-					ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+					ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 					ox.Flags().
 						Bool("allow-write", "Allow write access for the key", ox.Short("w")).
 						String("title", "Title of the new key", ox.Short("t")).
@@ -1302,7 +1302,7 @@ func main() {
 					ox.Banner("Delete a deploy key from a GitHub repository"),
 					ox.Usage("delete", "Delete a deploy key from a GitHub repository"),
 					ox.Spec("<key-id> [flags]"),
-					ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+					ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 					ox.Flags().
 						String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R")),
 				), ox.Sub(
@@ -1310,7 +1310,7 @@ func main() {
 					ox.Usage("list", "List deploy keys in a GitHub repository"),
 					ox.Spec("[flags]"),
 					ox.Aliases("gh repo deploy-key ls"),
-					ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+					ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 					ox.Flags().
 						String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q")).
 						Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT)).
@@ -1324,7 +1324,7 @@ func main() {
 				ox.Spec("[<repository>] [flags]"),
 				ox.Example("\n  # enable issues and wiki\n  gh repo edit --enable-issues --enable-wiki\n  \n  # disable projects\n  gh repo edit --enable-projects=false"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("accept-visibility-change-consequences", "Accept the consequences of changing the repository visibility").
 					Slice("add-topic", "Add repository topic", ox.Elem(ox.StringT)).
@@ -1350,7 +1350,7 @@ func main() {
 				ox.Usage("fork", "Create a fork of a repository"),
 				ox.Spec("[<repository>] [-- <gitflags>...] [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("clone", "Clone the fork").
 					Bool("default-branch-only", "Only include the default branch in the fork").
@@ -1363,37 +1363,37 @@ func main() {
 				ox.Usage("gitignore", "List and view available repository gitignore templates"),
 				ox.Spec("<command> [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Sub(
 					ox.Banner("List available repository gitignore templates"),
 					ox.Usage("list", "List available repository gitignore templates"),
 					ox.Spec("[flags]"),
 					ox.Aliases("gh repo gitignore ls"),
-					ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+					ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				), ox.Sub(
 					ox.Banner("View an available repository `.gitignore` template.\n\n`<template>` is a case-sensitive `.gitignore` template name.\n\nFor a list of available templates, run `gh repo gitignore list`."),
 					ox.Usage("view", "View an available repository gitignore template"),
 					ox.Spec("<template> [flags]"),
 					ox.Example("\n  # View the Go gitignore template\n  gh repo gitignore view Go\n  \n  # View the Python gitignore template\n  gh repo gitignore view Python\n  \n  # Create a new .gitignore file using the Go template\n  gh repo gitignore view Go > .gitignore\n  \n  # Create a new .gitignore file using the Python template\n  gh repo gitignore view Python > .gitignore"),
-					ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+					ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				)), ox.Sub(
 				ox.Banner("Explore repository licenses"),
 				ox.Usage("license", "Explore repository licenses"),
 				ox.Spec("<command> [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Sub(
 					ox.Banner("List common repository licenses.\n\nFor even more licenses, visit <https://choosealicense.com/appendix>"),
 					ox.Usage("list", "List common repository licenses"),
 					ox.Spec("[flags]"),
 					ox.Aliases("gh repo license ls"),
-					ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+					ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				), ox.Sub(
 					ox.Banner("View a specific repository license by license key or SPDX ID.\n\nRun `gh repo license list` to see available commonly used licenses. For even more licenses, visit <https://choosealicense.com/appendix>."),
 					ox.Usage("view", "View a specific repository license"),
 					ox.Spec("{<license-key> | <SPDX-ID>} [flags]"),
 					ox.Example("\n  # View the MIT license from SPDX ID\n  gh repo license view MIT\n  \n  # View the MIT license from license key\n  gh repo license view mit\n  \n  # View the GNU AGPL-3.0 license from SPDX ID\n  gh repo license view AGPL-3.0\n  \n  # View the GNU AGPL-3.0 license from license key\n  gh repo license view agpl-3.0\n  \n  # Create a LICENSE.md with the MIT license\n  gh repo license view MIT > LICENSE.md"),
-					ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+					ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 					ox.Flags().
 						Bool("web", "Open https://choosealicense.com/ in the browser", ox.Short("w")),
 				)), ox.Sub(
@@ -1401,7 +1401,7 @@ func main() {
 				ox.Usage("rename", "Rename a repository"),
 				ox.Spec("[<new-name>] [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R")).
 					Bool("yes", "Skip the confirmation prompt", ox.Short("y")),
@@ -1411,7 +1411,7 @@ func main() {
 				ox.Spec("[<repository>] [flags]"),
 				ox.Example("\n  Interactively select a default repository:\n  $ gh repo set-default\n  \n  Set a repository explicitly:\n  $ gh repo set-default owner/repo\n  \n  View the current default repository:\n  $ gh repo set-default --view\n  \n  Show more repository options in the interactive picker:\n  $ git remote add newrepo https://github.com/owner/repo\n  $ gh repo set-default"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("unset", "unset the current default repository", ox.Short("u")).
 					Bool("view", "view the current default repository", ox.Short("v")),
@@ -1421,7 +1421,7 @@ func main() {
 				ox.Spec("[<destination-repository>] [flags]"),
 				ox.Example("\n  # Sync local repository from remote parent\n  $ gh repo sync\n  \n  # Sync local repository from remote parent on specific branch\n  $ gh repo sync --branch v1\n  \n  # Sync remote fork from its parent\n  $ gh repo sync owner/cli-fork\n  \n  # Sync remote repository from another remote repository\n  $ gh repo sync owner/repo --source owner2/repo2"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("branch", "Branch to sync", ox.Default("[default branch]"), ox.Short("b")).
 					Bool("force", "Hard reset the branch of the destination repository to match the source repository").
@@ -1431,7 +1431,7 @@ func main() {
 				ox.Usage("unarchive", "Unarchive a repository"),
 				ox.Spec("[<repository>] [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("yes", "Skip the confirmation prompt", ox.Short("y")),
 			), ox.Sub(
@@ -1439,7 +1439,7 @@ func main() {
 				ox.Usage("view", "View a repository"),
 				ox.Spec("[<repository>] [flags]"),
 				ox.Section(1),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("branch", "View a specific branch of the repository", ox.Short("b")).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q")).
@@ -1452,13 +1452,13 @@ func main() {
 			ox.Spec("<command> [flags]"),
 			ox.Example("\n  $ gh cache list\n  $ gh cache delete --all"),
 			ox.Section(1),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Sub(
 				ox.Banner("Delete GitHub Actions caches.\n\nDeletion requires authorization with the `repo` scope."),
 				ox.Usage("delete", "Delete GitHub Actions caches"),
 				ox.Spec("[<cache-id>| <cache-key> | --all] [flags]"),
 				ox.Example("\n  # Delete a cache by id\n  $ gh cache delete 1234\n  \n  # Delete a cache by key\n  $ gh cache delete cache-key\n  \n  # Delete a cache by id in a specific repo\n  $ gh cache delete 1234 --repo cli/cli\n  \n  # Delete all caches\n  $ gh cache delete --all"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("all", "Delete all caches", ox.Short("a")).
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R")),
@@ -1468,7 +1468,7 @@ func main() {
 				ox.Spec("[flags]"),
 				ox.Aliases("gh cache ls"),
 				ox.Example("\n  # List caches for current repository\n  $ gh cache list\n  \n  # List caches for specific repository\n  $ gh cache list --repo cli/cli\n  \n  # List caches sorted by least recently accessed\n  $ gh cache list --sort last_accessed_at --order asc\n  \n  # List caches that have keys matching a prefix (or that match exactly)\n  $ gh cache list --key key-prefix\n  \n  # To list caches for a specific branch, replace <branch-name> with the actual branch name\n  $ gh cache list --ref refs/heads/<branch-name>\n  \n  # To list caches for a specific pull request, replace <pr-number> with the actual pull request number\n  $ gh cache list --ref refs/pull/<pr-number>/merge"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q")).
 					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT)).
@@ -1486,12 +1486,12 @@ func main() {
 			ox.Usage("run", "View details about workflow runs"),
 			ox.Spec("<command> [flags]"),
 			ox.Section(1),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Sub(
 				ox.Banner("Cancel a workflow run"),
 				ox.Usage("cancel", "Cancel a workflow run"),
 				ox.Spec("[<run-id>] [flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R")),
 			), ox.Sub(
@@ -1499,7 +1499,7 @@ func main() {
 				ox.Usage("delete", "Delete a workflow run"),
 				ox.Spec("[<run-id>] [flags]"),
 				ox.Example("\n  # Interactively select a run to delete\n  $ gh run delete\n  \n  # Delete a specific run\n  $ gh run delete 12345"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R")),
 			), ox.Sub(
@@ -1507,7 +1507,7 @@ func main() {
 				ox.Usage("download", "Download artifacts generated by a workflow run"),
 				ox.Spec("[<run-id>] [flags]"),
 				ox.Example("\n  # Download all artifacts generated by a workflow run\n  $ gh run download <run-id>\n  \n  # Download a specific artifact within a run\n  $ gh run download <run-id> -n <name>\n  \n  # Download specific artifacts across all runs in a repository\n  $ gh run download -n <name1> -n <name2>\n  \n  # Select artifacts to download interactively\n  $ gh run download"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("dir", "The directory to download artifacts into", ox.Default("."), ox.Short("D")).
 					Slice("name", "Download artifacts that match any of the given names", ox.Elem(ox.StringT), ox.Short("n")).
@@ -1518,7 +1518,7 @@ func main() {
 				ox.Usage("list", "List recent workflow runs"),
 				ox.Spec("[flags]"),
 				ox.Aliases("gh run ls"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("all", "Include disabled workflows", ox.Short("a")).
 					String("branch", "Filter runs by branch", ox.Short("b")).
@@ -1537,7 +1537,7 @@ func main() {
 				ox.Banner("Rerun an entire run, only failed jobs, or a specific job from a run.\n\nNote that due to historical reasons, the `--job` flag may not take what you expect.\nSpecifically, when navigating to a job in the browser, the URL looks like this:\n`https://github.com/<owner>/<repo>/actions/runs/<run-id>/jobs/<number>`.\n\nHowever, this `<number>` should not be used with the `--job` flag and will result in the\nAPI returning `404 NOT FOUND`. Instead, you can get the correct job IDs using the following command:\n\n\tgh run view <run-id> --json jobs --jq '.jobs[] | {name, databaseId}'\n\nYou will need to use databaseId field for triggering job re-runs."),
 				ox.Usage("rerun", "Rerun a run"),
 				ox.Spec("[<run-id>] [flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("debug", "Rerun with debug logging", ox.Short("d")).
 					Bool("failed", "Rerun only failed jobs, including dependencies").
@@ -1548,7 +1548,7 @@ func main() {
 				ox.Usage("view", "View a summary of a workflow run"),
 				ox.Spec("[<run-id>] [flags]"),
 				ox.Example("\n  # Interactively select a run to view, optionally selecting a single job\n  $ gh run view\n  \n  # View a specific run\n  $ gh run view 12345\n  \n  # View a specific run with specific attempt number\n  $ gh run view 12345 --attempt 3\n  \n  # View a specific job within a run\n  $ gh run view --job 456789\n  \n  # View the full log for a specific job\n  $ gh run view --log --job 456789\n  \n  # Exit non-zero if a run failed\n  $ gh run view 0451 --exit-status && echo \"run pending or passed\""),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Uint("attempt", "The attempt number of the workflow run", ox.Short("a")).
 					Bool("exit-status", "Exit with non-zero status if run failed").
@@ -1566,7 +1566,7 @@ func main() {
 				ox.Usage("watch", "Watch a run until it completes, showing its progress"),
 				ox.Spec("<run-id> [flags]"),
 				ox.Example("\n  # Watch a run until it's done\n  gh run watch\n  \n  # Run some other command when the run is finished\n  gh run watch && notify-send 'run is done!'"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("exit-status", "Exit with non-zero status if run fails").
 					Int("interval", "Refresh interval in seconds", ox.Default("3"), ox.Short("i")).
@@ -1578,19 +1578,19 @@ func main() {
 			ox.Usage("workflow", "View details about GitHub Actions workflows"),
 			ox.Spec("<command> [flags]"),
 			ox.Section(1),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Sub(
 				ox.Banner("Disable a workflow, preventing it from running or showing up when listing workflows."),
 				ox.Usage("disable", "Disable a workflow"),
 				ox.Spec("[<workflow-id> | <workflow-name>] [flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R")),
 			), ox.Sub(
 				ox.Banner("Enable a workflow, allowing it to be run and show up when listing workflows."),
 				ox.Usage("enable", "Enable a workflow"),
 				ox.Spec("[<workflow-id> | <workflow-name>] [flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R")),
 			), ox.Sub(
@@ -1598,7 +1598,7 @@ func main() {
 				ox.Usage("list", "List workflows"),
 				ox.Spec("[flags]"),
 				ox.Aliases("gh workflow ls"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("all", "Include disabled workflows", ox.Short("a")).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q")).
@@ -1611,7 +1611,7 @@ func main() {
 				ox.Usage("run", "Run a workflow by creating a workflow_dispatch event"),
 				ox.Spec("[<workflow-id> | <workflow-name>] [flags]"),
 				ox.Example("\n  # Have gh prompt you for what workflow you'd like to run and interactively collect inputs\n  $ gh workflow run\n  \n  # Run the workflow file 'triage.yml' at the remote's default branch\n  $ gh workflow run triage.yml\n  \n  # Run the workflow file 'triage.yml' at a specified ref\n  $ gh workflow run triage.yml --ref my-branch\n  \n  # Run the workflow file 'triage.yml' with command line inputs\n  $ gh workflow run triage.yml -f name=scully -f greeting=hello\n  \n  # Run the workflow file 'triage.yml' with JSON via standard input\n  $ echo '{\"name\":\"scully\", \"greeting\":\"hello\"}' | gh workflow run triage.yml --json"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Map("field", "Add a string parameter in key=value format, respecting @ syntax (see \"gh help api\").", ox.Spec("key=value"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Short("F")).
 					Bool("json", "Read workflow inputs as JSON via STDIN").
@@ -1623,7 +1623,7 @@ func main() {
 				ox.Usage("view", "View the summary of a workflow"),
 				ox.Spec("[<workflow-id> | <workflow-name> | <filename>] [flags]"),
 				ox.Example("\n  # Interactively select a workflow to view\n  $ gh workflow view\n  \n  # View a specific workflow\n  $ gh workflow view 0451"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("ref", "The branch or tag name which contains the version of the workflow file you'd like to view", ox.Short("r")).
 					Bool("web", "Open workflow in the browser", ox.Short("w")).
@@ -1636,7 +1636,7 @@ func main() {
 			ox.Usage("co", "Alias for \"pr checkout\""),
 			ox.Spec("gh pr checkout {<number> | <url> | <branch>} [flags]"),
 			ox.Section(2),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Flags().
 				String("branch", "Local branch name to use", ox.Default("[the name of the head branch]"), ox.Short("b")).
 				Bool("detach", "Checkout PR with a detached HEAD").
@@ -1648,12 +1648,12 @@ func main() {
 			ox.Usage("alias", "Create command shortcuts"),
 			ox.Spec("<command> [flags]"),
 			ox.Section(3),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Sub(
 				ox.Banner("Delete set aliases"),
 				ox.Usage("delete", "Delete set aliases"),
 				ox.Spec("{<alias> | --all} [flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("all", "Delete all aliases"),
 			), ox.Sub(
@@ -1661,7 +1661,7 @@ func main() {
 				ox.Usage("import", "Import aliases from a YAML file"),
 				ox.Spec("[<filename> | -] [flags]"),
 				ox.Example("\n  # Import aliases from a file\n  $ gh alias import aliases.yml\n  \n  # Import aliases from standard input\n  $ gh alias import -"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("clobber", "Overwrite existing aliases of the same name"),
 			), ox.Sub(
@@ -1669,13 +1669,13 @@ func main() {
 				ox.Usage("list", "List your aliases"),
 				ox.Spec("[flags]"),
 				ox.Aliases("gh alias ls"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			), ox.Sub(
 				ox.Banner("Define a word that will expand to a full gh command when invoked.\n\nThe expansion may specify additional arguments and flags. If the expansion includes\npositional placeholders such as `$1`, extra arguments that follow the alias will be\ninserted appropriately. Otherwise, extra arguments will be appended to the expanded\ncommand.\n\nUse `-` as expansion argument to read the expansion string from standard input. This\nis useful to avoid quoting issues when defining expansions.\n\nIf the expansion starts with `!` or if `--shell` was given, the expansion is a shell\nexpression that will be evaluated through the `sh` interpreter when the alias is\ninvoked. This allows for chaining multiple commands via piping and redirection."),
 				ox.Usage("set", "Create a shortcut for a gh command"),
 				ox.Spec("<alias> <expansion> [flags]"),
 				ox.Example("\n  # note: Command Prompt on Windows requires using double quotes for arguments\n  $ gh alias set pv 'pr view'\n  $ gh pv -w 123  #=> gh pr view -w 123\n  \n  $ gh alias set bugs 'issue list --label=bugs'\n  $ gh bugs\n  \n  $ gh alias set homework 'issue list --assignee @me'\n  $ gh homework\n  \n  $ gh alias set 'issue mine' 'issue list --mention @me'\n  $ gh issue mine\n  \n  $ gh alias set epicsBy 'issue list --author=\"$1\" --label=\"epic\"'\n  $ gh epicsBy vilmibm  #=> gh issue list --author=\"vilmibm\" --label=\"epic\"\n  \n  $ gh alias set --shell igrep 'gh issue list --label=\"$1\" | grep \"$2\"'\n  $ gh igrep epic foo  #=> gh issue list --label=\"epic\" | grep \"foo\""),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("clobber", "Overwrite existing aliases of the same name").
 					Bool("shell", "Declare an alias to be passed through a shell interpreter", ox.Short("s")),
@@ -1685,7 +1685,7 @@ func main() {
 			ox.Spec("<endpoint> [flags]"),
 			ox.Example("\n  # list releases in the current repository\n  $ gh api repos/{owner}/{repo}/releases\n  \n  # post an issue comment\n  $ gh api repos/{owner}/{repo}/issues/123/comments -f body='Hi from CLI'\n  \n  # post nested parameter read from a file\n  $ gh api gists -F 'files[myfile.txt][content]=@myfile.txt'\n  \n  # add parameters to a GET request\n  $ gh api -X GET search/issues -f q='repo:cli/cli is:open remote'\n  \n  # set a custom HTTP header\n  $ gh api -H 'Accept: application/vnd.github.v3.raw+json' ...\n  \n  # opt into GitHub API previews\n  $ gh api --preview baptiste,nebula ...\n  \n  # print only specific fields from the response\n  $ gh api repos/{owner}/{repo}/issues --jq '.[].title'\n  \n  # use a template for the output\n  $ gh api repos/{owner}/{repo}/issues --template \\\n    '{{range .}}{{.title}} ({{.labels | pluck \"name\" | join \", \" | color \"yellow\"}}){{\"\\n\"}}{{end}}'\n  \n  # update allowed values of the \"environment\" custom property in a deeply nested array\n  gh api -X PATCH /orgs/{org}/properties/schema \\\n     -F 'properties[][property_name]=environment' \\\n     -F 'properties[][default_value]=production' \\\n     -F 'properties[][allowed_values][]=staging' \\\n     -F 'properties[][allowed_values][]=production'\n  \n  # list releases with GraphQL\n  $ gh api graphql -F owner='{owner}' -F name='{repo}' -f query='\n    query($name: String!, $owner: String!) {\n      repository(owner: $owner, name: $name) {\n        releases(last: 3) {\n          nodes { tagName }\n        }\n      }\n    }\n  '\n  \n  # list all repositories for a user\n  $ gh api graphql --paginate -f query='\n    query($endCursor: String) {\n      viewer {\n        repositories(first: 100, after: $endCursor) {\n          nodes { nameWithOwner }\n          pageInfo {\n            hasNextPage\n            endCursor\n          }\n        }\n      }\n    }\n  '\n  \n  # get the percentage of forks for the current user\n  $ gh api graphql --paginate --slurp -f query='\n    query($endCursor: String) {\n      viewer {\n        repositories(first: 100, after: $endCursor) {\n          nodes { isFork }\n          pageInfo {\n            hasNextPage\n            endCursor\n          }\n        }\n      }\n    }\n  ' | jq 'def count(e): reduce e as $_ (0;.+1);\n  [.[].data.viewer.repositories.nodes[]] as $r | count(select($r[].isFork))/count($r[])'"),
 			ox.Section(3),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Flags().
 				Duration("cache", "Cache the response, e.g. \"3600s\", \"60m\", \"1h\"").
 				Map("field", "Add a typed parameter in key=value format", ox.Spec("key=value"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Short("F")).
@@ -1708,13 +1708,13 @@ func main() {
 			ox.Spec("[subcommand] [flags]"),
 			ox.Aliases("gh at"),
 			ox.Section(3),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Sub(
 				ox.Banner("### NOTE: This feature is currently in public preview, and subject to change.\n\nDownload attestations associated with an artifact for offline use.\n\nThe command requires either:\n* a file path to an artifact, or\n* a container image URI (e.g. `oci://<image-uri>`)\n  * (note that if you provide an OCI URL, you must already be authenticated with\nits container registry)\n\nIn addition, the command requires either:\n* the `--repo` flag (e.g. --repo github/example).\n* the `--owner` flag (e.g. --owner github), or\n\nThe `--repo` flag value must match the name of the GitHub repository\nthat the artifact is linked with.\n\nThe `--owner` flag value must match the name of the GitHub organization\nthat the artifact's linked repository belongs to.\n\nAny associated bundle(s) will be written to a file in the\ncurrent directory named after the artifact's digest. For example, if the\ndigest is \"sha256:1234\", the file will be named \"sha256:1234.jsonl\"."),
 				ox.Usage("download", "Download an artifact's attestations for offline use"),
 				ox.Spec("[<file-path> | oci://<image-uri>] [--owner | --repo] [flags]"),
 				ox.Example("\n  # Download attestations for a local artifact linked with an organization\n  $ gh attestation download example.bin -o github\n  \n  # Download attestations for a local artifact linked with a repository\n  $ gh attestation download example.bin -R github/example\n  \n  # Download attestations for an OCI image linked with an organization\n  $ gh attestation download oci://example.com/foo/bar:latest -o github"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("digest-alg", "The algorithm used to compute a digest of the artifact: {sha256|sha512}", ox.Default("sha256"), ox.Short("d")).
 					String("hostname", "Configure host to use").
@@ -1727,7 +1727,7 @@ func main() {
 				ox.Usage("trusted-root", "Output trusted_root.jsonl contents, likely for offline verification"),
 				ox.Spec("[--tuf-url <url> --tuf-root <file-path>] [--verify-only] [flags]"),
 				ox.Example("\n  # Get a trusted_root.jsonl for both Sigstore Public Good and GitHub's instance\n  gh attestation trusted-root"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("hostname", "Configure host to use").
 					String("tuf-root", "Path to the TUF root.json file on disk").
@@ -1738,7 +1738,7 @@ func main() {
 				ox.Usage("verify", "Verify an artifact's integrity using attestations"),
 				ox.Spec("[<file-path> | oci://<image-uri>] [--owner | --repo] [flags]"),
 				ox.Example("\n  # Verify an artifact linked with a repository\n  $ gh attestation verify example.bin --repo github/example\n  \n  # Verify an artifact linked with an organization\n  $ gh attestation verify example.bin --owner github\n  \n  # Verify an artifact and output the full verification result\n  $ gh attestation verify example.bin --owner github --format json\n  \n  # Verify an OCI image using attestations stored on disk\n  $ gh attestation verify oci://<image-uri> --owner github --bundle sha256:foo.jsonl\n  \n  # Verify an artifact signed with a reusable workflow\n  $ gh attestation verify example.bin --owner github --signer-repo actions/example"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("bundle", "Path to bundle on disk, either a single bundle in a JSON file or a JSON lines file with multiple bundles", ox.Short("b")).
 					Bool("bundle-from-oci", "When verifying an OCI image, fetch the attestation bundle from the OCI registry instead of from GitHub").
@@ -1764,19 +1764,19 @@ func main() {
 			ox.Usage("config", "Manage configuration for gh"),
 			ox.Spec("<command> [flags]"),
 			ox.Section(3),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Sub(
 				ox.Banner("Clear the cli cache"),
 				ox.Usage("clear-cache", "Clear the cli cache"),
 				ox.Spec("[flags]"),
 				ox.Example("\n  # Clear the cli cache\n  $ gh config clear-cache"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			), ox.Sub(
 				ox.Banner("Print the value of a given configuration key"),
 				ox.Usage("get", "Print the value of a given configuration key"),
 				ox.Spec("<key> [flags]"),
 				ox.Example("\n  $ gh config get git_protocol\n  https"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("host", "Get per-host setting", ox.Short("h")),
 			), ox.Sub(
@@ -1784,7 +1784,7 @@ func main() {
 				ox.Usage("list", "Print a list of configuration keys and values"),
 				ox.Spec("[flags]"),
 				ox.Aliases("gh config ls"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("host", "Get per-host configuration", ox.Short("h")),
 			), ox.Sub(
@@ -1792,7 +1792,7 @@ func main() {
 				ox.Usage("set", "Update configuration with a value for the given key"),
 				ox.Spec("<key> <value> [flags]"),
 				ox.Example("\n  $ gh config set editor vim\n  $ gh config set editor \"code --wait\"\n  $ gh config set git_protocol ssh --host github.com\n  $ gh config set prompt disabled"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("host", "Set per-host setting", ox.Short("h")),
 			)), ox.Sub(
@@ -1801,12 +1801,12 @@ func main() {
 			ox.Spec("[flags]"),
 			ox.Aliases("s", "gh ext"),
 			ox.Section(3),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Sub(
 				ox.Banner("This command will take over your terminal and run a fully interactive\ninterface for browsing, adding, and removing gh extensions. A terminal\nwidth greater than 100 columns is recommended.\n\nTo learn how to control this interface, press `?` after running to see\nthe help text.\n\nPress `q` to quit.\n\nRunning this command with `--single-column` should make this command\nmore intelligible for users who rely on assistive technology like screen\nreaders or high zoom.\n\nFor a more traditional way to discover extensions, see:\n\n\tgh ext search\n\nalong with `gh ext install`, `gh ext remove`, and `gh repo view`."),
 				ox.Usage("browse", "Enter a UI for browsing, adding, and removing extensions"),
 				ox.Spec("[flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("debug", "log to /tmp/extBrowse-*").
 					Bool("single-column", "Render TUI with only one column of text", ox.Short("s")),
@@ -1815,7 +1815,7 @@ func main() {
 				ox.Usage("create", "Create a new extension"),
 				ox.Spec("[<name>] [flags]"),
 				ox.Example("\n  # Use interactively\n  gh extension create\n  \n  # Create a script-based extension\n  gh extension create foobar\n  \n  # Create a Go extension\n  gh extension create --precompiled=go foobar\n  \n  # Create a non-Go precompiled extension\n  gh extension create --precompiled=other foobar"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("precompiled", "Create a precompiled extension. Possible values: go, other"),
 			), ox.Sub(
@@ -1823,13 +1823,13 @@ func main() {
 				ox.Usage("exec", "Execute an installed extension"),
 				ox.Spec("<name> [args] [flags]"),
 				ox.Example("\n  # execute a label extension instead of the core gh label command\n  $ gh extension exec label"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			), ox.Sub(
 				ox.Banner("Install a GitHub repository locally as a GitHub CLI extension.\n\nThe repository argument can be specified in `OWNER/REPO` format as well as a full URL.\nThe URL format is useful when the repository is not hosted on github.com.\n\nTo install an extension in development from the current directory, use `.` as the\nvalue of the repository argument.\n\nFor the list of available extensions, see <https://github.com/topics/gh-extension>."),
 				ox.Usage("install", "Install a gh extension from a repository"),
 				ox.Spec("<repository> [flags]"),
 				ox.Example("\n  $ gh extension install owner/gh-extension\n  $ gh extension install https://git.example.com/owner/gh-extension\n  $ gh extension install ."),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("force", "force upgrade extension, or ignore if latest already installed").
 					String("pin", "pin extension to a release tag or commit ref"),
@@ -1838,18 +1838,18 @@ func main() {
 				ox.Usage("list", "List installed extension commands"),
 				ox.Spec("[flags]"),
 				ox.Aliases("gh ext ls", "gh extension ls", "gh extensions ls"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			), ox.Sub(
 				ox.Banner("Remove an installed extension"),
 				ox.Usage("remove", "Remove an installed extension"),
 				ox.Spec("<name> [flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			), ox.Sub(
 				ox.Banner("Search for gh extensions.\n\nWith no arguments, this command prints out the first 30 extensions\navailable to install sorted by number of stars. More extensions can\nbe fetched by specifying a higher limit with the `--limit` flag.\n\nWhen connected to a terminal, this command prints out three columns.\nThe first has a ✓ if the extension is already installed locally. The\nsecond is the full name of the extension repository in `OWNER/REPO`\nformat. The third is the extension's description.\n\nWhen not connected to a terminal, the ✓ character is rendered as the\nword \"installed\" but otherwise the order and content of the columns\nare the same.\n\nThis command behaves similarly to `gh search repos` but does not\nsupport as many search qualifiers. For a finer grained search of\nextensions, try using:\n\n\tgh search repos --topic \"gh-extension\"\n\nand adding qualifiers as needed. See `gh help search repos` to learn\nmore about repository search.\n\nFor listing just the extensions that are already installed locally,\nsee:\n\n\tgh ext list\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("search", "Search extensions to the GitHub CLI"),
 				ox.Spec("[<query>] [flags]"),
 				ox.Example("\n  # List the first 30 extensions sorted by star count, descending\n  $ gh ext search\n  \n  # List more extensions\n  $ gh ext search --limit 300\n  \n  # List extensions matching the term \"branch\"\n  $ gh ext search branch\n  \n  # List extensions owned by organization \"github\"\n  $ gh ext search --owner github\n  \n  # List extensions, sorting by recently updated, ascending\n  $ gh ext search --sort updated --order asc\n  \n  # List extensions, filtering by license\n  $ gh ext search --license MIT\n  \n  # Open search results in the browser\n  $ gh ext search -w"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q")).
 					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT)).
@@ -1864,7 +1864,7 @@ func main() {
 				ox.Banner("Upgrade installed extensions"),
 				ox.Usage("upgrade", "Upgrade installed extensions"),
 				ox.Spec("{<name> | --all} [flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("all", "Upgrade all extensions").
 					Bool("dry-run", "Only display upgrades").
@@ -1874,19 +1874,19 @@ func main() {
 			ox.Usage("gpg-key", "Manage GPG keys"),
 			ox.Spec("<command> [flags]"),
 			ox.Section(3),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Sub(
 				ox.Banner("Add a GPG key to your GitHub account"),
 				ox.Usage("add", "Add a GPG key to your GitHub account"),
 				ox.Spec("[<key-file>] [flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("title", "Title for the new key", ox.Short("t")),
 			), ox.Sub(
 				ox.Banner("Delete a GPG key from your GitHub account"),
 				ox.Usage("delete", "Delete a GPG key from your GitHub account"),
 				ox.Spec("<key-id> [flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("yes", "Skip the confirmation prompt", ox.Short("y")),
 			), ox.Sub(
@@ -1894,19 +1894,19 @@ func main() {
 				ox.Usage("list", "Lists GPG keys in your GitHub account"),
 				ox.Spec("[flags]"),
 				ox.Aliases("gh gpg-key ls"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			)), ox.Sub(
 			ox.Banner("Work with GitHub labels."),
 			ox.Usage("label", "Manage labels"),
 			ox.Spec("<command> [flags]"),
 			ox.Section(3),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Sub(
 				ox.Banner("Clones labels from a source repository to a destination repository on GitHub.\nBy default, the destination repository is the current repository.\n\nAll labels from the source repository will be copied to the destination\nrepository. Labels in the destination repository that are not in the source\nrepository will not be deleted or modified.\n\nLabels from the source repository that already exist in the destination\nrepository will be skipped. You can overwrite existing labels in the\ndestination repository using the `--force` flag."),
 				ox.Usage("clone", "Clones labels from one repository to another"),
 				ox.Spec("<source-repository> [flags]"),
 				ox.Example("\n  # clone and overwrite labels from cli/cli repository into the current repository\n  $ gh label clone cli/cli --force\n  \n  # clone labels from cli/cli repository into a octocat/cli repository\n  $ gh label clone cli/cli --repo octocat/cli"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("force", "Overwrite labels in the destination repository", ox.Short("f")).
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R")),
@@ -1915,7 +1915,7 @@ func main() {
 				ox.Usage("create", "Create a new label"),
 				ox.Spec("<name> [flags]"),
 				ox.Example("\n  # create new bug label\n  $ gh label create bug --description \"Something isn't working\" --color E99695"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("color", "Color of the label", ox.Short("c")).
 					String("description", "Description of the label", ox.Short("d")).
@@ -1925,7 +1925,7 @@ func main() {
 				ox.Banner("Delete a label from a repository"),
 				ox.Usage("delete", "Delete a label from a repository"),
 				ox.Spec("<name> [flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("yes", "Confirm deletion without prompting").
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R")),
@@ -1934,7 +1934,7 @@ func main() {
 				ox.Usage("edit", "Edit a label"),
 				ox.Spec("<name> [flags]"),
 				ox.Example("\n  # update the color of the bug label\n  $ gh label edit bug --color FF0000\n  \n  # rename and edit the description of the bug label\n  $ gh label edit bug --name big-bug --description \"Bigger than normal bug\""),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("color", "Color of the label", ox.Short("c")).
 					String("description", "Description of the label", ox.Short("d")).
@@ -1946,7 +1946,7 @@ func main() {
 				ox.Spec("[flags]"),
 				ox.Aliases("gh label ls"),
 				ox.Example("\n  # sort labels by name\n  $ gh label list --sort name\n  \n  # find labels with \"bug\" in the name or description\n  $ gh label list --search bug"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q")).
 					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT)).
@@ -1966,13 +1966,13 @@ func main() {
 			ox.Aliases("gh rs"),
 			ox.Example("\n  $ gh ruleset list\n  $ gh ruleset view --repo OWNER/REPO --web\n  $ gh ruleset check branch-name"),
 			ox.Section(3),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Sub(
 				ox.Banner("View information about GitHub rules that apply to a given branch.\n\nThe provided branch name does not need to exist; rules will be displayed that would apply\nto a branch with that name. All rules are returned regardless of where they are configured.\n\nIf no branch name is provided, then the current branch will be used.\n\nThe `--default` flag can be used to view rules that apply to the default branch of the\nrepository."),
 				ox.Usage("check", "View rules that would apply to a given branch"),
 				ox.Spec("[<branch>] [flags]"),
 				ox.Example("\n  # View all rules that apply to the current branch\n  $ gh ruleset check\n  \n  # View all rules that apply to a branch named \"my-branch\" in a different repository\n  $ gh ruleset check my-branch --repo owner/repo\n  \n  # View all rules that apply to the default branch in a different repository\n  $ gh ruleset check --default --repo owner/repo\n  \n  # View a ruleset configured in a different repository or any of its parents\n  $ gh ruleset view 23 --repo owner/repo\n  \n  # View an organization-level ruleset\n  $ gh ruleset view 23 --org my-org"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("default", "Check rules on default branch").
 					Bool("web", "Open the branch rules page in a web browser", ox.Short("w")).
@@ -1983,7 +1983,7 @@ func main() {
 				ox.Spec("[flags]"),
 				ox.Aliases("gh rs ls", "gh ruleset ls"),
 				ox.Example("\n  # List rulesets in the current repository\n  $ gh ruleset list\n  \n  # List rulesets in a different repository, including those configured at higher levels\n  $ gh ruleset list --repo owner/repo --parents\n  \n  # List rulesets in an organization\n  $ gh ruleset list --org org-name"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Int("limit", "Maximum number of rulesets to list", ox.Default("30"), ox.Short("L")).
 					String("org", "List organization-wide rulesets for the provided organization", ox.Short("o")).
@@ -1995,7 +1995,7 @@ func main() {
 				ox.Usage("view", "View information about a ruleset"),
 				ox.Spec("[<ruleset-id>] [flags]"),
 				ox.Example("\n  # Interactively choose a ruleset to view from all rulesets that apply to the current repository\n  $ gh ruleset view\n  \n  # Interactively choose a ruleset to view from only rulesets configured in the current repository\n  $ gh ruleset view --no-parents\n  \n  # View a ruleset configured in the current repository or any of its parents\n  $ gh ruleset view 43\n  \n  # View a ruleset configured in a different repository or any of its parents\n  $ gh ruleset view 23 --repo owner/repo\n  \n  # View an organization-level ruleset\n  $ gh ruleset view 23 --org my-org"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("org", "Organization name if the provided ID is an organization-level ruleset", ox.Short("o")).
 					Bool("parents", "Whether to include rulesets configured at higher levels that also apply", ox.Default("true"), ox.Short("p")).
@@ -2008,13 +2008,13 @@ func main() {
 			ox.Usage("search", "Search for repositories, issues, and pull requests"),
 			ox.Spec("<command> [flags]"),
 			ox.Section(3),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Sub(
 				ox.Banner("Search within code in GitHub repositories.\n\nThe search syntax is documented at:\n<https://docs.github.com/search-github/searching-on-github/searching-code>\n\nNote that these search results are powered by what is now a legacy GitHub code search engine.\nThe results might not match what is seen on github.com, and new features like regex search\nare not yet available via the GitHub API.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("code", "Search within code"),
 				ox.Spec("<query> [flags]"),
 				ox.Example("\n  # search code matching \"react\" and \"lifecycle\"\n  $ gh search code react lifecycle\n  \n  # search code matching \"error handling\" \n  $ gh search code \"error handling\"\n  \t\n  # search code matching \"deque\" in Python files\n  $ gh search code deque --language=python\n  \n  # search code matching \"cli\" in repositories owned by microsoft organization\n  $ gh search code cli --owner=microsoft\n  \n  # search code matching \"panic\" in the GitHub CLI repository\n  $ gh search code panic --repo cli/cli\n  \n  # search code matching keyword \"lint\" in package.json files\n  $ gh search code lint --filename package.json"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("extension", "Filter on file extension").
 					String("filename", "Filter on filename").
@@ -2033,7 +2033,7 @@ func main() {
 				ox.Usage("commits", "Search for commits"),
 				ox.Spec("[<query>] [flags]"),
 				ox.Example("\n  # search commits matching set of keywords \"readme\" and \"typo\"\n  $ gh search commits readme typo\n  \n  # search commits matching phrase \"bug fix\"\n  $ gh search commits \"bug fix\"\n  \n  # search commits committed by user \"monalisa\"\n  $ gh search commits --committer=monalisa\n  \n  # search commits authored by users with name \"Jane Doe\"\n  $ gh search commits --author-name=\"Jane Doe\"\n  \n  # search commits matching hash \"8dd03144ffdc6c0d486d6b705f9c7fba871ee7c3\"\n  $ gh search commits --hash=8dd03144ffdc6c0d486d6b705f9c7fba871ee7c3\n  \n  # search commits authored before February 1st, 2022\n  $ gh search commits --author-date=\"<2022-02-01\""),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("author", "Filter by author").
 					Date("author-date", "Filter based on authored date").
@@ -2062,7 +2062,7 @@ func main() {
 				ox.Usage("issues", "Search for issues"),
 				ox.Spec("[<query>] [flags]"),
 				ox.Example("\n  # search issues matching set of keywords \"readme\" and \"typo\"\n  $ gh search issues readme typo\n  \n  # search issues matching phrase \"broken feature\"\n  $ gh search issues \"broken feature\"\n  \n  # search issues and pull requests in cli organization\n  $ gh search issues --include-prs --owner=cli\n  \n  # search open issues assigned to yourself\n  $ gh search issues --assignee=@me --state=open\n  \n  # search issues with numerous comments\n  $ gh search issues --comments=\">100\"\n  \n  # search issues without label \"bug\"\n  $ gh search issues -- -label:bug\n  \n  # search issues only from un-archived repositories (default is all repositories)\n  $ gh search issues --owner github --archived=false"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("app", "Filter by GitHub App author").
 					Bool("archived", "Filter based on the repository archived state {true|false}").
@@ -2105,7 +2105,7 @@ func main() {
 				ox.Usage("prs", "Search for pull requests"),
 				ox.Spec("[<query>] [flags]"),
 				ox.Example("\n  # search pull requests matching set of keywords \"fix\" and \"bug\"\n  $ gh search prs fix bug\n  \n  # search draft pull requests in cli repository\n  $ gh search prs --repo=cli/cli --draft\n  \n  # search open pull requests requesting your review\n  $ gh search prs --review-requested=@me --state=open\n  \n  # search merged pull requests assigned to yourself\n  $ gh search prs --assignee=@me --merged\n  \n  # search pull requests with numerous reactions\n  $ gh search prs --reactions=\">100\"\n  \n  # search pull requests without label \"bug\"\n  $ gh search prs -- -label:bug\n  \n  # search pull requests only from un-archived repositories (default is all repositories)\n  $ gh search prs --owner github --archived=false"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("app", "Filter by GitHub App author").
 					Bool("archived", "Filter based on the repository archived state {true|false}").
@@ -2156,7 +2156,7 @@ func main() {
 				ox.Usage("repos", "Search for repositories"),
 				ox.Spec("[<query>] [flags]"),
 				ox.Example("\n  # search repositories matching set of keywords \"cli\" and \"shell\"\n  $ gh search repos cli shell\n  \n  # search repositories matching phrase \"vim plugin\"\n  $ gh search repos \"vim plugin\"\n  \n  # search repositories public repos in the microsoft organization\n  $ gh search repos --owner=microsoft --visibility=public\n  \n  # search repositories with a set of topics\n  $ gh search repos --topic=unix,terminal\n  \n  # search repositories by coding language and number of good first issues\n  $ gh search repos --language=go --good-first-issues=\">=10\"\n  \n  # search repositories without topic \"linux\"\n  $ gh search repos -- -topic:linux\n  \n  # search repositories excluding archived repositories\n  $ gh search repos --archived=false"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("archived", "Filter based on the repository archived state {true|false}").
 					Date("created", "Filter based on created at date").
@@ -2187,13 +2187,13 @@ func main() {
 			ox.Usage("secret", "Manage GitHub secrets"),
 			ox.Spec("<command> [flags]"),
 			ox.Section(3),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Sub(
 				ox.Banner("Delete a secret on one of the following levels:\n- repository (default): available to GitHub Actions runs or Dependabot in a repository\n- environment: available to GitHub Actions runs for a deployment environment in a repository\n- organization: available to GitHub Actions runs, Dependabot, or Codespaces within an organization\n- user: available to Codespaces for your user"),
 				ox.Usage("delete", "Delete secrets"),
 				ox.Spec("<secret-name> [flags]"),
 				ox.Aliases("gh secret remove"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("app", "Delete a secret for a specific application: {actions|codespaces|dependabot}", ox.Short("a")).
 					String("env", "Delete a secret for an environment", ox.Short("e")).
@@ -2205,7 +2205,7 @@ func main() {
 				ox.Usage("list", "List secrets"),
 				ox.Spec("[flags]"),
 				ox.Aliases("gh secret ls"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("app", "List secrets for a specific application: {actions|codespaces|dependabot}", ox.Short("a")).
 					String("env", "List secrets for an environment", ox.Short("e")).
@@ -2220,7 +2220,7 @@ func main() {
 				ox.Usage("set", "Create or update secrets"),
 				ox.Spec("<secret-name> [flags]"),
 				ox.Example("\n  # Paste secret value for the current repository in an interactive prompt\n  $ gh secret set MYSECRET\n  \n  # Read secret value from an environment variable\n  $ gh secret set MYSECRET --body \"$ENV_VALUE\"\n  \n  # Read secret value from a file\n  $ gh secret set MYSECRET < myfile.txt\n  \n  # Set secret for a deployment environment in the current repository\n  $ gh secret set MYSECRET --env myenvironment\n  \n  # Set organization-level secret visible to both public and private repositories\n  $ gh secret set MYSECRET --org myOrg --visibility all\n  \n  # Set organization-level secret visible to specific repositories\n  $ gh secret set MYSECRET --org myOrg --repos repo1,repo2,repo3\n  \n  # Set user-level secret for Codespaces\n  $ gh secret set MYSECRET --user\n  \n  # Set repository-level secret for Dependabot\n  $ gh secret set MYSECRET --app dependabot\n  \n  # Set multiple secrets imported from the \".env\" file\n  $ gh secret set -f .env\n  \n  # Set multiple secrets from stdin\n  $ gh secret set -f - < myfile.txt"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("app", "Set the application for a secret: {actions|codespaces|dependabot}", ox.Short("a")).
 					String("body", "The value for the secret (reads from standard input if not specified)", ox.Short("b")).
@@ -2239,12 +2239,12 @@ func main() {
 			ox.Usage("ssh-key", "Manage SSH keys"),
 			ox.Spec("<command> [flags]"),
 			ox.Section(3),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Sub(
 				ox.Banner("Add an SSH key to your GitHub account"),
 				ox.Usage("add", "Add an SSH key to your GitHub account"),
 				ox.Spec("[<key-file>] [flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("title", "Title for the new key", ox.Short("t")).
 					String("type", "Type of the ssh key: {authentication|signing}", ox.Default("authentication")),
@@ -2252,7 +2252,7 @@ func main() {
 				ox.Banner("Delete an SSH key from your GitHub account"),
 				ox.Usage("delete", "Delete an SSH key from your GitHub account"),
 				ox.Spec("<id> [flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					Bool("yes", "Skip the confirmation prompt", ox.Short("y")),
 			), ox.Sub(
@@ -2260,14 +2260,14 @@ func main() {
 				ox.Usage("list", "Lists SSH keys in your GitHub account"),
 				ox.Spec("[flags]"),
 				ox.Aliases("gh ssh-key ls"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			)), ox.Sub(
 			ox.Banner("The status command prints information about your work on GitHub across all the repositories you're subscribed to, including:\n\n- Assigned Issues\n- Assigned Pull Requests\n- Review Requests\n- Mentions\n- Repository Activity (new issues/pull requests, comments)"),
 			ox.Usage("status", "Print information about relevant issues, pull requests, and notifications across repositories"),
 			ox.Spec("[flags]"),
 			ox.Example("\n  $ gh status -e cli/cli -e cli/go-gh # Exclude multiple repositories\n  $ gh status -o cli # Limit results to a single organization"),
 			ox.Section(3),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Flags().
 				Slice("exclude", "Comma separated list of repos to exclude in owner/name format", ox.Elem(ox.StringT), ox.Short("e")).
 				String("org", "Report status within an organization", ox.Short("o")),
@@ -2276,13 +2276,13 @@ func main() {
 			ox.Usage("variable", "Manage GitHub Actions variables"),
 			ox.Spec("<command> [flags]"),
 			ox.Section(3),
-			ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 			ox.Sub(
 				ox.Banner("Delete a variable on one of the following levels:\n- repository (default): available to GitHub Actions runs or Dependabot in a repository\n- environment: available to GitHub Actions runs for a deployment environment in a repository\n- organization: available to GitHub Actions runs or Dependabot within an organization"),
 				ox.Usage("delete", "Delete variables"),
 				ox.Spec("<variable-name> [flags]"),
 				ox.Aliases("gh variable remove"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("env", "Delete a variable for an environment", ox.Short("e")).
 					String("org", "Delete a variable for an organization", ox.Short("o")).
@@ -2291,7 +2291,7 @@ func main() {
 				ox.Banner("Get a variable on one of the following levels:\n- repository (default): available to GitHub Actions runs or Dependabot in a repository\n- environment: available to GitHub Actions runs for a deployment environment in a repository\n- organization: available to GitHub Actions runs or Dependabot within an organization\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("get", "Get variables"),
 				ox.Spec("<variable-name> [flags]"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("env", "Get a variable for an environment", ox.Short("e")).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q")).
@@ -2304,7 +2304,7 @@ func main() {
 				ox.Usage("list", "List variables"),
 				ox.Spec("[flags]"),
 				ox.Aliases("gh variable ls"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("env", "List variables for an environment", ox.Short("e")).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q")).
@@ -2317,7 +2317,7 @@ func main() {
 				ox.Usage("set", "Create or update variables"),
 				ox.Spec("<variable-name> [flags]"),
 				ox.Example("\n  # Add variable value for the current repository in an interactive prompt\n  $ gh variable set MYVARIABLE\n  \n  # Read variable value from an environment variable\n  $ gh variable set MYVARIABLE --body \"$ENV_VALUE\"\n  \n  # Read variable value from a file\n  $ gh variable set MYVARIABLE < myfile.txt\n  \n  # Set variable for a deployment environment in the current repository\n  $ gh variable set MYVARIABLE --env myenvironment\n  \n  # Set organization-level variable visible to both public and private repositories\n  $ gh variable set MYVARIABLE --org myOrg --visibility all\n  \n  # Set organization-level variable visible to specific repositories\n  $ gh variable set MYVARIABLE --org myOrg --repos repo1,repo2,repo3\n  \n  # Set multiple variables imported from the \".env\" file\n  $ gh variable set -f .env"),
-				ox.Footer("\n  Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
+				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`"),
 				ox.Flags().
 					String("body", "The value for the variable (reads from standard input if not specified)", ox.Short("b")).
 					String("env", "Set deployment environment variable", ox.Spec("environment"), ox.Short("e")).

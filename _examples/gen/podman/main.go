@@ -1455,7 +1455,7 @@ func main() {
 					Bool("no-trunc", "Do not truncate output").
 					Bool("noheading", "Do not print column headings", ox.Short("n")).
 					Bool("quiet", "Display only image IDs", ox.Short("q")).
-					String("sort", "Sort by repository, size, tag, created, id", ox.Default("created")),
+					String("sort", "Sort by size, tag, created, id, repository", ox.Default("created")),
 			), ox.Sub(
 				ox.Banner("Load image(s) from a tar archive\n\nDescription:\n  Loads an image from a locally stored archive (tar file) into container storage."),
 				ox.Usage("load", "Load image(s) from a tar archive"),
