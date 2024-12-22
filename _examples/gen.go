@@ -263,11 +263,9 @@ func (cmd *command) parse(ctx context.Context) error {
 			}
 			cmd.example = trimRight(s)
 		case sectFooter:
-			cmd.footer += strings.TrimLeft(trimRight(s), "\n")
+			cmd.footer += strings.TrimSpace(s)
 		case sectFlags:
-			if err := cmd.parseFlags(section, s); err != nil {
-				return fmt.Errorf("parsing flags: %w", err)
-			}
+			cmd.parseFlags(section, s)
 		case sectCommands:
 			if err := cmd.parseCommands(ctx, section, s); err != nil {
 				return fmt.Errorf("parsing commands: %w", err)
@@ -280,11 +278,11 @@ func (cmd *command) parse(ctx context.Context) error {
 	return nil
 }
 
-func (cmd *command) parseFlags(sect, s string) error {
+func (cmd *command) parseFlags(sect, s string) {
 	m := flagRE.FindAllStringSubmatch(s, -1)
 	if m == nil {
 		logger("  section %q has no flags!", sect)
-		return nil
+		return
 	}
 	for _, v := range m {
 		short, name, typstr, desc := v[1], v[2], strings.TrimSuffix(v[3], ":"), strings.TrimSpace(v[4])
@@ -296,14 +294,11 @@ func (cmd *command) parseFlags(sect, s string) error {
 		if name == "help" || name == "version" {
 			continue
 		}
-		if err := cmd.addFlag(sect, name, short, typstr, desc); err != nil {
-			return err
-		}
+		cmd.addFlag(sect, name, short, typstr, desc)
 	}
-	return nil
 }
 
-func (cmd *command) addFlag(sect, name, short, typstr, desc string) error {
+func (cmd *command) addFlag(sect, name, short, typstr, desc string) {
 	const defaultprefix = "(default "
 	typ, key, elem, dflt, spec := cmd.parseFlagType(sect, name, typstr, desc)
 	if i := strings.LastIndex(desc, defaultprefix); i != -1 && strings.HasSuffix(desc, ")") {
@@ -343,7 +338,6 @@ func (cmd *command) addFlag(sect, name, short, typstr, desc string) error {
 		dflt:  dflt,
 		spec:  spec,
 	})
-	return nil
 }
 
 var flagRE = regexp.MustCompile(`(?im)^\s{1,}(?:-(.),\s+)?--([^\s=]+)[ =]([^\s]+)?\s+(.*)$`)
@@ -688,7 +682,7 @@ func (cmd *command) parseSectDocker(sect string) (sectType, error) {
 	case "docker endpoint config", "experimental":
 		return sectNone, nil
 	}
-	return sectNone, fmt.Errorf("unknown doctl section %q", sect)
+	return sectNone, fmt.Errorf("unknown docker section %q", sect)
 }
 
 func (cmd *command) parseSectDoctl(sect string) (sectType, error) {
@@ -708,7 +702,7 @@ func (cmd *command) parseSectGh(sect string) (sectType, error) {
 	case "learn more":
 		return sectFooter, nil
 	}
-	return sectNone, fmt.Errorf("unknown doctl section %q", sect)
+	return sectNone, fmt.Errorf("unknown gh section %q", sect)
 }
 
 func (cmd *command) names() []string {
