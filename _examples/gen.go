@@ -258,9 +258,9 @@ func (cmd *command) parse(ctx context.Context) error {
 			}
 			logger("    aliases: %v", cmd.aliases)
 		case sectExample:
-			cmd.example = trimRight(s)
+			cmd.example = strings.TrimLeft(trimRight(s), "\n")
 		case sectFooter:
-			cmd.footer += trimRight(s)
+			cmd.footer += strings.TrimLeft(trimRight(s), "\n")
 		case sectFlags:
 			if err := cmd.parseFlags(section, s); err != nil {
 				return fmt.Errorf("parsing flags: %w", err)
