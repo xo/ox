@@ -254,7 +254,7 @@ func Example_sections() {
 	//
 	// Available Commands:
 	//   completion  generate completion script for a specified shell
-	//   version     show version, then exit
+	//   version     show tree version information
 	//
 	// Primary commands:
 	//   help        show help for any command

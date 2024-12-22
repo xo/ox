@@ -43,10 +43,11 @@ func AddHelpFlag(cmd *Command) error {
 
 // NewVersion adds a `version` sub command to the command.
 func NewVersion(cmd *Command, opts ...Option) error {
+	name := cmd.RootName()
 	return cmd.Sub(prepend(
 		opts,
-		Usage(text.VersionCommandName, text.VersionCommandUsage),
-		Banner(fmt.Sprintf(text.VersionCommandBanner, cmd.RootName())),
+		Usage(text.VersionCommandName, fmt.Sprintf(text.VersionCommandUsage, name)),
+		Banner(fmt.Sprintf(text.VersionCommandBanner, name)),
 		Special(`version`),
 		Exec(func(ctx context.Context) error {
 			c, _ := Ctx(ctx)
