@@ -58,7 +58,7 @@ func run(args *Args) func(ctx context.Context) error {
 			apps = []string{args.Command}
 		} else {
 			apps = []string{
-				//"docker",
+				"docker",
 				"doctl",
 				"gh",
 				"helm",
