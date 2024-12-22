@@ -258,7 +258,10 @@ func (cmd *command) parse(ctx context.Context) error {
 			}
 			logger("    aliases: %v", cmd.aliases)
 		case sectExample:
-			cmd.example = strings.TrimLeft(trimRight(s), "\n")
+			if strings.HasPrefix(s, "\n\n") {
+				s = strings.TrimPrefix(s, "\n")
+			}
+			cmd.example = trimRight(s)
 		case sectFooter:
 			cmd.footer += strings.TrimLeft(trimRight(s), "\n")
 		case sectFlags:
