@@ -246,10 +246,16 @@ func (cmd *command) parse(ctx context.Context) error {
 		switch typ {
 		case sectNone:
 		case sectUsage:
-			spec, _, _ := strings.Cut(strings.TrimSpace(s), "\n")
+			spec, extra, _ := strings.Cut(strings.TrimSpace(s), "\n")
 			spec = strings.TrimSpace(strings.TrimPrefix(spec, cmd.String()))
 			logger("    spec: %q", spec)
 			cmd.spec = spec
+			if extra = strings.TrimSpace(extra); extra != "" {
+				switch cmd.app {
+				case "docker":
+					cmd.banner = extra
+				}
+			}
 		case sectAliases:
 			for _, str := range strings.Split(strings.TrimSpace(s), ",") {
 				if str = strings.TrimSpace(strings.TrimPrefix(str, cmd.String())); str != "" {
