@@ -38,7 +38,7 @@ var (
 	// VersionCommandUsage is the `version` command description.
 	VersionCommandUsage = `show %s version information`
 	// VersionCommandBanner is the `version` command banner.
-	VersionCommandBanner = `Shows the %s version and exits.`
+	VersionCommandBanner = `Show %s version information.`
 	// VersionFlagName is the `--version` flag name.
 	VersionFlagName = `version`
 	// VersionFlagUsage is the `--version` flag description.
