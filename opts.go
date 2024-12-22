@@ -356,18 +356,15 @@ func Name(name string) CommandFlagOption {
 
 // Usage is a [Command]/[Flag] option to set the command/flag's name, usage,
 // and aliases.
-func Usage(name, usage string, aliases ...string) CommandFlagOption {
+func Usage(name, usage string) CommandFlagOption {
 	return option{
 		name: "Usage",
 		cmd: func(cmd *Command) error {
-			if cmd.Parent == nil && len(aliases) != 0 {
-				return fmt.Errorf("%w: cannot apply to root command", ErrInvalidType)
-			}
-			cmd.Name, cmd.Usage, cmd.Aliases = name, usage, aliases
+			cmd.Name, cmd.Usage = name, usage
 			return nil
 		},
 		flag: func(g *Flag) error {
-			g.Name, g.Usage, g.Aliases = name, usage, aliases
+			g.Name, g.Usage = name, usage
 			return nil
 		},
 	}
@@ -378,9 +375,6 @@ func Aliases(aliases ...string) CommandFlagOption {
 	return option{
 		name: "Aliases",
 		cmd: func(cmd *Command) error {
-			if cmd.Parent == nil {
-				return fmt.Errorf("%w: cannot apply to root command", ErrInvalidType)
-			}
 			cmd.Aliases = append(cmd.Aliases, aliases...)
 			return nil
 		},

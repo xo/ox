@@ -10,8 +10,11 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"go/format"
+	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"slices"
 	"strings"
@@ -37,7 +40,8 @@ func main() {
 
 type Args struct {
 	Verbose bool   `ox:"verbose,short:v"`
-	Out     string `ox:"out directory,short:o,default:generated"`
+	Dump    bool   `ox:"dump,short:d"`
+	Out     string `ox:"out directory,short:o,default:gen"`
 	Command string `ox:"command to generate,short:c"`
 }
 
@@ -67,7 +71,11 @@ func run(args *Args) func(ctx context.Context) error {
 			if i != 0 {
 				logger("\n\n\n")
 			}
-			if err := args.gen(ctx, app); err != nil {
+			root, err := args.gen(ctx, app)
+			if err != nil {
+				return err
+			}
+			if err := args.write(root); err != nil {
 				return err
 			}
 		}
@@ -75,10 +83,10 @@ func run(args *Args) func(ctx context.Context) error {
 	}
 }
 
-func (args *Args) gen(ctx context.Context, app string) error {
+func (args *Args) gen(ctx context.Context, app string) (*command, error) {
 	exec, err := exec.LookPath(app)
 	if err != nil {
-		return fmt.Errorf("unable to find command %q: %w", app, err)
+		return nil, fmt.Errorf("unable to find command %q: %w", app, err)
 	}
 	logger("generating %s (%s)", app, exec)
 	root := &command{
@@ -88,9 +96,99 @@ func (args *Args) gen(ctx context.Context, app string) error {
 		section: -1,
 	}
 	if err := root.parse(ctx); err != nil {
+		return nil, err
+	}
+	return root, nil
+}
+
+func (args *Args) write(root *command) error {
+	out := filepath.Join(args.Out, root.app, "main.go")
+	logger("writing %s -> %s", root.app, out)
+	if err := os.MkdirAll(filepath.Dir(out), 0o755); err != nil {
+		return fmt.Errorf("cannot create dir for %s: %w", root.app, err)
+	}
+	cmd := new(bytes.Buffer)
+	if err := args.writeCommand(cmd, root, 2); err != nil {
 		return err
 	}
-	root = root
+	buf := new(bytes.Buffer)
+	_, _ = fmt.Fprintf(buf, templ, root.name, cmd.String())
+	if args.Dump {
+		_, _ = os.Stdout.Write(buf.Bytes())
+		return nil
+	}
+	src, err := format.Source(buf.Bytes())
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(out, src, 0o644)
+}
+
+func (args *Args) writeCommand(w io.Writer, cmd *command, indent int) error {
+	padding := strings.Repeat("\t", indent)
+	if cmd.banner != "" {
+		fmt.Fprintf(w, "%sox.Banner(%q),\n", padding, cmd.banner)
+	}
+	fmt.Fprintf(w, "%sox.Usage(%q, %q),\n", padding, cmd.name, cmd.usage)
+	if cmd.spec != "" {
+		fmt.Fprintf(w, "%sox.Spec(%q),\n", padding, cmd.spec)
+	}
+	if len(cmd.aliases) != 0 {
+		fmt.Fprintf(w, "%sox.Aliases(%s),\n", padding, qlist(cmd.aliases))
+	}
+	if cmd.example != "" {
+		fmt.Fprintf(w, "%sox.Example(%q),\n", padding, cmd.example)
+	}
+	if len(cmd.commandSections) != 0 {
+		fmt.Fprintf(w, "%sox.Sections(%s),\n", padding, qlist(cmd.commandSections))
+	}
+	if cmd.section != -1 {
+		fmt.Fprintf(w, "%sox.Section(%d),\n", padding, cmd.section)
+	}
+	if cmd.footer != "" {
+		fmt.Fprintf(w, "%sox.Footer(%q),\n", padding, cmd.footer)
+	}
+	for _, c := range cmd.commands {
+		fmt.Fprintf(w, "%sox.Sub(\n", padding)
+		if err := args.writeCommand(w, c, indent+1); err != nil {
+			return err
+		}
+		fmt.Fprintf(w, "%s),", padding)
+	}
+	if len(cmd.flags) != 0 {
+		fmt.Fprintf(w, "%sox.Flags()", padding)
+		for _, g := range cmd.flags {
+			if err := args.writeFlag(w, g, indent+1); err != nil {
+				return err
+			}
+		}
+		fmt.Fprintf(w, ",\n")
+	}
+	return nil
+}
+
+func (args *Args) writeFlag(w io.Writer, g flag, indent int) error {
+	var v []string
+	if g.spec != "" {
+		v = append(v, fmt.Sprintf("ox.Spec(%q)", g.spec))
+	}
+	if g.key != "" {
+		v = append(v, fmt.Sprintf("ox.MapKey(ox.%sT)", oxType(g.key)))
+	}
+	if g.elem != "" {
+		v = append(v, fmt.Sprintf("ox.Elem(ox.%sT)", oxType(g.elem)))
+	}
+	if g.dflt != "" {
+		v = append(v, fmt.Sprintf("ox.Default(%q)", g.dflt))
+	}
+	if g.short != "" {
+		v = append(v, fmt.Sprintf("ox.Short(%q)", g.short))
+	}
+	var opts string
+	if len(v) != 0 {
+		opts = ", " + strings.Join(v, ", ")
+	}
+	fmt.Fprintf(w, ".\n%s%s(%q, %q%s)", strings.Repeat("\t", indent), oxType(g.typ), g.name, g.desc, opts)
 	return nil
 }
 
@@ -106,8 +204,8 @@ type command struct {
 	example         string
 	aliases         []string
 	footer          string
-	sections        []string
 	commandSections []string
+	sections        []string
 	commands        []*command
 	flags           []flag
 }
@@ -204,10 +302,7 @@ func (cmd *command) parseFlags(sect, s string) error {
 
 func (cmd *command) addFlag(sect, name, short, typstr, desc string) error {
 	const defaultprefix = "(default "
-	typ, key, elem, dflt, spec, err := cmd.parseFlagType(sect, name, typstr, desc)
-	if err != nil {
-		return err
-	}
+	typ, key, elem, dflt, spec := cmd.parseFlagType(sect, name, typstr, desc)
 	if i := strings.LastIndex(desc, defaultprefix); i != -1 && strings.HasSuffix(desc, ")") {
 		dflt = strings.TrimSpace(unquote(desc[i+len(defaultprefix) : len(desc)-1]))
 		desc = desc[:i]
@@ -219,24 +314,19 @@ func (cmd *command) addFlag(sect, name, short, typstr, desc string) error {
 			},
 		}
 		for _, s := range []string{
-			"$APPNAME",
-			"$HOME",
-			"$USER",
-			"$CONFIG",
+			"$APPCACHE",
 			"$APPCONFIG",
 			"$CACHE",
-			"$APPCACHE",
-			"$NUMCPU",
-			"$ARCH",
-			"$OS",
+			"$CONFIG",
+			"$HOME",
+			"$USER",
+			"$APPNAME",
 		} {
 			val, err := c.Expand(s)
 			if err != nil {
 				panic(err)
 			}
-			if strings.HasPrefix(dflt, val) {
-				dflt = strings.TrimPrefix(dflt, val)
-			}
+			dflt = strings.ReplaceAll(dflt, val, s)
 		}
 	}
 	desc = strings.TrimSpace(strings.ReplaceAll(desc, "\n", " "))
@@ -255,42 +345,42 @@ func (cmd *command) addFlag(sect, name, short, typstr, desc string) error {
 
 var flagRE = regexp.MustCompile(`(?im)^\s{1,}(?:-(.),\s+)?--([^\s=]+)[ =]([^\s]+)?\s+(.*)$`)
 
-func (cmd *command) parseFlagType(sect, name, typstr, desc string) (ox.Type, ox.Type, ox.Type, string, string, error) {
+func (cmd *command) parseFlagType(sect, name, typstr, desc string) (ox.Type, ox.Type, ox.Type, string, string) {
 	if typstr == "''" || typstr == `""` {
-		return ox.StringT, "", "", "", "", nil
+		return ox.StringT, "", "", "", ""
 	}
 	u := unquote(typstr)
 	switch u {
 	case "":
-		return ox.BoolT, "", "", "", "", nil
+		return ox.BoolT, "", "", "", ""
 	case "false", "true":
-		return ox.BoolT, "", "", "", u, nil
+		return ox.BoolT, "", "", "", u
 	case "[]", "list":
-		return ox.SliceT, "", ox.StringT, "", "", nil
+		return ox.SliceT, "", ox.StringT, "", ""
 	case "stringToString", "map":
-		return ox.MapT, ox.StringT, ox.StringT, "", "", nil
+		return ox.MapT, ox.StringT, ox.StringT, "", ""
 	case "int", "uint", "duration", "string", "float32", "float64", "UUID", "uuid", "URL", "url", "date", "int32", "uint16", "uint32":
-		return ox.Type(strings.ToLower(u)), "", "", "", "", nil
+		return ox.Type(strings.ToLower(u)), "", "", "", ""
 	case "byte", "port":
-		return ox.UintT, "", "", "", u, nil
+		return ox.UintT, "", "", "", u
 	case "number":
-		return ox.IntT, "", "", "", u, nil
+		return ox.IntT, "", "", "", u
 	case "float", "decimal":
-		return ox.Float32T, "", "", "", u, nil
+		return ox.Float32T, "", "", "", u
 	case "ip":
-		return ox.AddrT, "", "", "", "", nil
+		return ox.AddrT, "", "", "", ""
 	case "0.0.0.0", "127.0.0.1":
-		return ox.AddrT, "", "", u, "", nil
+		return ox.AddrT, "", "", u, ""
 	case "ipNet":
-		return ox.CIDRT, "", "", "", "", nil
+		return ox.CIDRT, "", "", "", ""
 	case "node-addr":
-		return ox.AddrPortT, "", "", "", "", nil
+		return ox.AddrPortT, "", "", "", ""
 	case "10.116.0.0/20", "10.244.0.0/16", "10.245.0.0/16":
-		return ox.CIDRT, "", "", u, "", nil
+		return ox.CIDRT, "", "", u, ""
 	case "Y", "N", "Yes", "No":
-		return ox.BoolT, "", "", u, "", nil
+		return ox.BoolT, "", "", u, ""
 	case "[localhost]":
-		return ox.SliceT, "", ox.StringT, "localhost", "", nil
+		return ox.SliceT, "", ox.StringT, "localhost", ""
 	case
 		"format",
 		"postRendererString",
@@ -390,7 +480,7 @@ func (cmd *command) parseFlagType(sect, name, typstr, desc string) (ox.Type, ox.
 		"organization",
 		"repositories",
 		"doctl":
-		return ox.StringT, "", "", "", u, nil
+		return ox.StringT, "", "", "", u
 	case
 		"URN",
 		"DropletID",
@@ -467,42 +557,39 @@ func (cmd *command) parseFlagType(sect, name, typstr, desc string) (ox.Type, ox.
 		"yaml",
 		"legacy",
 		"*":
-		return ox.StringT, "", "", u, "", nil
+		return ox.StringT, "", "", u, ""
 	}
 	switch {
 	case isDuration(u):
-		return ox.DurationT, "", "", u, "", nil
+		return ox.DurationT, "", "", u, ""
 	case isNumber(u):
-		return ox.IntT, "", "", u, "", nil
+		return ox.IntT, "", "", u, ""
 	case strings.HasSuffix(u, "s"):
-		if typ, _, _, _, _, err := cmd.parseFlagType(sect, name, strings.TrimSuffix(u, "s"), desc); err == nil {
-			return ox.SliceT, "", typ, "", "", nil
-		}
+		typ, _, _, _, _ := cmd.parseFlagType(sect, name, strings.TrimSuffix(u, "s"), desc)
+		return ox.SliceT, "", typ, "", ""
 	case strings.HasSuffix(u, "Array"):
-		if typ, _, _, _, _, err := cmd.parseFlagType(sect, name, strings.TrimSuffix(u, "Array"), desc); err == nil {
-			return ox.SliceT, "", typ, "", "", nil
-		}
+		typ, _, _, _, _ := cmd.parseFlagType(sect, name, strings.TrimSuffix(u, "Array"), desc)
+		return ox.SliceT, "", typ, "", ""
 	case strings.HasSuffix(u, "Slice"):
-		if typ, _, _, _, _, err := cmd.parseFlagType(sect, name, strings.TrimSuffix(u, "Slice"), desc); err == nil {
-			return ox.SliceT, "", typ, "", "", nil
-		}
+		typ, _, _, _, _ := cmd.parseFlagType(sect, name, strings.TrimSuffix(u, "Slice"), desc)
+		return ox.SliceT, "", typ, "", ""
 	case strings.HasPrefix(u, "--") && strings.HasSuffix(u, "=false"):
-		return ox.BoolT, "", "", "", "", nil
+		return ox.BoolT, "", "", "", ""
 	case strings.HasPrefix(u, "--"):
-		return ox.StringT, "", "", "", u, nil
+		return ox.StringT, "", "", "", u
 	case strings.Contains(typstr, "="):
-		return ox.MapT, ox.StringT, ox.StringT, "", u, nil
+		return ox.MapT, ox.StringT, ox.StringT, "", u
 	case strings.HasPrefix(u, "kubectl-"):
-		return ox.StringT, "", "", u, "", nil
+		return ox.StringT, "", "", u, ""
 	case strings.HasPrefix(u, "^"):
-		return ox.StringT, "", "", u, "regexp", nil
+		return ox.StringT, "", "", u, "regexp"
 	case strings.HasPrefix(u, "["):
-		return ox.StringT, "", "", u, "glob", nil
+		return ox.StringT, "", "", u, "glob"
 	case strings.HasPrefix(u, "/"):
-		return ox.StringT, "", "", u, "path", nil
+		return ox.StringT, "", "", u, "path"
 	}
 	cmd.logUnknownFlagType(sect, name, typstr, desc)
-	return ox.StringT, "", "", "", u, nil
+	return ox.StringT, "", "", "", u
 }
 
 func (cmd *command) logUnknownFlagType(sect, name, typstr, desc string) {
@@ -547,12 +634,15 @@ func (cmd *command) parseCommands(ctx context.Context, sect, s string) error {
 		}
 		logger("  command %q -- %q", c.String(), usage)
 		if strings.ToLower(sect) != "available commands" {
-			cmd.commandSections = append(cmd.commandSections, sect)
-			cmd.section = len(cmd.commandSections) - 1
+			if !slices.Contains(cmd.commandSections, sect) {
+				cmd.commandSections = append(cmd.commandSections, sect)
+			}
+			c.section = len(cmd.commandSections) - 1
 		}
 		if err := c.parse(ctx); err != nil {
 			return fmt.Errorf("%q: %w", name, err)
 		}
+		cmd.commands = append(cmd.commands, c)
 	}
 	return nil
 }
@@ -684,11 +774,6 @@ func (cmd *command) sectRE() *regexp.Regexp {
 	return sectionRE
 }
 
-// globalFlags is a map of global flags commands.
-var globalFlags = map[string][]string{
-	"kubectl": {"options"},
-}
-
 func runCommand(ctx context.Context, pathstr string, args ...string) ([]byte, error) {
 	buf := new(bytes.Buffer)
 	cmd := exec.CommandContext(ctx, pathstr, args...)
@@ -701,10 +786,6 @@ func runCommand(ctx context.Context, pathstr string, args ...string) ([]byte, er
 
 func trimRight(s string) string {
 	return strings.TrimRightFunc(s, unicode.IsSpace)
-}
-
-func allNames(app string, names []string) string {
-	return strings.Join(append([]string{app}, names...), " ")
 }
 
 type flag struct {
@@ -786,3 +867,56 @@ func unquote(s string) string {
 	}
 	return s
 }
+
+func oxType(typ ox.Type) string {
+	switch typ {
+	case "uuid":
+		return "UUID"
+	case "url":
+		return "URL"
+	case "cidr":
+		return "CIDR"
+	case "addrport":
+		return "AddrPort"
+	case "datetime":
+		return "DateTime"
+	case "bigint":
+		return "BigInt"
+	case "bigfloat":
+		return "BigFloat"
+	case "bigrat":
+		return "BigRat"
+	}
+	return strings.ToUpper(string(typ[0])) + string(typ[1:])
+}
+
+func qlist(v []string) string {
+	var str string
+	for i, s := range v {
+		if i != 0 {
+			str += ", "
+		}
+		str += fmt.Sprintf("%q", s)
+	}
+	return str
+}
+
+const templ = `// Command %[1]s is a xo/ox version of ` + "`+%[1]s`" + `. 
+//
+// Generated from _examples/gen.go.
+package main
+
+import (
+	"context"
+
+	"github.com/xo/ox"
+)
+
+func main() {
+	ox.RunContext(
+		context.Background(),
+		ox.Defaults(),
+%[2]s
+	)
+}
+`

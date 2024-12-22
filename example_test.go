@@ -287,7 +287,8 @@ func Example_help() {
 		ox.Sub(
 			ox.Usage("sub1", "sub1 tree"),
 			ox.Sub(
-				ox.Usage("sub2", "sub2 tree", "sb", "s"),
+				ox.Usage("sub2", "sub2 tree"),
+				ox.Aliases("subcommand2", "subby2"),
 				ox.Flags().
 					String("my-flag", "my flag").
 					BigInt("big-int", "big int", ox.Short("B")).
@@ -296,7 +297,7 @@ func Example_help() {
 				ox.Sub(ox.Usage("a", "another command")),
 			),
 		),
-		ox.Args("help", "sub1", "sb", "--bad-flag", "-b"),
+		ox.Args("help", "sub1", "subcommand2", "--bad-flag", "-b"),
 	)
 	// Output:
 	// sub2 sub2 tree
@@ -305,7 +306,7 @@ func Example_help() {
 	//   cmdtree sub1 sub2 [flags] [command] [args]
 	//
 	// Aliases:
-	//   sub2, sb, s
+	//   sub2, subcommand2, subby2
 	//
 	// Available Commands:
 	//   a       another command

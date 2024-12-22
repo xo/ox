@@ -38,10 +38,7 @@ var (
 	DefaultStripGoTestFlags = true
 	// DefaultWrapWidth is the default wrap width.
 	DefaultWrapWidth = 95
-	// DefaultMaxDist is the default maximum distance for suggestions.
-	DefaultMaxDist = 2
-	// DefaultWrap wraps a line of text with [Wrap] using [DefaultWrapWidth]
-	// for the width.
+	// DefaultWrap wraps sections of text (separated by "\n\n") using [Wrap].
 	DefaultWrap = func(s string, wrapWidth, prefixWidth int) string {
 		sb := new(strings.Builder)
 		for i, line := range strings.Split(s, "\n\n") {
@@ -148,10 +145,12 @@ var (
 	// DefaultSuggestionsEnabled sets whether command name suggestions are
 	// given.
 	DefaultSuggestionsEnabled = true
-	// DefaultFlagWidth is the default flag width. Does not include the
-	// additional spaces.
+	// DefaultMaxDist is the default maximum distance for suggestions.
+	DefaultMaxDist = 2
+	// DefaultFlagWidth is the default minimum flag width. Does not include the
+	// padding.
 	DefaultFlagWidth = 8
-	// DefaultCommandWidth is the default command width.
+	// DefaultCommandWidth is the default minimum command width.
 	DefaultCommandWidth = 6
 	// DefaultCompTemplates are the default completion templates.
 	DefaultCompTemplates = templates

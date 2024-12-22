@@ -1,3 +1,6 @@
+/ox.test
+/ox.test.exe
+
 /_examples/context/context
 /_examples/context/context.exe
 /_examples/bind/bind
@@ -6,8 +9,21 @@
 /_examples/reflect/reflect.exe
 /_examples/tree/tree
 /_examples/tree/tree.exe
-/ox.test
-/ox.test.exe
+
+/_examples/gen/docker/docker
+/_examples/gen/docker/docker.exe
+/_examples/gen/doctl/doctl
+/_examples/gen/doctl/doctl.exe
+/_examples/gen/gh/gh
+/_examples/gen/gh/gh.exe
+/_examples/gen/helm/helm
+/_examples/gen/helm/helm.exe
+/_examples/gen/hugo/hugo
+/_examples/gen/hugo/hugo.exe
+/_examples/gen/kubectl/kubectl
+/_examples/gen/kubectl/kubectl.exe
+/_examples/gen/podman/podman
+/_examples/gen/podman/podman.exe
 
 *.txt
 *.log
