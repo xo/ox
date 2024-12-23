@@ -258,7 +258,7 @@ func (cmd *command) parse(ctx context.Context) error {
 			}
 		case sectAliases:
 			for _, str := range strings.Split(strings.TrimSpace(s), ",") {
-				if str = strings.TrimSpace(strings.TrimPrefix(str, cmd.String())); str != "" {
+				if str = strings.TrimSpace(strings.TrimPrefix(str, cmd.String())); str != "" && str != cmd.name {
 					cmd.aliases = append(cmd.aliases, str)
 				}
 			}
