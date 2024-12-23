@@ -105,36 +105,6 @@ func (cmd *Command) RootName() string {
 	return cmd.Tree()[0]
 }
 
-// Populate populates vars with all the command's flags values, overwriting any
-// set variables if applicable. When all is true, all flag values will be
-// populated, otherwise only flags with default values will be. When overwrite
-// is true, existing vars will be set to either to flag's empty or default
-// value.
-func (cmd *Command) Populate(ctx *Context, all, overwrite bool, vars Vars) error {
-	if cmd.Flags == nil {
-		return nil
-	}
-	for _, g := range cmd.Flags.Flags {
-		if _, ok := vars[g.Name]; ok && overwrite {
-			delete(vars, g.Name)
-		}
-		var value string
-		switch {
-		case g.Type == HookT, g.Def == nil && !all:
-			continue
-		case g.Def != nil:
-			var err error
-			if value, err = ctx.Expand(g.Def); err != nil {
-				return err
-			}
-		}
-		if err := vars.Set(ctx, g, value, false); err != nil {
-			return fmt.Errorf("cannot populate %s with %q: %w", g.Name, value, err)
-		}
-	}
-	return nil
-}
-
 // Suggest returns a [SuggestionError] if there is a matching sub command
 // within the command's help distance.
 func (cmd *Command) Suggest(args ...string) error {

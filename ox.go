@@ -265,20 +265,24 @@ type Context struct {
 	Exit func(int)
 	// Panic is the panic func.
 	Panic func(any)
-	// Args are the arguments to parse, normally [os.Args][1:].
-	Args []string
+	// Comp is the completion func.
+	Comp func(*Context) error
 	// Stdin is the standard in to use, normally [os.Stdin].
 	Stdin io.Reader
 	// Stdout is the standard out to use, normally [os.Stdout].
 	Stdout io.Writer
 	// Stderr is the standard error to use, normally [os.Stderr].
 	Stderr io.Writer
+	// Args are the arguments to parse, normally [os.Args][1:].
+	Args []string
 	// OnErr is the on error handling. Used by the default Handle func.
 	OnErr OnErr
 	// Continue is the func used to decide if it should continue on an error.
 	Continue func(*Command, error) bool
 	// Handler is the func used to handle errors within [Run]/[RunContext].
 	Handler func(error) bool
+	// Override are overriding expansions.
+	Override map[string]string
 	// Root is the root command created within [Run]/[RunContext].
 	Root *Command
 	// Exec is the exec target, determined by the Root's definition and after
@@ -287,8 +291,6 @@ type Context struct {
 	// Vars are the variables parsed from the flag definitions of the Root
 	// command and its sub-commands.
 	Vars Vars
-	// Override are overriding expansions.
-	Override map[string]string
 }
 
 // NewContext creates a new run context.
@@ -298,6 +300,7 @@ func NewContext(opts ...Option) (*Context, error) {
 		Panic: func(v any) {
 			panic(v)
 		},
+		Comp:   DefaultComp,
 		Stdin:  os.Stdin,
 		Stdout: os.Stdout,
 		Stderr: os.Stderr,
@@ -323,15 +326,22 @@ func NewContext(opts ...Option) (*Context, error) {
 // Parse parses the context args.
 func (ctx *Context) Parse() error {
 	if ctx.Root.Comp && len(ctx.Args) != 0 && strings.HasPrefix(ctx.Args[0], DefaultCompName) {
-		return DefaultComp(ctx)
+		return ctx.Comp(ctx)
 	}
 	var err error
-	ctx.Exec, ctx.Args, err = Parse(ctx, ctx.Root, ctx.Args, ctx.Vars)
+	if err = ctx.Populate(ctx.Root, false, false); err != nil {
+		return newCommandError(ctx.Root.Name, err)
+	}
+	ctx.Exec, ctx.Args, err = Parse(ctx, ctx.Root, ctx.Args)
 	return err
 }
 
 // Comps returns the completions for the context.
 func (ctx *Context) Comps() ([]Completion, CompDirective, error) {
+	n := len(ctx.Args)
+	if n < 2 {
+		return nil, CompError, ErrInvalidArgCount
+	}
 	c := &Context{
 		Root:   ctx.Root,
 		Stdout: io.Discard,
@@ -341,45 +351,39 @@ func (ctx *Context) Comps() ([]Completion, CompDirective, error) {
 		Continue: func(cmd *Command, err error) bool {
 			fmt.Fprintf(os.Stderr, "COMP CONTINUE ERR: %v\n", err)
 			switch {
-			// errors.Is(err, ErrUnknownCommand),
 			case errors.Is(err, ErrUnknownFlag),
 				errors.Is(err, ErrExit):
 				return true
 			}
 			return false
 		},
+		Args: ctx.Args[1 : n-1],
 		Vars: make(Vars),
 	}
-	n := len(ctx.Args) - 1
-	if n <= 0 {
-		return nil, CompError, ErrInvalidArgCount
-	}
-	args := ctx.Args[1:]
-	fmt.Fprintf(ctx.Stderr, "COMP ARGS: %v\n", args)
-	exec, _, err := Parse(ctx, c.Root, args[:n-1], ctx.Vars)
-	if err != nil {
+	fmt.Fprintf(ctx.Stderr, "COMP ARGS: %v\n", c.Args)
+	if err := c.Parse(); err != nil {
 		fmt.Fprintf(ctx.Stderr, "COMP PARSE ERR: %v\n", err)
 		return nil, CompError, err
 	}
-	fmt.Fprintf(os.Stderr, "COMP COMMAND: %s\n", exec.Name)
+	fmt.Fprintf(os.Stderr, "COMP COMMAND: %s\n", c.Exec.Name)
 	var comps []Completion
 	dir := CompNoFileComp
 	// TODO: expose variables to script allow hidden/deprecated
 	hidden, deprecated := false, true
 	// build completions
-	switch prev, arg := prev(args, n), args[n-1]; {
+	switch prev, arg := prev(ctx.Args, n), ctx.Args[n-1]; {
 	case strings.HasPrefix(arg, "-"):
-		comps, dir = exec.CompFlags(strings.TrimLeft(arg, "-"), hidden, deprecated, !strings.HasPrefix(arg, "--"))
+		comps, dir = c.Exec.CompFlags(strings.TrimLeft(arg, "-"), hidden, deprecated, !strings.HasPrefix(arg, "--"))
 	case strings.HasPrefix(prev, "-"):
 		// TODO: logic incorrect; need to strip the `-` and `=` from the flag
-		switch g := exec.Flag(prev, true, len([]rune(prev)) == 2); {
+		switch g := c.Exec.Flag(prev, true, len([]rune(prev)) == 2); {
 		case g == nil, g.NoArg, strings.Contains(prev, "="):
-			comps, dir = exec.CompCommands(arg, hidden, deprecated)
+			comps, dir = c.Exec.CompCommands(arg, hidden, deprecated)
 		default:
 			// TODO: handle completion for certain flag types
 		}
 	default:
-		comps, dir = exec.CompCommands(arg, hidden, deprecated)
+		comps, dir = c.Exec.CompCommands(arg, hidden, deprecated)
 	}
 	return comps, dir, nil
 }
@@ -403,7 +407,38 @@ func (ctx *Context) Run(parent context.Context) error {
 	return nil
 }
 
-// Expand expands v when v is any string of the following:
+// Populate populates the context's vars with all the command's flags values,
+// overwriting any set variables if applicable. When all is true, all flag
+// values will be populated, otherwise only flags with default values will be.
+//
+// When overwrite is true, existing vars will be set either to flag's empty or
+// default value.
+func (ctx *Context) Populate(cmd *Command, all, overwrite bool) error {
+	if cmd.Flags == nil {
+		return nil
+	}
+	for _, g := range cmd.Flags.Flags {
+		if _, ok := ctx.Vars[g.Name]; ok && overwrite {
+			delete(ctx.Vars, g.Name)
+		}
+		var value string
+		switch {
+		case g.Type == HookT, g.Def == nil && !all:
+			continue
+		case g.Def != nil:
+			var err error
+			if value, err = ctx.Expand(g.Def); err != nil {
+				return err
+			}
+		}
+		if err := ctx.Vars.Set(ctx, g, value, false); err != nil {
+			return fmt.Errorf("cannot populate %s with %q: %w", g.Name, value, err)
+		}
+	}
+	return nil
+}
+
+// Expand expands variables in v, where any variable can be the following:
 //
 //	$APPNAME - the root command's name
 //	$HOME - the current user's home directory
@@ -416,9 +451,9 @@ func (ctx *Context) Run(parent context.Context) error {
 //	$ARCH - the value of [runtime.GOARCH]
 //	$OS - the value of [runtime.GOOS]
 //	$ENV{KEY} - the environment value for $KEY
-//	$CFG{[TYPE::]KEY} - the registered config file loader type and key value
+//	$CONFIG_TYPE{KEY} - the registered config file loader type and key value, for example: `$YAML{my_key}`, `$TOML{my_key}`
 //
-// TODO: finish implementation for $ENV/$CFG, expand $ as prefixes
+// TODO: finish implementation for $CONFIG_TYPE, expand anywhere in string
 func (ctx *Context) Expand(v any) (string, error) {
 	s, ok := v.(string)
 	if !ok {

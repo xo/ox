@@ -13,29 +13,27 @@ func TestParse(t *testing.T) {
 	for i, test := range parseTests() {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			t.Logf("invoked: %v", test.v)
-			root, vars := testCommand(t), make(Vars)
-			cmd, args, err := Parse(nil, root, test.v[1:], vars)
-			switch {
+			c := &Context{
+				Root:   testCommand(t),
+				Stdout: new(bytes.Buffer),
+				Args:   test.v[1:],
+				Vars:   make(Vars),
+			}
+			t.Logf("cmd: %s", c.Root.Name)
+			t.Logf("args: %q", c.Args)
+			switch err := c.Parse(); {
 			case err != nil:
 				t.Fatalf("expected no error, got: %v", err)
-			case cmd == nil:
-				t.Fatal("cmd is nil")
+			case c.Exec == nil:
+				t.Fatal("exec is nil")
 			}
-			t.Logf("cmd: %s", cmd.Name)
-			t.Logf("args: %q", args)
-			t.Logf("vars: %s", vars)
-			buf := new(bytes.Buffer)
-			ctx := WithContext(context.Background(), &Context{
-				Args:   test.v,
-				Root:   root,
-				Exec:   cmd,
-				Stdout: buf,
-				Vars:   vars,
-			})
-			if err := cmd.Exec(ctx, args); err != nil {
+			t.Logf("exec: %s", c.Exec.Name)
+			t.Logf("vars: %s", c.Vars)
+			ctx := WithContext(context.Background(), c)
+			if err := c.Exec.Exec(ctx, c.Args); err != nil {
 				t.Fatalf("expected no error, got: %v", err)
 			}
-			s := strings.TrimSpace(buf.String())
+			s := strings.TrimSpace(c.Stdout.(*bytes.Buffer).String())
 			if exp := strings.Join(test.exp, "\n"); s != exp {
 				t.Errorf("\nexpected:\n%s\ngot:\n%s", exp, s)
 			}
