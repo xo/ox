@@ -65,16 +65,7 @@ var (
 	DefaultVersionTrimPrefix = true
 	// DefaultVersion is the default version func.
 	DefaultVersion = func(ctx *Context) error {
-		ver := DefaultVersionString
-		if info, ok := debug.ReadBuildInfo(); ok && ver == "0.0.0-dev" {
-			mod := &info.Main
-			if mod.Replace != nil {
-				mod = mod.Replace
-			}
-			if mod.Version != "" && mod.Version != "(devel)" {
-				ver = mod.Version
-			}
-		}
+		ver := BuildVersion()
 		var name string
 		if ctx != nil && ctx.Root != nil {
 			name = ctx.Root.Name
@@ -210,6 +201,24 @@ var (
 		_, _ = fmt.Fprintf(ctx.Stderr, "COMP ENDED: %s\n", dir)
 		return ErrExit
 	}
+	// DefaultStripTestFlags strips flags starting with `-test.` from args.
+	DefaultStripTestFlags = func(args []string) []string {
+		if !DefaultStripGoTestFlags {
+			return args
+		}
+		var v []string
+		for i := 0; i < len(args); i++ {
+			switch hasPrefix := strings.HasPrefix(args[i], "-test."); {
+			case hasPrefix && !strings.Contains(args[i], "="):
+				i++
+				continue
+			case hasPrefix:
+				continue
+			}
+			v = append(v, args[i])
+		}
+		return v
+	}
 )
 
 // Run creates and builds the execution [Context] based on the passed
@@ -304,7 +313,7 @@ func NewContext(opts ...Option) (*Context, error) {
 		Stdin:  os.Stdin,
 		Stdout: os.Stdout,
 		Stderr: os.Stderr,
-		Args:   stripTestFlags(os.Args[1:]),
+		Args:   DefaultStripTestFlags(os.Args[1:]),
 	}
 	ctx.Continue = DefaultContinueHandler(ctx)
 	ctx.Handler = DefaultErrorHandler(ctx)
@@ -674,23 +683,19 @@ func Ldist[T []E, E cmp.Ordered](a, b T) int {
 	return v[m]
 }
 
-// stripTestFlags strips flags starting with `-test.` from args.
-func stripTestFlags(args []string) []string {
-	if !DefaultStripGoTestFlags {
-		return args
-	}
-	var v []string
-	for i := 0; i < len(args); i++ {
-		switch hasPrefix := strings.HasPrefix(args[i], "-test."); {
-		case hasPrefix && !strings.Contains(args[i], "="):
-			i++
-			continue
-		case hasPrefix:
-			continue
+// BuildVersion returns the Go build version, or [DefaultVersionString].
+func BuildVersion() string {
+	ver := DefaultVersionString
+	if info, ok := debug.ReadBuildInfo(); ok && ver == "0.0.0-dev" {
+		mod := &info.Main
+		if mod.Replace != nil {
+			mod = mod.Replace
 		}
-		v = append(v, args[i])
+		if mod.Version != "" && mod.Version != "(devel)" {
+			ver = mod.Version
+		}
 	}
-	return v
+	return ver
 }
 
 // prepend is a generic prepend.
