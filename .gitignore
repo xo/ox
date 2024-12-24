@@ -24,6 +24,8 @@
 /_examples/gen/kubectl/kubectl.exe
 /_examples/gen/podman/podman
 /_examples/gen/podman/podman.exe
+/_examples/gen/psql/psql
+/_examples/gen/psql/psql.exe
 
 *.txt
 *.log

@@ -1,6 +1,5 @@
 // Command gen parses and generates xo/ox style run entries for well-known,
-// commmon commands `kubectl`, `podman`, `docker`, `helm`, `hugo`, `doctl`,
-// `gh`.
+// commmon commands `docker`, `doctl`, `gh`, `helm`, `hugo`, `kubectl`, `podman`, `psql`.
 //
 // Generates the xo/ox API calls based on the command's `<command> help ...`
 // output.
@@ -23,16 +22,34 @@ import (
 	"github.com/xo/ox"
 )
 
-const banner = "Parses and generates xo/ox style run entries for well-known, commmon commands " +
-	"`kubectl`, `podman`, `docker`, `helm`, `hugo`, `doctl`, `gh`. \n\n" +
-	"Generates the xo/ox API calls based on the command's `<command> help " +
-	"...` output."
+var defaultCommands = []string{
+	`docker`,
+	`doctl`,
+	`gh`,
+	`helm`,
+	`hugo`,
+	`kubectl`,
+	`podman`,
+	`psql`,
+}
+
+const banner = "" +
+	"Parses and generates xo/ox style run entries for well-known, commmon commands %s." + "\n\n" +
+	"Generates the xo/ox API calls based on the command's `<command> help ...` output."
 
 func main() {
 	args := &Args{}
+	var commands string
+	for i, s := range defaultCommands {
+		if i != 0 {
+			commands += "`, "
+		}
+		commands += "`" + s
+	}
+	commands += "`"
 	ox.RunContext(
 		context.Background(),
-		ox.Defaults(ox.Banner(ox.DefaultWrap(banner, 80, 0))),
+		ox.Defaults(ox.Banner(ox.DefaultWrap(fmt.Sprintf(banner, commands), 80, 0))),
 		ox.From(args),
 		ox.Exec(run(args)),
 	)
@@ -57,16 +74,9 @@ func run(args *Args) func(ctx context.Context) error {
 		if args.Command != "" {
 			apps = []string{args.Command}
 		} else {
-			apps = []string{
-				"docker",
-				"doctl",
-				"gh",
-				"helm",
-				"hugo",
-				"kubectl",
-				"podman",
-			}
+			apps = defaultCommands
 		}
+		slices.Sort(apps)
 		for i, app := range apps {
 			if i != 0 {
 				logger("\n\n\n")
@@ -112,7 +122,11 @@ func (args *Args) write(root *command) error {
 		return err
 	}
 	buf := new(bytes.Buffer)
-	_, _ = fmt.Fprintf(buf, templ, root.name, cmd.String())
+	var extra string
+	if root.app == "psql" {
+		extra = initTempl
+	}
+	_, _ = fmt.Fprintf(buf, templ, root.name, cmd.String(), extra)
 	if args.Dump {
 		_, _ = os.Stdout.Write(buf.Bytes())
 		return nil
@@ -144,6 +158,13 @@ func (args *Args) writeCommand(w io.Writer, cmd *command, indent int) error {
 	}
 	if cmd.section != -1 {
 		fmt.Fprintf(w, "%sox.Section(%d),\n", padding, cmd.section)
+	}
+	if len(cmd.sections) != 0 {
+		fmt.Fprintf(w, "%sox.Help(ox.Sections(\n", padding)
+		for _, sect := range cmd.sections {
+			fmt.Fprintf(w, "%s\t%q,\n", padding, sect)
+		}
+		fmt.Fprintf(w, "%s)),\n", padding)
 	}
 	if cmd.footer != "" {
 		fmt.Fprintf(w, "%sox.Footer(%q),\n", padding, cmd.footer)
@@ -184,6 +205,9 @@ func (args *Args) writeFlag(w io.Writer, g flag, indent int) error {
 	if g.short != "" {
 		v = append(v, fmt.Sprintf("ox.Short(%q)", g.short))
 	}
+	if g.section != -1 {
+		v = append(v, fmt.Sprintf("ox.Section(%d)", g.section))
+	}
 	var opts string
 	if len(v) != 0 {
 		opts = ", " + strings.Join(v, ", ")
@@ -212,10 +236,15 @@ type command struct {
 
 func (cmd *command) parse(ctx context.Context) error {
 	logger("run: %s help %s", cmd.exec, strings.Join(cmd.names()[1:], " "))
-	buf, err := runCommand(ctx, cmd.exec, append([]string{"help"}, cmd.names()[1:]...)...)
+	args := append([]string{"help"}, cmd.names()[1:]...)
+	if cmd.app == "psql" {
+		args = []string{"--help"}
+	}
+	buf, err := runCommand(ctx, cmd.exec, args...)
 	if err != nil {
 		return err
 	}
+	buf = cmd.preprocess(buf)
 	next, n := cmd.firstSection(buf)
 	if n == -1 {
 		return nil
@@ -333,16 +362,20 @@ func (cmd *command) addFlag(sect, name, short, typstr, desc string) {
 			dflt = strings.ReplaceAll(dflt, val, s)
 		}
 	}
+	if sect != "Flags" && !slices.Contains(cmd.sections, sect) {
+		cmd.sections = append(cmd.sections, sect)
+	}
 	desc = strings.TrimSpace(strings.ReplaceAll(desc, "\n", " "))
 	cmd.flags = append(cmd.flags, flag{
-		name:  name,
-		short: short,
-		typ:   typ,
-		key:   key,
-		elem:  elem,
-		desc:  desc,
-		dflt:  dflt,
-		spec:  spec,
+		name:    name,
+		short:   short,
+		typ:     typ,
+		key:     key,
+		elem:    elem,
+		desc:    desc,
+		dflt:    dflt,
+		spec:    spec,
+		section: len(cmd.sections) - 1,
 	})
 }
 
@@ -482,7 +515,15 @@ func (cmd *command) parseFlagType(sect, name, typstr, desc string) (ox.Type, ox.
 		"environment",
 		"organization",
 		"repositories",
-		"doctl":
+		"doctl",
+		"COMMAND",
+		"DBNAME",
+		"FILENAME",
+		"STRING",
+		"TEXT",
+		"HOSTNAME",
+		"PORT",
+		"USERNAME":
 		return ox.StringT, "", "", "", u
 	case
 		"URN",
@@ -724,6 +765,13 @@ func (cmd *command) String() string {
 	return strings.Join(cmd.names(), " ")
 }
 
+func (cmd *command) preprocess(buf []byte) []byte {
+	if cmd.app != "psql" {
+		return buf
+	}
+	return bytes.ReplaceAll(buf, []byte("PostgreSQL home page:"), []byte("PostgreSQL home page -"))
+}
+
 func (cmd *command) firstSection(buf []byte) (string, int) {
 	const expstr = "Experimental: "
 	offset := 0
@@ -792,14 +840,15 @@ func trimRight(s string) string {
 }
 
 type flag struct {
-	name  string
-	short string
-	desc  string
-	dflt  string
-	spec  string
-	typ   ox.Type
-	key   ox.Type
-	elem  ox.Type
+	name    string
+	short   string
+	desc    string
+	dflt    string
+	spec    string
+	section int
+	typ     ox.Type
+	key     ox.Type
+	elem    ox.Type
 }
 
 type sectType int
@@ -913,7 +962,7 @@ import (
 	"context"
 
 	"github.com/xo/ox"
-)
+)%[3]s
 
 func main() {
 	ox.RunContext(
@@ -923,3 +972,12 @@ func main() {
 	)
 }
 `
+
+const initTempl = `
+import (
+	"github.com/xo/ox/text"
+)
+
+func init() {
+	text.FlagSpecSpacer = "="
+}`

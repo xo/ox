@@ -726,7 +726,7 @@ func FlagsFrom[T *E, E any](val T) ([]*Flag, error) {
 		if r := []rune(f.Name); !unicode.IsUpper(r[0]) {
 			return nil, fmt.Errorf("%w: field %q is not exported but has tag `%s`", ErrInvalidType, f.Name, DefaultTagName)
 		}
-		tag := split(s, ',')
+		tag := Split(s, ',')
 		if len(tag) == 0 || tag[0] == "-" {
 			continue
 		}
@@ -923,8 +923,8 @@ func newFlagError(name string, err error) error {
 	return fmt.Errorf("--%s: %w", name, err)
 }
 
-// split splits a string by the cut rune, skipping escaped runes.
-func split(str string, cut rune) []string {
+// Split splits a string by the rune cut, skipping runes escaped with `\`.
+func Split(str string, cut rune) []string {
 	r := []rune(str)
 	v := make([][]rune, 1)
 	var c, next rune
