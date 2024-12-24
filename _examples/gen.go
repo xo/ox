@@ -780,7 +780,7 @@ func (cmd *command) firstSection(buf []byte) (string, int) {
 	}
 	var re *regexp.Regexp
 	switch cmd.app {
-	case "helm", "doctl", "hugo", "podman":
+	case "helm", "doctl", "hugo", "podman", "psql":
 		re = regexp.MustCompile(`(?m)^(Usage):\n`)
 	default:
 		re = cmd.sectRE()

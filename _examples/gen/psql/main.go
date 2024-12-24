@@ -19,6 +19,7 @@ func init() {
 func main() {
 	ox.RunContext(
 		context.Background(),
+		ox.Defaults(),
 		ox.Banner("psql is the PostgreSQL interactive terminal."),
 		ox.Usage("psql", ""),
 		ox.Spec("[OPTION]... [DBNAME [USERNAME]]"),
@@ -61,7 +62,5 @@ func main() {
 			String("username", "database user name", ox.Spec("USERNAME"), ox.Short("U"), ox.Section(3)).
 			Bool("no-password", "never prompt for password", ox.Short("w"), ox.Section(3)).
 			Bool("password", "force password prompt (should happen automatically)", ox.Short("W"), ox.Section(3)),
-
-		ox.Defaults(),
 	)
 }
