@@ -77,6 +77,7 @@ func run(args *Args) func(ctx context.Context) error {
 			apps = defaultCommands
 		}
 		slices.Sort(apps)
+		logger("apps: %v", apps)
 		for i, app := range apps {
 			if i != 0 {
 				logger("\n\n\n")
@@ -113,7 +114,7 @@ func (args *Args) gen(ctx context.Context, app string) (*command, error) {
 
 func (args *Args) write(root *command) error {
 	out := filepath.Join(args.Out, root.app, "main.go")
-	logger("writing %s -> %s", root.app, out)
+	logger("  writing %s -> %s", root.app, out)
 	if err := os.MkdirAll(filepath.Dir(out), 0o755); err != nil {
 		return fmt.Errorf("cannot create dir for %s: %w", root.app, err)
 	}
