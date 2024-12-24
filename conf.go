@@ -5,21 +5,21 @@ import (
 	"io"
 )
 
-// ConfigDecoder is the interface for configuration decoders.
-type ConfigDecoder interface {
-	Decode(context.Context, io.Reader, any) error
+// ConfigLoader is the interface for configuration decoders.
+type ConfigLoader interface {
+	Load(context.Context, io.Reader) (ConfigValueDecoder, error)
 }
 
 // configTypes
-var configTypes map[string]func(...any) (ConfigDecoder, error)
+var configTypes map[string]func(...any) (ConfigLoader, error)
 
 func init() {
-	configTypes = make(map[string]func(...any) (ConfigDecoder, error))
+	configTypes = make(map[string]func(...any) (ConfigLoader, error))
 	configs = make(map[string][]ConfigValueDecoder)
 }
 
-// RegisterConfigFileType registers a config file type.
-func RegisterConfigFileType(typ string, handler func(...any) (ConfigDecoder, error)) {
+// RegisterConfigLoader registers a config file type.
+func RegisterConfigLoader(typ string, handler func(...any) (ConfigLoader, error)) {
 	configTypes[typ] = handler
 }
 

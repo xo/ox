@@ -53,7 +53,7 @@ func ParseFlagLong(ctx *Context, cmd *Command, s string, args []string) ([]strin
 	arg, value, ok := strings.Cut(strings.TrimPrefix(s, "--"), "=")
 	g := cmd.Flag(arg, true, false)
 	switch {
-	case g == nil && ctx.Continue(cmd, ErrUnknownFlag):
+	case g == nil && ctx.Continue(cmd, newFlagError(arg, ErrUnknownFlag)):
 		return args, nil
 	case g == nil:
 		return nil, newFlagError(arg, ErrUnknownFlag)
@@ -79,7 +79,7 @@ func ParseFlagShort(ctx *Context, cmd *Command, s string, args []string) ([]stri
 	for v := []rune(s[1:]); len(v) != 0; v = v[1:] {
 		arg := string(v[0])
 		switch g, n := cmd.Flag(arg, true, true), len(v[1:]); {
-		case g == nil && ctx.Continue(cmd, ErrUnknownFlag):
+		case g == nil && ctx.Continue(cmd, newFlagError(arg, ErrUnknownFlag)):
 			return args, nil
 		case g == nil:
 			return nil, newFlagError(arg, ErrUnknownFlag)

@@ -342,6 +342,7 @@ func (ctx *Context) Comps() ([]Completion, CompDirective, error) {
 	if n < 2 {
 		return nil, CompError, ErrInvalidArgCount
 	}
+	n--
 	c := &Context{
 		Root:   ctx.Root,
 		Stdout: io.Discard,
@@ -352,15 +353,16 @@ func (ctx *Context) Comps() ([]Completion, CompDirective, error) {
 			fmt.Fprintf(os.Stderr, "COMP CONTINUE ERR: %v\n", err)
 			switch {
 			case errors.Is(err, ErrUnknownFlag),
+				errors.Is(err, ErrMissingArgument),
 				errors.Is(err, ErrExit):
 				return true
 			}
 			return false
 		},
-		Args: ctx.Args[1 : n-1],
+		Args: ctx.Args[1:n],
 		Vars: make(Vars),
 	}
-	fmt.Fprintf(ctx.Stderr, "COMP ARGS: %v\n", c.Args)
+	fmt.Fprintf(ctx.Stderr, "COMP ARGS: %v -- %s\n", ctx.Args[1:n], ctx.Args[n])
 	if err := c.Parse(); err != nil {
 		fmt.Fprintf(ctx.Stderr, "COMP PARSE ERR: %v\n", err)
 		return nil, CompError, err
@@ -368,10 +370,10 @@ func (ctx *Context) Comps() ([]Completion, CompDirective, error) {
 	fmt.Fprintf(os.Stderr, "COMP COMMAND: %s\n", c.Exec.Name)
 	var comps []Completion
 	dir := CompNoFileComp
-	// TODO: expose variables to script allow hidden/deprecated
+	// TODO: expose flags to allow hidden/deprecated
 	hidden, deprecated := false, true
 	// build completions
-	switch prev, arg := prev(ctx.Args, n), ctx.Args[n-1]; {
+	switch prev, arg := prev(ctx.Args, n), ctx.Args[n]; {
 	case strings.HasPrefix(arg, "-"):
 		comps, dir = c.Exec.CompFlags(strings.TrimLeft(arg, "-"), hidden, deprecated, !strings.HasPrefix(arg, "--"))
 	case strings.HasPrefix(prev, "-"):
