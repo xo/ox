@@ -17,20 +17,20 @@ func TestUUID(t *testing.T) {
 			if err := v.Set(exp); err != nil {
 				t.Fatalf("expected no error, got: %v", err)
 			}
-			u, err := ox.As[*uuid.UUID](v)
+			val, err := ox.As[*uuid.UUID](v)
 			if err != nil {
 				t.Fatalf("expected no error, got: %v", err)
 			}
-			if u == nil {
+			if val == nil {
 				t.Fatalf("expected non-nil value")
 			}
 			if exp == "" {
 				exp = "00000000-0000-0000-0000-000000000000"
 			}
-			if s := u.String(); s != exp {
+			if s := val.String(); s != exp {
 				t.Errorf("expected %s, got: %s", exp, s)
 			}
-			t.Logf("u: %v", u)
+			t.Logf("u: %v", val)
 		})
 	}
 }

@@ -17,14 +17,14 @@ func TestColor(t *testing.T) {
 			if err := v.Set(test.s); err != nil {
 				t.Fatalf("expected no error, got: %v", err)
 			}
-			c, err := ox.As[*colors.Color](v)
+			val, err := ox.As[*colors.Color](v)
 			if err != nil {
 				t.Fatalf("expected no error, got: %v", err)
 			}
-			if s := c.AsText(); s != test.exp {
+			if s := val.AsText(); s != test.exp {
 				t.Errorf("expected %s, got: %s", test.exp, s)
 			}
-			t.Logf("c: %v", c)
+			t.Logf("c: %v", val)
 		})
 	}
 }
