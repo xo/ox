@@ -36,16 +36,24 @@
 - Support for standard library types:
   - `time.Time`, `time.Duration`
   - `*big.Int`, `*big.Float`, `*big.Rat`
-  - `*url.URL`
+  - `*url.URL`, `*regexp.Regexp`
   - `*netip.Addr`, `*netip.AddrPort`, `*netip.Prefix`
 - Support for compound types of all above (slices/maps):
   - `[]int`, `[][]byte`, `[]string`, `[]float64`, `[]*big.Int`, etc.
-  - `map[string]string`, `map[int]string`, `map[float64]*url.URL`, etc...
-- Additional types:
-  - `ox.FormattedTime` - formatted time values, set to a specific `time.Layout`
+  - `map[string]string`, `map[int]string`, `map[float64]*url.URL`, etc.
+- Additional type support:
+  - `ox.DateTimeT`, `ox.DateT`, `ox.TimeT` / `type:datetime`, `type:date`, `type:time` - standard dates and times
+  - `ox.FormattedTime` - any `time.Time` value using any `time.Layout` format
   - `ox.CountT` / `type:count` - incrementing counter, such as for verbosity `-vvvv`
+  - `ox.ByteCountT` - a SI or IEC formatted byte count
+  - `ox.Base64T` - a base64 encoded string
+  - `ox.HexT` - a hex encoded string
   - `ox.PathT` / `type:path` - a file system path
-  - `ox.HookT` - argument `func` hook
+  - `ox.HookT` - argument `func` hook, for hooking flags
+- Optional, common types, available with optional import:
+  - `*github.com/google/uuid.UUID` - standard UUID's
+  - `*github.com/kenshaw/colors.Color` - named and css style colors (`white`, `black`, `#ffffff`, `RGBA(...)`, ...)
+  - `*github.com/gobwas/glob.Glob` - a file path globbing type
 - Registerable user defined types, which work with all API styles
 - Testable commands/sub-commands
 - Simple/flexible APIs for Reflection, Bind, and Context style use cases
@@ -54,6 +62,7 @@
 - Environment, YAML, TOML, HCL config loading
 - Deferred default value expansion
 - Standard help, version and shell completion
+- Command, argument, and flag completion
 - Suggestions for command names, aliases, and suggested names
 - Argument validation and advanced shell completion support
 - TinyGo compatible
@@ -104,12 +113,12 @@ through imports.
 
 `ox` avoids "magic", and has sane, sensible defaults. No interfaces, type
 members or other internal logic is hidden or obscured. When using `ox`, the
-user can manually build commands/flags however they see fit.
+user can manually build commands and flags however they see fit.
 
 Wherever a non-standard package has been used, such as for the [YAML][yaml],
 [TOML][toml], or [HCL][hcl] loaders, or for the built-in support for
-[colors](color), and [UUIDs](uuid), the external dependencies are optional,
-requiring a import of a `xo/ox` subpackage, for example:
+[colors](color), [globs](glob), and [UUIDs](uuid), the external dependencies
+are optional, requiring a import of a `xo/ox` subpackage, for example:
 
 ```go
 import (
@@ -123,6 +132,7 @@ import (
 
   // well-known types
   _ "github.com/xo/ox/color"
+  _ "github.com/xo/ox/glob"
   _ "github.com/xo/ox/uuid"
 )
 ```
