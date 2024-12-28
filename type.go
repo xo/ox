@@ -7,6 +7,7 @@ import (
 	"net/netip"
 	"net/url"
 	"reflect"
+	"regexp"
 	"time"
 )
 
@@ -50,13 +51,15 @@ const (
 	BigIntT   Type = "bigint"
 	BigFloatT Type = "bigfloat"
 	BigRatT   Type = "bigrat"
-	URLT      Type = "url"
 	AddrT     Type = "addr"
 	AddrPortT Type = "addrport"
 	CIDRT     Type = "cidr"
+	RegexpT   Type = "regexp"
+	URLT      Type = "url"
 
 	UUIDT  Type = "uuid"
 	ColorT Type = "color"
+	GlobT  Type = "glob"
 
 	SliceT Type = "slice"
 	MapT   Type = "map"
@@ -95,7 +98,7 @@ func (typ Type) New() (Value, error) {
 	}
 	f, ok := typeNews[typ]
 	if !ok {
-		return nil, fmt.Errorf("%w: type not registered", ErrCouldNotCreateValue)
+		return nil, fmt.Errorf("%w: type not registered (%q)", ErrCouldNotCreateValue, string(typ))
 	}
 	v, err := f()
 	if err != nil {
@@ -174,6 +177,9 @@ func init() {
 	})
 	RegisterTextType(func() (*netip.Prefix, error) {
 		return new(netip.Prefix), nil
+	})
+	RegisterTextType(func() (*regexp.Regexp, error) {
+		return new(regexp.Regexp), nil
 	})
 	// register binary marshal types
 	RegisterBinaryType(func() (*url.URL, error) {
@@ -288,6 +294,8 @@ func typeRef(val any) Type {
 		return AddrPortT
 	case *netip.Prefix:
 		return CIDRT
+	case *regexp.Regexp:
+		return RegexpT
 	case *url.URL:
 		return URLT
 	}
@@ -368,14 +376,16 @@ func reflectType(refType reflect.Type) Type {
 		return BigFloatT
 	case "*big.Rat":
 		return BigRatT
-	case "*url.URL":
-		return URLT
 	case "*netip.Addr":
 		return AddrT
 	case "*netip.AddrPort":
 		return AddrPortT
 	case "*netip.Prefix":
 		return CIDRT
+	case "*regexp.Regexp":
+		return RegexpT
+	case "*url.URL":
+		return URLT
 	}
 	if typ, ok := reflectTypes[s]; ok {
 		return typ

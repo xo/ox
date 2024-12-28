@@ -565,6 +565,11 @@ func (fs *FlagSet) CIDR(name, usage string, opts ...Option) *FlagSet {
 	return fs.Var(name, usage, prepend(opts, Option(CIDRT))...)
 }
 
+// Regexp adds a [regexp.Regexp] variable to the flag set.
+func (fs *FlagSet) Regexp(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(RegexpT))...)
+}
+
 // URL adds a [url.URL] variable to the flag set.
 func (fs *FlagSet) URL(name, usage string, opts ...Option) *FlagSet {
 	return fs.Var(name, usage, prepend(opts, Option(URLT))...)
@@ -578,6 +583,11 @@ func (fs *FlagSet) UUID(name, usage string, opts ...Option) *FlagSet {
 // Color adds a color variable to the flag set.
 func (fs *FlagSet) Color(name, usage string, opts ...Option) *FlagSet {
 	return fs.Var(name, usage, prepend(opts, Option(ColorT))...)
+}
+
+// Glob adds a glob variable to the flag set.
+func (fs *FlagSet) Glob(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(GlobT))...)
 }
 
 // Slice adds a slice variable to the flag set.

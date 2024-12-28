@@ -386,12 +386,12 @@ func (ctx *Context) Comps() ([]Completion, CompDirective, error) {
 	case strings.HasPrefix(arg, "-"):
 		comps, dir = c.Exec.CompFlags(strings.TrimLeft(arg, "-"), hidden, deprecated, !strings.HasPrefix(arg, "--"))
 	case strings.HasPrefix(prev, "-"):
-		// TODO: logic incorrect; need to strip the `-` and `=` from the flag
+		// TODO: logic incorrect; need to strip the `-`/`--` and `=` from the flag
 		switch g := c.Exec.Flag(prev, true, len([]rune(prev)) == 2); {
 		case g == nil, g.NoArg, strings.Contains(prev, "="):
 			comps, dir = c.Exec.CompCommands(arg, hidden, deprecated)
 		default:
-			// TODO: handle completion for certain flag types
+			// TODO: handle completion for flags with completion definitions
 		}
 	default:
 		comps, dir = c.Exec.CompCommands(arg, hidden, deprecated)

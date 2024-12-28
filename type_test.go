@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/netip"
 	"net/url"
+	"regexp"
 	"testing"
 	"time"
 )
@@ -327,6 +328,14 @@ func typeTests(t *testing.T) []typeTest {
 			},
 		},
 		{
+			RegexpT,
+			[]test{
+				{"", ""},
+				{"^[0-9]+", mustRegexp(t, "^[0-9]+")},
+				{"([]{-1,}", ErrInvalidValue},
+			},
+		},
+		{
 			URLT, []test{
 				{"", mustURL(t, "")},
 				{"https://www.google.com", mustURL(t, "https://www.google.com")},
@@ -380,6 +389,15 @@ func mustPrefix(t *testing.T, s string) netip.Prefix {
 		t.Fatalf("expected no error, got: %v", err)
 	}
 	return a
+}
+
+func mustRegexp(t *testing.T, s string) *regexp.Regexp {
+	t.Helper()
+	re, err := regexp.Compile(s)
+	if err != nil {
+		t.Fatalf("expected no error, got: %v", err)
+	}
+	return re
 }
 
 type typeTest struct {
