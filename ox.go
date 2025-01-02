@@ -667,17 +667,16 @@ func Wrap(s string, width, prefixWidth int) string {
 func Ldist[T []E, E cmp.Ordered](a, b T) int {
 	m, n := len(a), len(b)
 	v := make([]int, m+1)
-	for i := range m + 1 {
+	var i, j, d, l int
+	for i = range m + 1 {
 		v[i] = i
 	}
-	var i, d, l int
-	for j := range n {
-		v[0] = j + 1
-		for i, d = 0, j; i < m; i, d = i+1, l {
-			if l = v[i+1]; a[i] != b[j] {
+	for i = range n {
+		for v[0], j, d = i+1, 1, i; j <= m; j, d = j+1, l {
+			if l = v[j]; a[j-1] != b[i] {
 				d++
 			}
-			v[i+1] = min(v[i+1]+1, v[i]+1, d)
+			v[j] = min(v[j-1]+1, v[j]+1, d)
 		}
 	}
 	return v[m]
