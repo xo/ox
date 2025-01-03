@@ -777,8 +777,10 @@ func FlagsFrom[T *E, E any](val T) ([]*Flag, error) {
 // New creates a new value for the flag's type.
 func (g *Flag) New(ctx *Context) (Value, error) {
 	switch g.Type {
-	case SliceT, ArrayT:
+	case SliceT:
 		return NewSlice(g.Elem), nil
+	case ArrayT:
+		return NewArray(g.Elem), nil
 	case MapT:
 		return NewMap(g.MapKey, g.Elem)
 	case HookT:

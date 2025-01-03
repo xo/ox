@@ -247,6 +247,9 @@ func NewMap(key, typ Type) (Value, error) {
 	val := &mapVal{
 		key: key,
 		typ: typ,
+		split: func(s string) []string {
+			return SplitBy(s, ',')
+		},
 	}
 	var err error
 	if val.v, err = makeMap(val.key, val.typ); err != nil {

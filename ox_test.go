@@ -162,8 +162,8 @@ func TestFormatRate(t *testing.T) {
 		{0, DefaultPrec, false, time.Second, "0 B/s"},
 		{0, DefaultPrec, true, time.Second, "0 B/s"},
 		{int64(0.754 * float64(MB)), DefaultPrec, false, time.Hour, "754 kB/h"},
-		{int64(1.5 * float64(GB)), 1, false, time.Microsecond, "1.5 GB/us"},
-		{int64(1.54 * float64(GB)), 2, false, time.Microsecond, "1.54 GB/us"},
+		{int64(1.5 * float64(GB)), 1, false, time.Microsecond, "1.5 GB/µs"},
+		{int64(1.54 * float64(GB)), 2, false, time.Microsecond, "1.54 GB/µs"},
 		{int64(1.5 * float64(GiB)), 2, true, time.Millisecond, "1.50 GiB/ms"},
 		{int64(1.5 * float64(PiB)), 2, true, time.Second, "1.50 PiB/s"},
 	}

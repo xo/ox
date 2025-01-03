@@ -366,7 +366,7 @@ func typeTests(t *testing.T) []typeTest {
 				{"1 mib/h", "1 MiB/h"},
 				{"1.5GB/m", "1.5 GB/m"},
 				{"-15.4 MiB/s", "-15.4 MiB/s"},
-				{"1 gib/µs", "1 GiB/us"},
+				{"1 gib/µs", "1 GiB/µs"},
 				{"foo", ErrInvalidValue},
 			},
 		},
@@ -384,6 +384,14 @@ func typeTests(t *testing.T) []typeTest {
 				{"a", "[a]"},
 				{"a,b", "[a,b]"},
 				{"a,b,c", "[a,b,c]"},
+			},
+		},
+		{
+			MapT, []test{
+				{"", ErrInvalidValue},
+				{"a=", "[a:]"},
+				{"a=b", "[a:b]"},
+				{"a=b,c=d", "[a:b c:d]"},
 			},
 		},
 	}

@@ -16,8 +16,11 @@ func TestParse(t *testing.T) {
 			c := &Context{
 				Root:   testCommand(t),
 				Stdout: new(bytes.Buffer),
-				Args:   test.v[1:],
-				Vars:   make(Vars),
+				Continue: func(*Command, error) bool {
+					return false
+				},
+				Args: test.v[1:],
+				Vars: make(Vars),
 			}
 			t.Logf("cmd: %s", c.Root.Name)
 			t.Logf("args: %q", c.Args)
@@ -178,6 +181,26 @@ func parseTests() []parseTest {
 				"vars: [countmap:[16.1:2 17:3 25:1] inc:4 int:15 timemap:[128:12:15:20 255:07:15:32] val:125]",
 			},
 		},
+		{
+			ss("a//six//--map//a=b,c=d//--slice//e,f"),
+			[]string{
+				"exec: six",
+				"name: six",
+				"path: [six]",
+				"args: []",
+				"vars: [int:15 map:[a:b c:d] slice:[e f]]",
+			},
+		},
+		{
+			ss("a//six//-s//15mib//-r//186mb/s//-d//15us"),
+			[]string{
+				"exec: six",
+				"name: six",
+				"path: [six]",
+				"args: []",
+				"vars: [duration:15µs int:15 rate:186 MB/s size:15 MiB]",
+			},
+		},
 	}
 }
 
@@ -225,6 +248,17 @@ func testCommand(t *testing.T) *Command {
 				Map("time", "", Short("t"), TimeT).
 				Map("timemap", "", Short("T"), MapKey(Uint64T), TimeT).
 				Map("countmap", "", Short("C"), MapKey(Float64T), CountT),
+		),
+		Sub(
+			Exec(testDump(t, "six")),
+			Usage("six", ""),
+			Flags().
+				Duration("duration", "", Short("d")).
+				Size("size", "", Short("s")).
+				Rate("rate", "", Short("r")).
+				Slice("slice", "", Short("S")).
+				Array("array", "", Short("a")).
+				Map("map", "", Short("m")),
 		),
 	)
 	if err != nil {

@@ -758,7 +758,7 @@ func Unit(unit time.Duration) string {
 	case unit > time.Microsecond:
 		return "ms"
 	case unit > time.Nanosecond:
-		return "us"
+		return "µs"
 	}
 	return "ns"
 }
