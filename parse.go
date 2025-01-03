@@ -140,7 +140,7 @@ func (vars Vars) Set(ctx *Context, g *Flag, s string, set bool) error {
 		if v, err = g.New(ctx); err != nil {
 			return err
 		}
-		if s, ok := v.(interface{ SetSplit(func(string) []string) }); ok && g.Split != "" {
+		if z, ok := v.(interface{ SetSplit(func(string) []string) }); ok && g.Split != "" {
 			var f func(string) []string
 			switch r := []rune(g.Split); len(r) {
 			case 1:
@@ -152,7 +152,7 @@ func (vars Vars) Set(ctx *Context, g *Flag, s string, set bool) error {
 					return strings.Split(s, g.Split)
 				}
 			}
-			s.SetSplit(f)
+			z.SetSplit(f)
 		}
 	}
 	if err := v.Set(s); err != nil {
