@@ -219,6 +219,12 @@ var (
 		}
 		return v
 	}
+	// DefaultPrec is the default [Size]/[Rate] display precision.
+	DefaultPrec = -1
+	// DefaultIEC is the default [Size]/[Rate] IEC display setting.
+	DefaultIEC = true
+	// DefaultUnit is the default [Rate] unit.
+	DefaultUnit = time.Second
 )
 
 // Run creates and builds the execution [Context] based on the passed
@@ -597,6 +603,12 @@ const (
 	ErrMissingArgument Error = "missing argument"
 	// ErrInvalidType is the invalid type error.
 	ErrInvalidType Error = "invalid type"
+	// ErrInvalidSize is the invalid size error.
+	ErrInvalidSize Error = "invalid size"
+	// ErrInvalidRate is the invalid rate error.
+	ErrInvalidRate Error = "invalid rate"
+	// ErrUnknownSize is the unknown size error.
+	ErrUnknownSize Error = "unknown size"
 	// ErrUnknownTagOption is the unknown tag option error.
 	ErrUnknownTagOption Error = "unknown tag option"
 	// ErrInvalidValue is the invalid value error.
@@ -696,6 +708,166 @@ func BuildVersion() string {
 	}
 	return ver
 }
+
+// ParseRate parses a byte rate string.
+func ParseRate(s string) (int64, int, bool, time.Duration, error) {
+	unit := time.Second
+	if i := strings.LastIndexByte(s, '/'); i != -1 {
+		switch s[i+1:] {
+		// unitMap is the duration unit map.
+		case "ns":
+			unit = time.Nanosecond
+		case "us", "µs", "μs": // U+00B5 = micro symbol, U+03BC = Greek letter mu
+			unit = time.Microsecond
+		case "ms":
+			unit = time.Millisecond
+		case "s":
+			unit = time.Second
+		case "m":
+			unit = time.Minute
+		case "h":
+			unit = time.Hour
+		default:
+			return 0, 0, false, 0, fmt.Errorf("%w %q", ErrInvalidRate, s)
+		}
+		s = s[:i]
+	}
+	sz, prec, iec, err := ParseSize(s)
+	if err != nil {
+		return 0, 0, false, 0, err
+	}
+	return sz, prec, iec, unit, nil
+}
+
+// FormatSize formats a byte rate.
+func FormatRate(size int64, prec int, iec bool, unit time.Duration) string {
+	return FormatSize(size, prec, iec) + "/" + Unit(unit)
+}
+
+// Unit returns the string for a time unit (duration).
+func Unit(unit time.Duration) string {
+	switch {
+	case unit == 0, unit > time.Hour:
+		return Unit(DefaultUnit)
+	case unit > time.Minute:
+		return "h"
+	case unit > time.Second:
+		return "m"
+	case unit > time.Millisecond:
+		return "s"
+	case unit > time.Microsecond:
+		return "ms"
+	case unit > time.Nanosecond:
+		return "us"
+	}
+	return "ns"
+}
+
+// ParseSize parses a byte size string.
+func ParseSize(s string) (int64, int, bool, error) {
+	m := sizeRE.FindStringSubmatch(s)
+	if m == nil {
+		return 0, 0, false, fmt.Errorf("%w %q", ErrInvalidSize, s)
+	}
+	f, err := strconv.ParseFloat(m[2], 64)
+	switch {
+	case err != nil:
+		return 0, 0, false, fmt.Errorf("%w: %w", ErrInvalidSize, err)
+	case m[1] == "-":
+		f = -f
+	}
+	sz, iec, err := SizeType(m[3])
+	if err != nil {
+		return 0, 0, false, fmt.Errorf("%w: %w", ErrInvalidSize, err)
+	}
+	prec := DefaultPrec
+	if i := strings.LastIndexByte(m[2], '.'); i != -1 {
+		prec = len(m[2]) - i - 1
+	}
+	return int64(f * float64(sz)), prec, iec, nil
+}
+
+// FormatSize formats a byte size.
+func FormatSize(size int64, prec int, iec bool) string {
+	n, t, suffix := KB, "kMGTPE", "B"
+	if iec {
+		n, t, suffix = KiB, "KMGTPE", "iB"
+	}
+	var neg string
+	if size < 0 {
+		neg, size = "-", -size
+	}
+	if size < n {
+		return neg + strconv.FormatInt(size, 10) + " B"
+	}
+	e, d := 0, n
+	for i := size / n; n <= i; i /= n {
+		d *= n
+		e++
+	}
+	s := strconv.FormatFloat(float64(size)/float64(d), 'f', prec, 64)
+	if prec == -1 {
+		s = strings.TrimRight(s, ".0")
+	}
+	return neg + s + " " + string(t[e]) + suffix
+}
+
+// SizeType returns the size of s.
+func SizeType(s string) (int64, bool, error) {
+	switch strings.ToLower(s) {
+	case "", "b":
+		return B, false, nil
+	case "kb":
+		return KB, false, nil
+	case "mb":
+		return MB, false, nil
+	case "gb":
+		return GB, false, nil
+	case "tb":
+		return TB, false, nil
+	case "pb":
+		return PB, false, nil
+	case "eb":
+		return EB, false, nil
+	case "kib":
+		return KiB, true, nil
+	case "mib":
+		return MiB, true, nil
+	case "gib":
+		return GiB, true, nil
+	case "tib":
+		return TiB, true, nil
+	case "pib":
+		return PiB, true, nil
+	case "eib":
+		return EiB, true, nil
+	}
+	return 0, false, fmt.Errorf("%w %q", ErrUnknownSize, s)
+}
+
+// sizeRE matches sizes.
+var sizeRE = regexp.MustCompile(`(?i)^([-+])?([0-9]+(?:\.[0-9]*)?)(?: ?([a-z]+))?$`)
+
+// Byte sizes.
+const (
+	B  int64 = 1
+	KB int64 = 1_000
+	MB int64 = 1_000_000
+	GB int64 = 1_000_000_000
+	TB int64 = 1_000_000_000_000
+	PB int64 = 1_000_000_000_000_000
+	EB int64 = 1_000_000_000_000_000_000
+)
+
+// IEC byte sizes.
+const (
+	KiB int64 = 1_024
+	MiB int64 = 1_048_576
+	GiB int64 = 1_073_741_824
+	TiB int64 = 1_099_511_627_776
+	PiB int64 = 1_125_899_906_842_624
+	EiB int64 = 1_152_921_504_606_846_976
+)
 
 // prepend is a generic prepend.
 func prepend[S ~[]E, E any](v S, s ...E) S {

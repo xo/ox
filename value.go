@@ -144,13 +144,24 @@ func NewTime(typ Type, layout string) func() (Value, error) {
 
 // sliceVal is a slice value.
 type sliceVal struct {
-	typ Type
-	v   []Value
-	set bool
+	typ   Type
+	v     []Value
+	set   bool
+	split func(string) []string
 }
 
 // NewSlice creates a slice value of type.
 func NewSlice(typ Type) Value {
+	return &sliceVal{
+		typ: typ,
+		split: func(s string) []string {
+			return SplitBy(s, ',')
+		},
+	}
+}
+
+// NewArray creates a slice value of type.
+func NewArray(typ Type) Value {
 	return &sliceVal{
 		typ: typ,
 	}
@@ -177,14 +188,25 @@ func (val *sliceVal) WasSet() bool {
 }
 
 func (val *sliceVal) Set(s string) error {
-	v, err := val.typ.New()
-	if err != nil {
-		return err
+	var strs []string
+	if val.split != nil {
+		strs = val.split(s)
+	} else {
+		strs = []string{s}
 	}
-	if err := v.Set(s); err != nil {
-		return err
+	for i, str := range strs {
+		v, err := val.typ.New()
+		if err != nil {
+			return err
+		}
+		switch err := v.Set(str); {
+		case err != nil && 1 < len(strs):
+			return fmt.Errorf("set %d: %w", i, err)
+		case err != nil:
+			return err
+		}
+		val.v = append(val.v, v)
 	}
-	val.v = append(val.v, v)
 	return nil
 }
 
@@ -196,21 +218,28 @@ func (val *sliceVal) String() string {
 	return "[" + strings.Join(s, " ") + "]"
 }
 
+// SetSplit sets the split func.
+func (val *sliceVal) SetSplit(split func(string) []string) {
+	val.split = split
+}
+
 // Index returns the i'th variable from the slice.
 func (val *sliceVal) Index(i int) Value {
 	return val.v[i]
 }
 
+// Len returns the slice length.
 func (val *sliceVal) Len() int {
 	return len(val.v)
 }
 
 // mapVal is a map value.
 type mapVal struct {
-	key Type
-	typ Type
-	set bool
-	v   valueMap
+	key   Type
+	typ   Type
+	set   bool
+	v     valueMap
+	split func(string) []string
 }
 
 // NewMap creates a map value of type.
@@ -243,7 +272,21 @@ func (val *mapVal) WasSet() bool {
 }
 
 func (val *mapVal) Set(s string) error {
-	return val.v.Set(s)
+	var strs []string
+	if val.split != nil {
+		strs = val.split(s)
+	} else {
+		strs = []string{s}
+	}
+	for i, str := range strs {
+		switch err := val.v.Set(str); {
+		case err != nil && 1 < len(strs):
+			return fmt.Errorf("set %d: %w", i, err)
+		case err != nil:
+			return err
+		}
+	}
+	return nil
 }
 
 func (val *mapVal) String() string {
@@ -252,6 +295,11 @@ func (val *mapVal) String() string {
 
 func (val *mapVal) Get() (string, error) {
 	return val.v.String(), nil
+}
+
+// SetSplit sets the split func.
+func (val *mapVal) SetSplit(split func(string) []string) {
+	val.split = split
 }
 
 type valueMap interface {
@@ -604,6 +652,95 @@ func (val FormattedTime) String() string {
 // IsValid returns true when the time is not zero.
 func (val FormattedTime) IsValid() bool {
 	return !val.v.IsZero()
+}
+
+// Size is a byte size.
+type Size struct {
+	Size int64
+	Prec int
+	IEC  bool
+}
+
+// NewSize creates a byte size.
+func NewSize() func() (Value, error) {
+	return func() (Value, error) {
+		return &anyVal[Size]{
+			typ: SizeT,
+			v:   Size{0, DefaultPrec, DefaultIEC},
+		}, nil
+	}
+}
+
+// Rate returns the size as a [Rate].
+func (val *Size) Rate() Rate {
+	return Rate{val.Size, val.Prec, val.IEC, DefaultUnit}
+}
+
+// Int64 returns the kilobytes
+func (val *Size) Int64() int64 {
+	return val.Size
+}
+
+// String satisfies the [fmt.Stringer] interface.
+func (val *Size) String() string {
+	return FormatSize(val.Size, val.Prec, val.IEC)
+}
+
+// UnmarshalText satisfies the [BinaryMarshalUnmarshaler] interface.
+func (val *Size) UnmarshalText(b []byte) error {
+	var err error
+	val.Size, val.Prec, val.IEC, err = ParseSize(string(b))
+	return err
+}
+
+// MarshalText satisfies the [BinaryMarshalUnmarshaler] interface.
+func (val *Size) MarshalText() ([]byte, error) {
+	return []byte(FormatSize(val.Size, val.Prec, val.IEC)), nil
+}
+
+// Rate is a byte rate.
+type Rate struct {
+	Rate int64
+	Prec int
+	IEC  bool
+	Unit time.Duration
+}
+
+// NewRate creates a byte rate.
+func NewRate() func() (Value, error) {
+	return func() (Value, error) {
+		return &anyVal[Rate]{
+			typ: RateT,
+			v:   Rate{0, DefaultPrec, DefaultIEC, DefaultUnit},
+		}, nil
+	}
+}
+
+// Size returns the rate as a [Size].
+func (val *Rate) Size() Size {
+	return Size{val.Rate, val.Prec, val.IEC}
+}
+
+// Int64 returns the kilobytes
+func (val *Rate) Int64() int64 {
+	return val.Rate
+}
+
+// String satisfies the [fmt.Stringer] interface.
+func (val *Rate) String() string {
+	return FormatRate(val.Rate, val.Prec, val.IEC, val.Unit)
+}
+
+// UnmarshalText satisfies the [BinaryMarshalUnmarshaler] interface.
+func (val *Rate) UnmarshalText(b []byte) error {
+	var err error
+	val.Rate, val.Prec, val.IEC, val.Unit, err = ParseRate(string(b))
+	return err
+}
+
+// MarshalText satisfies the [BinaryMarshalUnmarshaler] interface.
+func (val *Rate) MarshalText() ([]byte, error) {
+	return []byte(FormatRate(val.Rate, val.Prec, val.IEC, val.Unit)), nil
 }
 
 // sliceSet sets a value on a slice -- expects reflect.ValueOf(&<target>).

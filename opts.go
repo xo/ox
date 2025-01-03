@@ -399,6 +399,17 @@ func Short(short string) FlagOption {
 	}
 }
 
+// Split is a [Flag] option to add a flag's split separator.
+func Split(split string) FlagOption {
+	return option{
+		name: "Split",
+		flag: func(g *Flag) error {
+			g.Split = split
+			return nil
+		},
+	}
+}
+
 // Suggested is a [Command] option to add suggested names for the command.
 func Suggested(suggested ...string) CommandOption {
 	return option{

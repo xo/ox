@@ -525,6 +525,16 @@ func (fs *FlagSet) Duration(name, usage string, opts ...Option) *FlagSet {
 	return fs.Var(name, usage, prepend(opts, Option(DurationT))...)
 }
 
+// Size adds a [Size] variable to the flag set.
+func (fs *FlagSet) Size(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(SizeT))...)
+}
+
+// Rate adds a [Rate] variable to the flag set.
+func (fs *FlagSet) Rate(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(RateT))...)
+}
+
 // Path adds a path variable to the flag set.
 func (fs *FlagSet) Path(name, usage string, opts ...Option) *FlagSet {
 	return fs.Var(name, usage, prepend(opts, Option(PathT))...)
@@ -595,6 +605,11 @@ func (fs *FlagSet) Slice(name, usage string, opts ...Option) *FlagSet {
 	return fs.Var(name, usage, prepend(opts, Option(SliceT))...)
 }
 
+// Array adds a array variable to the flag set.
+func (fs *FlagSet) Array(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(ArrayT))...)
+}
+
 // Map adds a map variable to the flag set.
 func (fs *FlagSet) Map(name, usage string, opts ...Option) *FlagSet {
 	return fs.Var(name, usage, prepend(opts, Option(MapT))...)
@@ -611,7 +626,7 @@ type Flag struct {
 	Type Type
 	// MapKey is the flag's map key type when the flag is a [MapT].
 	MapKey Type
-	// Elem is the flag's element type when the flag is a [SliceT] or [MapT].
+	// Elem is the flag's element type when the flag is a [SliceT], [ArrayT] or [MapT].
 	Elem Type
 	// Name is the flag's long name (`--arg`).
 	Name string
@@ -641,6 +656,8 @@ type Flag struct {
 	Hidden bool
 	// Deprecated indicates the flag is deprecated.
 	Deprecated bool
+	// Split is a split separator, to split values for slices/arrays/maps.
+	Split string
 	// Special is the flag's special value.
 	Special string
 }
@@ -700,7 +717,7 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 //
 //	type - sets the flag's field type
 //	mapkey - sets the flag's map key type
-//	elem - sets the flag's map/slice element type
+//	elem - sets the flag's slice/array/map element type
 //	name - sets the flag's name
 //	short - sets the flag's short (single character) name
 //	alias - adds a alias to the flag
@@ -713,6 +730,7 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 //	section - sets the flag's section
 //	hidden - marks the flag as hidden
 //	deprecated - marks the flag as deprecated
+//	split - set a split separator for slice/array/map values
 //	set - binds the flag's set value to a bool field in the *struct of the name
 //
 // The `default:` option will be expanded by [Context.Expand] when the
@@ -737,7 +755,7 @@ func FlagsFrom[T *E, E any](val T) ([]*Flag, error) {
 		if r := []rune(f.Name); !unicode.IsUpper(r[0]) {
 			return nil, fmt.Errorf("%w: field %q is not exported but has tag `%s`", ErrInvalidType, f.Name, DefaultTagName)
 		}
-		tag := Split(s, ',')
+		tag := SplitBy(s, ',')
 		if len(tag) == 0 || tag[0] == "-" {
 			continue
 		}
@@ -759,7 +777,7 @@ func FlagsFrom[T *E, E any](val T) ([]*Flag, error) {
 // New creates a new value for the flag's type.
 func (g *Flag) New(ctx *Context) (Value, error) {
 	switch g.Type {
-	case SliceT:
+	case SliceT, ArrayT:
 		return NewSlice(g.Elem), nil
 	case MapT:
 		return NewMap(g.MapKey, g.Elem)
@@ -776,7 +794,7 @@ func (g *Flag) SpecString() string {
 		return g.Name
 	case g.Spec != "":
 		return g.Name + text.FlagSpecSpacer + g.Spec
-	case g.Type == SliceT:
+	case g.Type == SliceT, g.Type == ArrayT:
 		return g.Name + text.FlagSpecSpacer + g.Elem.String()
 	case g.Type == MapT:
 		return g.Name + text.FlagSpecSpacer + g.MapKey.String() + "=" + g.Elem.String()
@@ -891,6 +909,8 @@ func buildFlagOpts(parent, value reflect.Value, tags []string) ([]Option, error)
 			opts = append(opts, Hidden(true))
 		case "deprecated":
 			opts = append(opts, Deprecated(true))
+		case "split":
+			opts = append(opts, Split(val))
 		case "set":
 			if set, err = setField(parent, val); err != nil {
 				return nil, err
@@ -934,10 +954,9 @@ func newFlagError(name string, err error) error {
 	return fmt.Errorf("--%s: %w", name, err)
 }
 
-// Split splits a string by the rune cut, skipping runes escaped with `\`.
-func Split(str string, cut rune) []string {
-	r := []rune(str)
-	v := make([][]rune, 1)
+// SplitBy splits a string by cut, skipping runes escaped with `\`.
+func SplitBy(str string, cut rune) []string {
+	r, v := []rune(str), make([][]rune, 1)
 	var c, next rune
 	for i, j, n := 0, 0, len(r); i < n; i++ {
 		c = r[i]
@@ -973,7 +992,8 @@ func prev(s []string, n int) string {
 	return ""
 }
 
-// maxDist gets the maximum distance from the command.
+// maxDist gets the maximum distance from the command's help, or returns
+// [DefaultMaxDist].
 func maxDist(cmd *Command) int {
 	if help, ok := cmd.Help.(*CommandHelp); ok && help.MaxDist != 0 {
 		return help.MaxDist

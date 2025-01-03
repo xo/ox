@@ -594,8 +594,8 @@ const (
 	// CompKeepOrder indicates that the shell should preserve the order in
 	// which the completions are provided.
 	CompKeepOrder
-	// CompDefault indicates to let the shell perform its default
-	// behavior after completions have been provided.
+	// CompDefault indicates to let the shell perform its default behavior
+	// after completions have been provided.
 	CompDefault CompDirective = 0
 )
 

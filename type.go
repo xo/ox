@@ -45,8 +45,11 @@ const (
 	TimeT      Type = "time"
 
 	DurationT Type = "duration"
-	CountT    Type = "count"
-	PathT     Type = "path"
+	SizeT     Type = "size"
+	RateT     Type = "rate"
+
+	CountT Type = "count"
+	PathT  Type = "path"
 
 	BigIntT   Type = "bigint"
 	BigFloatT Type = "bigfloat"
@@ -62,6 +65,7 @@ const (
 	GlobT  Type = "glob"
 
 	SliceT Type = "slice"
+	ArrayT Type = "array"
 	MapT   Type = "map"
 
 	HookT Type = "hook"
@@ -72,7 +76,7 @@ func (typ Type) Option() option {
 	return option{
 		name: "Type(" + typ.String() + ")",
 		flag: func(g *Flag) error {
-			if g.Type != SliceT && g.Type != MapT && g.Type != HookT {
+			if g.Type != SliceT && g.Type != ArrayT && g.Type != MapT && g.Type != HookT {
 				g.Type = typ
 			} else if g.Type != HookT {
 				g.Elem = typ
@@ -93,14 +97,24 @@ func (typ Type) String() string {
 
 // New creates a new [Value] for the registered type.
 func (typ Type) New() (Value, error) {
-	if typ == HookT {
+	var v Value
+	var err error
+	switch typ {
+	case HookT:
 		return nil, fmt.Errorf("%w (hook)", ErrCouldNotCreateValue)
+	case SliceT:
+		v = NewSlice(StringT)
+	case ArrayT:
+		v = NewArray(StringT)
+	case MapT:
+		v, err = NewMap(StringT, StringT)
+	default:
+		f, ok := typeNews[typ]
+		if !ok {
+			return nil, fmt.Errorf("%w: type not registered (%q)", ErrCouldNotCreateValue, string(typ))
+		}
+		v, err = f()
 	}
-	f, ok := typeNews[typ]
-	if !ok {
-		return nil, fmt.Errorf("%w: type not registered (%q)", ErrCouldNotCreateValue, string(typ))
-	}
-	v, err := f()
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrCouldNotCreateValue, err)
 	}
@@ -157,6 +171,8 @@ func init() {
 	RegisterType(DateT, NewTime(DateT, time.DateOnly))
 	RegisterType(TimeT, NewTime(TimeT, time.TimeOnly))
 	RegisterType(DurationT, NewVal[time.Duration]())
+	RegisterType(SizeT, NewSize())
+	RegisterType(RateT, NewRate())
 	RegisterType(CountT, NewVal[uint64](CountT), NoArg(true, ""))
 	RegisterType(PathT, NewVal[string](PathT))
 	// register text marshal types
@@ -282,6 +298,10 @@ func typeRef(val any) Type {
 		return TimestampT
 	case time.Duration:
 		return DurationT
+	case Size:
+		return SizeT
+	case Rate:
+		return RateT
 	case *big.Int:
 		return BigIntT
 	case *big.Float:

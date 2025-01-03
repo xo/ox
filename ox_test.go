@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestSuggestions(t *testing.T) {
@@ -106,6 +107,87 @@ func TestLdist(t *testing.T) {
 			}
 			if i := Ldist(b, a); i != test.exp {
 				t.Errorf("expected %d, got: %d", test.exp, i)
+			}
+		})
+	}
+}
+
+func TestFormatSize(t *testing.T) {
+	tests := []struct {
+		size int64
+		prec int
+		iec  bool
+		exp  string
+	}{
+		{0, DefaultPrec, false, "0 B"},
+		{0, DefaultPrec, true, "0 B"},
+		{int64(0.754 * float64(MB)), DefaultPrec, false, "754 kB"},
+		{int64(1.5 * float64(GB)), 2, false, "1.50 GB"},
+		{int64(1.5 * float64(GB)), 1, false, "1.5 GB"},
+		{int64(1.54 * float64(GB)), 2, false, "1.54 GB"},
+		{int64(1.5 * float64(GiB)), 2, true, "1.50 GiB"},
+		{int64(1.5 * float64(PiB)), 2, true, "1.50 PiB"},
+	}
+	for i, test := range tests {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			s := FormatSize(test.size, test.prec, test.iec)
+			if s != test.exp {
+				t.Errorf("expected %q, got: %q", test.exp, s)
+			}
+			size, prec, iec, err := ParseSize(test.exp)
+			if err != nil {
+				t.Fatalf("expected no error, got: %v", err)
+			}
+			if size != test.size {
+				t.Errorf("expected size %d, got: %d", test.size, size)
+			}
+			if prec != test.prec {
+				t.Errorf("expected prec %d, got: %d", test.prec, prec)
+			}
+			if test.size != 0 && iec != test.iec {
+				t.Errorf("expected iec %t, got: %t", test.iec, iec)
+			}
+		})
+	}
+}
+
+func TestFormatRate(t *testing.T) {
+	tests := []struct {
+		rate int64
+		prec int
+		iec  bool
+		unit time.Duration
+		exp  string
+	}{
+		{0, DefaultPrec, false, time.Second, "0 B/s"},
+		{0, DefaultPrec, true, time.Second, "0 B/s"},
+		{int64(0.754 * float64(MB)), DefaultPrec, false, time.Hour, "754 kB/h"},
+		{int64(1.5 * float64(GB)), 1, false, time.Microsecond, "1.5 GB/us"},
+		{int64(1.54 * float64(GB)), 2, false, time.Microsecond, "1.54 GB/us"},
+		{int64(1.5 * float64(GiB)), 2, true, time.Millisecond, "1.50 GiB/ms"},
+		{int64(1.5 * float64(PiB)), 2, true, time.Second, "1.50 PiB/s"},
+	}
+	for i, test := range tests {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			s := FormatRate(test.rate, test.prec, test.iec, test.unit)
+			if s != test.exp {
+				t.Errorf("expected %q, got: %q", test.exp, s)
+			}
+			rate, prec, iec, unit, err := ParseRate(test.exp)
+			if err != nil {
+				t.Fatalf("expected no error, got: %v", err)
+			}
+			if rate != test.rate {
+				t.Errorf("expected rate %d, got: %d", test.rate, rate)
+			}
+			if prec != test.prec {
+				t.Errorf("expected prec %d, got: %d", test.prec, prec)
+			}
+			if test.rate != 0 && iec != test.iec {
+				t.Errorf("expected iec %t, got: %t", test.iec, iec)
+			}
+			if unit != test.unit {
+				t.Errorf("expected unit %v, got: %v", test.unit, unit)
 			}
 		})
 	}

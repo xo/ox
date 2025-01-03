@@ -343,6 +343,49 @@ func typeTests(t *testing.T) []typeTest {
 				{":foo", ErrInvalidValue},
 			},
 		},
+		{
+			SizeT, []test{
+				{"", "0 B"},
+				{"1", "1 B"},
+				{"1 mib", Size{1 * MiB, DefaultPrec, DefaultIEC}},
+				{"1.5GB", Size{int64(1.5 * float64(GB)), 1, false}},
+				{"1.5GiB", Size{int64(1.5 * float64(GiB)), DefaultPrec, DefaultIEC}},
+				{"15 MiB", Size{int64(15 * float64(MiB)), DefaultPrec, DefaultIEC}},
+				{"foo", ErrInvalidValue},
+			},
+		},
+		{
+			RateT, []test{
+				{"", "0 B/s"},
+				{"1", "1 B/s"},
+				{"1 mib", "1 MiB/s"},
+				{"1.5GB", "1.5 GB/s"},
+				{"-15.4 MB", "-15.4 MB/s"},
+				{"-15.4 mib", "-15.4 MiB/s"},
+				{"1/s", "1 B/s"},
+				{"1 mib/h", "1 MiB/h"},
+				{"1.5GB/m", "1.5 GB/m"},
+				{"-15.4 MiB/s", "-15.4 MiB/s"},
+				{"1 gib/µs", "1 GiB/us"},
+				{"foo", ErrInvalidValue},
+			},
+		},
+		{
+			SliceT, []test{
+				{"", "[]"},
+				{"a", "[a]"},
+				{"a,b", "[a b]"},
+				{"a,b,c", "[a b c]"},
+			},
+		},
+		{
+			ArrayT, []test{
+				{"", "[]"},
+				{"a", "[a]"},
+				{"a,b", "[a,b]"},
+				{"a,b,c", "[a,b,c]"},
+			},
+		},
 	}
 }
 
