@@ -142,9 +142,8 @@ func (vars Vars) Set(ctx *Context, g *Flag, s string, set bool) error {
 		}
 		if s, ok := v.(interface{ SetSplit(func(string) []string) }); ok && g.Split != "" {
 			var f func(string) []string
-			switch len(g.Split) {
+			switch r := []rune(g.Split); len(r) {
 			case 1:
-				r := []rune(g.Split)
 				f = func(s string) []string {
 					return SplitBy(s, r[0])
 				}
@@ -160,9 +159,9 @@ func (vars Vars) Set(ctx *Context, g *Flag, s string, set bool) error {
 		return err
 	}
 	v.SetSet(set)
-	for i, val := range g.Binds {
-		if err := val.Bind(s); err != nil {
-			return fmt.Errorf("bind %d (%s): cannot set %q: %w", i, val, s, err)
+	for i, bind := range g.Binds {
+		if err := bind.Bind(s); err != nil {
+			return fmt.Errorf("bind %d (%s): cannot set %q: %w", i, bind, s, err)
 		}
 	}
 	vars[name] = v
