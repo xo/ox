@@ -27,7 +27,7 @@
 - POSIX-style/compatible flag parsing (`-vvv`, `-mfoo=bar` `-m foo=bar`, `--map=foo=bar`)
 - Flags can have optional arguments (via `NoArg`) and type specific defaults
 - Full command tree and sub command heirarchy
-- Support for all scalars:
+- Support for `builtin` types:
   - `[]byte`, `string`, `[]rune`, `byte`, `rune`
   - `int64`, `int32`, `int16`, `int8`, `int`
   - `uint64`, `uint32`, `uint16`, `uint8`, `uint`
@@ -38,6 +38,9 @@
   - `*big.Int`, `*big.Float`, `*big.Rat`
   - `*url.URL`, `*regexp.Regexp`
   - `*netip.Addr`, `*netip.AddrPort`, `*netip.Prefix`
+- Non-standard types:
+  - `ox.Size` - a byte size (`15 MiB`, `1 GB`, ...)
+  - `ox.Rate` - a byte rate (`15 MiB/s`, `1 GB/h`, ...)
 - Support for compound types of all above (slices/maps):
   - `[]int`, `[][]byte`, `[]string`, `[]float64`, `[]*big.Int`, etc.
   - `map[string]string`, `map[int]string`, `map[float64]*url.URL`, etc.
@@ -45,7 +48,6 @@
   - `ox.DateTimeT`, `ox.DateT`, `ox.TimeT` / `type:datetime`, `type:date`, `type:time` - standard dates and times
   - `ox.FormattedTime` - any `time.Time` value using any `time.Layout` format
   - `ox.CountT` / `type:count` - incrementing counter, such as for verbosity `-vvvv`
-  - `ox.ByteCountT` - a SI or IEC formatted byte count
   - `ox.Base64T` - a base64 encoded string
   - `ox.HexT` - a hex encoded string
   - `ox.PathT` / `type:path` - a file system path
