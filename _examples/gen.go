@@ -1,5 +1,6 @@
 // Command gen parses and generates xo/ox style run entries for well-known,
-// commmon commands `docker`, `doctl`, `gh`, `helm`, `hugo`, `kubectl`, `podman`, `psql`.
+// commmon commands `docker`, `doctl`, `gh`, `helm`, `hugo`, `kubectl`,
+// `podman`, `psql`.
 //
 // Generates the xo/ox API calls based on the command's `<command> help ...`
 // output.
@@ -612,12 +613,12 @@ func (cmd *command) parseFlagType(sect, name, typstr, desc string) (ox.Type, ox.
 	case strings.HasSuffix(u, "s"):
 		typ, _, _, _, _ := cmd.parseFlagType(sect, name, strings.TrimSuffix(u, "s"), desc)
 		return ox.SliceT, "", typ, "", ""
-	case strings.HasSuffix(u, "Array"):
-		typ, _, _, _, _ := cmd.parseFlagType(sect, name, strings.TrimSuffix(u, "Array"), desc)
-		return ox.SliceT, "", typ, "", ""
 	case strings.HasSuffix(u, "Slice"):
 		typ, _, _, _, _ := cmd.parseFlagType(sect, name, strings.TrimSuffix(u, "Slice"), desc)
 		return ox.SliceT, "", typ, "", ""
+	case strings.HasSuffix(u, "Array"):
+		typ, _, _, _, _ := cmd.parseFlagType(sect, name, strings.TrimSuffix(u, "Array"), desc)
+		return ox.ArrayT, "", typ, "", ""
 	case strings.HasPrefix(u, "--") && strings.HasSuffix(u, "=false"):
 		return ox.BoolT, "", "", "", ""
 	case strings.HasPrefix(u, "--"):
