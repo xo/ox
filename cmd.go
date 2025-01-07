@@ -300,7 +300,10 @@ loop:
 			})
 		}
 	}
-	return comps, CompNoFileComp | CompKeepOrder
+	if len(comps) != 0 {
+		return comps, CompNoFileComp | CompKeepOrder
+	}
+	return nil, CompDefault
 }
 
 // CompFlags returns flag completions for the command.
@@ -360,7 +363,10 @@ func (cmd *Command) CompFlags(name string, hidden, deprecated, short bool) ([]Co
 			})
 		}
 	}
-	return comps, CompNoFileComp | CompKeepOrder
+	if len(comps) != 0 {
+		return comps, CompNoFileComp | CompKeepOrder
+	}
+	return nil, CompDefault
 }
 
 // FlagSet is a set of command-line flag definitions.

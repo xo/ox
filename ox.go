@@ -220,7 +220,7 @@ var (
 		return v
 	}
 	// DefaultPrec is the default [Size]/[Rate] display precision.
-	DefaultPrec = -1
+	DefaultPrec = -2
 	// DefaultIEC is the default [Size]/[Rate] IEC display setting.
 	DefaultIEC = true
 	// DefaultUnit is the default [Rate] unit.
@@ -384,7 +384,7 @@ func (ctx *Context) Comps() ([]Completion, CompDirective, error) {
 	}
 	fmt.Fprintf(os.Stderr, "COMP COMMAND: %s\n", c.Exec.Name)
 	var comps []Completion
-	dir := CompNoFileComp
+	var dir CompDirective
 	// TODO: expose flags to allow hidden/deprecated
 	hidden, deprecated := false, true
 	// build completions
@@ -741,26 +741,7 @@ func ParseRate(s string) (int64, int, bool, time.Duration, error) {
 
 // FormatSize formats a byte rate.
 func FormatRate(size int64, prec int, iec bool, unit time.Duration) string {
-	return FormatSize(size, prec, iec) + "/" + Unit(unit)
-}
-
-// Unit returns the string for a time unit (duration).
-func Unit(unit time.Duration) string {
-	switch {
-	case unit == 0, unit > time.Hour:
-		return Unit(DefaultUnit)
-	case unit > time.Minute:
-		return "h"
-	case unit > time.Second:
-		return "m"
-	case unit > time.Millisecond:
-		return "s"
-	case unit > time.Microsecond:
-		return "ms"
-	case unit > time.Nanosecond:
-		return "µs"
-	}
-	return "ns"
+	return FormatSize(size, prec, iec) + "/" + unitString(unit)
 }
 
 // ParseSize parses a byte size string.
@@ -776,7 +757,7 @@ func ParseSize(s string) (int64, int, bool, error) {
 	case m[1] == "-":
 		f = -f
 	}
-	sz, iec, err := SizeType(m[3])
+	sz, iec, err := sizeType(m[3])
 	if err != nil {
 		return 0, 0, false, fmt.Errorf("%w: %w", ErrInvalidSize, err)
 	}
@@ -788,6 +769,10 @@ func ParseSize(s string) (int64, int, bool, error) {
 }
 
 // FormatSize formats a byte size.
+//
+// Formatting rules follow [strconv.FormatFloat] rules, with additional option
+// for a precision of -2, which will remove trailing zeroes and the decimal if
+// the decimal places are all zeroes.
 func FormatSize(size int64, prec int, iec bool) string {
 	n, t, suffix := KB, "kMGTPE", "B"
 	if iec {
@@ -805,15 +790,19 @@ func FormatSize(size int64, prec int, iec bool) string {
 		d *= n
 		e++
 	}
-	s := strconv.FormatFloat(float64(size)/float64(d), 'f', prec, 64)
-	if prec == -1 {
+	precabs := prec
+	if precabs < -1 {
+		precabs = -precabs
+	}
+	s := strconv.FormatFloat(float64(size)/float64(d), 'f', precabs, 64)
+	if prec < -1 {
 		s = strings.TrimRight(s, ".0")
 	}
 	return neg + s + " " + string(t[e]) + suffix
 }
 
-// SizeType returns the size of s.
-func SizeType(s string) (int64, bool, error) {
+// sizeType returns the size of s.
+func sizeType(s string) (int64, bool, error) {
 	switch strings.ToLower(s) {
 	case "", "b":
 		return B, false, nil
@@ -845,9 +834,6 @@ func SizeType(s string) (int64, bool, error) {
 	return 0, false, fmt.Errorf("%w %q", ErrUnknownSize, s)
 }
 
-// sizeRE matches sizes.
-var sizeRE = regexp.MustCompile(`(?i)^([-+])?([0-9]+(?:\.[0-9]*)?)(?: ?([a-z]+))?$`)
-
 // Byte sizes.
 const (
 	B  int64 = 1
@@ -868,6 +854,28 @@ const (
 	PiB int64 = 1_125_899_906_842_624
 	EiB int64 = 1_152_921_504_606_846_976
 )
+
+// unitString returns the string for a time unit (duration).
+func unitString(unit time.Duration) string {
+	switch {
+	case unit == 0, unit > time.Hour:
+		return unitString(DefaultUnit)
+	case unit > time.Minute:
+		return "h"
+	case unit > time.Second:
+		return "m"
+	case unit > time.Millisecond:
+		return "s"
+	case unit > time.Microsecond:
+		return "ms"
+	case unit > time.Nanosecond:
+		return "µs"
+	}
+	return "ns"
+}
+
+// sizeRE matches sizes.
+var sizeRE = regexp.MustCompile(`(?i)^([-+])?([0-9]+(?:\.[0-9]*)?)(?: ?([a-z]+))?$`)
 
 // prepend is a generic prepend.
 func prepend[S ~[]E, E any](v S, s ...E) S {
