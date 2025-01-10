@@ -185,7 +185,7 @@ func (size Size) Format(f fmt.State, verb rune) {
 
 // MarshalText satisfies the [BinaryMarshalUnmarshaler] interface.
 func (size Size) MarshalText() ([]byte, error) {
-	return AppendSize(make([]byte, 0, 28), int64(size), 'f', -2, true), nil
+	return AppendSize(make([]byte, 0, 28), int64(size), 'z', -2, true), nil
 }
 
 // UnmarshalText satisfies the [BinaryMarshalUnmarshaler] interface.

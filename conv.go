@@ -195,9 +195,9 @@ func asString[T stringi](val any) (T, error) {
 		}
 		return T(v.String()), nil
 	case Size:
-		return T(FormatSize(int64(v), 'f', -2, true)), nil
+		return T(FormatSize(int64(v), 'z', -2, true)), nil
 	case Rate:
-		return T(FormatRate(v, 'f', -2, true)), nil
+		return T(FormatRate(v, 'z', -2, true)), nil
 	case interface{ String() string }:
 		return T(v.String()), nil
 	case interface{ Bytes() []byte }:
