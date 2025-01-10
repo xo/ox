@@ -198,7 +198,7 @@ func parseTests() []parseTest {
 				"name: six",
 				"path: [six]",
 				"args: []",
-				"vars: [duration:15µs int:15 rate:186 MB/s size:15 MiB]",
+				"vars: [duration:15µs int:15 rate:177.38 MiB/s size:15 MiB]",
 			},
 		},
 	}

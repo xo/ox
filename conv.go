@@ -195,9 +195,9 @@ func asString[T stringi](val any) (T, error) {
 		}
 		return T(v.String()), nil
 	case Size:
-		return T(v.String()), nil
+		return T(FormatSize(int64(v), 'f', -2, true)), nil
 	case Rate:
-		return T(v.String()), nil
+		return T(FormatRate(v, 'f', -2, true)), nil
 	case interface{ String() string }:
 		return T(v.String()), nil
 	case interface{ Bytes() []byte }:
@@ -486,26 +486,22 @@ func asSize(val any) (Size, error) {
 		return v.Size(), nil
 	}
 	if v, err := asInt[int64](val); err == nil {
-		return Size{v * B, DefaultPrec, DefaultIEC}, nil
+		return Size(v), nil
 	}
 	if v, err := asUint[uint64](val); err == nil {
-		return Size{int64(v * uint64(B)), DefaultPrec, DefaultIEC}, nil
+		return Size(v), nil
 	}
 	if v, err := asFloat[float64](val); err == nil {
-		return Size{int64(v * float64(B)), DefaultPrec, DefaultIEC}, nil
+		return Size(v), nil
 	}
 	s, err := asString[string](val)
 	switch {
 	case err != nil:
-		return Size{0, DefaultPrec, DefaultIEC}, err
+		return 0, err
 	case s == "":
-		return Size{0, DefaultPrec, DefaultIEC}, nil
+		return 0, nil
 	}
-	size, prec, iec, err := ParseSize(s)
-	if err != nil {
-		return Size{0, DefaultPrec, DefaultIEC}, err
-	}
-	return Size{size, prec, iec}, nil
+	return ParseSize(s)
 }
 
 // asRate converts the value to a [Rate].
@@ -517,26 +513,22 @@ func asRate(val any) (Rate, error) {
 		return v.Rate(), nil
 	}
 	if v, err := asInt[int64](val); err == nil {
-		return Rate{v * B, DefaultPrec, DefaultIEC, DefaultUnit}, nil
+		return Rate{Size(v), DefaultRateUnit}, nil
 	}
 	if v, err := asUint[uint64](val); err == nil {
-		return Rate{int64(v * uint64(B)), DefaultPrec, DefaultIEC, DefaultUnit}, nil
+		return Rate{Size(v), DefaultRateUnit}, nil
 	}
 	if v, err := asFloat[float64](val); err == nil {
-		return Rate{int64(v * float64(B)), DefaultPrec, DefaultIEC, DefaultUnit}, nil
+		return Rate{Size(v), DefaultRateUnit}, nil
 	}
 	s, err := asString[string](val)
 	switch {
 	case err != nil:
-		return Rate{0, DefaultPrec, DefaultIEC, DefaultUnit}, err
+		return Rate{}, err
 	case s == "":
-		return Rate{0, DefaultPrec, DefaultIEC, DefaultUnit}, nil
+		return Rate{}, nil
 	}
-	rate, prec, iec, unit, err := ParseRate(s)
-	if err != nil {
-		return Rate{0, DefaultPrec, DefaultIEC, DefaultUnit}, err
-	}
-	return Rate{rate, prec, iec, unit}, nil
+	return ParseRate(s)
 }
 
 // asUnmarshal creates a new value as T, and unmarshals the value to it.

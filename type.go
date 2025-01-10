@@ -38,6 +38,8 @@ const (
 	Float32T    Type = "float32"
 	Complex128T Type = "complex128"
 	Complex64T  Type = "complex64"
+	SizeT       Type = "size"
+	RateT       Type = "rate"
 
 	TimestampT Type = "timestamp"
 	DateTimeT  Type = "datetime"
@@ -45,8 +47,6 @@ const (
 	TimeT      Type = "time"
 
 	DurationT Type = "duration"
-	SizeT     Type = "size"
-	RateT     Type = "rate"
 
 	CountT Type = "count"
 	PathT  Type = "path"
@@ -166,13 +166,13 @@ func init() {
 	RegisterType(Float32T, NewVal[float32]())
 	RegisterType(Complex128T, NewVal[complex128]())
 	RegisterType(Complex64T, NewVal[complex64]())
+	RegisterType(RateT, NewVal[Rate]())
+	RegisterType(SizeT, NewVal[Size]())
 	RegisterType(TimestampT, NewTime(TimestampT, ""))
 	RegisterType(DateTimeT, NewTime(DateTimeT, time.DateTime))
 	RegisterType(DateT, NewTime(DateT, time.DateOnly))
 	RegisterType(TimeT, NewTime(TimeT, time.TimeOnly))
 	RegisterType(DurationT, NewVal[time.Duration]())
-	RegisterType(SizeT, NewSize())
-	RegisterType(RateT, NewRate())
 	RegisterType(CountT, NewVal[uint64](CountT), NoArg(true, ""))
 	RegisterType(PathT, NewVal[string](PathT))
 	// register text marshal types
