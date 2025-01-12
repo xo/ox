@@ -508,14 +508,14 @@ func (fs *FlagSet) Complex64(name, usage string, opts ...Option) *FlagSet {
 	return fs.Var(name, usage, prepend(opts, Option(Complex64T))...)
 }
 
-// Timestamp adds a [time.Time] variable to the flag set in the expected format of
-// [time.RFC3339].
+// Timestamp adds a [time.Time] variable to the flag set in the expected format
+// of [time.RFC3339].
 func (fs *FlagSet) Timestamp(name, usage string, opts ...Option) *FlagSet {
 	return fs.Var(name, usage, prepend(opts, Option(TimestampT))...)
 }
 
-// DateTime adds a [time.Time] variable to the flag set in the expected format of
-// [time.DateTime].
+// DateTime adds a [time.Time] variable to the flag set in the expected format
+// of [time.DateTime].
 func (fs *FlagSet) DateTime(name, usage string, opts ...Option) *FlagSet {
 	return fs.Var(name, usage, prepend(opts, Option(DateTimeT))...)
 }
@@ -745,39 +745,7 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 // The tag name (`ox`) can be changed by setting the [DefaultTagName] variable
 // if necessary.
 func FlagsFrom[T *E, E any](val T) ([]*Flag, error) {
-	v := reflect.ValueOf(val).Elem()
-	if v.Kind() != reflect.Struct {
-		return nil, fmt.Errorf("%w: %T is not a *struct", ErrInvalidType, val)
-	}
-	typ := v.Type()
-	var flags []*Flag
-	for i := range typ.NumField() {
-		// check field is exported
-		f := typ.Field(i)
-		s, ok := f.Tag.Lookup(DefaultTagName)
-		if !ok {
-			continue
-		}
-		if r := []rune(f.Name); !unicode.IsUpper(r[0]) {
-			return nil, fmt.Errorf("%w: field %q is not exported but has tag `%s`", ErrInvalidType, f.Name, DefaultTagName)
-		}
-		tag := SplitBy(s, ',')
-		if len(tag) == 0 || tag[0] == "-" {
-			continue
-		}
-		// build flag opts
-		opts, err := buildFlagOpts(v, v.Field(i).Addr(), tag[1:])
-		if err != nil {
-			return nil, fmt.Errorf("field %s: %w", f.Name, err)
-		}
-		// create flag
-		g, err := NewFlag(DefaultFlagNameMapper(f.Name), tag[0], opts...)
-		if err != nil {
-			return nil, fmt.Errorf("field %s: cannot create flag: %w", f.Name, err)
-		}
-		flags = append(flags, g)
-	}
-	return flags, nil
+	return appendFlags(nil, reflect.ValueOf(val), nil)
 }
 
 // New creates a new value for the flag's type.
@@ -868,6 +836,85 @@ func NewExec[T ExecType](f T) (ExecFunc, error) {
 	return nil, fmt.Errorf("%w: invalid exec func %T", ErrInvalidType, f)
 }
 
+// appendFlags builds flags for a value, appending them to flags.
+func appendFlags(flags []*Flag, v reflect.Value, parents []string) ([]*Flag, error) {
+	if v.Kind() != reflect.Pointer || v.Elem().Kind() != reflect.Struct {
+		return nil, fmt.Errorf("%w: %s is not a *struct", ErrInvalidType, v.Type())
+	}
+	v = v.Elem()
+	typ := v.Type()
+	for i := range typ.NumField() {
+		// check field is exported
+		f := typ.Field(i)
+		tag, ok := f.Tag.Lookup(DefaultTagName)
+		if !ok {
+			continue
+		}
+		if r := []rune(f.Name); !unicode.IsUpper(r[0]) {
+			return nil, fmt.Errorf("%w: unexported field `%s` has tag `%s`", ErrInvalidType, f.Name, DefaultTagName)
+		}
+		tags := SplitBy(tag, ',')
+		switch name, kind, field := tags[0], f.Type.Kind(), v.Field(i); {
+		case kind == reflect.Pointer && f.Type.Elem().Kind() == reflect.Struct: // *struct
+			switch {
+			case name == "-":
+				continue
+			case name == "":
+				name = f.Name
+			}
+			if field.IsNil() {
+				field.Set(reflect.New(f.Type.Elem()))
+			}
+			var err error
+			if flags, err = appendFlags(flags, field, append(parents, name)); err != nil {
+				return nil, err
+			}
+		case kind == reflect.Struct: // struct
+			switch {
+			case name == "-":
+				continue
+			case name == "":
+				name = f.Name
+			}
+			var err error
+			if flags, err = appendFlags(flags, field.Addr(), append(parents, name)); err != nil {
+				return nil, err
+			}
+		default:
+			if name == "" || name == "-" {
+				continue
+			}
+			g, err := buildFlag(v, i, tags, parents)
+			if err != nil {
+				return nil, err
+			}
+			flags = append(flags, g)
+		}
+	}
+	return flags, nil
+}
+
+// buildFlags builds a flag for v.
+func buildFlag(v reflect.Value, i int, tag []string, parents []string) (*Flag, error) {
+	f := v.Type().Field(i)
+	// flag name
+	name := f.Name
+	if len(parents) != 0 {
+		name = strings.Join(parents, "_") + "_" + name
+	}
+	// flag opts
+	opts, err := buildFlagOpts(v, v.Field(i).Addr(), tag[1:])
+	if err != nil {
+		return nil, fmt.Errorf("field %s: %w", f.Name, err)
+	}
+	// create flag
+	g, err := NewFlag(DefaultFlagNameMapper(name), tag[0], opts...)
+	if err != nil {
+		return nil, fmt.Errorf("field %s: cannot create flag: %w", f.Name, err)
+	}
+	return g, nil
+}
+
 // buildFlagOpts builds flag options for value from the passed struct tags.
 func buildFlagOpts(parent, value reflect.Value, tags []string) ([]Option, error) {
 	var set *bool
@@ -876,6 +923,9 @@ func buildFlagOpts(parent, value reflect.Value, tags []string) ([]Option, error)
 		return nil, fmt.Errorf("%s: %w", value.Type().String(), err)
 	}
 	opts := []Option{typ, MapKey(mapKey), Elem(elem)}
+	if typ == SliceT || typ == MapT {
+		opts = append(opts, Split(","))
+	}
 	for _, opt := range tags {
 		key, val, _ := strings.Cut(opt, ":")
 		switch key {

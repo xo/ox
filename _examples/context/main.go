@@ -10,8 +10,6 @@ import (
 
 	"github.com/xo/ox"
 	"github.com/xo/ox/otx"
-	_ "github.com/xo/ox/toml"
-	_ "github.com/xo/ox/yaml"
 )
 
 func main() {
@@ -25,7 +23,7 @@ func main() {
 			Int("param-b", "parameter b", ox.Short("b"), ox.Default(125)).
 			Slice("floats", "a slice of float64", ox.Float64T, ox.Short("f")).
 			URL("url", "a url", ox.Aliases("my-url"), ox.Short("u")).
-			Count("verbose", "verbose", ox.Short("v")),
+			Count("verbose", "verbosity", ox.Short("v")),
 		ox.Sub(
 			ox.Exec(sub),
 			ox.Usage("sub", "a sub command"),

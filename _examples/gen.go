@@ -1,6 +1,6 @@
 // Command gen parses and generates xo/ox style run entries for well-known,
 // commmon commands `docker`, `doctl`, `gh`, `helm`, `hugo`, `kubectl`,
-// `podman`, `psql`.
+// `podman`, `psql`, `du`, `cp`, `tar`.
 //
 // Generates the xo/ox API calls based on the command's `<command> help ...`
 // output.
@@ -176,7 +176,7 @@ func (args *Args) writeCommand(w io.Writer, cmd *command, indent int) error {
 		if err := args.writeCommand(w, c, indent+1); err != nil {
 			return err
 		}
-		fmt.Fprintf(w, "%s),", padding)
+		fmt.Fprintf(w, "%s),\n", padding)
 	}
 	if len(cmd.flags) != 0 {
 		fmt.Fprintf(w, "%sox.Flags()", padding)
@@ -237,11 +237,11 @@ type command struct {
 }
 
 func (cmd *command) parse(ctx context.Context) error {
-	logger("run: %s help %s", cmd.exec, strings.Join(cmd.names()[1:], " "))
 	args := append([]string{"help"}, cmd.names()[1:]...)
 	if cmd.app == "psql" {
 		args = []string{"--help"}
 	}
+	logger("run: %s %s", cmd.exec, strings.Join(args, " "))
 	buf, err := runCommand(ctx, cmd.exec, args...)
 	if err != nil {
 		return err

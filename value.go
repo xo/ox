@@ -414,67 +414,14 @@ func (val valMap[K]) Get(key any) Value {
 // Binder is the interface for binding values.
 type Binder interface {
 	Bind(string) error
+	SetSet(bool)
 }
 
-// bindVal is a bound value.
-type bindVal[T *E, E any] struct {
-	v   T
-	set *bool
-}
-
-// NewBind binds a value and its set flag.
-func NewBind[T *E, E any](v T, set *bool) (Binder, error) {
-	return &bindVal[T, E]{
-		v:   v,
-		set: set,
-	}, nil
-}
-
-func (val *bindVal[T, E]) Bind(s string) error {
-	typ := reflect.TypeOf(*val.v)
-	switch typ.Kind() {
-	case reflect.Slice:
-		switch err := sliceSet(reflect.ValueOf(val.v), s); {
-		case err != nil:
-			return err
-		case val.set != nil:
-			*val.set = true
-		}
-		return nil
-	case reflect.Map:
-		switch err := mapSet(reflect.ValueOf(val.v), s); {
-		case err != nil:
-			return err
-		case val.set != nil:
-			*val.set = true
-		}
-		return nil
-	default:
-		if v, err := as[E](s, layout(val.v)); err == nil {
-			var ok bool
-			if *val.v, ok = v.(E); ok {
-				if val.set != nil {
-					*val.set = true
-				}
-				return nil
-			}
-		}
-	}
-	return fmt.Errorf("%w: %s->%T", ErrInvalidConversion, typ, *val.v)
-}
-
-func (val *bindVal[T, E]) String() string {
-	return reflect.TypeOf(val.v).String()
-}
-
-func (val *bindVal[T, E]) Get() any {
-	return *val.v
-}
-
-// bindRefVal is a reflection bound value.
-type bindRefVal struct {
-	v   reflect.Value
-	set *bool
+// bindVal is a reflection bound value.
+type bindVal struct {
+	v     reflect.Value
+	set   *bool
+	split func(string) []string
 }
 
 // NewBindRef binds [reflect.Value] value and its set flag.
@@ -483,57 +430,109 @@ func NewBindRef(value reflect.Value, set *bool) (Binder, error) {
 	case value.Kind() != reflect.Pointer, value.IsNil():
 		return nil, fmt.Errorf("%w: not a pointer or is nil", ErrInvalidValue)
 	}
-	return &bindRefVal{
+	return &bindVal{
 		v:   value,
 		set: set,
 	}, nil
 }
 
-func (val *bindRefVal) String() string {
+// NewBind binds a value and its set flag.
+func NewBind[T *E, E any](v T, set *bool) (Binder, error) {
+	return NewBindRef(reflect.ValueOf(v), set)
+}
+
+// SetSplit sets the split func.
+func (val *bindVal) SetSplit(split func(string) []string) {
+	val.split = split
+}
+
+func (val *bindVal) Get() any {
+	return val.v.Elem().Interface()
+}
+
+// String satisfies the [fmt.Formatter] interface.
+//
+// Helps with friendlier error messages.
+func (val *bindVal) String() string {
 	return val.v.Type().String()
 }
 
-func (val *bindRefVal) Bind(s string) error {
+// SetSet satisfies the [Binder] interface.
+func (val *bindVal) SetSet(set bool) {
+	if val.set != nil {
+		*val.set = set
+	}
+}
+
+// Bind satisfies the [Binder] interface.
+func (val *bindVal) Bind(s string) error {
 	typ := val.v.Elem().Type()
 	switch typ.Kind() {
 	case reflect.Slice:
-		switch err := sliceSet(val.v, s); {
-		case err != nil:
-			return err
-		case val.set != nil:
-			*val.set = true
-		}
-		return nil
+		return val.sliceSet(s)
 	case reflect.Map:
-		switch err := mapSet(val.v, s); {
-		case err != nil:
-			return err
-		case val.set != nil:
-			*val.set = true
-		}
-		return nil
+		return val.mapSet(s)
 	case reflect.Pointer:
 		v, err := asUnmarshal(reflectType(typ), s)
 		if err != nil {
 			return err
 		}
 		reflect.Indirect(val.v).Set(reflect.ValueOf(v))
-		if val.set != nil {
-			*val.set = true
-		}
 		return nil
 	}
-	switch err := asValue(val.v, s); {
-	case err != nil:
-		return err
-	case val.set != nil:
-		*val.set = true
+	return asValue(val.v, s)
+}
+
+// sliceSet sets value on slice.
+func (val *bindVal) sliceSet(s string) error {
+	var values []string
+	if val.split != nil {
+		values = val.split(s)
+	} else {
+		values = []string{s}
+	}
+	typ := val.v.Elem().Type().Elem()
+	for _, str := range values {
+		v := reflect.New(typ)
+		if err := asValue(v, str); err != nil {
+			return err
+		}
+		reflect.Indirect(val.v).Set(reflect.Append(val.v.Elem(), reflect.Indirect(v)))
 	}
 	return nil
 }
 
-func (val *bindRefVal) Get() any {
-	return val.v.Elem().Interface()
+// mapSet sets value on map.
+func (val *bindVal) mapSet(s string) error {
+	var values []string
+	if val.split != nil {
+		values = val.split(s)
+	} else {
+		values = []string{s}
+	}
+	typ := val.v.Elem().Type()
+	for _, str := range values {
+		key, value, ok := strings.Cut(str, "=")
+		if !ok || key == "" {
+			return ErrInvalidValue
+		}
+		// create map if nil
+		if val.v.Elem().IsNil() {
+			reflect.Indirect(val.v).Set(reflect.MakeMap(typ))
+		}
+		// create key
+		k := reflect.New(typ.Key())
+		if err := asValue(k, key); err != nil {
+			return err
+		}
+		// create value
+		v := reflect.New(typ.Elem())
+		if err := asValue(v, value); err != nil {
+			return err
+		}
+		reflect.Indirect(val.v).SetMapIndex(reflect.Indirect(k), reflect.Indirect(v))
+	}
+	return nil
 }
 
 // hookVal is a hook func.
@@ -655,42 +654,6 @@ func (val FormattedTime) String() string {
 // IsValid returns true when the time is not zero.
 func (val FormattedTime) IsValid() bool {
 	return !val.v.IsZero()
-}
-
-// sliceSet sets a value on a slice -- expects reflect.ValueOf(&<target>).
-func sliceSet(value reflect.Value, s string) error {
-	v := reflect.New(value.Elem().Type().Elem())
-	err := asValue(v, s)
-	if err != nil {
-		return err
-	}
-	reflect.Indirect(value).Set(reflect.Append(value.Elem(), reflect.Indirect(v)))
-	return nil
-}
-
-// mapSet sets a value on a map -- expects reflect.ValueOf(&<target>).
-func mapSet(val reflect.Value, s string) error {
-	key, value, ok := strings.Cut(s, "=")
-	if !ok || key == "" {
-		return ErrInvalidValue
-	}
-	typ := val.Elem().Type()
-	// create map if nil
-	if val.Elem().IsNil() {
-		reflect.Indirect(val).Set(reflect.MakeMap(typ))
-	}
-	// convert key
-	k := reflect.New(typ.Key())
-	if err := asValue(k, key); err != nil {
-		return err
-	}
-	// convert value
-	v := reflect.New(typ.Elem())
-	if err := asValue(v, value); err != nil {
-		return err
-	}
-	reflect.Indirect(val).SetMapIndex(reflect.Indirect(k), reflect.Indirect(v))
-	return nil
 }
 
 // inc increments the value.

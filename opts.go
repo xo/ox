@@ -443,12 +443,12 @@ func Elem(elem Type) FlagOption {
 	}
 }
 
-// BindSet is a [Flag] option to add a bound variable to a flag.
-func BindSet[T *E, E any](v T, b *bool) FlagOption {
+// BindRef is a [Flag] option to add a reflected value to a flag.
+func BindRef(value reflect.Value, set *bool) FlagOption {
 	return option{
-		name: "BindSet",
+		name: "BindRef",
 		flag: func(g *Flag) error {
-			val, err := NewBind(v, b)
+			val, err := NewBindRef(value, set)
 			if err != nil {
 				return err
 			}
@@ -473,12 +473,12 @@ func Bind[T *E, E any](v T) FlagOption {
 	}
 }
 
-// BindRef is a [Flag] option to add a reflected value to a flag.
-func BindRef(value reflect.Value, b *bool) FlagOption {
+// BindSet is a [Flag] option to add a bound variable to a flag.
+func BindSet[T *E, E any](v T, set *bool) FlagOption {
 	return option{
-		name: "BindRef",
+		name: "BindSet",
 		flag: func(g *Flag) error {
-			val, err := NewBindRef(value, b)
+			val, err := NewBind(v, set)
 			if err != nil {
 				return err
 			}

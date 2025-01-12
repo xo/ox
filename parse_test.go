@@ -82,6 +82,16 @@ func parseTests() []parseTest {
 			},
 		},
 		{
+			ss("a//--foo=a,b//--foo//c,d//-f=e,f"),
+			[]string{
+				"exec: cmd",
+				"name: cmd",
+				"path: []",
+				"args: []",
+				"vars: [foo:[a b c d e f] int:15]",
+			},
+		},
+		{
 			ss("a//-m=A=100//-m//FOO=200//one//two"),
 			[]string{
 				"exec: two",

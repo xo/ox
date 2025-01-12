@@ -16,7 +16,15 @@ func Example() {
 		MyBool   bool      `ox:"a bool,short:b"`
 		Ints     []int     `ox:"a slice of ints,short:i"`
 		Date     time.Time `ox:"formatted date,type:date,short:d"`
+		MyURL    *url.URL  `ox:"a url,name:url,short:u"`
 		Verbose  Verbosity `ox:"enable verbose,short:v,type:count"`
+		Sub      struct {
+			Bools map[string]bool `ox:"bool map,short:y"`
+		} `ox:""`
+		Extra struct {
+			SomeOtherString string `ox:"another string,short:S"`
+			AReallyLongName string `ox:"long arg"`
+		} `ox:"x"`
 	}{}
 	ox.Run(
 		// ox.Exec(myFunc),

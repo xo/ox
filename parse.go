@@ -140,30 +140,42 @@ func (vars Vars) Set(ctx *Context, g *Flag, s string, set bool) error {
 		if v, err = g.New(ctx); err != nil {
 			return err
 		}
-		if z, ok := v.(interface{ SetSplit(func(string) []string) }); ok && g.Split != "" {
-			var f func(string) []string
-			switch r := []rune(g.Split); len(r) {
-			case 1:
-				f = func(s string) []string {
-					return SplitBy(s, r[0])
-				}
-			default:
-				f = func(s string) []string {
-					return strings.Split(s, g.Split)
-				}
-			}
-			z.SetSplit(f)
-		}
+		setSplit(v, g.Split)
 	}
 	if err := v.Set(s); err != nil {
 		return err
 	}
 	v.SetSet(set)
 	for i, bind := range g.Binds {
+		setSplit(bind, g.Split)
 		if err := bind.Bind(s); err != nil {
 			return fmt.Errorf("bind %d (%s): cannot set %q: %w", i, bind, s, err)
 		}
+		bind.SetSet(set)
 	}
 	vars[name] = v
 	return nil
+}
+
+// setSplit sets the split func on v.
+func setSplit(v any, split string) {
+	if split == "" {
+		return
+	}
+	z, ok := v.(interface{ SetSplit(func(string) []string) })
+	if !ok {
+		return
+	}
+	var f func(string) []string
+	switch r := []rune(split); len(r) {
+	case 1:
+		f = func(s string) []string {
+			return SplitBy(s, r[0])
+		}
+	default:
+		f = func(s string) []string {
+			return strings.Split(s, split)
+		}
+	}
+	z.SetSplit(f)
 }
