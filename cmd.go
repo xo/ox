@@ -706,6 +706,9 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 // determined by the result of calling [DefaultFlagNameMapper], or it can be
 // set with the `name:` option (see below).
 //
+// Use the [CommandOption] [From] to add flags when creating a command with
+// [Run]/[RunContext]/[Sub]/[NewCommand].
+//
 // Example:
 //
 //	args := struct{
@@ -717,7 +720,7 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 //		MyFloat     float64  `ox:"my float,hidden,name:MYF"`
 //	}{}
 //
-//	ox.FromFlags(&args)
+//	ox.FlagsFrom(&args)
 //
 // Recognized options:
 //
@@ -742,7 +745,7 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 // The `default:` option will be expanded by [Context.Expand] when the
 // command's flags are populated.
 //
-// The tag name (`ox`) can be changed by setting the [DefaultTagName] variable
+// The tag name (`ox`) can be changed by setting the [DefaultStructTagName] variable
 // if necessary.
 func FlagsFrom[T *E, E any](val T) ([]*Flag, error) {
 	return appendFlags(nil, reflect.ValueOf(val), nil)
@@ -836,7 +839,7 @@ func NewExec[T ExecType](f T) (ExecFunc, error) {
 	return nil, fmt.Errorf("%w: invalid exec func %T", ErrInvalidType, f)
 }
 
-// appendFlags builds flags for a value, appending them to flags.
+// appendFlags builds and appends flags for value v to flags.
 func appendFlags(flags []*Flag, v reflect.Value, parents []string) ([]*Flag, error) {
 	if v.Kind() != reflect.Pointer || v.Elem().Kind() != reflect.Struct {
 		return nil, fmt.Errorf("%w: %s is not a *struct", ErrInvalidType, v.Type())
@@ -846,16 +849,18 @@ func appendFlags(flags []*Flag, v reflect.Value, parents []string) ([]*Flag, err
 	for i := range typ.NumField() {
 		// check field is exported
 		f := typ.Field(i)
-		tag, ok := f.Tag.Lookup(DefaultTagName)
+		tag, ok := f.Tag.Lookup(DefaultStructTagName)
 		if !ok {
 			continue
 		}
 		if r := []rune(f.Name); !unicode.IsUpper(r[0]) {
-			return nil, fmt.Errorf("%w: unexported field `%s` has tag `%s`", ErrInvalidType, f.Name, DefaultTagName)
+			return nil, fmt.Errorf("%w: unexported field `%s` has tag `%s`", ErrInvalidType, f.Name, DefaultStructTagName)
 		}
+		field := v.Field(i)
 		tags := SplitBy(tag, ',')
-		switch name, kind, field := tags[0], f.Type.Kind(), v.Field(i); {
-		case kind == reflect.Pointer && f.Type.Elem().Kind() == reflect.Struct: // *struct
+		isField := isField(field)
+		switch name, kind := tags[0], f.Type.Kind(); {
+		case !isField && kind == reflect.Pointer && f.Type.Elem().Kind() == reflect.Struct: // *struct
 			switch {
 			case name == "-":
 				continue
@@ -869,7 +874,7 @@ func appendFlags(flags []*Flag, v reflect.Value, parents []string) ([]*Flag, err
 			if flags, err = appendFlags(flags, field, append(parents, name)); err != nil {
 				return nil, err
 			}
-		case kind == reflect.Struct: // struct
+		case !isField && kind == reflect.Struct: // struct
 			switch {
 			case name == "-":
 				continue
@@ -977,8 +982,28 @@ func buildFlagOpts(parent, value reflect.Value, tags []string) ([]Option, error)
 			return nil, fmt.Errorf("%w: %q", ErrUnknownTagOption, key)
 		}
 	}
-	// prepend bind to opt
+	// prepend bind to options
 	return prepend(opts, BindRef(value, set)), nil
+}
+
+// isField returns true if v is not a struct or the struct contains at least
+// one `ox` tag.
+func isField(v reflect.Value) bool {
+	typ := v.Type()
+	kind := typ.Kind()
+	if kind == reflect.Pointer {
+		typ = typ.Elem()
+		kind = typ.Kind()
+	}
+	if kind != reflect.Struct {
+		return false
+	}
+	for i := range typ.NumField() {
+		if _, ok := typ.Field(i).Tag.Lookup(DefaultStructTagName); ok {
+			return false
+		}
+	}
+	return true
 }
 
 // setField returns the pointer to the bool for name.

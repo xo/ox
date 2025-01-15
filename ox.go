@@ -27,9 +27,9 @@ import (
 var (
 	// DefaultContext is the default [context.Context].
 	DefaultContext = context.Background()
-	// DefaultTagName is the default struct tag name used in [FromFlags] and
-	// related func's.
-	DefaultTagName = "ox"
+	// DefaultStructTagName is the default struct tag name used in [FromFlags]
+	// and related func's.
+	DefaultStructTagName = "ox"
 	// DefaultLayout is the default timestamp layout used for formatting and
 	// parsing [Time] values.
 	DefaultLayout = time.RFC3339
@@ -422,12 +422,10 @@ func (ctx *Context) Run(parent context.Context) error {
 	return nil
 }
 
-// Populate populates the context's vars with all the command's flags values,
-// overwriting any set variables if applicable. When all is true, all flag
-// values will be populated, otherwise only flags with default values will be.
-//
-// When overwrite is true, existing vars will be set either to flag's empty or
-// default value.
+// Populate populates the context's vars with the command's flag's default
+// values when not already set. When all is true, all flag values will be
+// populated with the default or zero value. When overwrite is true, any
+// existing flag vars will be overwritten.
 func (ctx *Context) Populate(cmd *Command, all, overwrite bool) error {
 	if cmd.Flags == nil {
 		return nil
@@ -455,16 +453,16 @@ func (ctx *Context) Populate(cmd *Command, all, overwrite bool) error {
 
 // Expand expands variables in v, where any variable can be the following:
 //
-//	$APPNAME - the root command's name
-//	$HOME - the current user's home directory
-//	$USER - the current user's user name
-//	$CONFIG - the current user's config directory
-//	$APPCONFIG - the current user's config directory, with the root command's name added as a subdir
-//	$CACHE - the current user's cache directory
-//	$APPCACHE - the current user's cache directory, with the root command's name added as a subdir
-//	$NUMCPU - the value of [runtime.NumCPU]
-//	$ARCH - the value of [runtime.GOARCH]
-//	$OS - the value of [runtime.GOOS]
+//	$HOME - the current user's home directory (ex: ~/)
+//	$USER - the current user's user name (ex: user)
+//	$APPNAME - the root command's name (ex: appName)
+//	$CONFIG - the current user's config directory (ex: ~/.config)
+//	$APPCONFIG - the current user's config directory, with the root command's name added as a subdir (ex: ~/.config/appName)
+//	$CACHE - the current user's cache directory (ex: ~/.cache)
+//	$APPCACHE - the current user's cache directory, with the root command's name added as a subdir (ex: ~/.cache/appName)
+//	$NUMCPU - the value of [runtime.NumCPU] (ex: 4)
+//	$ARCH - the value of [runtime.GOARCH] (ex: amd64)
+//	$OS - the value of [runtime.GOOS] (ex: windows)
 //	$ENV{KEY} - the environment value for $KEY
 //	$CONFIG_TYPE{KEY} - the registered config file loader type and key value, for example: `$YAML{my_key}`, `$TOML{my_key}`
 //
@@ -491,6 +489,8 @@ func (ctx *Context) Expand(v any) (string, error) {
 			}
 			return u.Username, nil
 		}
+	case "$APPNAME":
+		return ctx.Root.Name, nil
 	case "$CONFIG":
 		f = userConfigDir
 	case "$APPCONFIG":
@@ -511,8 +511,6 @@ func (ctx *Context) Expand(v any) (string, error) {
 			}
 			return filepath.Join(dir, ctx.Root.Name), nil
 		}
-	case "$APPNAME":
-		return ctx.Root.Name, nil
 	case "$NUMCPU":
 		return strconv.Itoa(runtime.NumCPU()), nil
 	case "$ARCH":

@@ -2,6 +2,8 @@ package ox_test
 
 import (
 	"context"
+	"errors"
+	"net/netip"
 	"net/url"
 	"time"
 
@@ -42,13 +44,17 @@ func Example() {
 	//   myApp [flags] [args]
 	//
 	// Flags:
-	//   -s, --my-string string  a string
-	//   -b, --my-bool           a bool
-	//   -i, --ints int          a slice of ints
-	//   -d, --date date         formatted date
-	//   -v, --verbose           enable verbose
-	//       --version           show version, then exit
-	//   -h, --help              show help, then exit
+	//   -s, --my-string string             a string
+	//   -b, --my-bool                      a bool
+	//   -i, --ints int                     a slice of ints
+	//   -d, --date date                    formatted date
+	//   -u, --url url                      a url
+	//   -v, --verbose                      enable verbose
+	//   -y, --sub-bools string=bool        bool map
+	//   -S, --x-some-other-string string   another string
+	//       --x-a-really-long-name string  long arg
+	//       --version                      show version, then exit
+	//   -h, --help                         show help, then exit
 	//
 	// See: https://github.com/xo/ox for more information.
 }
@@ -60,7 +66,8 @@ func Example_argsTest() {
 		Number float64 `ox:"a number"`
 	}{}
 	subArgs := struct {
-		URL *url.URL `ox:"a url,short:u"`
+		URL  *url.URL    `ox:"a url,short:u"`
+		Addr *netip.Addr `ox:"an ip address"`
 	}{}
 	ox.RunContext(
 		context.Background(),
@@ -69,12 +76,17 @@ func Example_argsTest() {
 		ox.Defaults(),
 		ox.From(&args),
 		ox.Sub(
-			// ox.Exec(mySubFunc),
+			ox.Exec(func() error {
+				// return an error to show that this func is not called
+				return errors.New("oops!")
+			}),
 			ox.Usage("sub", "a sub command to test"),
 			ox.From(&subArgs),
+			ox.Sort(true),
 		),
+		ox.Sort(true),
 		// the command line args to test
-		ox.Args("sub", "--help"),
+		ox.Args("help", "sub"),
 	)
 	// Output:
 	// sub a sub command to test
@@ -83,8 +95,9 @@ func Example_argsTest() {
 	//   extest sub [flags] [args]
 	//
 	// Flags:
-	//   -u, --url url   a url
-	//   -h, --help      show help, then exit
+	//   -u, --url url    a url
+	//       --addr addr  an ip address
+	//   -h, --help       show help, then exit
 }
 
 // Example_psql demonstrates building complex help output, based on original
