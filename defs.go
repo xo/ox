@@ -2,7 +2,6 @@ package ox
 
 import (
 	"context"
-	"embed"
 	"fmt"
 	"io"
 	"io/fs"
@@ -642,15 +641,3 @@ func has[T inti | uinti](sb *strings.Builder, a, b T, s string) {
 		sb.WriteString(s)
 	}
 }
-
-// templates are the embedded completion templates.
-//
-//go:embed bash.txt
-//go:embed bash.bash
-//go:embed fish.txt
-//go:embed fish.fish
-//go:embed zsh.txt
-//go:embed zsh.zsh
-//go:embed powershell.txt
-//go:embed powershell.ps1
-var templates embed.FS
