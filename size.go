@@ -73,7 +73,7 @@ func ParseRate(s string) (Rate, error) {
 //	m/M - size in MB/MiB (ex: 1.2345 MB)
 //	g/G - size in GB/GiB (ex: 1 GiB)
 //	t/T - size in TB/TiB (ex: 4.5 TiB)
-//	p/P - size in PB/PiB (ex:
+//	p/P - size in PB/PiB (ex: 4.5 PiB)
 //	s/S - same as f/F
 //	v/V - same as f/F
 func AppendSize(b []byte, size int64, verb rune, prec int, space bool) []byte {
