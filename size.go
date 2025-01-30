@@ -189,12 +189,12 @@ func (size Size) MarshalText() ([]byte, error) {
 }
 
 // UnmarshalText satisfies the [BinaryMarshalUnmarshaler] interface.
-func (sz *Size) UnmarshalText(b []byte) error {
+func (size *Size) UnmarshalText(b []byte) error {
 	i, err := ParseSize(string(b))
 	if err != nil {
 		return err
 	}
-	*sz = Size(i)
+	*size = Size(i)
 	return nil
 }
 
@@ -204,24 +204,31 @@ type Rate struct {
 	Unit time.Duration
 }
 
+// Format satisfies the [fmt.Formatter] interface. See [AppendSize] for
+// recognized verbs.
+func (rate Rate) Format(f fmt.State, verb rune) {
+	prec := DefaultSizePrec
+	if p, ok := f.Precision(); ok {
+		prec = p
+	}
+	_, _ = f.Write(AppendRate(make([]byte, 0, 31), rate, verb, prec, f.Flag(' ')))
+}
+
 // Int64 returns the bytes as an int64.
-func (r Rate) Int64() int64 {
-	return int64(r.Size)
+func (rate Rate) Int64() int64 {
+	return int64(rate.Size)
 }
 
 // UnmarshalText satisfies the [BinaryMarshalUnmarshaler] interface.
-func (r *Rate) UnmarshalText(b []byte) error {
-	/*
-	   var err error
-	   r.Rate, r.Prec, r.IEC, r.Unit, err = ParseRate(string(b))
-	   return err
-	*/
-	return nil
+func (rate *Rate) UnmarshalText(b []byte) error {
+	var err error
+	*rate, err = ParseRate(string(b))
+	return err
 }
 
 // MarshalText satisfies the [BinaryMarshalUnmarshaler] interface.
-func (r *Rate) MarshalText() ([]byte, error) {
-	return nil, nil
+func (rate *Rate) MarshalText() ([]byte, error) {
+	return AppendRate(make([]byte, 0, 31), *rate, 'z', -2, true), nil
 }
 
 // Byte sizes.
