@@ -3,50 +3,23 @@ package glob
 
 import (
 	"context"
-	"slices"
 
-	"github.com/gobwas/glob"
+	"github.com/kenshaw/glob"
 	"github.com/xo/ox"
 	"github.com/xo/ox/otx"
 )
 
 func init() {
-	ox.RegisterTypeName(ox.GlobT, "*glob.GlobValue")
+	ox.RegisterTypeName(ox.GlobT, "*glob.Glob")
 	ox.RegisterTextType(New)
 }
 
+// New creates a new glob.
+func New() (*glob.Glob, error) {
+	return glob.New(), nil
+}
+
 // Glob returns the glob var from the context.
-func Glob(ctx context.Context, name string) *GlobValue {
-	return otx.Get[*GlobValue](ctx, name)
-}
-
-// GlobValue wraps a [glob.Glob] value.
-type GlobValue struct {
-	glob.Glob
-	text []byte
-}
-
-// New creates a new glob value.
-func New() (*GlobValue, error) {
-	return new(GlobValue), nil
-}
-
-// String satisfies the [fmt.Stringer] interface.
-func (val *GlobValue) String() string {
-	return string(val.text)
-}
-
-// UnmarshalText satisfies the [ox.BinaryMarshalUnmarshaler] interface.
-func (val *GlobValue) UnmarshalText(buf []byte) error {
-	var err error
-	if val.Glob, err = glob.Compile(string(buf)); err != nil {
-		return err
-	}
-	val.text = slices.Clone(buf)
-	return nil
-}
-
-// MarshalText satisfies the [ox.BinaryMarshalUnmarshaler] interface.
-func (val *GlobValue) MarshalText() ([]byte, error) {
-	return slices.Clone(val.text), nil
+func Glob(ctx context.Context, name string) *glob.Glob {
+	return otx.Get[*glob.Glob](ctx, name)
 }
