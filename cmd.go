@@ -390,6 +390,15 @@ func (fs *FlagSet) Option() option {
 	}
 }
 
+// With adds the flags to the flag set.
+func (fs *FlagSet) With(flags ...*Flag) *FlagSet {
+	if fs == nil {
+		fs = Flags()
+	}
+	fs.Flags = append(fs.Flags, flags...)
+	return fs
+}
+
 // Var adds a variable to the flag set.
 func (fs *FlagSet) Var(name, usage string, opts ...Option) *FlagSet {
 	if fs == nil {
