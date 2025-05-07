@@ -941,8 +941,7 @@ func buildFlagOpts(parent, value reflect.Value, tags []string) ([]Option, error)
 		opts = append(opts, Split(","))
 	}
 	for _, opt := range tags {
-		key, val, _ := strings.Cut(opt, ":")
-		switch key {
+		switch key, val, _ := strings.Cut(opt, ":"); key {
 		case "type":
 			opts = append(opts, Type(val))
 		case "mapkey":
