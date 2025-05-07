@@ -10,7 +10,7 @@ import (
 	"github.com/xo/ox"
 )
 
-// Example is a quick example demonstrating the xo/ox package.
+// Example demonstrates quickly using the xo/ox package.
 func Example() {
 	type Verbosity int
 	args := struct {
@@ -59,8 +59,8 @@ func Example() {
 	// See: https://github.com/xo/ox for more information.
 }
 
-// Example_argsTest provides an example for testing arbitrary command-line
-// invocations by setting the arguments to [Parse] with [ox.Args].
+// Example_argsTest demonstrates testing arbitrary command-line invocations by
+// setting the arguments to [Parse] with [ox.Args].
 func Example_argsTest() {
 	args := struct {
 		Number float64 `ox:"a number"`
@@ -300,7 +300,7 @@ func Example_sections() {
 	// Use "tree [command] --help" for more information about a command.
 }
 
-// Example_help shows help output.
+// Example_help demonstrates configuring help output.
 func Example_help() {
 	ox.Run(
 		ox.Usage("cmdtree", "help command tree"),

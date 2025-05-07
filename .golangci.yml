@@ -1,42 +1,28 @@
+version: "2"
 linters:
-  enable-all: true
+  default: all
   disable:
     - cyclop
     - depguard
     - dupl
     - err113
+    - errcheck
     - exhaustive
     - exhaustruct
-    - exportloopref
     - forcetypeassert
     - funlen
-    - gci
     - gochecknoglobals
     - gochecknoinits
     - gocognit
-    - gocyclo
-    - gosec
     - inamedparam
+    - ineffassign
     - ireturn
     - lll
-    - maintidx
     - makezero
     - mnd
-    - nakedret
-    - nestif
+    - nilnil
     - nlreturn
-    - nonamedreturns
-    - paralleltest
-    - prealloc
-    - recvcheck
-    - revive
-    - testableexamples
     - testpackage
     - varnamelen
-    - wastedassign
     - wrapcheck
     - wsl
-linters-settings:
-  gocritic:
-    disabled-checks:
-      - deprecatedComment

@@ -34,7 +34,6 @@ func ParseRate(s string) (Rate, error) {
 	unit := time.Second
 	if i := strings.LastIndexByte(s, '/'); i != -1 {
 		switch strings.ToLower(s[i+1:]) {
-		// unitMap is the duration unit map.
 		case "ns":
 			unit = time.Nanosecond
 		case "us", "µs", "μs": // U+00B5 = micro symbol, U+03BC = Greek letter mu
@@ -73,7 +72,7 @@ func ParseRate(s string) (Rate, error) {
 //	m/M - size in MB/MiB (ex: 1.2345 MB)
 //	g/G - size in GB/GiB (ex: 1 GiB)
 //	t/T - size in TB/TiB (ex: 4.5 TiB)
-//	p/P - size in PB/PiB (ex: 4.5 PiB)
+//	b/P - size in PB/PiB (ex: 4.5 PiB) -- must use b, as p is reserved for pointers
 //	s/S - same as f/F
 //	v/V - same as f/F
 func AppendSize(b []byte, size int64, verb rune, prec int, space bool) []byte {
