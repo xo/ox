@@ -191,11 +191,11 @@ func Version() CommandOption {
 	}
 }
 
-// Help is a [Command] option to add help output to a root command. By default,
+// Help is a [Command]/[Flag] option to add help output to a root command. By default,
 // it adds a `--help` flag to all commands in the command tree. The root
 // command will have a `help` sub command added if there are any other defined
 // sub commands.
-func Help(opts ...Option) CommandOption {
+func Help(opts ...Option) CommandFlagOption {
 	return option{
 		name: "Help",
 		cmd: func(cmd *Command) error {
@@ -637,7 +637,10 @@ func Banner(banner string) HelpOption {
 			help.Banner, help.NoBanner = banner, banner == ""
 			return nil
 		},
-		flag: func(*Flag) error {
+		flag: func(g *Flag) error {
+			if strings.HasPrefix(g.Special, `hook:`) {
+				return ErrAppliedToInvalidType
+			}
 			return nil
 		},
 	}
@@ -733,6 +736,12 @@ func Sort(sort bool) CommandOption {
 			}
 			return nil
 		},
+		flag: func(g *Flag) error {
+			if strings.HasPrefix(g.Special, `hook:`) {
+				return ErrAppliedToInvalidType
+			}
+			return nil
+		},
 		help: func(help *CommandHelp) error {
 			help.Sort = sort
 			return nil
@@ -754,6 +763,12 @@ func CommandSort(commandSort bool) CommandOption {
 			}
 			if help, ok := cmd.Help.(*CommandHelp); ok {
 				help.CommandSort = commandSort
+			}
+			return nil
+		},
+		flag: func(g *Flag) error {
+			if strings.HasPrefix(g.Special, `hook:`) {
+				return ErrAppliedToInvalidType
 			}
 			return nil
 		},
@@ -781,6 +796,12 @@ func MaxDist(maxDist int) CommandOption {
 			}
 			return nil
 		},
+		flag: func(g *Flag) error {
+			if strings.HasPrefix(g.Special, `hook:`) {
+				return ErrAppliedToInvalidType
+			}
+			return nil
+		},
 		help: func(help *CommandHelp) error {
 			help.MaxDist = maxDist
 			return nil
@@ -802,6 +823,12 @@ func Sections(sections ...string) HelpOption {
 			}
 			if help, ok := cmd.Help.(*CommandHelp); ok {
 				help.CommandSections = sections
+			}
+			return nil
+		},
+		flag: func(g *Flag) error {
+			if strings.HasPrefix(g.Special, `hook:`) {
+				return ErrAppliedToInvalidType
 			}
 			return nil
 		},
