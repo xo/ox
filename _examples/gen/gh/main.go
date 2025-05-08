@@ -148,7 +148,7 @@ func main() {
 			ox.Banner("Connect to and manage codespaces"),
 			ox.Usage("codespace", "Connect to and manage codespaces"),
 			ox.Spec("[flags]"),
-			ox.Aliases("gh cs"),
+			ox.Aliases("cs"),
 			ox.Section(0),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
@@ -254,7 +254,7 @@ func main() {
 				ox.Banner("List codespaces of the authenticated user.\n\nAlternatively, organization administrators may list all codespaces billed to the organization.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List codespaces"),
 				ox.Spec("[flags]"),
-				ox.Aliases("gh codespace ls", "gh cs ls"),
+				ox.Aliases("codespace ls", "cs ls"),
 				ox.Help(ox.Sections(
 					"FLAGS",
 				)),
@@ -408,7 +408,7 @@ func main() {
 				ox.Banner("Create a new GitHub gist with given contents.\n\nGists can be created from one or multiple files. Alternatively, pass `-` as\nfilename to read from standard input.\n\nBy default, gists are secret; use `--public` to make publicly listed ones."),
 				ox.Usage("create", "Create a new gist"),
 				ox.Spec("[<filename>... | <pattern>... | -] [flags]"),
-				ox.Aliases("gh gist new"),
+				ox.Aliases("gist new"),
 				ox.Example("\n  # Publish file 'hello.py' as a public gist\n  $ gh gist create --public hello.py\n  \n  # Create a gist with a description\n  $ gh gist create hello.py -d \"my Hello-World program in Python\"\n  \n  # Create a gist containing several files\n  $ gh gist create hello.py world.py cool.txt\n  \n  # Create a gist containing several files using patterns\n  $ gh gist create *.md *.txt artifact.*\n  \n  # Read from standard input to create a gist\n  $ gh gist create -\n  \n  # Create a gist from output piped from another command\n  $ cat cool.txt | gh gist create"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -450,7 +450,7 @@ func main() {
 				ox.Banner("List gists from your user account.\n\nYou can use a regular expression to filter the description, file names,\nor even the content of files in the gist using `--filter`.\n\nFor supported regular expression syntax, see <https://pkg.go.dev/regexp/syntax>.\n\nUse `--include-content` to include content of files, noting that\nthis will be slower and increase the rate limit used. Instead of printing a table,\ncode will be printed with highlights similar to `gh search code`:\n\n\t{{gist ID}} {{file name}}\n\t    {{description}}\n\t        {{matching lines from content}}\n\nNo highlights or other color is printed when output is redirected."),
 				ox.Usage("list", "List your gists"),
 				ox.Spec("[flags]"),
-				ox.Aliases("gh gist ls"),
+				ox.Aliases("gist ls"),
 				ox.Example("\n  # List all secret gists from your user account\n  $ gh gist list --secret\n  \n  # Find all gists from your user account mentioning \"octo\" anywhere\n  $ gh gist list --filter octo --include-content"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -499,7 +499,7 @@ func main() {
 				ox.Banner("Create an issue on GitHub.\n\nAdding an issue to projects requires authorization with the `project` scope.\nTo authorize, run `gh auth refresh -s project`."),
 				ox.Usage("create", "Create a new issue"),
 				ox.Spec("[flags]"),
-				ox.Aliases("gh issue new"),
+				ox.Aliases("issue new"),
 				ox.Example("\n  $ gh issue create --title \"I found a bug\" --body \"Nothing works\"\n  $ gh issue create --label \"bug,help wanted\"\n  $ gh issue create --label bug --label \"help wanted\"\n  $ gh issue create --assignee monalisa,hubot\n  $ gh issue create --assignee \"@me\"\n  $ gh issue create --project \"Roadmap\"\n  $ gh issue create --template \"Bug Report\""),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -525,7 +525,7 @@ func main() {
 				ox.Banner("List issues in a GitHub repository. By default, this only lists open issues.\n\nThe search query syntax is documented here:\n<https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests>\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List issues in a repository"),
 				ox.Spec("[flags]"),
-				ox.Aliases("gh issue ls"),
+				ox.Aliases("issue ls"),
 				ox.Example("\n  $ gh issue list --label \"bug\" --label \"help wanted\"\n  $ gh issue list --author monalisa\n  $ gh issue list --assignee \"@me\"\n  $ gh issue list --milestone \"The big 1.0\"\n  $ gh issue list --search \"error no:assignee sort:created-asc\"\n  $ gh issue list --state all"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -769,7 +769,7 @@ func main() {
 				ox.Banner("List organizations for the authenticated user."),
 				ox.Usage("list", "List organizations for the authenticated user."),
 				ox.Spec("[flags]"),
-				ox.Aliases("gh org ls"),
+				ox.Aliases("org ls"),
 				ox.Example("\n  # List the first 30 organizations\n  $ gh org list\n  \n  # List more organizations\n  $ gh org list --limit 100"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -795,7 +795,7 @@ func main() {
 				ox.Banner("Create a pull request on GitHub.\n\nWhen the current branch isn't fully pushed to a git remote, a prompt will ask where\nto push the branch and offer an option to fork the base repository. Use `--head` to\nexplicitly skip any forking or pushing behavior.\n\n`--head` supports `<user>:<branch>` syntax to select a head repo owned by `<user>`.\nUsing an organization as the `<user>` is currently not supported.\nFor more information, see <https://github.com/cli/cli/issues/10093>\n\nA prompt will also ask for the title and the body of the pull request. Use `--title` and\n`--body` to skip this, or use `--fill` to autofill these values from git commits.\nIt's important to notice that if the `--title` and/or `--body` are also provided\nalongside `--fill`, the values specified by `--title` and/or `--body` will\ntake precedence and overwrite any autofilled content.\n\nThe base branch for the created PR can be specified using the `--base` flag. If not provided,\nthe value of `gh-merge-base` git branch config will be used. If not configured, the repository's\ndefault branch will be used. Run `git config branch.{current}.gh-merge-base {base}` to configure\nthe current branch to use the specified merge base.\n\nLink an issue to the pull request by referencing the issue in the body of the pull\nrequest. If the body text mentions `Fixes #123` or `Closes #123`, the referenced issue\nwill automatically get closed when the pull request gets merged.\n\nBy default, users with write access to the base repository can push new commits to the\nhead branch of the pull request. Disable this with `--no-maintainer-edit`.\n\nAdding a pull request to projects requires authorization with the `project` scope.\nTo authorize, run `gh auth refresh -s project`."),
 				ox.Usage("create", "Create a pull request"),
 				ox.Spec("[flags]"),
-				ox.Aliases("gh pr new"),
+				ox.Aliases("pr new"),
 				ox.Example("\n  $ gh pr create --title \"The bug is fixed\" --body \"Everything works again\"\n  $ gh pr create --reviewer monalisa,hubot  --reviewer myorg/team-name\n  $ gh pr create --project \"Roadmap\"\n  $ gh pr create --base develop --head monalisa:feature\n  $ gh pr create --template \"pull_request_template.md\""),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -830,7 +830,7 @@ func main() {
 				ox.Banner("List pull requests in a GitHub repository. By default, this only lists open PRs.\n\nThe search query syntax is documented here:\n<https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests>\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List pull requests in a repository"),
 				ox.Spec("[flags]"),
-				ox.Aliases("gh pr ls"),
+				ox.Aliases("pr ls"),
 				ox.Example("\n  # List PRs authored by you\n  $ gh pr list --author \"@me\"\n  \n  # List only PRs with all of the given labels\n  $ gh pr list --label bug --label \"priority 1\"\n  \n  # Filter PRs using search syntax\n  $ gh pr list --search \"status:success review:required\"\n  \n  # Find a PR that introduced a given commit\n  $ gh pr list --search \"<SHA>\" --state merged"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1389,7 +1389,7 @@ func main() {
 				ox.Banner("List the projects for an owner\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List the projects for an owner"),
 				ox.Spec("[flags]"),
-				ox.Aliases("gh project ls"),
+				ox.Aliases("project ls"),
 				ox.Example("\n  # List the current user's projects\n  $ gh project list\n  \n  # List the projects for org github including closed projects\n  $ gh project list --owner github --closed"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -1465,7 +1465,7 @@ func main() {
 				ox.Banner("Create a new GitHub Release for a repository.\n\nA list of asset files may be given to upload to the new release. To define a\ndisplay label for an asset, append text starting with `#` after the file name.\n\nIf a matching git tag does not yet exist, one will automatically get created\nfrom the latest state of the default branch.\nUse `--target` to point to a different branch or commit for the automatic tag creation.\nUse `--verify-tag` to abort the release if the tag doesn't already exist.\nTo fetch the new tag locally after the release, do `git fetch --tags origin`.\n\nTo create a release from an annotated git tag, first create one locally with\ngit, push the tag to GitHub, then run this command.\nUse `--notes-from-tag` to automatically generate the release notes\nfrom the annotated git tag.\n\nWhen using automatically generated release notes, a release title will also be automatically\ngenerated unless a title was explicitly passed. Additional release notes can be prepended to\nautomatically generated notes by using the `--notes` flag.\n\nBy default, the release is created even if there are no new commits since the last release.\nThis may result in the same or duplicate release which may not be desirable in some cases.\nUse `--fail-on-no-commits` to fail if no new commits are available. This flag has no\neffect if there are no existing releases or this is the very first release."),
 				ox.Usage("create", "Create a new release"),
 				ox.Spec("[<tag>] [<filename>... | <pattern>...]"),
-				ox.Aliases("gh release new"),
+				ox.Aliases("release new"),
 				ox.Example("\n  # Interactively create a release\n  $ gh release create\n  \n  # Interactively create a release from specific tag\n  $ gh release create v1.2.3\n  \n  # Non-interactively create a release\n  $ gh release create v1.2.3 --notes \"bugfix release\"\n  \n  # Use automatically generated release notes\n  $ gh release create v1.2.3 --generate-notes\n  \n  # Use release notes from a file\n  $ gh release create v1.2.3 -F release-notes.md\n  \n  # Use annotated tag notes\n  $ gh release create v1.2.3 --notes-from-tag\n  \n  # Don't mark the release as latest\n  $ gh release create v1.2.3 --latest=false\n  \n  # Upload all tarballs in a directory as release assets\n  $ gh release create v1.2.3 ./dist/*.tgz\n  \n  # Upload a release asset with a display label\n  $ gh release create v1.2.3 '/path/to/asset.zip#My display label'\n  \n  # Create a release and start a discussion\n  $ gh release create v1.2.3 --discussion-category \"General\"\n  \n  # Create a release only if there are new commits available since the last release\n  $ gh release create v1.2.3 --fail-on-no-commits"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1493,7 +1493,7 @@ func main() {
 				ox.Banner("List releases in a repository\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List releases in a repository"),
 				ox.Spec("[flags]"),
-				ox.Aliases("gh release ls"),
+				ox.Aliases("release ls"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -1629,7 +1629,7 @@ func main() {
 				ox.Banner("Create a new GitHub repository.\n\nTo create a repository interactively, use `gh repo create` with no arguments.\n\nTo create a remote repository non-interactively, supply the repository name and one of `--public`, `--private`, or `--internal`.\nPass `--clone` to clone the new repository locally.\n\nIf the `OWNER/` portion of the `OWNER/REPO` name argument is omitted, it\ndefaults to the name of the authenticating user.\n\nTo create a remote repository from an existing local repository, specify the source directory with `--source`.\nBy default, the remote repository name will be the name of the source directory.\n\nPass `--push` to push any local commits to the new repository. If the repo is bare, this will mirror all refs.\n\nFor language or platform .gitignore templates to use with `--gitignore`, <https://github.com/github/gitignore>.\n\nFor license keywords to use with `--license`, run `gh repo license list` or visit <https://choosealicense.com>.\n\nThe repo is created with the configured repository default branch, see <https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-user-account-settings/managing-the-default-branch-name-for-your-repositories>."),
 				ox.Usage("create", "Create a new repository"),
 				ox.Spec("[<name>] [flags]"),
-				ox.Aliases("gh repo new"),
+				ox.Aliases("repo new"),
 				ox.Example("\n  # Create a repository interactively\n  $ gh repo create\n  \n  # Create a new remote repository and clone it locally\n  $ gh repo create my-project --public --clone\n  \n  # Create a new remote repository in a different organization\n  $ gh repo create my-org/my-project --public\n  \n  # Create a remote repository from the current directory\n  $ gh repo create my-project --private --source=. --remote=upstream"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1659,7 +1659,7 @@ func main() {
 				ox.Banner("List repositories owned by a user or organization.\n\nNote that the list will only include repositories owned by the provided argument,\nand the `--fork` or `--source` flags will not traverse ownership boundaries. For example,\nwhen listing the forks in an organization, the output would not include those owned by individual users.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List repositories owned by user or organization"),
 				ox.Spec("[<owner>] [flags]"),
-				ox.Aliases("gh repo ls"),
+				ox.Aliases("repo ls"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -1703,7 +1703,7 @@ func main() {
 					ox.Banner("Create a new autolink reference for a repository.\n\nThe `keyPrefix` argument specifies the prefix that will generate a link when it is appended by certain characters.\n\nThe `urlTemplate` argument specifies the target URL that will be generated when the keyPrefix is found, which\nmust contain `<num>` variable for the reference number.\n\nBy default, autolinks are alphanumeric with `--numeric` flag used to create a numeric autolink.\n\nThe `<num>` variable behavior differs depending on whether the autolink is alphanumeric or numeric:\n\n- alphanumeric: matches `A-Z` (case insensitive), `0-9`, and `-`\n- numeric: matches `0-9`\n\nIf the template contains multiple instances of `<num>`, only the first will be replaced."),
 					ox.Usage("create", "Create a new autolink reference"),
 					ox.Spec("<keyPrefix> <urlTemplate> [flags]"),
-					ox.Aliases("gh repo autolink new"),
+					ox.Aliases("repo autolink new"),
 					ox.Example("\n  # Create an alphanumeric autolink to example.com for the key prefix \"TICKET-\".\n  # Generates https://example.com/TICKET?query=123abc from \"TICKET-123abc\".\n  $ gh repo autolink create TICKET- \"https://example.com/TICKET?query=<num>\"\n  \n  # Create a numeric autolink to example.com for the key prefix \"STORY-\".\n  # Generates https://example.com/STORY?id=123 from \"STORY-123\".\n  $ gh repo autolink create STORY- \"https://example.com/STORY?id=<num>\" --numeric"),
 					ox.Help(ox.Sections(
 						"FLAGS",
@@ -1731,7 +1731,7 @@ func main() {
 					ox.Banner("Gets all autolink references that are configured for a repository.\n\nInformation about autolinks is only available to repository administrators.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 					ox.Usage("list", "List autolink references for a GitHub repository"),
 					ox.Spec("[flags]"),
-					ox.Aliases("gh repo autolink ls"),
+					ox.Aliases("repo autolink ls"),
 					ox.Help(ox.Sections(
 						"FLAGS",
 						"INHERITED FLAGS",
@@ -1826,7 +1826,7 @@ func main() {
 					ox.Banner("List deploy keys in a GitHub repository\n\nFor more information about output formatting flags, see `gh help formatting`."),
 					ox.Usage("list", "List deploy keys in a GitHub repository"),
 					ox.Spec("[flags]"),
-					ox.Aliases("gh repo deploy-key ls"),
+					ox.Aliases("repo deploy-key ls"),
 					ox.Help(ox.Sections(
 						"FLAGS",
 						"INHERITED FLAGS",
@@ -1902,7 +1902,7 @@ func main() {
 					ox.Banner("List available repository gitignore templates"),
 					ox.Usage("list", "List available repository gitignore templates"),
 					ox.Spec("[flags]"),
-					ox.Aliases("gh repo gitignore ls"),
+					ox.Aliases("repo gitignore ls"),
 					ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 				),
 				ox.Sub(
@@ -1923,7 +1923,7 @@ func main() {
 					ox.Banner("List common repository licenses.\n\nFor even more licenses, visit <https://choosealicense.com/appendix>"),
 					ox.Usage("list", "List common repository licenses"),
 					ox.Spec("[flags]"),
-					ox.Aliases("gh repo license ls"),
+					ox.Aliases("repo license ls"),
 					ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 				),
 				ox.Sub(
@@ -2040,7 +2040,7 @@ func main() {
 				ox.Banner("List GitHub Actions caches\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List GitHub Actions caches"),
 				ox.Spec("[flags]"),
-				ox.Aliases("gh cache ls"),
+				ox.Aliases("cache ls"),
 				ox.Example("\n  # List caches for current repository\n  $ gh cache list\n  \n  # List caches for specific repository\n  $ gh cache list --repo cli/cli\n  \n  # List caches sorted by least recently accessed\n  $ gh cache list --sort last_accessed_at --order asc\n  \n  # List caches that have keys matching a prefix (or that match exactly)\n  $ gh cache list --key key-prefix\n  \n  # List caches for a specific branch, replace <branch-name> with the actual branch name\n  $ gh cache list --ref refs/heads/<branch-name>\n  \n  # List caches for a specific pull request, replace <pr-number> with the actual pull request number\n  $ gh cache list --ref refs/pull/<pr-number>/merge"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -2113,7 +2113,7 @@ func main() {
 				ox.Banner("List recent workflow runs.\n\nNote that providing the `workflow_name` to the `-w` flag will not fetch disabled workflows.\nAlso pass the `-a` flag to fetch disabled workflow runs using the `workflow_name` and the `-w` flag.\n\nRuns created by organization and enterprise ruleset workflows will not display a workflow name due to GitHub API limitations.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List recent workflow runs"),
 				ox.Spec("[flags]"),
-				ox.Aliases("gh run ls"),
+				ox.Aliases("run ls"),
 				ox.Help(ox.Sections(
 					"FLAGS",
 					"INHERITED FLAGS",
@@ -2225,7 +2225,7 @@ func main() {
 				ox.Banner("List workflow files, hiding disabled workflows by default.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List workflows"),
 				ox.Spec("[flags]"),
-				ox.Aliases("gh workflow ls"),
+				ox.Aliases("workflow ls"),
 				ox.Help(ox.Sections(
 					"FLAGS",
 					"INHERITED FLAGS",
@@ -2326,7 +2326,7 @@ func main() {
 				ox.Banner("This command prints out all of the aliases gh is configured to use."),
 				ox.Usage("list", "List your aliases"),
 				ox.Spec("[flags]"),
-				ox.Aliases("gh alias ls"),
+				ox.Aliases("alias ls"),
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			),
 			ox.Sub(
@@ -2374,7 +2374,7 @@ func main() {
 			ox.Banner("Download and verify artifact attestations."),
 			ox.Usage("attestation", "Work with artifact attestations"),
 			ox.Spec("[subcommand] [flags]"),
-			ox.Aliases("gh at"),
+			ox.Aliases("at"),
 			ox.Section(3),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
@@ -2472,7 +2472,7 @@ func main() {
 				ox.Banner("Print a list of configuration keys and values"),
 				ox.Usage("list", "Print a list of configuration keys and values"),
 				ox.Spec("[flags]"),
-				ox.Aliases("gh config ls"),
+				ox.Aliases("config ls"),
 				ox.Help(ox.Sections(
 					"FLAGS",
 				)),
@@ -2497,7 +2497,7 @@ func main() {
 			ox.Banner("GitHub CLI extensions are repositories that provide additional gh commands.\n\nThe name of the extension repository must start with `gh-` and it must contain an\nexecutable of the same name. All arguments passed to the `gh <extname>` invocation\nwill be forwarded to the `gh-<extname>` executable of the extension.\n\nAn extension cannot override any of the core gh commands. If an extension name conflicts\nwith a core gh command, you can use `gh extension exec <extname>`.\n\nWhen an extension is executed, gh will check for new versions once every 24 hours and display\nan upgrade notice. See `gh help environment` for information on disabling extension notices.\n\nFor the list of available extensions, see <https://github.com/topics/gh-extension>."),
 			ox.Usage("extension", "Manage gh extensions"),
 			ox.Spec("[flags]"),
-			ox.Aliases("s", "gh ext"),
+			ox.Aliases("extensions", "ext"),
 			ox.Section(3),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
@@ -2548,7 +2548,7 @@ func main() {
 				ox.Banner("List installed extension commands"),
 				ox.Usage("list", "List installed extension commands"),
 				ox.Spec("[flags]"),
-				ox.Aliases("gh ext ls", "gh extension ls", "gh extensions ls"),
+				ox.Aliases("ext ls", "extension ls", "extensions ls"),
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			),
 			ox.Sub(
@@ -2623,7 +2623,7 @@ func main() {
 				ox.Banner("Lists GPG keys in your GitHub account"),
 				ox.Usage("list", "Lists GPG keys in your GitHub account"),
 				ox.Spec("[flags]"),
-				ox.Aliases("gh gpg-key ls"),
+				ox.Aliases("gpg-key ls"),
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			),
 		),
@@ -2699,7 +2699,7 @@ func main() {
 				ox.Banner("Display labels in a GitHub repository.\n\nWhen using the `--search` flag results are sorted by best match of the query.\nThis behavior cannot be configured with the `--order` or `--sort` flags.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List labels in a repository"),
 				ox.Spec("[flags]"),
-				ox.Aliases("gh label ls"),
+				ox.Aliases("label ls"),
 				ox.Example("\n  # Sort labels by name\n  $ gh label list --sort name\n  \n  # Find labels with \"bug\" in the name or description\n  $ gh label list --search bug"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -2724,7 +2724,7 @@ func main() {
 			ox.Banner("Repository rulesets are a way to define a set of rules that apply to a repository.\nThese commands allow you to view information about them."),
 			ox.Usage("ruleset", "View info about repo rulesets"),
 			ox.Spec("<command> [flags]"),
-			ox.Aliases("gh rs"),
+			ox.Aliases("rs"),
 			ox.Example("\n  $ gh ruleset list\n  $ gh ruleset view --repo OWNER/REPO --web\n  $ gh ruleset check branch-name"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
@@ -2750,7 +2750,7 @@ func main() {
 				ox.Banner("List GitHub rulesets for a repository or organization.\n\nIf no options are provided, the current repository's rulesets are listed. You can query a different\nrepository's rulesets by using the `--repo` flag. You can also use the `--org` flag to list rulesets\nconfigured for the provided organization.\n\nUse the `--parents` flag to control whether rulesets configured at higher levels that also apply to the provided\nrepository or organization should be returned. The default is `true`.\n\nYour access token must have the `admin:org` scope to use the `--org` flag, which can be granted by running `gh auth refresh -s admin:org`."),
 				ox.Usage("list", "List rulesets for a repository or organization"),
 				ox.Spec("[flags]"),
-				ox.Aliases("gh rs ls", "gh ruleset ls"),
+				ox.Aliases("rs ls", "ruleset ls"),
 				ox.Example("\n  # List rulesets in the current repository\n  $ gh ruleset list\n  \n  # List rulesets in a different repository, including those configured at higher levels\n  $ gh ruleset list --repo owner/repo --parents\n  \n  # List rulesets in an organization\n  $ gh ruleset list --org org-name"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -2996,7 +2996,7 @@ func main() {
 				ox.Banner("Delete a secret on one of the following levels:\n- repository (default): available to GitHub Actions runs or Dependabot in a repository\n- environment: available to GitHub Actions runs for a deployment environment in a repository\n- organization: available to GitHub Actions runs, Dependabot, or Codespaces within an organization\n- user: available to Codespaces for your user"),
 				ox.Usage("delete", "Delete secrets"),
 				ox.Spec("<secret-name> [flags]"),
-				ox.Aliases("gh secret remove"),
+				ox.Aliases("secret remove"),
 				ox.Help(ox.Sections(
 					"FLAGS",
 					"INHERITED FLAGS",
@@ -3013,7 +3013,7 @@ func main() {
 				ox.Banner("List secrets on one of the following levels:\n- repository (default): available to GitHub Actions runs or Dependabot in a repository\n- environment: available to GitHub Actions runs for a deployment environment in a repository\n- organization: available to GitHub Actions runs, Dependabot, or Codespaces within an organization\n- user: available to Codespaces for your user\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List secrets"),
 				ox.Spec("[flags]"),
-				ox.Aliases("gh secret ls"),
+				ox.Aliases("secret ls"),
 				ox.Help(ox.Sections(
 					"FLAGS",
 					"INHERITED FLAGS",
@@ -3087,7 +3087,7 @@ func main() {
 				ox.Banner("Lists SSH keys in your GitHub account"),
 				ox.Usage("list", "Lists SSH keys in your GitHub account"),
 				ox.Spec("[flags]"),
-				ox.Aliases("gh ssh-key ls"),
+				ox.Aliases("ssh-key ls"),
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			),
 		),
@@ -3118,7 +3118,7 @@ func main() {
 				ox.Banner("Delete a variable on one of the following levels:\n- repository (default): available to GitHub Actions runs or Dependabot in a repository\n- environment: available to GitHub Actions runs for a deployment environment in a repository\n- organization: available to GitHub Actions runs or Dependabot within an organization"),
 				ox.Usage("delete", "Delete variables"),
 				ox.Spec("<variable-name> [flags]"),
-				ox.Aliases("gh variable remove"),
+				ox.Aliases("variable remove"),
 				ox.Help(ox.Sections(
 					"FLAGS",
 					"INHERITED FLAGS",
@@ -3150,7 +3150,7 @@ func main() {
 				ox.Banner("List variables on one of the following levels:\n- repository (default): available to GitHub Actions runs or Dependabot in a repository\n- environment: available to GitHub Actions runs for a deployment environment in a repository\n- organization: available to GitHub Actions runs or Dependabot within an organization\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List variables"),
 				ox.Spec("[flags]"),
-				ox.Aliases("gh variable ls"),
+				ox.Aliases("variable ls"),
 				ox.Help(ox.Sections(
 					"FLAGS",
 					"INHERITED FLAGS",

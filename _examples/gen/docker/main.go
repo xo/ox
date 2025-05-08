@@ -25,7 +25,7 @@ func main() {
 			ox.Banner("Create and run a new container from an image"),
 			ox.Usage("run", "Create and run a new container from an image"),
 			ox.Spec("[OPTIONS] IMAGE [COMMAND] [ARG...]"),
-			ox.Aliases("docker container run", "docker run"),
+			ox.Aliases("container run"),
 			ox.Section(0),
 			ox.Help(ox.Sections(
 				"Options",
@@ -139,7 +139,7 @@ func main() {
 			ox.Banner("Execute a command in a running container"),
 			ox.Usage("exec", "Execute a command in a running container"),
 			ox.Spec("[OPTIONS] CONTAINER COMMAND [ARG...]"),
-			ox.Aliases("docker container exec", "docker exec"),
+			ox.Aliases("container exec"),
 			ox.Section(0),
 			ox.Help(ox.Sections(
 				"Options",
@@ -159,7 +159,7 @@ func main() {
 			ox.Banner("List containers"),
 			ox.Usage("ps", "List containers"),
 			ox.Spec("[OPTIONS]"),
-			ox.Aliases("docker container ls", "docker container list", "docker container ps", "docker ps"),
+			ox.Aliases("container ls", "container list", "container ps"),
 			ox.Section(0),
 			ox.Help(ox.Sections(
 				"Options",
@@ -178,7 +178,7 @@ func main() {
 			ox.Banner("Build an image from a Dockerfile"),
 			ox.Usage("build", "Build an image from a Dockerfile"),
 			ox.Spec("[OPTIONS] PATH | URL | -"),
-			ox.Aliases("docker image build", "docker build", "docker builder build"),
+			ox.Aliases("image build", "builder build"),
 			ox.Section(0),
 			ox.Help(ox.Sections(
 				"Options",
@@ -219,7 +219,7 @@ func main() {
 			ox.Banner("Download an image from a registry"),
 			ox.Usage("pull", "Download an image from a registry"),
 			ox.Spec("[OPTIONS] NAME[:TAG|@DIGEST]"),
-			ox.Aliases("docker image pull", "docker pull"),
+			ox.Aliases("image pull"),
 			ox.Section(0),
 			ox.Help(ox.Sections(
 				"Options",
@@ -234,7 +234,7 @@ func main() {
 			ox.Banner("Upload an image to a registry"),
 			ox.Usage("push", "Upload an image to a registry"),
 			ox.Spec("[OPTIONS] NAME[:TAG]"),
-			ox.Aliases("docker image push", "docker push"),
+			ox.Aliases("image push"),
 			ox.Section(0),
 			ox.Help(ox.Sections(
 				"Options",
@@ -249,7 +249,7 @@ func main() {
 			ox.Banner("List images"),
 			ox.Usage("images", "List images"),
 			ox.Spec("[OPTIONS] [REPOSITORY[:TAG]]"),
-			ox.Aliases("docker image ls", "docker image list", "docker images"),
+			ox.Aliases("image ls", "image list"),
 			ox.Section(0),
 			ox.Help(ox.Sections(
 				"Options",
@@ -300,7 +300,7 @@ func main() {
 			ox.Banner("Display system-wide information"),
 			ox.Usage("info", "Display system-wide information"),
 			ox.Spec("[OPTIONS]"),
-			ox.Aliases("docker system info", "docker info"),
+			ox.Aliases("system info"),
 			ox.Section(0),
 			ox.Help(ox.Sections(
 				"Options",
@@ -319,7 +319,7 @@ func main() {
 				ox.Banner("Build an image from a Dockerfile"),
 				ox.Usage("build", "Build an image from a Dockerfile"),
 				ox.Spec("[OPTIONS] PATH | URL | -"),
-				ox.Aliases("docker image build", "docker build", "docker builder build"),
+				ox.Aliases("image build", "builder build"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -393,7 +393,7 @@ func main() {
 				ox.Banner("List checkpoints for a container"),
 				ox.Usage("ls", "List checkpoints for a container"),
 				ox.Spec("[OPTIONS] CONTAINER"),
-				ox.Aliases("docker checkpoint list"),
+				ox.Aliases("checkpoint ls", "checkpoint list"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -405,7 +405,7 @@ func main() {
 				ox.Banner("Remove a checkpoint"),
 				ox.Usage("rm", "Remove a checkpoint"),
 				ox.Spec("[OPTIONS] CONTAINER CHECKPOINT"),
-				ox.Aliases("docker checkpoint remove"),
+				ox.Aliases("checkpoint rm", "checkpoint remove"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -425,7 +425,7 @@ func main() {
 				ox.Banner("Attach local standard input, output, and error streams to a running container"),
 				ox.Usage("attach", "Attach local standard input, output, and error streams to a running container"),
 				ox.Spec("[OPTIONS] CONTAINER"),
-				ox.Aliases("docker attach"),
+				ox.Aliases("container attach"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -439,7 +439,7 @@ func main() {
 				ox.Banner("Create a new image from a container's changes"),
 				ox.Usage("commit", "Create a new image from a container's changes"),
 				ox.Spec("[OPTIONS] CONTAINER [REPOSITORY[:TAG]]"),
-				ox.Aliases("docker commit"),
+				ox.Aliases("container commit"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -454,7 +454,7 @@ func main() {
 				ox.Banner("docker cp [OPTIONS] SRC_PATH|- CONTAINER:DEST_PATH\n\nCopy files/folders between a container and the local filesystem\n\nUse '-' as the source to read a tar archive from stdin\nand extract it to a directory destination in a container.\nUse '-' as the destination to stream a tar archive of a\ncontainer source to stdout."),
 				ox.Usage("cp", "Copy files/folders between a container and the local filesystem"),
 				ox.Spec("[OPTIONS] CONTAINER:SRC_PATH DEST_PATH|-"),
-				ox.Aliases("docker cp"),
+				ox.Aliases("container cp"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -468,7 +468,7 @@ func main() {
 				ox.Banner("Create a new container"),
 				ox.Usage("create", "Create a new container"),
 				ox.Spec("[OPTIONS] IMAGE [COMMAND] [ARG...]"),
-				ox.Aliases("docker create"),
+				ox.Aliases("container create"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -579,14 +579,14 @@ func main() {
 				ox.Banner("Inspect changes to files or directories on a container's filesystem"),
 				ox.Usage("diff", "Inspect changes to files or directories on a container's filesystem"),
 				ox.Spec("CONTAINER"),
-				ox.Aliases("docker diff"),
+				ox.Aliases("container diff"),
 				ox.Section(0),
 			),
 			ox.Sub(
 				ox.Banner("Execute a command in a running container"),
 				ox.Usage("exec", "Execute a command in a running container"),
 				ox.Spec("[OPTIONS] CONTAINER COMMAND [ARG...]"),
-				ox.Aliases("docker exec"),
+				ox.Aliases("container exec"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -606,7 +606,7 @@ func main() {
 				ox.Banner("Export a container's filesystem as a tar archive"),
 				ox.Usage("export", "Export a container's filesystem as a tar archive"),
 				ox.Spec("[OPTIONS] CONTAINER"),
-				ox.Aliases("docker export"),
+				ox.Aliases("container export"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -630,7 +630,7 @@ func main() {
 				ox.Banner("Kill one or more running containers"),
 				ox.Usage("kill", "Kill one or more running containers"),
 				ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
-				ox.Aliases("docker kill"),
+				ox.Aliases("container kill"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -642,7 +642,7 @@ func main() {
 				ox.Banner("Fetch the logs of a container"),
 				ox.Usage("logs", "Fetch the logs of a container"),
 				ox.Spec("[OPTIONS] CONTAINER"),
-				ox.Aliases("docker logs"),
+				ox.Aliases("container logs"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -659,7 +659,7 @@ func main() {
 				ox.Banner("List containers"),
 				ox.Usage("ls", "List containers"),
 				ox.Spec("[OPTIONS]"),
-				ox.Aliases("docker container list", "docker container ps", "docker ps"),
+				ox.Aliases("container ls", "container list", "container ps", "ps"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -678,14 +678,14 @@ func main() {
 				ox.Banner("Pause all processes within one or more containers"),
 				ox.Usage("pause", "Pause all processes within one or more containers"),
 				ox.Spec("CONTAINER [CONTAINER...]"),
-				ox.Aliases("docker pause"),
+				ox.Aliases("container pause"),
 				ox.Section(0),
 			),
 			ox.Sub(
 				ox.Banner("List port mappings or a specific mapping for the container"),
 				ox.Usage("port", "List port mappings or a specific mapping for the container"),
 				ox.Spec("CONTAINER [PRIVATE_PORT[/PROTO]]"),
-				ox.Aliases("docker port"),
+				ox.Aliases("container port"),
 				ox.Section(0),
 			),
 			ox.Sub(
@@ -704,14 +704,14 @@ func main() {
 				ox.Banner("Rename a container"),
 				ox.Usage("rename", "Rename a container"),
 				ox.Spec("CONTAINER NEW_NAME"),
-				ox.Aliases("docker rename"),
+				ox.Aliases("container rename"),
 				ox.Section(0),
 			),
 			ox.Sub(
 				ox.Banner("Restart one or more containers"),
 				ox.Usage("restart", "Restart one or more containers"),
 				ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
-				ox.Aliases("docker restart"),
+				ox.Aliases("container restart"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -724,7 +724,7 @@ func main() {
 				ox.Banner("Remove one or more containers"),
 				ox.Usage("rm", "Remove one or more containers"),
 				ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
-				ox.Aliases("docker container remove", "docker rm"),
+				ox.Aliases("container rm", "container remove"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -738,7 +738,7 @@ func main() {
 				ox.Banner("Create and run a new container from an image"),
 				ox.Usage("run", "Create and run a new container from an image"),
 				ox.Spec("[OPTIONS] IMAGE [COMMAND] [ARG...]"),
-				ox.Aliases("docker run"),
+				ox.Aliases("container run"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -852,7 +852,7 @@ func main() {
 				ox.Banner("Start one or more stopped containers"),
 				ox.Usage("start", "Start one or more stopped containers"),
 				ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
-				ox.Aliases("docker start"),
+				ox.Aliases("container start"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -868,7 +868,7 @@ func main() {
 				ox.Banner("Display a live stream of container(s) resource usage statistics"),
 				ox.Usage("stats", "Display a live stream of container(s) resource usage statistics"),
 				ox.Spec("[OPTIONS] [CONTAINER...]"),
-				ox.Aliases("docker stats"),
+				ox.Aliases("container stats"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -883,7 +883,7 @@ func main() {
 				ox.Banner("Stop one or more running containers"),
 				ox.Usage("stop", "Stop one or more running containers"),
 				ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
-				ox.Aliases("docker stop"),
+				ox.Aliases("container stop"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -896,21 +896,21 @@ func main() {
 				ox.Banner("Display the running processes of a container"),
 				ox.Usage("top", "Display the running processes of a container"),
 				ox.Spec("CONTAINER [ps OPTIONS]"),
-				ox.Aliases("docker top"),
+				ox.Aliases("container top"),
 				ox.Section(0),
 			),
 			ox.Sub(
 				ox.Banner("Unpause all processes within one or more containers"),
 				ox.Usage("unpause", "Unpause all processes within one or more containers"),
 				ox.Spec("CONTAINER [CONTAINER...]"),
-				ox.Aliases("docker unpause"),
+				ox.Aliases("container unpause"),
 				ox.Section(0),
 			),
 			ox.Sub(
 				ox.Banner("Update configuration of one or more containers"),
 				ox.Usage("update", "Update configuration of one or more containers"),
 				ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
-				ox.Aliases("docker update"),
+				ox.Aliases("container update"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -935,7 +935,7 @@ func main() {
 				ox.Banner("Block until one or more containers stop, then print their exit codes"),
 				ox.Usage("wait", "Block until one or more containers stop, then print their exit codes"),
 				ox.Spec("CONTAINER [CONTAINER...]"),
-				ox.Aliases("docker wait"),
+				ox.Aliases("container wait"),
 				ox.Section(0),
 			),
 		),
@@ -973,7 +973,7 @@ func main() {
 				ox.Banner("List contexts"),
 				ox.Usage("ls", "List contexts"),
 				ox.Spec("[OPTIONS]"),
-				ox.Aliases("docker context list"),
+				ox.Aliases("context ls", "context list"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -986,7 +986,7 @@ func main() {
 				ox.Banner("Remove one or more contexts"),
 				ox.Usage("rm", "Remove one or more contexts"),
 				ox.Spec("CONTEXT [CONTEXT...]"),
-				ox.Aliases("docker context remove"),
+				ox.Aliases("context rm", "context remove"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -1030,7 +1030,7 @@ func main() {
 				ox.Banner("Build an image from a Dockerfile"),
 				ox.Usage("build", "Build an image from a Dockerfile"),
 				ox.Spec("[OPTIONS] PATH | URL | -"),
-				ox.Aliases("docker build", "docker builder build"),
+				ox.Aliases("image build", "builder build"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -1071,7 +1071,7 @@ func main() {
 				ox.Banner("Show the history of an image"),
 				ox.Usage("history", "Show the history of an image"),
 				ox.Spec("[OPTIONS] IMAGE"),
-				ox.Aliases("docker history"),
+				ox.Aliases("image history"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -1087,7 +1087,7 @@ func main() {
 				ox.Banner("Import the contents from a tarball to create a filesystem image"),
 				ox.Usage("import", "Import the contents from a tarball to create a filesystem image"),
 				ox.Spec("[OPTIONS] file|URL|- [REPOSITORY[:TAG]]"),
-				ox.Aliases("docker import"),
+				ox.Aliases("image import"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -1113,7 +1113,7 @@ func main() {
 				ox.Banner("Load an image from a tar archive or STDIN"),
 				ox.Usage("load", "Load an image from a tar archive or STDIN"),
 				ox.Spec("[OPTIONS]"),
-				ox.Aliases("docker load"),
+				ox.Aliases("image load"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -1127,7 +1127,7 @@ func main() {
 				ox.Banner("List images"),
 				ox.Usage("ls", "List images"),
 				ox.Spec("[OPTIONS] [REPOSITORY[:TAG]]"),
-				ox.Aliases("docker image list", "docker images"),
+				ox.Aliases("image ls", "image list", "images"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -1158,7 +1158,7 @@ func main() {
 				ox.Banner("Download an image from a registry"),
 				ox.Usage("pull", "Download an image from a registry"),
 				ox.Spec("[OPTIONS] NAME[:TAG|@DIGEST]"),
-				ox.Aliases("docker pull"),
+				ox.Aliases("image pull"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -1173,7 +1173,7 @@ func main() {
 				ox.Banner("Upload an image to a registry"),
 				ox.Usage("push", "Upload an image to a registry"),
 				ox.Spec("[OPTIONS] NAME[:TAG]"),
-				ox.Aliases("docker push"),
+				ox.Aliases("image push"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -1188,7 +1188,7 @@ func main() {
 				ox.Banner("Remove one or more images"),
 				ox.Usage("rm", "Remove one or more images"),
 				ox.Spec("[OPTIONS] IMAGE [IMAGE...]"),
-				ox.Aliases("docker image remove", "docker rmi"),
+				ox.Aliases("image rm", "image remove", "rmi"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -1201,7 +1201,7 @@ func main() {
 				ox.Banner("Save one or more images to a tar archive (streamed to STDOUT by default)"),
 				ox.Usage("save", "Save one or more images to a tar archive (streamed to STDOUT by default)"),
 				ox.Spec("[OPTIONS] IMAGE [IMAGE...]"),
-				ox.Aliases("docker save"),
+				ox.Aliases("image save"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -1214,7 +1214,7 @@ func main() {
 				ox.Banner("Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE"),
 				ox.Usage("tag", "Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE"),
 				ox.Spec("SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]"),
-				ox.Aliases("docker tag"),
+				ox.Aliases("image tag"),
 				ox.Section(0),
 			),
 		),
@@ -1361,7 +1361,7 @@ func main() {
 				ox.Banner("List networks"),
 				ox.Usage("ls", "List networks"),
 				ox.Spec("[OPTIONS]"),
-				ox.Aliases("docker network list"),
+				ox.Aliases("network ls", "network list"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -1388,7 +1388,7 @@ func main() {
 				ox.Banner("Remove one or more networks"),
 				ox.Usage("rm", "Remove one or more networks"),
 				ox.Spec("NETWORK [NETWORK...]"),
-				ox.Aliases("docker network remove"),
+				ox.Aliases("network rm", "network remove"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -1466,7 +1466,7 @@ func main() {
 				ox.Banner("List plugins"),
 				ox.Usage("ls", "List plugins"),
 				ox.Spec("[OPTIONS]"),
-				ox.Aliases("docker plugin list"),
+				ox.Aliases("plugin ls", "plugin list"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -1492,7 +1492,7 @@ func main() {
 				ox.Banner("Remove one or more plugins"),
 				ox.Usage("rm", "Remove one or more plugins"),
 				ox.Spec("[OPTIONS] PLUGIN [PLUGIN...]"),
-				ox.Aliases("docker plugin remove"),
+				ox.Aliases("plugin rm", "plugin remove"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -1543,7 +1543,7 @@ func main() {
 				ox.Banner("Get real time events from the server"),
 				ox.Usage("events", "Get real time events from the server"),
 				ox.Spec("[OPTIONS]"),
-				ox.Aliases("docker events"),
+				ox.Aliases("system events"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -1558,7 +1558,7 @@ func main() {
 				ox.Banner("Display system-wide information"),
 				ox.Usage("info", "Display system-wide information"),
 				ox.Spec("[OPTIONS]"),
-				ox.Aliases("docker info"),
+				ox.Aliases("system info"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -1727,7 +1727,7 @@ func main() {
 				ox.Banner("List volumes"),
 				ox.Usage("ls", "List volumes"),
 				ox.Spec("[OPTIONS]"),
-				ox.Aliases("docker volume list"),
+				ox.Aliases("volume ls", "volume list"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -1755,7 +1755,7 @@ func main() {
 				ox.Banner("Remove one or more volumes. You cannot remove a volume that is in use by a container."),
 				ox.Usage("rm", "Remove one or more volumes"),
 				ox.Spec("[OPTIONS] VOLUME [VOLUME...]"),
-				ox.Aliases("docker volume remove"),
+				ox.Aliases("volume rm", "volume remove"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -1810,7 +1810,7 @@ func main() {
 				ox.Banner("List configs"),
 				ox.Usage("ls", "List configs"),
 				ox.Spec("[OPTIONS]"),
-				ox.Aliases("docker config list"),
+				ox.Aliases("config ls", "config list"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -1824,7 +1824,7 @@ func main() {
 				ox.Banner("Remove one or more configs"),
 				ox.Usage("rm", "Remove one or more configs"),
 				ox.Spec("CONFIG [CONFIG...]"),
-				ox.Aliases("docker config remove"),
+				ox.Aliases("config rm", "config remove"),
 				ox.Section(0),
 			),
 		),
@@ -1857,7 +1857,7 @@ func main() {
 				ox.Banner("List nodes in the swarm"),
 				ox.Usage("ls", "List nodes in the swarm"),
 				ox.Spec("[OPTIONS]"),
-				ox.Aliases("docker node list"),
+				ox.Aliases("node ls", "node list"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -1892,7 +1892,7 @@ func main() {
 				ox.Banner("Remove one or more nodes from the swarm"),
 				ox.Usage("rm", "Remove one or more nodes from the swarm"),
 				ox.Spec("[OPTIONS] NODE [NODE...]"),
-				ox.Aliases("docker node remove"),
+				ox.Aliases("node rm", "node remove"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -1951,7 +1951,7 @@ func main() {
 				ox.Banner("List secrets"),
 				ox.Usage("ls", "List secrets"),
 				ox.Spec("[OPTIONS]"),
-				ox.Aliases("docker secret list"),
+				ox.Aliases("secret ls", "secret list"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -1965,7 +1965,7 @@ func main() {
 				ox.Banner("Remove one or more secrets"),
 				ox.Usage("rm", "Remove one or more secrets"),
 				ox.Spec("SECRET [SECRET...]"),
-				ox.Aliases("docker secret remove"),
+				ox.Aliases("secret rm", "secret remove"),
 				ox.Section(0),
 			),
 		),
@@ -2094,7 +2094,7 @@ func main() {
 				ox.Banner("List services"),
 				ox.Usage("ls", "List services"),
 				ox.Spec("[OPTIONS]"),
-				ox.Aliases("docker service list"),
+				ox.Aliases("service ls", "service list"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -2123,7 +2123,7 @@ func main() {
 				ox.Banner("Remove one or more services"),
 				ox.Usage("rm", "Remove one or more services"),
 				ox.Spec("SERVICE [SERVICE...]"),
-				ox.Aliases("docker service remove"),
+				ox.Aliases("service rm", "service remove"),
 				ox.Section(0),
 			),
 			ox.Sub(
@@ -2275,7 +2275,7 @@ func main() {
 				ox.Banner("Deploy a new stack or update an existing stack"),
 				ox.Usage("deploy", "Deploy a new stack or update an existing stack"),
 				ox.Spec("[OPTIONS] STACK"),
-				ox.Aliases("docker stack up"),
+				ox.Aliases("stack deploy", "stack up"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -2292,7 +2292,7 @@ func main() {
 				ox.Banner("List stacks"),
 				ox.Usage("ls", "List stacks"),
 				ox.Spec("[OPTIONS]"),
-				ox.Aliases("docker stack list"),
+				ox.Aliases("stack ls", "stack list"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -2319,7 +2319,7 @@ func main() {
 				ox.Banner("Remove one or more stacks"),
 				ox.Usage("rm", "Remove one or more stacks"),
 				ox.Spec("[OPTIONS] STACK [STACK...]"),
-				ox.Aliases("docker stack remove", "docker stack down"),
+				ox.Aliases("stack rm", "stack remove", "stack down"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -2467,7 +2467,7 @@ func main() {
 			ox.Banner("Attach local standard input, output, and error streams to a running container"),
 			ox.Usage("attach", "Attach local standard input, output, and error streams to a running container"),
 			ox.Spec("[OPTIONS] CONTAINER"),
-			ox.Aliases("docker container attach", "docker attach"),
+			ox.Aliases("container attach"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
 				"Options",
@@ -2481,7 +2481,7 @@ func main() {
 			ox.Banner("Create a new image from a container's changes"),
 			ox.Usage("commit", "Create a new image from a container's changes"),
 			ox.Spec("[OPTIONS] CONTAINER [REPOSITORY[:TAG]]"),
-			ox.Aliases("docker container commit", "docker commit"),
+			ox.Aliases("container commit"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
 				"Options",
@@ -2496,7 +2496,7 @@ func main() {
 			ox.Banner("docker cp [OPTIONS] SRC_PATH|- CONTAINER:DEST_PATH\n\nCopy files/folders between a container and the local filesystem\n\nUse '-' as the source to read a tar archive from stdin\nand extract it to a directory destination in a container.\nUse '-' as the destination to stream a tar archive of a\ncontainer source to stdout."),
 			ox.Usage("cp", "Copy files/folders between a container and the local filesystem"),
 			ox.Spec("[OPTIONS] CONTAINER:SRC_PATH DEST_PATH|-"),
-			ox.Aliases("docker container cp", "docker cp"),
+			ox.Aliases("container cp"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
 				"Options",
@@ -2510,7 +2510,7 @@ func main() {
 			ox.Banner("Create a new container"),
 			ox.Usage("create", "Create a new container"),
 			ox.Spec("[OPTIONS] IMAGE [COMMAND] [ARG...]"),
-			ox.Aliases("docker container create", "docker create"),
+			ox.Aliases("container create"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
 				"Options",
@@ -2621,14 +2621,14 @@ func main() {
 			ox.Banner("Inspect changes to files or directories on a container's filesystem"),
 			ox.Usage("diff", "Inspect changes to files or directories on a container's filesystem"),
 			ox.Spec("CONTAINER"),
-			ox.Aliases("docker container diff", "docker diff"),
+			ox.Aliases("container diff"),
 			ox.Section(3),
 		),
 		ox.Sub(
 			ox.Banner("Get real time events from the server"),
 			ox.Usage("events", "Get real time events from the server"),
 			ox.Spec("[OPTIONS]"),
-			ox.Aliases("docker system events", "docker events"),
+			ox.Aliases("system events"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
 				"Options",
@@ -2643,7 +2643,7 @@ func main() {
 			ox.Banner("Export a container's filesystem as a tar archive"),
 			ox.Usage("export", "Export a container's filesystem as a tar archive"),
 			ox.Spec("[OPTIONS] CONTAINER"),
-			ox.Aliases("docker container export", "docker export"),
+			ox.Aliases("container export"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
 				"Options",
@@ -2655,7 +2655,7 @@ func main() {
 			ox.Banner("Show the history of an image"),
 			ox.Usage("history", "Show the history of an image"),
 			ox.Spec("[OPTIONS] IMAGE"),
-			ox.Aliases("docker image history", "docker history"),
+			ox.Aliases("image history"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
 				"Options",
@@ -2671,7 +2671,7 @@ func main() {
 			ox.Banner("Import the contents from a tarball to create a filesystem image"),
 			ox.Usage("import", "Import the contents from a tarball to create a filesystem image"),
 			ox.Spec("[OPTIONS] file|URL|- [REPOSITORY[:TAG]]"),
-			ox.Aliases("docker image import", "docker import"),
+			ox.Aliases("image import"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
 				"Options",
@@ -2698,7 +2698,7 @@ func main() {
 			ox.Banner("Kill one or more running containers"),
 			ox.Usage("kill", "Kill one or more running containers"),
 			ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
-			ox.Aliases("docker container kill", "docker kill"),
+			ox.Aliases("container kill"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
 				"Options",
@@ -2710,7 +2710,7 @@ func main() {
 			ox.Banner("Load an image from a tar archive or STDIN"),
 			ox.Usage("load", "Load an image from a tar archive or STDIN"),
 			ox.Spec("[OPTIONS]"),
-			ox.Aliases("docker image load", "docker load"),
+			ox.Aliases("image load"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
 				"Options",
@@ -2724,7 +2724,7 @@ func main() {
 			ox.Banner("Fetch the logs of a container"),
 			ox.Usage("logs", "Fetch the logs of a container"),
 			ox.Spec("[OPTIONS] CONTAINER"),
-			ox.Aliases("docker container logs", "docker logs"),
+			ox.Aliases("container logs"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
 				"Options",
@@ -2741,28 +2741,28 @@ func main() {
 			ox.Banner("Pause all processes within one or more containers"),
 			ox.Usage("pause", "Pause all processes within one or more containers"),
 			ox.Spec("CONTAINER [CONTAINER...]"),
-			ox.Aliases("docker container pause", "docker pause"),
+			ox.Aliases("container pause"),
 			ox.Section(3),
 		),
 		ox.Sub(
 			ox.Banner("List port mappings or a specific mapping for the container"),
 			ox.Usage("port", "List port mappings or a specific mapping for the container"),
 			ox.Spec("CONTAINER [PRIVATE_PORT[/PROTO]]"),
-			ox.Aliases("docker container port", "docker port"),
+			ox.Aliases("container port"),
 			ox.Section(3),
 		),
 		ox.Sub(
 			ox.Banner("Rename a container"),
 			ox.Usage("rename", "Rename a container"),
 			ox.Spec("CONTAINER NEW_NAME"),
-			ox.Aliases("docker container rename", "docker rename"),
+			ox.Aliases("container rename"),
 			ox.Section(3),
 		),
 		ox.Sub(
 			ox.Banner("Restart one or more containers"),
 			ox.Usage("restart", "Restart one or more containers"),
 			ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
-			ox.Aliases("docker container restart", "docker restart"),
+			ox.Aliases("container restart"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
 				"Options",
@@ -2775,7 +2775,7 @@ func main() {
 			ox.Banner("Remove one or more containers"),
 			ox.Usage("rm", "Remove one or more containers"),
 			ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
-			ox.Aliases("docker container rm", "docker container remove", "docker rm"),
+			ox.Aliases("container rm", "container remove"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
 				"Options",
@@ -2789,7 +2789,7 @@ func main() {
 			ox.Banner("Remove one or more images"),
 			ox.Usage("rmi", "Remove one or more images"),
 			ox.Spec("[OPTIONS] IMAGE [IMAGE...]"),
-			ox.Aliases("docker image rm", "docker image remove", "docker rmi"),
+			ox.Aliases("image rm", "image remove"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
 				"Options",
@@ -2802,7 +2802,7 @@ func main() {
 			ox.Banner("Save one or more images to a tar archive (streamed to STDOUT by default)"),
 			ox.Usage("save", "Save one or more images to a tar archive (streamed to STDOUT by default)"),
 			ox.Spec("[OPTIONS] IMAGE [IMAGE...]"),
-			ox.Aliases("docker image save", "docker save"),
+			ox.Aliases("image save"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
 				"Options",
@@ -2815,7 +2815,7 @@ func main() {
 			ox.Banner("Start one or more stopped containers"),
 			ox.Usage("start", "Start one or more stopped containers"),
 			ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
-			ox.Aliases("docker container start", "docker start"),
+			ox.Aliases("container start"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
 				"Options",
@@ -2831,7 +2831,7 @@ func main() {
 			ox.Banner("Display a live stream of container(s) resource usage statistics"),
 			ox.Usage("stats", "Display a live stream of container(s) resource usage statistics"),
 			ox.Spec("[OPTIONS] [CONTAINER...]"),
-			ox.Aliases("docker container stats", "docker stats"),
+			ox.Aliases("container stats"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
 				"Options",
@@ -2846,7 +2846,7 @@ func main() {
 			ox.Banner("Stop one or more running containers"),
 			ox.Usage("stop", "Stop one or more running containers"),
 			ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
-			ox.Aliases("docker container stop", "docker stop"),
+			ox.Aliases("container stop"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
 				"Options",
@@ -2859,28 +2859,28 @@ func main() {
 			ox.Banner("Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE"),
 			ox.Usage("tag", "Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE"),
 			ox.Spec("SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]"),
-			ox.Aliases("docker image tag", "docker tag"),
+			ox.Aliases("image tag"),
 			ox.Section(3),
 		),
 		ox.Sub(
 			ox.Banner("Display the running processes of a container"),
 			ox.Usage("top", "Display the running processes of a container"),
 			ox.Spec("CONTAINER [ps OPTIONS]"),
-			ox.Aliases("docker container top", "docker top"),
+			ox.Aliases("container top"),
 			ox.Section(3),
 		),
 		ox.Sub(
 			ox.Banner("Unpause all processes within one or more containers"),
 			ox.Usage("unpause", "Unpause all processes within one or more containers"),
 			ox.Spec("CONTAINER [CONTAINER...]"),
-			ox.Aliases("docker container unpause", "docker unpause"),
+			ox.Aliases("container unpause"),
 			ox.Section(3),
 		),
 		ox.Sub(
 			ox.Banner("Update configuration of one or more containers"),
 			ox.Usage("update", "Update configuration of one or more containers"),
 			ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
-			ox.Aliases("docker container update", "docker update"),
+			ox.Aliases("container update"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
 				"Options",
@@ -2905,7 +2905,7 @@ func main() {
 			ox.Banner("Block until one or more containers stop, then print their exit codes"),
 			ox.Usage("wait", "Block until one or more containers stop, then print their exit codes"),
 			ox.Spec("CONTAINER [CONTAINER...]"),
-			ox.Aliases("docker container wait", "docker wait"),
+			ox.Aliases("container wait"),
 			ox.Section(3),
 		),
 		ox.Flags().

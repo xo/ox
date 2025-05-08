@@ -2056,7 +2056,7 @@ func main() {
 				Bool("no-trunc", "Do not truncate output", ox.Section(0)).
 				Bool("noheading", "Do not print column headings", ox.Short("n"), ox.Section(0)).
 				Bool("quiet", "Display only image IDs", ox.Short("q"), ox.Section(0)).
-				String("sort", "Sort by id, repository, size, tag, created", ox.Default("created"), ox.Section(0)),
+				String("sort", "Sort by created, id, repository, size, tag", ox.Default("created"), ox.Section(0)),
 		),
 		ox.Sub(
 			ox.Banner("Import a tarball to create a filesystem image\n\nDescription:\n  Create a container image from the contents of the specified tarball (.tar, .tar.gz, .tgz, .bzip, .tar.xz, .txz).\n\n  Note remote tar balls can be specified, via web address.\n  Optionally tag the image. You can specify the instructions using the --change option."),

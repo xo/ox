@@ -286,12 +286,23 @@ func (cmd *command) parse(ctx context.Context) error {
 				}
 			}
 		case sectAliases:
-			for _, str := range strings.Split(strings.TrimSpace(s), ",") {
-				if str = strings.TrimSpace(strings.TrimPrefix(str, cmd.String())); str != "" && str != cmd.name {
-					cmd.aliases = append(cmd.aliases, str)
+			m, aliases := make(map[string]bool), strings.Split(strings.TrimSpace(s), ",")
+			for _, alias := range aliases {
+				v := strings.Split(strings.TrimSpace(alias), " ")
+				i := slices.IndexFunc(v, func(s string) bool {
+					s = strings.TrimSpace(s)
+					return s != cmd.app && s != cmd.name
+				})
+				if i != -1 {
+					v = v[i:]
 				}
+				str := strings.TrimSpace(strings.Join(v, " "))
+				if len(v) == 0 || m[str] || str == cmd.app || str == cmd.name || str == cmd.app+" "+cmd.name {
+					continue
+				}
+				cmd.aliases, m[str] = append(cmd.aliases, str), true
 			}
-			logger("    aliases: %v", cmd.aliases)
+			logger("    aliases: %q", cmd.aliases)
 		case sectExample:
 			if strings.HasPrefix(s, "\n\n") {
 				s = strings.TrimPrefix(s, "\n")
