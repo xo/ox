@@ -677,6 +677,8 @@ type Flag struct {
 	Special string
 	// Valid are the flag's validators.
 	Valid []func(any) (bool, error)
+	// Allowed are the allowed values.
+	Allowed any
 }
 
 // NewFlag creates a new command-line flag.
@@ -790,6 +792,19 @@ func (g *Flag) SpecString() string {
 		return g.Name + text.FlagSpecSpacer + g.MapKey.String() + "=" + g.Elem.String()
 	}
 	return g.Name + text.FlagSpecSpacer + g.Type.String()
+}
+
+// Validate checks a value against the flag's validator funcs.
+func (g *Flag) Validate(s string) (bool, error) {
+	for _, f := range g.Valid {
+		switch ok, err := f(s); {
+		case err != nil:
+			return false, err
+		case !ok:
+			return false, nil
+		}
+	}
+	return true, nil
 }
 
 // ExecType is the interface for func's that can be used with [Run],

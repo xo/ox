@@ -134,6 +134,16 @@ func (vars Vars) Set(ctx *Context, g *Flag, s string, set bool) error {
 	if name == "" {
 		return ErrInvalidFlagName
 	}
+	// validate
+	switch ok, err := g.Validate(s); {
+	case err != nil:
+		return err
+	case !ok && g.Allowed != nil:
+		allowed := strings.TrimSuffix(strings.TrimPrefix(fmt.Sprintf("%v", g.Allowed), "["), "]")
+		return fmt.Errorf("%w: %q not in (%s)", ErrInvalidValue, s, allowed)
+	case !ok:
+		return fmt.Errorf("%w: %q", ErrInvalidValue, s)
+	}
 	var err error
 	v, ok := vars[name]
 	if !ok {

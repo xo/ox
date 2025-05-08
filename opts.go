@@ -295,7 +295,7 @@ func Valid[T comparable](values ...T) FlagOption {
 	return option{
 		name: "Valid",
 		flag: func(g *Flag) error {
-			g.Valid = append(g.Valid, isValid(values...))
+			g.Valid, g.Allowed = append(g.Valid, isValid(values...)), values
 			return nil
 		},
 	}
