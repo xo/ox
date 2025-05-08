@@ -219,7 +219,7 @@ func NewRate[T ~int64 | ~int32 | ~int16 | ~int8 | ~int | ~uint64 | ~uint32 | ~ui
 // Format satisfies the [fmt.Formatter] interface. See [AppendRate] for
 // recognized verbs.
 func (rate Rate) Format(f fmt.State, verb rune) {
-	prec := DefaultSizePrec
+	prec := DefaultRatePrec
 	if p, ok := f.Precision(); ok {
 		prec = p
 	}

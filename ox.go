@@ -221,6 +221,8 @@ var (
 	}
 	// DefaultSizePrec is the default [Size] display precision.
 	DefaultSizePrec = -2
+	// DefaultRatePrec is the default [Rate] display precision.
+	DefaultRatePrec = -2
 	// DefaultRateUnit is the default [Rate] unit.
 	DefaultRateUnit = time.Second
 )
