@@ -180,15 +180,9 @@ func Version() CommandOption {
 	return option{
 		name: "Version",
 		cmd: func(cmd *Command) error {
-			if cmd.Parent != nil {
-				return ErrCanOnlyBeUsedWithRootCommand
-			}
 			return nil
 		},
 		post: func(cmd *Command) error {
-			if cmd.Parent != nil {
-				return ErrCanOnlyBeUsedWithRootCommand
-			}
 			if len(cmd.Commands) != 0 {
 				return NewVersion(cmd)
 			}
@@ -205,15 +199,9 @@ func Help(opts ...Option) CommandOption {
 	return option{
 		name: "Help",
 		cmd: func(cmd *Command) error {
-			if cmd.Parent != nil {
-				return ErrCanOnlyBeUsedWithRootCommand
-			}
 			return nil
 		},
 		post: func(cmd *Command) error {
-			if cmd.Parent != nil {
-				return ErrCanOnlyBeUsedWithRootCommand
-			}
 			if err := NewHelpFlag(cmd, opts...); err != nil {
 				return err
 			}
@@ -647,6 +635,9 @@ func Banner(banner string) HelpOption {
 		},
 		help: func(help *CommandHelp) error {
 			help.Banner, help.NoBanner = banner, banner == ""
+			return nil
+		},
+		flag: func(*Flag) error {
 			return nil
 		},
 	}

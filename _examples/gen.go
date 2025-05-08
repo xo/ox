@@ -57,10 +57,10 @@ func main() {
 }
 
 type Args struct {
-	Verbose bool   `ox:"verbose,short:v"`
-	Dump    bool   `ox:"dump,short:d"`
-	Out     string `ox:"out directory,short:o,default:gen"`
-	Command string `ox:"command to generate,short:c"`
+	Verbose  bool     `ox:"verbose,short:v"`
+	Dump     bool     `ox:"dump,short:d"`
+	Out      string   `ox:"out directory,short:o,default:gen"`
+	Commands []string `ox:"command(s) to generate,short:c"`
 }
 
 func run(args *Args) func(ctx context.Context) error {
@@ -71,10 +71,8 @@ func run(args *Args) func(ctx context.Context) error {
 				fmt.Fprintf(os.Stderr, s+"\n", v...)
 			}
 		}
-		var apps []string
-		if args.Command != "" {
-			apps = []string{args.Command}
-		} else {
+		apps := args.Commands
+		if len(args.Commands) == 0 {
 			apps = defaultCommands
 		}
 		slices.Sort(apps)
@@ -329,6 +327,7 @@ func (cmd *command) parseFlags(sect, s string) {
 		}
 		logger("    flag --%s%s (%s): %q", name, shortstr, typstr, desc)
 		if name == "help" || name == "version" {
+			logger("  skipping flag %q", name)
 			continue
 		}
 		cmd.addFlag(sect, name, short, typstr, desc)
@@ -668,6 +667,7 @@ func (cmd *command) parseCommands(ctx context.Context, sect, s string) error {
 		name, usage := strings.TrimSuffix(strings.TrimSpace(v[0]), ":"), strings.TrimSpace(v[1])
 		switch {
 		case name == "help", name == "completion", name == "version", cmd.skipCommand(name):
+			logger("  skipping command %q", name)
 			continue
 		}
 		c := &command{

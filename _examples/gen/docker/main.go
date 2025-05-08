@@ -17,6 +17,9 @@ func main() {
 		ox.Usage("docker", ""),
 		ox.Spec("[OPTIONS] COMMAND"),
 		ox.Sections("Common Commands", "Management Commands", "Swarm Commands", "Commands"),
+		ox.Help(ox.Sections(
+			"Global Options",
+		)),
 		ox.Footer("Run 'docker COMMAND --help' for more information on a command.\n\nFor more help on how to use Docker, head to https://docs.docker.com/go/guides/"),
 		ox.Sub(
 			ox.Banner("Create and run a new container from an image"),
@@ -24,246 +27,288 @@ func main() {
 			ox.Spec("[OPTIONS] IMAGE [COMMAND] [ARG...]"),
 			ox.Aliases("docker container run", "docker run"),
 			ox.Section(0),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				Slice("add-host", "Add a custom host-to-IP mapping", ox.Elem(ox.StringT)).
-				Map("annotation", "Add an annotation to the", ox.MapKey(ox.StringT), ox.Elem(ox.StringT)).
-				Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Elem(ox.StringT), ox.Short("a")).
-				Uint16("blkio-weight", "Block IO (relative weight),").
-				Slice("blkio-weight-device", "Block IO weight (relative device", ox.Elem(ox.StringT)).
-				Slice("cap-add", "Add Linux capabilities", ox.Elem(ox.StringT)).
-				Slice("cap-drop", "Drop Linux capabilities", ox.Elem(ox.StringT)).
-				String("cgroup-parent", "Optional parent cgroup for the").
-				String("cgroupns", "Cgroup namespace to use").
-				String("cidfile", "Write the container ID to the file").
-				Int("cpu-count", "CPU count (Windows only)").
-				Int("cpu-percent", "CPU percent (Windows only)").
-				Int("cpu-period", "Limit CPU CFS (Completely Fair").
-				Int("cpu-quota", "Limit CPU CFS (Completely Fair").
-				Int("cpu-rt-period", "Limit CPU real-time period in").
-				Int("cpu-rt-runtime", "Limit CPU real-time runtime in").
-				Int("cpu-shares", "CPU shares (relative weight)", ox.Short("c")).
-				Float32("cpus", "Number of CPUs", ox.Spec("decimal")).
-				String("cpuset-cpus", "CPUs in which to allow execution").
-				String("cpuset-mems", "MEMs in which to allow execution").
-				Bool("detach", "Run container in background and", ox.Short("d")).
-				String("detach-keys", "Override the key sequence for").
-				Slice("device", "Add a host device to the container", ox.Elem(ox.StringT)).
-				Slice("device-cgroup-rule", "Add a rule to the cgroup allowed", ox.Elem(ox.StringT)).
-				Slice("device-read-bps", "Limit read rate (bytes per", ox.Elem(ox.StringT)).
-				Slice("device-read-iops", "Limit read rate (IO per second)", ox.Elem(ox.StringT)).
-				Slice("device-write-bps", "Limit write rate (bytes per", ox.Elem(ox.StringT)).
-				Slice("device-write-iops", "Limit write rate (IO per second)", ox.Elem(ox.StringT)).
-				Bool("disable-content-trust", "Skip image verification (default").
-				Slice("dns", "Set custom DNS servers", ox.Elem(ox.StringT)).
-				Slice("dns-option", "Set DNS options", ox.Elem(ox.StringT)).
-				Slice("dns-search", "Set custom DNS search domains", ox.Elem(ox.StringT)).
-				String("domainname", "Container NIS domain name").
-				String("entrypoint", "Overwrite the default ENTRYPOINT").
-				Slice("env", "Set environment variables", ox.Elem(ox.StringT), ox.Short("e")).
-				Slice("env-file", "Read in a file of environment", ox.Elem(ox.StringT)).
-				Slice("expose", "Expose a port or a range of ports", ox.Elem(ox.StringT)).
-				String("gpus", "GPU devices to add to the", ox.Spec("gpu-request")).
-				Slice("group-add", "Add additional groups to join", ox.Elem(ox.StringT)).
-				String("health-cmd", "Command to run to check health").
-				Duration("health-interval", "Time between running the check").
-				Int("health-retries", "Consecutive failures needed to").
-				Duration("health-start-interval", "Time between running the check").
-				Duration("health-start-period", "Start period for the container").
-				Duration("health-timeout", "Maximum time to allow one check").
-				String("hostname", "Container host name", ox.Short("h")).
-				Bool("init", "Run an init inside the container").
-				Bool("interactive", "Keep STDIN open even if not attached", ox.Short("i")).
-				Slice("io-maxbandwidth", "Maximum IO bandwidth limit for", ox.Elem(ox.UintT)).
-				Uint("io-maxiops", "Maximum IOps limit for the").
-				String("ip", "IPv4 address (e.g., 172.30.100.104)").
-				String("ip6", "IPv6 address (e.g., 2001:db8::33)").
-				String("ipc", "IPC mode to use").
-				String("isolation", "Container isolation technology").
-				Slice("kernel-memory", "Kernel memory limit", ox.Elem(ox.UintT)).
-				Slice("label", "Set meta data on a container", ox.Elem(ox.StringT), ox.Short("l")).
-				Slice("label-file", "Read in a line delimited file of", ox.Elem(ox.StringT)).
-				Slice("link", "Add link to another container", ox.Elem(ox.StringT)).
-				Slice("link-local-ip", "Container IPv4/IPv6 link-local", ox.Elem(ox.StringT)).
-				String("log-driver", "Logging driver for the container").
-				Slice("log-opt", "Log driver options", ox.Elem(ox.StringT)).
-				String("mac-address", "Container MAC address (e.g.,").
-				Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m")).
-				Slice("memory-reservation", "Memory soft limit", ox.Elem(ox.UintT)).
-				Slice("memory-swap", "Swap limit equal to memory plus", ox.Elem(ox.UintT)).
-				Int("memory-swappiness", "Tune container memory swappiness").
-				String("mount", "Attach a filesystem mount to the", ox.Spec("mount")).
-				String("name", "Assign a name to the container").
-				String("network", "Connect a container to a network", ox.Spec("network")).
-				Slice("network-alias", "Add network-scoped alias for the", ox.Elem(ox.StringT)).
-				Bool("no-healthcheck", "Disable any container-specified").
-				Bool("oom-kill-disable", "Disable OOM Killer").
-				Int("oom-score-adj", "Tune host's OOM preferences").
-				String("pid", "PID namespace to use").
-				Int("pids-limit", "Tune container pids limit (set").
-				String("platform", "Set platform if server is").
-				Bool("privileged", "Give extended privileges to this").
-				Slice("publish", "Publish a container's port(s) to", ox.Elem(ox.StringT), ox.Short("p")).
-				Bool("publish-all", "Publish all exposed ports to", ox.Short("P")).
-				String("pull", "Pull image before running").
-				Bool("quiet", "Suppress the pull output", ox.Short("q")).
-				Bool("read-only", "Mount the container's root").
-				String("restart", "Restart policy to apply when a").
-				Bool("rm", "Automatically remove the").
-				String("runtime", "Runtime to use for this container").
-				Slice("security-opt", "Security Options", ox.Elem(ox.StringT)).
-				Slice("shm-size", "Size of /dev/shm", ox.Elem(ox.UintT)).
-				Bool("sig-proxy", "Proxy received signals to the").
-				String("stop-signal", "Signal to stop the container").
-				Int("stop-timeout", "Timeout (in seconds) to stop a").
-				Slice("storage-opt", "Storage driver options for the", ox.Elem(ox.StringT)).
-				Map("sysctl", "Sysctl options", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]")).
-				Slice("tmpfs", "Mount a tmpfs directory", ox.Elem(ox.StringT)).
-				Bool("tty", "Allocate a pseudo-TTY", ox.Short("t")).
-				String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]")).
-				String("user", "Username or UID (format:", ox.Short("u")).
-				String("userns", "User namespace to use").
-				String("uts", "UTS namespace to use").
-				Slice("volume", "Bind mount a volume", ox.Elem(ox.StringT), ox.Short("v")).
-				String("volume-driver", "Optional volume driver for the").
-				Slice("volumes-from", "Mount volumes from the specified", ox.Elem(ox.StringT)).
-				String("workdir", "Working directory inside the", ox.Short("w")),
-		), ox.Sub(
+				Slice("add-host", "Add a custom host-to-IP mapping", ox.Elem(ox.StringT), ox.Section(0)).
+				Map("annotation", "Add an annotation to the", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Elem(ox.StringT), ox.Short("a"), ox.Section(0)).
+				Uint16("blkio-weight", "Block IO (relative weight),", ox.Section(0)).
+				Slice("blkio-weight-device", "Block IO weight (relative device", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("cap-add", "Add Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("cap-drop", "Drop Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
+				String("cgroup-parent", "Optional parent cgroup for the", ox.Section(0)).
+				String("cgroupns", "Cgroup namespace to use", ox.Section(0)).
+				String("cidfile", "Write the container ID to the file", ox.Section(0)).
+				Int("cpu-count", "CPU count (Windows only)", ox.Section(0)).
+				Int("cpu-percent", "CPU percent (Windows only)", ox.Section(0)).
+				Int("cpu-period", "Limit CPU CFS (Completely Fair", ox.Section(0)).
+				Int("cpu-quota", "Limit CPU CFS (Completely Fair", ox.Section(0)).
+				Int("cpu-rt-period", "Limit CPU real-time period in", ox.Section(0)).
+				Int("cpu-rt-runtime", "Limit CPU real-time runtime in", ox.Section(0)).
+				Int("cpu-shares", "CPU shares (relative weight)", ox.Short("c"), ox.Section(0)).
+				Float32("cpus", "Number of CPUs", ox.Spec("decimal"), ox.Section(0)).
+				String("cpuset-cpus", "CPUs in which to allow execution", ox.Section(0)).
+				String("cpuset-mems", "MEMs in which to allow execution", ox.Section(0)).
+				Bool("detach", "Run container in background and", ox.Short("d"), ox.Section(0)).
+				String("detach-keys", "Override the key sequence for", ox.Section(0)).
+				Slice("device", "Add a host device to the container", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("device-cgroup-rule", "Add a rule to the cgroup allowed", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("device-read-bps", "Limit read rate (bytes per", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("device-read-iops", "Limit read rate (IO per second)", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("device-write-bps", "Limit write rate (bytes per", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("device-write-iops", "Limit write rate (IO per second)", ox.Elem(ox.StringT), ox.Section(0)).
+				Bool("disable-content-trust", "Skip image verification (default", ox.Section(0)).
+				Slice("dns", "Set custom DNS servers", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("dns-option", "Set DNS options", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("dns-search", "Set custom DNS search domains", ox.Elem(ox.StringT), ox.Section(0)).
+				String("domainname", "Container NIS domain name", ox.Section(0)).
+				String("entrypoint", "Overwrite the default ENTRYPOINT", ox.Section(0)).
+				Slice("env", "Set environment variables", ox.Elem(ox.StringT), ox.Short("e"), ox.Section(0)).
+				Slice("env-file", "Read in a file of environment", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("expose", "Expose a port or a range of ports", ox.Elem(ox.StringT), ox.Section(0)).
+				String("gpus", "GPU devices to add to the", ox.Spec("gpu-request"), ox.Section(0)).
+				Slice("group-add", "Add additional groups to join", ox.Elem(ox.StringT), ox.Section(0)).
+				String("health-cmd", "Command to run to check health", ox.Section(0)).
+				Duration("health-interval", "Time between running the check", ox.Section(0)).
+				Int("health-retries", "Consecutive failures needed to", ox.Section(0)).
+				Duration("health-start-interval", "Time between running the check", ox.Section(0)).
+				Duration("health-start-period", "Start period for the container", ox.Section(0)).
+				Duration("health-timeout", "Maximum time to allow one check", ox.Section(0)).
+				String("hostname", "Container host name", ox.Short("h"), ox.Section(0)).
+				Bool("init", "Run an init inside the container", ox.Section(0)).
+				Bool("interactive", "Keep STDIN open even if not attached", ox.Short("i"), ox.Section(0)).
+				Slice("io-maxbandwidth", "Maximum IO bandwidth limit for", ox.Elem(ox.UintT), ox.Section(0)).
+				Uint("io-maxiops", "Maximum IOps limit for the", ox.Section(0)).
+				String("ip", "IPv4 address (e.g., 172.30.100.104)", ox.Section(0)).
+				String("ip6", "IPv6 address (e.g., 2001:db8::33)", ox.Section(0)).
+				String("ipc", "IPC mode to use", ox.Section(0)).
+				String("isolation", "Container isolation technology", ox.Section(0)).
+				Slice("kernel-memory", "Kernel memory limit", ox.Elem(ox.UintT), ox.Section(0)).
+				Slice("label", "Set meta data on a container", ox.Elem(ox.StringT), ox.Short("l"), ox.Section(0)).
+				Slice("label-file", "Read in a line delimited file of", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("link", "Add link to another container", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("link-local-ip", "Container IPv4/IPv6 link-local", ox.Elem(ox.StringT), ox.Section(0)).
+				String("log-driver", "Logging driver for the container", ox.Section(0)).
+				Slice("log-opt", "Log driver options", ox.Elem(ox.StringT), ox.Section(0)).
+				String("mac-address", "Container MAC address (e.g.,", ox.Section(0)).
+				Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m"), ox.Section(0)).
+				Slice("memory-reservation", "Memory soft limit", ox.Elem(ox.UintT), ox.Section(0)).
+				Slice("memory-swap", "Swap limit equal to memory plus", ox.Elem(ox.UintT), ox.Section(0)).
+				Int("memory-swappiness", "Tune container memory swappiness", ox.Section(0)).
+				String("mount", "Attach a filesystem mount to the", ox.Spec("mount"), ox.Section(0)).
+				String("name", "Assign a name to the container", ox.Section(0)).
+				String("network", "Connect a container to a network", ox.Spec("network"), ox.Section(0)).
+				Slice("network-alias", "Add network-scoped alias for the", ox.Elem(ox.StringT), ox.Section(0)).
+				Bool("no-healthcheck", "Disable any container-specified", ox.Section(0)).
+				Bool("oom-kill-disable", "Disable OOM Killer", ox.Section(0)).
+				Int("oom-score-adj", "Tune host's OOM preferences", ox.Section(0)).
+				String("pid", "PID namespace to use", ox.Section(0)).
+				Int("pids-limit", "Tune container pids limit (set", ox.Section(0)).
+				String("platform", "Set platform if server is", ox.Section(0)).
+				Bool("privileged", "Give extended privileges to this", ox.Section(0)).
+				Slice("publish", "Publish a container's port(s) to", ox.Elem(ox.StringT), ox.Short("p"), ox.Section(0)).
+				Bool("publish-all", "Publish all exposed ports to", ox.Short("P"), ox.Section(0)).
+				String("pull", "Pull image before running", ox.Section(0)).
+				Bool("quiet", "Suppress the pull output", ox.Short("q"), ox.Section(0)).
+				Bool("read-only", "Mount the container's root", ox.Section(0)).
+				String("restart", "Restart policy to apply when a", ox.Section(0)).
+				Bool("rm", "Automatically remove the", ox.Section(0)).
+				String("runtime", "Runtime to use for this container", ox.Section(0)).
+				Slice("security-opt", "Security Options", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("shm-size", "Size of /dev/shm", ox.Elem(ox.UintT), ox.Section(0)).
+				Bool("sig-proxy", "Proxy received signals to the", ox.Section(0)).
+				String("stop-signal", "Signal to stop the container", ox.Section(0)).
+				Int("stop-timeout", "Timeout (in seconds) to stop a", ox.Section(0)).
+				Slice("storage-opt", "Storage driver options for the", ox.Elem(ox.StringT), ox.Section(0)).
+				Map("sysctl", "Sysctl options", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]"), ox.Section(0)).
+				Slice("tmpfs", "Mount a tmpfs directory", ox.Elem(ox.StringT), ox.Section(0)).
+				Bool("tty", "Allocate a pseudo-TTY", ox.Short("t"), ox.Section(0)).
+				String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]"), ox.Section(0)).
+				Bool("use-api-socket", "Bind mount Docker API socket and", ox.Section(0)).
+				String("user", "Username or UID (format:", ox.Short("u"), ox.Section(0)).
+				String("userns", "User namespace to use", ox.Section(0)).
+				String("uts", "UTS namespace to use", ox.Section(0)).
+				Slice("volume", "Bind mount a volume", ox.Elem(ox.StringT), ox.Short("v"), ox.Section(0)).
+				String("volume-driver", "Optional volume driver for the", ox.Section(0)).
+				Slice("volumes-from", "Mount volumes from the specified", ox.Elem(ox.StringT), ox.Section(0)).
+				String("workdir", "Working directory inside the", ox.Short("w"), ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Execute a command in a running container"),
 			ox.Usage("exec", "Execute a command in a running container"),
 			ox.Spec("[OPTIONS] CONTAINER COMMAND [ARG...]"),
 			ox.Aliases("docker container exec", "docker exec"),
 			ox.Section(0),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				Bool("detach", "Detached mode: run command in the background", ox.Short("d")).
-				String("detach-keys", "Override the key sequence for detaching a").
-				Slice("env", "Set environment variables", ox.Elem(ox.StringT), ox.Short("e")).
-				Slice("env-file", "Read in a file of environment variables", ox.Elem(ox.StringT)).
-				Bool("interactive", "Keep STDIN open even if not attached", ox.Short("i")).
-				Bool("privileged", "Give extended privileges to the command").
-				Bool("tty", "Allocate a pseudo-TTY", ox.Short("t")).
-				String("user", "Username or UID (format:", ox.Short("u")).
-				String("workdir", "Working directory inside the container", ox.Short("w")),
-		), ox.Sub(
+				Bool("detach", "Detached mode: run command in the background", ox.Short("d"), ox.Section(0)).
+				String("detach-keys", "Override the key sequence for detaching a", ox.Section(0)).
+				Slice("env", "Set environment variables", ox.Elem(ox.StringT), ox.Short("e"), ox.Section(0)).
+				Slice("env-file", "Read in a file of environment variables", ox.Elem(ox.StringT), ox.Section(0)).
+				Bool("interactive", "Keep STDIN open even if not attached", ox.Short("i"), ox.Section(0)).
+				Bool("privileged", "Give extended privileges to the command", ox.Section(0)).
+				Bool("tty", "Allocate a pseudo-TTY", ox.Short("t"), ox.Section(0)).
+				String("user", "Username or UID (format:", ox.Short("u"), ox.Section(0)).
+				String("workdir", "Working directory inside the container", ox.Short("w"), ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("List containers"),
 			ox.Usage("ps", "List containers"),
 			ox.Spec("[OPTIONS]"),
 			ox.Aliases("docker container ls", "docker container list", "docker container ps", "docker ps"),
 			ox.Section(0),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				Bool("all", "Show all containers", ox.Default("shows just running"), ox.Short("a")).
-				String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f")).
-				String("format", "Format output using a custom template:").
-				Int("last", "Show n last created containers (includes all", ox.Short("n")).
-				Bool("latest", "Show the latest created container (includes all", ox.Short("l")).
-				Bool("no-trunc", "Don't truncate output").
-				Bool("quiet", "Only display container IDs", ox.Short("q")).
-				Bool("size", "Display total file sizes", ox.Short("s")),
-		), ox.Sub(
+				Bool("all", "Show all containers", ox.Default("shows just running"), ox.Short("a"), ox.Section(0)).
+				String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f"), ox.Section(0)).
+				String("format", "Format output using a custom template:", ox.Section(0)).
+				Int("last", "Show n last created containers (includes all", ox.Short("n"), ox.Section(0)).
+				Bool("latest", "Show the latest created container (includes all", ox.Short("l"), ox.Section(0)).
+				Bool("no-trunc", "Don't truncate output", ox.Section(0)).
+				Bool("quiet", "Only display container IDs", ox.Short("q"), ox.Section(0)).
+				Bool("size", "Display total file sizes", ox.Short("s"), ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Build an image from a Dockerfile"),
 			ox.Usage("build", "Build an image from a Dockerfile"),
 			ox.Spec("[OPTIONS] PATH | URL | -"),
 			ox.Aliases("docker image build", "docker build", "docker builder build"),
 			ox.Section(0),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				Slice("add-host", "Add a custom host-to-IP mapping (\"host:ip\")", ox.Elem(ox.StringT)).
-				Slice("build-arg", "Set build-time variables", ox.Elem(ox.StringT)).
-				Slice("cache-from", "Images to consider as cache sources", ox.Elem(ox.StringT)).
-				String("cgroup-parent", "Set the parent cgroup for the \"RUN\"").
-				Bool("compress", "Compress the build context using gzip").
-				Int("cpu-period", "Limit the CPU CFS (Completely Fair").
-				Int("cpu-quota", "Limit the CPU CFS (Completely Fair").
-				Int("cpu-shares", "CPU shares (relative weight)", ox.Short("c")).
-				String("cpuset-cpus", "CPUs in which to allow execution (0-3, 0,1)").
-				String("cpuset-mems", "MEMs in which to allow execution (0-3, 0,1)").
-				Bool("disable-content-trust", "Skip image verification", ox.Default("true")).
-				String("file", "Name of the Dockerfile (Default is", ox.Short("f")).
-				Bool("force-rm", "Always remove intermediate containers").
-				String("iidfile", "Write the image ID to the file").
-				String("isolation", "Container isolation technology").
-				Slice("label", "Set metadata for an image", ox.Elem(ox.StringT)).
-				Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m")).
-				Slice("memory-swap", "Swap limit equal to memory plus swap: -1", ox.Elem(ox.UintT)).
-				String("network", "Set the networking mode for the RUN").
-				Bool("no-cache", "Do not use cache when building the image").
-				String("platform", "Set platform if server is multi-platform").
-				Bool("pull", "Always attempt to pull a newer version of").
-				Bool("quiet", "Suppress the build output and print image", ox.Short("q")).
-				Bool("rm", "Remove intermediate containers after a").
-				Slice("security-opt", "Security options", ox.Elem(ox.StringT)).
-				Slice("shm-size", "Size of \"/dev/shm\"", ox.Elem(ox.UintT)).
-				Bool("squash", "Squash newly built layers into a single").
-				Slice("tag", "Name and optionally a tag in the", ox.Elem(ox.StringT), ox.Short("t")).
-				String("target", "Set the target build stage to build.").
-				String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]")),
-		), ox.Sub(
+				Slice("add-host", "Add a custom host-to-IP mapping (\"host:ip\")", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("build-arg", "Set build-time variables", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("cache-from", "Images to consider as cache sources", ox.Elem(ox.StringT), ox.Section(0)).
+				String("cgroup-parent", "Set the parent cgroup for the \"RUN\"", ox.Section(0)).
+				Bool("compress", "Compress the build context using gzip", ox.Section(0)).
+				Int("cpu-period", "Limit the CPU CFS (Completely Fair", ox.Section(0)).
+				Int("cpu-quota", "Limit the CPU CFS (Completely Fair", ox.Section(0)).
+				Int("cpu-shares", "CPU shares (relative weight)", ox.Short("c"), ox.Section(0)).
+				String("cpuset-cpus", "CPUs in which to allow execution (0-3, 0,1)", ox.Section(0)).
+				String("cpuset-mems", "MEMs in which to allow execution (0-3, 0,1)", ox.Section(0)).
+				Bool("disable-content-trust", "Skip image verification", ox.Default("true"), ox.Section(0)).
+				String("file", "Name of the Dockerfile (Default is", ox.Short("f"), ox.Section(0)).
+				Bool("force-rm", "Always remove intermediate containers", ox.Section(0)).
+				String("iidfile", "Write the image ID to the file", ox.Section(0)).
+				String("isolation", "Container isolation technology", ox.Section(0)).
+				Slice("label", "Set metadata for an image", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m"), ox.Section(0)).
+				Slice("memory-swap", "Swap limit equal to memory plus swap: -1", ox.Elem(ox.UintT), ox.Section(0)).
+				String("network", "Set the networking mode for the RUN", ox.Section(0)).
+				Bool("no-cache", "Do not use cache when building the image", ox.Section(0)).
+				String("platform", "Set platform if server is multi-platform", ox.Section(0)).
+				Bool("pull", "Always attempt to pull a newer version of", ox.Section(0)).
+				Bool("quiet", "Suppress the build output and print image", ox.Short("q"), ox.Section(0)).
+				Bool("rm", "Remove intermediate containers after a", ox.Section(0)).
+				Slice("security-opt", "Security options", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("shm-size", "Size of \"/dev/shm\"", ox.Elem(ox.UintT), ox.Section(0)).
+				Bool("squash", "Squash newly built layers into a single", ox.Section(0)).
+				Slice("tag", "Name and optionally a tag in the", ox.Elem(ox.StringT), ox.Short("t"), ox.Section(0)).
+				String("target", "Set the target build stage to build.", ox.Section(0)).
+				String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]"), ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Download an image from a registry"),
 			ox.Usage("pull", "Download an image from a registry"),
 			ox.Spec("[OPTIONS] NAME[:TAG|@DIGEST]"),
 			ox.Aliases("docker image pull", "docker pull"),
 			ox.Section(0),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				Bool("all-tags", "Download all tagged images in the repository", ox.Short("a")).
-				Bool("disable-content-trust", "Skip image verification", ox.Default("true")).
-				String("platform", "Set platform if server is multi-platform").
-				Bool("quiet", "Suppress verbose output", ox.Short("q")),
-		), ox.Sub(
+				Bool("all-tags", "Download all tagged images in the repository", ox.Short("a"), ox.Section(0)).
+				Bool("disable-content-trust", "Skip image verification", ox.Default("true"), ox.Section(0)).
+				String("platform", "Set platform if server is multi-platform", ox.Section(0)).
+				Bool("quiet", "Suppress verbose output", ox.Short("q"), ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Upload an image to a registry"),
 			ox.Usage("push", "Upload an image to a registry"),
 			ox.Spec("[OPTIONS] NAME[:TAG]"),
 			ox.Aliases("docker image push", "docker push"),
 			ox.Section(0),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				Bool("all-tags", "Push all tags of an image to the repository", ox.Short("a")).
-				Bool("disable-content-trust", "Skip image signing", ox.Default("true")).
-				String("platform", "Push a platform-specific manifest as a").
-				Bool("quiet", "Suppress verbose output", ox.Short("q")),
-		), ox.Sub(
+				Bool("all-tags", "Push all tags of an image to the repository", ox.Short("a"), ox.Section(0)).
+				Bool("disable-content-trust", "Skip image signing", ox.Default("true"), ox.Section(0)).
+				String("platform", "Push a platform-specific manifest as a", ox.Section(0)).
+				Bool("quiet", "Suppress verbose output", ox.Short("q"), ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("List images"),
 			ox.Usage("images", "List images"),
 			ox.Spec("[OPTIONS] [REPOSITORY[:TAG]]"),
 			ox.Aliases("docker image ls", "docker image list", "docker images"),
 			ox.Section(0),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				Bool("all", "Show all images", ox.Default("hides intermediate images"), ox.Short("a")).
-				Bool("digests", "Show digests").
-				String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f")).
-				String("format", "Format output using a custom template:").
-				Bool("no-trunc", "Don't truncate output").
-				Bool("quiet", "Only show image IDs", ox.Short("q")).
-				Bool("tree", "List multi-platform images as a tree (EXPERIMENTAL)"),
-		), ox.Sub(
+				Bool("all", "Show all images", ox.Default("hides intermediate images"), ox.Short("a"), ox.Section(0)).
+				Bool("digests", "Show digests", ox.Section(0)).
+				String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f"), ox.Section(0)).
+				String("format", "Format output using a custom template:", ox.Section(0)).
+				Bool("no-trunc", "Don't truncate output", ox.Section(0)).
+				Bool("quiet", "Only show image IDs", ox.Short("q"), ox.Section(0)).
+				Bool("tree", "List multi-platform images as a tree (EXPERIMENTAL)", ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Authenticate to a registry.\nDefaults to Docker Hub if no server is specified."),
 			ox.Usage("login", "Authenticate to a registry"),
 			ox.Spec("[OPTIONS] [SERVER]"),
 			ox.Section(0),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				String("password", "Password", ox.Short("p")).
-				Bool("password-stdin", "Take the password from stdin").
-				String("username", "Username", ox.Short("u")),
-		), ox.Sub(
+				String("password", "Password or Personal Access Token (PAT)", ox.Short("p"), ox.Section(0)).
+				Bool("password-stdin", "Take the Password or Personal Access Token", ox.Section(0)).
+				String("username", "Username", ox.Short("u"), ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Usage("logout", "Log out from a registry"),
 			ox.Spec("[SERVER]"),
 			ox.Section(0),
 			ox.Footer("Log out from a registry.\nIf no server is specified, the default is defined by the daemon."),
-		), ox.Sub(
+		),
+		ox.Sub(
 			ox.Banner("Search Docker Hub for images"),
 			ox.Usage("search", "Search Docker Hub for images"),
 			ox.Spec("[OPTIONS] TERM"),
 			ox.Section(0),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f")).
-				String("format", "Pretty-print search using a Go template").
-				Int("limit", "Max number of search results").
-				Bool("no-trunc", "Don't truncate output"),
-		), ox.Sub(
+				String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f"), ox.Section(0)).
+				String("format", "Pretty-print search using a Go template", ox.Section(0)).
+				Int("limit", "Max number of search results", ox.Section(0)).
+				Bool("no-trunc", "Don't truncate output", ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Display system-wide information"),
 			ox.Usage("info", "Display system-wide information"),
 			ox.Spec("[OPTIONS]"),
 			ox.Aliases("docker system info", "docker info"),
 			ox.Section(0),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				String("format", "Format output using a custom template:", ox.Short("f")),
-		), ox.Sub(
+				String("format", "Format output using a custom template:", ox.Short("f"), ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Manage builds"),
 			ox.Usage("builder", "Manage builds"),
 			ox.Spec("COMMAND"),
@@ -276,47 +321,56 @@ func main() {
 				ox.Spec("[OPTIONS] PATH | URL | -"),
 				ox.Aliases("docker image build", "docker build", "docker builder build"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Slice("add-host", "Add a custom host-to-IP mapping (\"host:ip\")", ox.Elem(ox.StringT)).
-					Slice("build-arg", "Set build-time variables", ox.Elem(ox.StringT)).
-					Slice("cache-from", "Images to consider as cache sources", ox.Elem(ox.StringT)).
-					String("cgroup-parent", "Set the parent cgroup for the \"RUN\"").
-					Bool("compress", "Compress the build context using gzip").
-					Int("cpu-period", "Limit the CPU CFS (Completely Fair").
-					Int("cpu-quota", "Limit the CPU CFS (Completely Fair").
-					Int("cpu-shares", "CPU shares (relative weight)", ox.Short("c")).
-					String("cpuset-cpus", "CPUs in which to allow execution (0-3, 0,1)").
-					String("cpuset-mems", "MEMs in which to allow execution (0-3, 0,1)").
-					Bool("disable-content-trust", "Skip image verification", ox.Default("true")).
-					String("file", "Name of the Dockerfile (Default is", ox.Short("f")).
-					Bool("force-rm", "Always remove intermediate containers").
-					String("iidfile", "Write the image ID to the file").
-					String("isolation", "Container isolation technology").
-					Slice("label", "Set metadata for an image", ox.Elem(ox.StringT)).
-					Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m")).
-					Slice("memory-swap", "Swap limit equal to memory plus swap: -1", ox.Elem(ox.UintT)).
-					String("network", "Set the networking mode for the RUN").
-					Bool("no-cache", "Do not use cache when building the image").
-					String("platform", "Set platform if server is multi-platform").
-					Bool("pull", "Always attempt to pull a newer version of").
-					Bool("quiet", "Suppress the build output and print image", ox.Short("q")).
-					Bool("rm", "Remove intermediate containers after a").
-					Slice("security-opt", "Security options", ox.Elem(ox.StringT)).
-					Slice("shm-size", "Size of \"/dev/shm\"", ox.Elem(ox.UintT)).
-					Bool("squash", "Squash newly built layers into a single").
-					Slice("tag", "Name and optionally a tag in the", ox.Elem(ox.StringT), ox.Short("t")).
-					String("target", "Set the target build stage to build.").
-					String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]")),
-			), ox.Sub(
+					Slice("add-host", "Add a custom host-to-IP mapping (\"host:ip\")", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("build-arg", "Set build-time variables", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("cache-from", "Images to consider as cache sources", ox.Elem(ox.StringT), ox.Section(0)).
+					String("cgroup-parent", "Set the parent cgroup for the \"RUN\"", ox.Section(0)).
+					Bool("compress", "Compress the build context using gzip", ox.Section(0)).
+					Int("cpu-period", "Limit the CPU CFS (Completely Fair", ox.Section(0)).
+					Int("cpu-quota", "Limit the CPU CFS (Completely Fair", ox.Section(0)).
+					Int("cpu-shares", "CPU shares (relative weight)", ox.Short("c"), ox.Section(0)).
+					String("cpuset-cpus", "CPUs in which to allow execution (0-3, 0,1)", ox.Section(0)).
+					String("cpuset-mems", "MEMs in which to allow execution (0-3, 0,1)", ox.Section(0)).
+					Bool("disable-content-trust", "Skip image verification", ox.Default("true"), ox.Section(0)).
+					String("file", "Name of the Dockerfile (Default is", ox.Short("f"), ox.Section(0)).
+					Bool("force-rm", "Always remove intermediate containers", ox.Section(0)).
+					String("iidfile", "Write the image ID to the file", ox.Section(0)).
+					String("isolation", "Container isolation technology", ox.Section(0)).
+					Slice("label", "Set metadata for an image", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m"), ox.Section(0)).
+					Slice("memory-swap", "Swap limit equal to memory plus swap: -1", ox.Elem(ox.UintT), ox.Section(0)).
+					String("network", "Set the networking mode for the RUN", ox.Section(0)).
+					Bool("no-cache", "Do not use cache when building the image", ox.Section(0)).
+					String("platform", "Set platform if server is multi-platform", ox.Section(0)).
+					Bool("pull", "Always attempt to pull a newer version of", ox.Section(0)).
+					Bool("quiet", "Suppress the build output and print image", ox.Short("q"), ox.Section(0)).
+					Bool("rm", "Remove intermediate containers after a", ox.Section(0)).
+					Slice("security-opt", "Security options", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("shm-size", "Size of \"/dev/shm\"", ox.Elem(ox.UintT), ox.Section(0)).
+					Bool("squash", "Squash newly built layers into a single", ox.Section(0)).
+					Slice("tag", "Name and optionally a tag in the", ox.Elem(ox.StringT), ox.Short("t"), ox.Section(0)).
+					String("target", "Set the target build stage to build.", ox.Section(0)).
+					String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Remove build cache"),
 				ox.Usage("prune", "Remove build cache"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("all", "Remove all unused build cache, not just", ox.Short("a")).
-					String("filter", "Provide filter values (e.g. \"until=24h\")", ox.Spec("filter")).
-					Bool("force", "Do not prompt for confirmation", ox.Short("f")).
-					Slice("keep-storage", "Amount of disk space to keep for cache", ox.Elem(ox.UintT)),
-			)), ox.Sub(
+					Bool("all", "Remove all unused build cache, not just", ox.Short("a"), ox.Section(0)).
+					String("filter", "Provide filter values (e.g. \"until=24h\")", ox.Spec("filter"), ox.Section(0)).
+					Bool("force", "Do not prompt for confirmation", ox.Short("f"), ox.Section(0)).
+					Slice("keep-storage", "Amount of disk space to keep for cache", ox.Elem(ox.UintT), ox.Section(0)),
+			),
+		),
+		ox.Sub(
 			ox.Banner("Manage checkpoints"),
 			ox.Usage("checkpoint", "Manage checkpoints"),
 			ox.Spec("COMMAND"),
@@ -328,26 +382,39 @@ func main() {
 				ox.Usage("create", "Create a checkpoint from a running container"),
 				ox.Spec("[OPTIONS] CONTAINER CHECKPOINT"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("checkpoint-dir", "Use a custom checkpoint storage directory").
-					Bool("leave-running", "Leave the container running after checkpoint"),
-			), ox.Sub(
+					String("checkpoint-dir", "Use a custom checkpoint storage directory", ox.Section(0)).
+					Bool("leave-running", "Leave the container running after checkpoint", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("List checkpoints for a container"),
 				ox.Usage("ls", "List checkpoints for a container"),
 				ox.Spec("[OPTIONS] CONTAINER"),
 				ox.Aliases("docker checkpoint list"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("checkpoint-dir", "Use a custom checkpoint storage directory"),
-			), ox.Sub(
+					String("checkpoint-dir", "Use a custom checkpoint storage directory", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Remove a checkpoint"),
 				ox.Usage("rm", "Remove a checkpoint"),
 				ox.Spec("[OPTIONS] CONTAINER CHECKPOINT"),
 				ox.Aliases("docker checkpoint remove"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("checkpoint-dir", "Use a custom checkpoint storage directory"),
-			)), ox.Sub(
+					String("checkpoint-dir", "Use a custom checkpoint storage directory", ox.Section(0)),
+			),
+		),
+		ox.Sub(
 			ox.Banner("Manage containers"),
 			ox.Usage("container", "Manage containers"),
 			ox.Spec("COMMAND"),
@@ -360,437 +427,519 @@ func main() {
 				ox.Spec("[OPTIONS] CONTAINER"),
 				ox.Aliases("docker attach"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("detach-keys", "Override the key sequence for detaching a").
-					Bool("no-stdin", "Do not attach STDIN").
-					Bool("sig-proxy", "Proxy all received signals to the process"),
-			), ox.Sub(
+					String("detach-keys", "Override the key sequence for detaching a", ox.Section(0)).
+					Bool("no-stdin", "Do not attach STDIN", ox.Section(0)).
+					Bool("sig-proxy", "Proxy all received signals to the process", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Create a new image from a container's changes"),
 				ox.Usage("commit", "Create a new image from a container's changes"),
 				ox.Spec("[OPTIONS] CONTAINER [REPOSITORY[:TAG]]"),
 				ox.Aliases("docker commit"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("author", "Author (e.g., \"John Hannibal Smith", ox.Short("a")).
-					Slice("change", "Apply Dockerfile instruction to the created image", ox.Elem(ox.StringT), ox.Short("c")).
-					String("message", "Commit message", ox.Short("m")).
-					Bool("pause", "Pause container during commit", ox.Default("true"), ox.Short("p")),
-			), ox.Sub(
+					String("author", "Author (e.g., \"John Hannibal Smith", ox.Short("a"), ox.Section(0)).
+					Slice("change", "Apply Dockerfile instruction to the created image", ox.Elem(ox.StringT), ox.Short("c"), ox.Section(0)).
+					String("message", "Commit message", ox.Short("m"), ox.Section(0)).
+					Bool("pause", "Pause container during commit", ox.Default("true"), ox.Short("p"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("docker cp [OPTIONS] SRC_PATH|- CONTAINER:DEST_PATH\n\nCopy files/folders between a container and the local filesystem\n\nUse '-' as the source to read a tar archive from stdin\nand extract it to a directory destination in a container.\nUse '-' as the destination to stream a tar archive of a\ncontainer source to stdout."),
 				ox.Usage("cp", "Copy files/folders between a container and the local filesystem"),
 				ox.Spec("[OPTIONS] CONTAINER:SRC_PATH DEST_PATH|-"),
 				ox.Aliases("docker cp"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("archive", "Archive mode (copy all uid/gid information)", ox.Short("a")).
-					Bool("follow-link", "Always follow symbol link in SRC_PATH", ox.Short("L")).
-					Bool("quiet", "Suppress progress output during copy. Progress", ox.Short("q")),
-			), ox.Sub(
+					Bool("archive", "Archive mode (copy all uid/gid information)", ox.Short("a"), ox.Section(0)).
+					Bool("follow-link", "Always follow symbol link in SRC_PATH", ox.Short("L"), ox.Section(0)).
+					Bool("quiet", "Suppress progress output during copy. Progress", ox.Short("q"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Create a new container"),
 				ox.Usage("create", "Create a new container"),
 				ox.Spec("[OPTIONS] IMAGE [COMMAND] [ARG...]"),
 				ox.Aliases("docker create"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Slice("add-host", "Add a custom host-to-IP mapping", ox.Elem(ox.StringT)).
-					Map("annotation", "Add an annotation to the", ox.MapKey(ox.StringT), ox.Elem(ox.StringT)).
-					Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Elem(ox.StringT), ox.Short("a")).
-					Uint16("blkio-weight", "Block IO (relative weight),").
-					Slice("blkio-weight-device", "Block IO weight (relative device", ox.Elem(ox.StringT)).
-					Slice("cap-add", "Add Linux capabilities", ox.Elem(ox.StringT)).
-					Slice("cap-drop", "Drop Linux capabilities", ox.Elem(ox.StringT)).
-					String("cgroup-parent", "Optional parent cgroup for the").
-					String("cgroupns", "Cgroup namespace to use").
-					String("cidfile", "Write the container ID to the file").
-					Int("cpu-count", "CPU count (Windows only)").
-					Int("cpu-percent", "CPU percent (Windows only)").
-					Int("cpu-period", "Limit CPU CFS (Completely Fair").
-					Int("cpu-quota", "Limit CPU CFS (Completely Fair").
-					Int("cpu-rt-period", "Limit CPU real-time period in").
-					Int("cpu-rt-runtime", "Limit CPU real-time runtime in").
-					Int("cpu-shares", "CPU shares (relative weight)", ox.Short("c")).
-					Float32("cpus", "Number of CPUs", ox.Spec("decimal")).
-					String("cpuset-cpus", "CPUs in which to allow execution").
-					String("cpuset-mems", "MEMs in which to allow execution").
-					Slice("device", "Add a host device to the container", ox.Elem(ox.StringT)).
-					Slice("device-cgroup-rule", "Add a rule to the cgroup allowed", ox.Elem(ox.StringT)).
-					Slice("device-read-bps", "Limit read rate (bytes per", ox.Elem(ox.StringT)).
-					Slice("device-read-iops", "Limit read rate (IO per second)", ox.Elem(ox.StringT)).
-					Slice("device-write-bps", "Limit write rate (bytes per", ox.Elem(ox.StringT)).
-					Slice("device-write-iops", "Limit write rate (IO per second)", ox.Elem(ox.StringT)).
-					Bool("disable-content-trust", "Skip image verification (default").
-					Slice("dns", "Set custom DNS servers", ox.Elem(ox.StringT)).
-					Slice("dns-option", "Set DNS options", ox.Elem(ox.StringT)).
-					Slice("dns-search", "Set custom DNS search domains", ox.Elem(ox.StringT)).
-					String("domainname", "Container NIS domain name").
-					String("entrypoint", "Overwrite the default ENTRYPOINT").
-					Slice("env", "Set environment variables", ox.Elem(ox.StringT), ox.Short("e")).
-					Slice("env-file", "Read in a file of environment", ox.Elem(ox.StringT)).
-					Slice("expose", "Expose a port or a range of ports", ox.Elem(ox.StringT)).
-					String("gpus", "GPU devices to add to the", ox.Spec("gpu-request")).
-					Slice("group-add", "Add additional groups to join", ox.Elem(ox.StringT)).
-					String("health-cmd", "Command to run to check health").
-					Duration("health-interval", "Time between running the check").
-					Int("health-retries", "Consecutive failures needed to").
-					Duration("health-start-interval", "Time between running the check").
-					Duration("health-start-period", "Start period for the container").
-					Duration("health-timeout", "Maximum time to allow one check").
-					String("hostname", "Container host name", ox.Short("h")).
-					Bool("init", "Run an init inside the container").
-					Bool("interactive", "Keep STDIN open even if not attached", ox.Short("i")).
-					Slice("io-maxbandwidth", "Maximum IO bandwidth limit for", ox.Elem(ox.UintT)).
-					Uint("io-maxiops", "Maximum IOps limit for the").
-					String("ip", "IPv4 address (e.g., 172.30.100.104)").
-					String("ip6", "IPv6 address (e.g., 2001:db8::33)").
-					String("ipc", "IPC mode to use").
-					String("isolation", "Container isolation technology").
-					Slice("kernel-memory", "Kernel memory limit", ox.Elem(ox.UintT)).
-					Slice("label", "Set meta data on a container", ox.Elem(ox.StringT), ox.Short("l")).
-					Slice("label-file", "Read in a line delimited file of", ox.Elem(ox.StringT)).
-					Slice("link", "Add link to another container", ox.Elem(ox.StringT)).
-					Slice("link-local-ip", "Container IPv4/IPv6 link-local", ox.Elem(ox.StringT)).
-					String("log-driver", "Logging driver for the container").
-					Slice("log-opt", "Log driver options", ox.Elem(ox.StringT)).
-					String("mac-address", "Container MAC address (e.g.,").
-					Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m")).
-					Slice("memory-reservation", "Memory soft limit", ox.Elem(ox.UintT)).
-					Slice("memory-swap", "Swap limit equal to memory plus", ox.Elem(ox.UintT)).
-					Int("memory-swappiness", "Tune container memory swappiness").
-					String("mount", "Attach a filesystem mount to the", ox.Spec("mount")).
-					String("name", "Assign a name to the container").
-					String("network", "Connect a container to a network", ox.Spec("network")).
-					Slice("network-alias", "Add network-scoped alias for the", ox.Elem(ox.StringT)).
-					Bool("no-healthcheck", "Disable any container-specified").
-					Bool("oom-kill-disable", "Disable OOM Killer").
-					Int("oom-score-adj", "Tune host's OOM preferences").
-					String("pid", "PID namespace to use").
-					Int("pids-limit", "Tune container pids limit (set").
-					String("platform", "Set platform if server is").
-					Bool("privileged", "Give extended privileges to this").
-					Slice("publish", "Publish a container's port(s) to", ox.Elem(ox.StringT), ox.Short("p")).
-					Bool("publish-all", "Publish all exposed ports to", ox.Short("P")).
-					String("pull", "Pull image before creating").
-					Bool("quiet", "Suppress the pull output", ox.Short("q")).
-					Bool("read-only", "Mount the container's root").
-					String("restart", "Restart policy to apply when a").
-					Bool("rm", "Automatically remove the").
-					String("runtime", "Runtime to use for this container").
-					Slice("security-opt", "Security Options", ox.Elem(ox.StringT)).
-					Slice("shm-size", "Size of /dev/shm", ox.Elem(ox.UintT)).
-					String("stop-signal", "Signal to stop the container").
-					Int("stop-timeout", "Timeout (in seconds) to stop a").
-					Slice("storage-opt", "Storage driver options for the", ox.Elem(ox.StringT)).
-					Map("sysctl", "Sysctl options", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]")).
-					Slice("tmpfs", "Mount a tmpfs directory", ox.Elem(ox.StringT)).
-					Bool("tty", "Allocate a pseudo-TTY", ox.Short("t")).
-					String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]")).
-					String("user", "Username or UID (format:", ox.Short("u")).
-					String("userns", "User namespace to use").
-					String("uts", "UTS namespace to use").
-					Slice("volume", "Bind mount a volume", ox.Elem(ox.StringT), ox.Short("v")).
-					String("volume-driver", "Optional volume driver for the").
-					Slice("volumes-from", "Mount volumes from the specified", ox.Elem(ox.StringT)).
-					String("workdir", "Working directory inside the", ox.Short("w")),
-			), ox.Sub(
+					Slice("add-host", "Add a custom host-to-IP mapping", ox.Elem(ox.StringT), ox.Section(0)).
+					Map("annotation", "Add an annotation to the", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Elem(ox.StringT), ox.Short("a"), ox.Section(0)).
+					Uint16("blkio-weight", "Block IO (relative weight),", ox.Section(0)).
+					Slice("blkio-weight-device", "Block IO weight (relative device", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("cap-add", "Add Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("cap-drop", "Drop Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
+					String("cgroup-parent", "Optional parent cgroup for the", ox.Section(0)).
+					String("cgroupns", "Cgroup namespace to use", ox.Section(0)).
+					String("cidfile", "Write the container ID to the file", ox.Section(0)).
+					Int("cpu-count", "CPU count (Windows only)", ox.Section(0)).
+					Int("cpu-percent", "CPU percent (Windows only)", ox.Section(0)).
+					Int("cpu-period", "Limit CPU CFS (Completely Fair", ox.Section(0)).
+					Int("cpu-quota", "Limit CPU CFS (Completely Fair", ox.Section(0)).
+					Int("cpu-rt-period", "Limit CPU real-time period in", ox.Section(0)).
+					Int("cpu-rt-runtime", "Limit CPU real-time runtime in", ox.Section(0)).
+					Int("cpu-shares", "CPU shares (relative weight)", ox.Short("c"), ox.Section(0)).
+					Float32("cpus", "Number of CPUs", ox.Spec("decimal"), ox.Section(0)).
+					String("cpuset-cpus", "CPUs in which to allow execution", ox.Section(0)).
+					String("cpuset-mems", "MEMs in which to allow execution", ox.Section(0)).
+					Slice("device", "Add a host device to the container", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("device-cgroup-rule", "Add a rule to the cgroup allowed", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("device-read-bps", "Limit read rate (bytes per", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("device-read-iops", "Limit read rate (IO per second)", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("device-write-bps", "Limit write rate (bytes per", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("device-write-iops", "Limit write rate (IO per second)", ox.Elem(ox.StringT), ox.Section(0)).
+					Bool("disable-content-trust", "Skip image verification (default", ox.Section(0)).
+					Slice("dns", "Set custom DNS servers", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("dns-option", "Set DNS options", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("dns-search", "Set custom DNS search domains", ox.Elem(ox.StringT), ox.Section(0)).
+					String("domainname", "Container NIS domain name", ox.Section(0)).
+					String("entrypoint", "Overwrite the default ENTRYPOINT", ox.Section(0)).
+					Slice("env", "Set environment variables", ox.Elem(ox.StringT), ox.Short("e"), ox.Section(0)).
+					Slice("env-file", "Read in a file of environment", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("expose", "Expose a port or a range of ports", ox.Elem(ox.StringT), ox.Section(0)).
+					String("gpus", "GPU devices to add to the", ox.Spec("gpu-request"), ox.Section(0)).
+					Slice("group-add", "Add additional groups to join", ox.Elem(ox.StringT), ox.Section(0)).
+					String("health-cmd", "Command to run to check health", ox.Section(0)).
+					Duration("health-interval", "Time between running the check", ox.Section(0)).
+					Int("health-retries", "Consecutive failures needed to", ox.Section(0)).
+					Duration("health-start-interval", "Time between running the check", ox.Section(0)).
+					Duration("health-start-period", "Start period for the container", ox.Section(0)).
+					Duration("health-timeout", "Maximum time to allow one check", ox.Section(0)).
+					String("hostname", "Container host name", ox.Short("h"), ox.Section(0)).
+					Bool("init", "Run an init inside the container", ox.Section(0)).
+					Bool("interactive", "Keep STDIN open even if not attached", ox.Short("i"), ox.Section(0)).
+					Slice("io-maxbandwidth", "Maximum IO bandwidth limit for", ox.Elem(ox.UintT), ox.Section(0)).
+					Uint("io-maxiops", "Maximum IOps limit for the", ox.Section(0)).
+					String("ip", "IPv4 address (e.g., 172.30.100.104)", ox.Section(0)).
+					String("ip6", "IPv6 address (e.g., 2001:db8::33)", ox.Section(0)).
+					String("ipc", "IPC mode to use", ox.Section(0)).
+					String("isolation", "Container isolation technology", ox.Section(0)).
+					Slice("kernel-memory", "Kernel memory limit", ox.Elem(ox.UintT), ox.Section(0)).
+					Slice("label", "Set meta data on a container", ox.Elem(ox.StringT), ox.Short("l"), ox.Section(0)).
+					Slice("label-file", "Read in a line delimited file of", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("link", "Add link to another container", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("link-local-ip", "Container IPv4/IPv6 link-local", ox.Elem(ox.StringT), ox.Section(0)).
+					String("log-driver", "Logging driver for the container", ox.Section(0)).
+					Slice("log-opt", "Log driver options", ox.Elem(ox.StringT), ox.Section(0)).
+					String("mac-address", "Container MAC address (e.g.,", ox.Section(0)).
+					Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m"), ox.Section(0)).
+					Slice("memory-reservation", "Memory soft limit", ox.Elem(ox.UintT), ox.Section(0)).
+					Slice("memory-swap", "Swap limit equal to memory plus", ox.Elem(ox.UintT), ox.Section(0)).
+					Int("memory-swappiness", "Tune container memory swappiness", ox.Section(0)).
+					String("mount", "Attach a filesystem mount to the", ox.Spec("mount"), ox.Section(0)).
+					String("name", "Assign a name to the container", ox.Section(0)).
+					String("network", "Connect a container to a network", ox.Spec("network"), ox.Section(0)).
+					Slice("network-alias", "Add network-scoped alias for the", ox.Elem(ox.StringT), ox.Section(0)).
+					Bool("no-healthcheck", "Disable any container-specified", ox.Section(0)).
+					Bool("oom-kill-disable", "Disable OOM Killer", ox.Section(0)).
+					Int("oom-score-adj", "Tune host's OOM preferences", ox.Section(0)).
+					String("pid", "PID namespace to use", ox.Section(0)).
+					Int("pids-limit", "Tune container pids limit (set", ox.Section(0)).
+					String("platform", "Set platform if server is", ox.Section(0)).
+					Bool("privileged", "Give extended privileges to this", ox.Section(0)).
+					Slice("publish", "Publish a container's port(s) to", ox.Elem(ox.StringT), ox.Short("p"), ox.Section(0)).
+					Bool("publish-all", "Publish all exposed ports to", ox.Short("P"), ox.Section(0)).
+					String("pull", "Pull image before creating", ox.Section(0)).
+					Bool("quiet", "Suppress the pull output", ox.Short("q"), ox.Section(0)).
+					Bool("read-only", "Mount the container's root", ox.Section(0)).
+					String("restart", "Restart policy to apply when a", ox.Section(0)).
+					Bool("rm", "Automatically remove the", ox.Section(0)).
+					String("runtime", "Runtime to use for this container", ox.Section(0)).
+					Slice("security-opt", "Security Options", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("shm-size", "Size of /dev/shm", ox.Elem(ox.UintT), ox.Section(0)).
+					String("stop-signal", "Signal to stop the container", ox.Section(0)).
+					Int("stop-timeout", "Timeout (in seconds) to stop a", ox.Section(0)).
+					Slice("storage-opt", "Storage driver options for the", ox.Elem(ox.StringT), ox.Section(0)).
+					Map("sysctl", "Sysctl options", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]"), ox.Section(0)).
+					Slice("tmpfs", "Mount a tmpfs directory", ox.Elem(ox.StringT), ox.Section(0)).
+					Bool("tty", "Allocate a pseudo-TTY", ox.Short("t"), ox.Section(0)).
+					String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]"), ox.Section(0)).
+					Bool("use-api-socket", "Bind mount Docker API socket and", ox.Section(0)).
+					String("user", "Username or UID (format:", ox.Short("u"), ox.Section(0)).
+					String("userns", "User namespace to use", ox.Section(0)).
+					String("uts", "UTS namespace to use", ox.Section(0)).
+					Slice("volume", "Bind mount a volume", ox.Elem(ox.StringT), ox.Short("v"), ox.Section(0)).
+					String("volume-driver", "Optional volume driver for the", ox.Section(0)).
+					Slice("volumes-from", "Mount volumes from the specified", ox.Elem(ox.StringT), ox.Section(0)).
+					String("workdir", "Working directory inside the", ox.Short("w"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Inspect changes to files or directories on a container's filesystem"),
 				ox.Usage("diff", "Inspect changes to files or directories on a container's filesystem"),
 				ox.Spec("CONTAINER"),
 				ox.Aliases("docker diff"),
 				ox.Section(0),
-			), ox.Sub(
+			),
+			ox.Sub(
 				ox.Banner("Execute a command in a running container"),
 				ox.Usage("exec", "Execute a command in a running container"),
 				ox.Spec("[OPTIONS] CONTAINER COMMAND [ARG...]"),
 				ox.Aliases("docker exec"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("detach", "Detached mode: run command in the background", ox.Short("d")).
-					String("detach-keys", "Override the key sequence for detaching a").
-					Slice("env", "Set environment variables", ox.Elem(ox.StringT), ox.Short("e")).
-					Slice("env-file", "Read in a file of environment variables", ox.Elem(ox.StringT)).
-					Bool("interactive", "Keep STDIN open even if not attached", ox.Short("i")).
-					Bool("privileged", "Give extended privileges to the command").
-					Bool("tty", "Allocate a pseudo-TTY", ox.Short("t")).
-					String("user", "Username or UID (format:", ox.Short("u")).
-					String("workdir", "Working directory inside the container", ox.Short("w")),
-			), ox.Sub(
+					Bool("detach", "Detached mode: run command in the background", ox.Short("d"), ox.Section(0)).
+					String("detach-keys", "Override the key sequence for detaching a", ox.Section(0)).
+					Slice("env", "Set environment variables", ox.Elem(ox.StringT), ox.Short("e"), ox.Section(0)).
+					Slice("env-file", "Read in a file of environment variables", ox.Elem(ox.StringT), ox.Section(0)).
+					Bool("interactive", "Keep STDIN open even if not attached", ox.Short("i"), ox.Section(0)).
+					Bool("privileged", "Give extended privileges to the command", ox.Section(0)).
+					Bool("tty", "Allocate a pseudo-TTY", ox.Short("t"), ox.Section(0)).
+					String("user", "Username or UID (format:", ox.Short("u"), ox.Section(0)).
+					String("workdir", "Working directory inside the container", ox.Short("w"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Export a container's filesystem as a tar archive"),
 				ox.Usage("export", "Export a container's filesystem as a tar archive"),
 				ox.Spec("[OPTIONS] CONTAINER"),
 				ox.Aliases("docker export"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("output", "Write to a file, instead of STDOUT", ox.Short("o")),
-			), ox.Sub(
+					String("output", "Write to a file, instead of STDOUT", ox.Short("o"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Display detailed information on one or more containers"),
 				ox.Usage("inspect", "Display detailed information on one or more containers"),
 				ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("format", "Format output using a custom template:", ox.Short("f")).
-					Bool("size", "Display total file sizes", ox.Short("s")),
-			), ox.Sub(
+					String("format", "Format output using a custom template:", ox.Short("f"), ox.Section(0)).
+					Bool("size", "Display total file sizes", ox.Short("s"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Kill one or more running containers"),
 				ox.Usage("kill", "Kill one or more running containers"),
 				ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 				ox.Aliases("docker kill"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("signal", "Signal to send to the container", ox.Short("s")),
-			), ox.Sub(
+					String("signal", "Signal to send to the container", ox.Short("s"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Fetch the logs of a container"),
 				ox.Usage("logs", "Fetch the logs of a container"),
 				ox.Spec("[OPTIONS] CONTAINER"),
 				ox.Aliases("docker logs"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("details", "Show extra details provided to logs").
-					Bool("follow", "Follow log output", ox.Short("f")).
-					String("since", "Show logs since timestamp (e.g.").
-					String("tail", "Number of lines to show from the end of the logs", ox.Short("n")).
-					Bool("timestamps", "Show timestamps", ox.Short("t")).
-					String("until", "Show logs before a timestamp (e.g."),
-			), ox.Sub(
+					Bool("details", "Show extra details provided to logs", ox.Section(0)).
+					Bool("follow", "Follow log output", ox.Short("f"), ox.Section(0)).
+					String("since", "Show logs since timestamp (e.g.", ox.Section(0)).
+					String("tail", "Number of lines to show from the end of the logs", ox.Short("n"), ox.Section(0)).
+					Bool("timestamps", "Show timestamps", ox.Short("t"), ox.Section(0)).
+					String("until", "Show logs before a timestamp (e.g.", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("List containers"),
 				ox.Usage("ls", "List containers"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("docker container list", "docker container ps", "docker ps"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("all", "Show all containers", ox.Default("shows just running"), ox.Short("a")).
-					String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f")).
-					String("format", "Format output using a custom template:").
-					Int("last", "Show n last created containers (includes all", ox.Short("n")).
-					Bool("latest", "Show the latest created container (includes all", ox.Short("l")).
-					Bool("no-trunc", "Don't truncate output").
-					Bool("quiet", "Only display container IDs", ox.Short("q")).
-					Bool("size", "Display total file sizes", ox.Short("s")),
-			), ox.Sub(
+					Bool("all", "Show all containers", ox.Default("shows just running"), ox.Short("a"), ox.Section(0)).
+					String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f"), ox.Section(0)).
+					String("format", "Format output using a custom template:", ox.Section(0)).
+					Int("last", "Show n last created containers (includes all", ox.Short("n"), ox.Section(0)).
+					Bool("latest", "Show the latest created container (includes all", ox.Short("l"), ox.Section(0)).
+					Bool("no-trunc", "Don't truncate output", ox.Section(0)).
+					Bool("quiet", "Only display container IDs", ox.Short("q"), ox.Section(0)).
+					Bool("size", "Display total file sizes", ox.Short("s"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Pause all processes within one or more containers"),
 				ox.Usage("pause", "Pause all processes within one or more containers"),
 				ox.Spec("CONTAINER [CONTAINER...]"),
 				ox.Aliases("docker pause"),
 				ox.Section(0),
-			), ox.Sub(
+			),
+			ox.Sub(
 				ox.Banner("List port mappings or a specific mapping for the container"),
 				ox.Usage("port", "List port mappings or a specific mapping for the container"),
 				ox.Spec("CONTAINER [PRIVATE_PORT[/PROTO]]"),
 				ox.Aliases("docker port"),
 				ox.Section(0),
-			), ox.Sub(
+			),
+			ox.Sub(
 				ox.Banner("Remove all stopped containers"),
 				ox.Usage("prune", "Remove all stopped containers"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("filter", "Provide filter values (e.g. \"until=<timestamp>\")", ox.Spec("filter")).
-					Bool("force", "Do not prompt for confirmation", ox.Short("f")),
-			), ox.Sub(
+					String("filter", "Provide filter values (e.g. \"until=<timestamp>\")", ox.Spec("filter"), ox.Section(0)).
+					Bool("force", "Do not prompt for confirmation", ox.Short("f"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Rename a container"),
 				ox.Usage("rename", "Rename a container"),
 				ox.Spec("CONTAINER NEW_NAME"),
 				ox.Aliases("docker rename"),
 				ox.Section(0),
-			), ox.Sub(
+			),
+			ox.Sub(
 				ox.Banner("Restart one or more containers"),
 				ox.Usage("restart", "Restart one or more containers"),
 				ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 				ox.Aliases("docker restart"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("signal", "Signal to send to the container", ox.Short("s")).
-					Int("time", "Seconds to wait before killing the container", ox.Short("t")),
-			), ox.Sub(
+					String("signal", "Signal to send to the container", ox.Short("s"), ox.Section(0)).
+					Int("timeout", "Seconds to wait before killing the container", ox.Short("t"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Remove one or more containers"),
 				ox.Usage("rm", "Remove one or more containers"),
 				ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 				ox.Aliases("docker container remove", "docker rm"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("force", "Force the removal of a running container (uses SIGKILL)", ox.Short("f")).
-					Bool("link", "Remove the specified link", ox.Short("l")).
-					Bool("volumes", "Remove anonymous volumes associated with the container", ox.Short("v")),
-			), ox.Sub(
+					Bool("force", "Force the removal of a running container (uses SIGKILL)", ox.Short("f"), ox.Section(0)).
+					Bool("link", "Remove the specified link", ox.Short("l"), ox.Section(0)).
+					Bool("volumes", "Remove anonymous volumes associated with the container", ox.Short("v"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Create and run a new container from an image"),
 				ox.Usage("run", "Create and run a new container from an image"),
 				ox.Spec("[OPTIONS] IMAGE [COMMAND] [ARG...]"),
 				ox.Aliases("docker run"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Slice("add-host", "Add a custom host-to-IP mapping", ox.Elem(ox.StringT)).
-					Map("annotation", "Add an annotation to the", ox.MapKey(ox.StringT), ox.Elem(ox.StringT)).
-					Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Elem(ox.StringT), ox.Short("a")).
-					Uint16("blkio-weight", "Block IO (relative weight),").
-					Slice("blkio-weight-device", "Block IO weight (relative device", ox.Elem(ox.StringT)).
-					Slice("cap-add", "Add Linux capabilities", ox.Elem(ox.StringT)).
-					Slice("cap-drop", "Drop Linux capabilities", ox.Elem(ox.StringT)).
-					String("cgroup-parent", "Optional parent cgroup for the").
-					String("cgroupns", "Cgroup namespace to use").
-					String("cidfile", "Write the container ID to the file").
-					Int("cpu-count", "CPU count (Windows only)").
-					Int("cpu-percent", "CPU percent (Windows only)").
-					Int("cpu-period", "Limit CPU CFS (Completely Fair").
-					Int("cpu-quota", "Limit CPU CFS (Completely Fair").
-					Int("cpu-rt-period", "Limit CPU real-time period in").
-					Int("cpu-rt-runtime", "Limit CPU real-time runtime in").
-					Int("cpu-shares", "CPU shares (relative weight)", ox.Short("c")).
-					Float32("cpus", "Number of CPUs", ox.Spec("decimal")).
-					String("cpuset-cpus", "CPUs in which to allow execution").
-					String("cpuset-mems", "MEMs in which to allow execution").
-					Bool("detach", "Run container in background and", ox.Short("d")).
-					String("detach-keys", "Override the key sequence for").
-					Slice("device", "Add a host device to the container", ox.Elem(ox.StringT)).
-					Slice("device-cgroup-rule", "Add a rule to the cgroup allowed", ox.Elem(ox.StringT)).
-					Slice("device-read-bps", "Limit read rate (bytes per", ox.Elem(ox.StringT)).
-					Slice("device-read-iops", "Limit read rate (IO per second)", ox.Elem(ox.StringT)).
-					Slice("device-write-bps", "Limit write rate (bytes per", ox.Elem(ox.StringT)).
-					Slice("device-write-iops", "Limit write rate (IO per second)", ox.Elem(ox.StringT)).
-					Bool("disable-content-trust", "Skip image verification (default").
-					Slice("dns", "Set custom DNS servers", ox.Elem(ox.StringT)).
-					Slice("dns-option", "Set DNS options", ox.Elem(ox.StringT)).
-					Slice("dns-search", "Set custom DNS search domains", ox.Elem(ox.StringT)).
-					String("domainname", "Container NIS domain name").
-					String("entrypoint", "Overwrite the default ENTRYPOINT").
-					Slice("env", "Set environment variables", ox.Elem(ox.StringT), ox.Short("e")).
-					Slice("env-file", "Read in a file of environment", ox.Elem(ox.StringT)).
-					Slice("expose", "Expose a port or a range of ports", ox.Elem(ox.StringT)).
-					String("gpus", "GPU devices to add to the", ox.Spec("gpu-request")).
-					Slice("group-add", "Add additional groups to join", ox.Elem(ox.StringT)).
-					String("health-cmd", "Command to run to check health").
-					Duration("health-interval", "Time between running the check").
-					Int("health-retries", "Consecutive failures needed to").
-					Duration("health-start-interval", "Time between running the check").
-					Duration("health-start-period", "Start period for the container").
-					Duration("health-timeout", "Maximum time to allow one check").
-					String("hostname", "Container host name", ox.Short("h")).
-					Bool("init", "Run an init inside the container").
-					Bool("interactive", "Keep STDIN open even if not attached", ox.Short("i")).
-					Slice("io-maxbandwidth", "Maximum IO bandwidth limit for", ox.Elem(ox.UintT)).
-					Uint("io-maxiops", "Maximum IOps limit for the").
-					String("ip", "IPv4 address (e.g., 172.30.100.104)").
-					String("ip6", "IPv6 address (e.g., 2001:db8::33)").
-					String("ipc", "IPC mode to use").
-					String("isolation", "Container isolation technology").
-					Slice("kernel-memory", "Kernel memory limit", ox.Elem(ox.UintT)).
-					Slice("label", "Set meta data on a container", ox.Elem(ox.StringT), ox.Short("l")).
-					Slice("label-file", "Read in a line delimited file of", ox.Elem(ox.StringT)).
-					Slice("link", "Add link to another container", ox.Elem(ox.StringT)).
-					Slice("link-local-ip", "Container IPv4/IPv6 link-local", ox.Elem(ox.StringT)).
-					String("log-driver", "Logging driver for the container").
-					Slice("log-opt", "Log driver options", ox.Elem(ox.StringT)).
-					String("mac-address", "Container MAC address (e.g.,").
-					Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m")).
-					Slice("memory-reservation", "Memory soft limit", ox.Elem(ox.UintT)).
-					Slice("memory-swap", "Swap limit equal to memory plus", ox.Elem(ox.UintT)).
-					Int("memory-swappiness", "Tune container memory swappiness").
-					String("mount", "Attach a filesystem mount to the", ox.Spec("mount")).
-					String("name", "Assign a name to the container").
-					String("network", "Connect a container to a network", ox.Spec("network")).
-					Slice("network-alias", "Add network-scoped alias for the", ox.Elem(ox.StringT)).
-					Bool("no-healthcheck", "Disable any container-specified").
-					Bool("oom-kill-disable", "Disable OOM Killer").
-					Int("oom-score-adj", "Tune host's OOM preferences").
-					String("pid", "PID namespace to use").
-					Int("pids-limit", "Tune container pids limit (set").
-					String("platform", "Set platform if server is").
-					Bool("privileged", "Give extended privileges to this").
-					Slice("publish", "Publish a container's port(s) to", ox.Elem(ox.StringT), ox.Short("p")).
-					Bool("publish-all", "Publish all exposed ports to", ox.Short("P")).
-					String("pull", "Pull image before running").
-					Bool("quiet", "Suppress the pull output", ox.Short("q")).
-					Bool("read-only", "Mount the container's root").
-					String("restart", "Restart policy to apply when a").
-					Bool("rm", "Automatically remove the").
-					String("runtime", "Runtime to use for this container").
-					Slice("security-opt", "Security Options", ox.Elem(ox.StringT)).
-					Slice("shm-size", "Size of /dev/shm", ox.Elem(ox.UintT)).
-					Bool("sig-proxy", "Proxy received signals to the").
-					String("stop-signal", "Signal to stop the container").
-					Int("stop-timeout", "Timeout (in seconds) to stop a").
-					Slice("storage-opt", "Storage driver options for the", ox.Elem(ox.StringT)).
-					Map("sysctl", "Sysctl options", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]")).
-					Slice("tmpfs", "Mount a tmpfs directory", ox.Elem(ox.StringT)).
-					Bool("tty", "Allocate a pseudo-TTY", ox.Short("t")).
-					String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]")).
-					String("user", "Username or UID (format:", ox.Short("u")).
-					String("userns", "User namespace to use").
-					String("uts", "UTS namespace to use").
-					Slice("volume", "Bind mount a volume", ox.Elem(ox.StringT), ox.Short("v")).
-					String("volume-driver", "Optional volume driver for the").
-					Slice("volumes-from", "Mount volumes from the specified", ox.Elem(ox.StringT)).
-					String("workdir", "Working directory inside the", ox.Short("w")),
-			), ox.Sub(
+					Slice("add-host", "Add a custom host-to-IP mapping", ox.Elem(ox.StringT), ox.Section(0)).
+					Map("annotation", "Add an annotation to the", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Elem(ox.StringT), ox.Short("a"), ox.Section(0)).
+					Uint16("blkio-weight", "Block IO (relative weight),", ox.Section(0)).
+					Slice("blkio-weight-device", "Block IO weight (relative device", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("cap-add", "Add Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("cap-drop", "Drop Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
+					String("cgroup-parent", "Optional parent cgroup for the", ox.Section(0)).
+					String("cgroupns", "Cgroup namespace to use", ox.Section(0)).
+					String("cidfile", "Write the container ID to the file", ox.Section(0)).
+					Int("cpu-count", "CPU count (Windows only)", ox.Section(0)).
+					Int("cpu-percent", "CPU percent (Windows only)", ox.Section(0)).
+					Int("cpu-period", "Limit CPU CFS (Completely Fair", ox.Section(0)).
+					Int("cpu-quota", "Limit CPU CFS (Completely Fair", ox.Section(0)).
+					Int("cpu-rt-period", "Limit CPU real-time period in", ox.Section(0)).
+					Int("cpu-rt-runtime", "Limit CPU real-time runtime in", ox.Section(0)).
+					Int("cpu-shares", "CPU shares (relative weight)", ox.Short("c"), ox.Section(0)).
+					Float32("cpus", "Number of CPUs", ox.Spec("decimal"), ox.Section(0)).
+					String("cpuset-cpus", "CPUs in which to allow execution", ox.Section(0)).
+					String("cpuset-mems", "MEMs in which to allow execution", ox.Section(0)).
+					Bool("detach", "Run container in background and", ox.Short("d"), ox.Section(0)).
+					String("detach-keys", "Override the key sequence for", ox.Section(0)).
+					Slice("device", "Add a host device to the container", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("device-cgroup-rule", "Add a rule to the cgroup allowed", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("device-read-bps", "Limit read rate (bytes per", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("device-read-iops", "Limit read rate (IO per second)", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("device-write-bps", "Limit write rate (bytes per", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("device-write-iops", "Limit write rate (IO per second)", ox.Elem(ox.StringT), ox.Section(0)).
+					Bool("disable-content-trust", "Skip image verification (default", ox.Section(0)).
+					Slice("dns", "Set custom DNS servers", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("dns-option", "Set DNS options", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("dns-search", "Set custom DNS search domains", ox.Elem(ox.StringT), ox.Section(0)).
+					String("domainname", "Container NIS domain name", ox.Section(0)).
+					String("entrypoint", "Overwrite the default ENTRYPOINT", ox.Section(0)).
+					Slice("env", "Set environment variables", ox.Elem(ox.StringT), ox.Short("e"), ox.Section(0)).
+					Slice("env-file", "Read in a file of environment", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("expose", "Expose a port or a range of ports", ox.Elem(ox.StringT), ox.Section(0)).
+					String("gpus", "GPU devices to add to the", ox.Spec("gpu-request"), ox.Section(0)).
+					Slice("group-add", "Add additional groups to join", ox.Elem(ox.StringT), ox.Section(0)).
+					String("health-cmd", "Command to run to check health", ox.Section(0)).
+					Duration("health-interval", "Time between running the check", ox.Section(0)).
+					Int("health-retries", "Consecutive failures needed to", ox.Section(0)).
+					Duration("health-start-interval", "Time between running the check", ox.Section(0)).
+					Duration("health-start-period", "Start period for the container", ox.Section(0)).
+					Duration("health-timeout", "Maximum time to allow one check", ox.Section(0)).
+					String("hostname", "Container host name", ox.Short("h"), ox.Section(0)).
+					Bool("init", "Run an init inside the container", ox.Section(0)).
+					Bool("interactive", "Keep STDIN open even if not attached", ox.Short("i"), ox.Section(0)).
+					Slice("io-maxbandwidth", "Maximum IO bandwidth limit for", ox.Elem(ox.UintT), ox.Section(0)).
+					Uint("io-maxiops", "Maximum IOps limit for the", ox.Section(0)).
+					String("ip", "IPv4 address (e.g., 172.30.100.104)", ox.Section(0)).
+					String("ip6", "IPv6 address (e.g., 2001:db8::33)", ox.Section(0)).
+					String("ipc", "IPC mode to use", ox.Section(0)).
+					String("isolation", "Container isolation technology", ox.Section(0)).
+					Slice("kernel-memory", "Kernel memory limit", ox.Elem(ox.UintT), ox.Section(0)).
+					Slice("label", "Set meta data on a container", ox.Elem(ox.StringT), ox.Short("l"), ox.Section(0)).
+					Slice("label-file", "Read in a line delimited file of", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("link", "Add link to another container", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("link-local-ip", "Container IPv4/IPv6 link-local", ox.Elem(ox.StringT), ox.Section(0)).
+					String("log-driver", "Logging driver for the container", ox.Section(0)).
+					Slice("log-opt", "Log driver options", ox.Elem(ox.StringT), ox.Section(0)).
+					String("mac-address", "Container MAC address (e.g.,", ox.Section(0)).
+					Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m"), ox.Section(0)).
+					Slice("memory-reservation", "Memory soft limit", ox.Elem(ox.UintT), ox.Section(0)).
+					Slice("memory-swap", "Swap limit equal to memory plus", ox.Elem(ox.UintT), ox.Section(0)).
+					Int("memory-swappiness", "Tune container memory swappiness", ox.Section(0)).
+					String("mount", "Attach a filesystem mount to the", ox.Spec("mount"), ox.Section(0)).
+					String("name", "Assign a name to the container", ox.Section(0)).
+					String("network", "Connect a container to a network", ox.Spec("network"), ox.Section(0)).
+					Slice("network-alias", "Add network-scoped alias for the", ox.Elem(ox.StringT), ox.Section(0)).
+					Bool("no-healthcheck", "Disable any container-specified", ox.Section(0)).
+					Bool("oom-kill-disable", "Disable OOM Killer", ox.Section(0)).
+					Int("oom-score-adj", "Tune host's OOM preferences", ox.Section(0)).
+					String("pid", "PID namespace to use", ox.Section(0)).
+					Int("pids-limit", "Tune container pids limit (set", ox.Section(0)).
+					String("platform", "Set platform if server is", ox.Section(0)).
+					Bool("privileged", "Give extended privileges to this", ox.Section(0)).
+					Slice("publish", "Publish a container's port(s) to", ox.Elem(ox.StringT), ox.Short("p"), ox.Section(0)).
+					Bool("publish-all", "Publish all exposed ports to", ox.Short("P"), ox.Section(0)).
+					String("pull", "Pull image before running", ox.Section(0)).
+					Bool("quiet", "Suppress the pull output", ox.Short("q"), ox.Section(0)).
+					Bool("read-only", "Mount the container's root", ox.Section(0)).
+					String("restart", "Restart policy to apply when a", ox.Section(0)).
+					Bool("rm", "Automatically remove the", ox.Section(0)).
+					String("runtime", "Runtime to use for this container", ox.Section(0)).
+					Slice("security-opt", "Security Options", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("shm-size", "Size of /dev/shm", ox.Elem(ox.UintT), ox.Section(0)).
+					Bool("sig-proxy", "Proxy received signals to the", ox.Section(0)).
+					String("stop-signal", "Signal to stop the container", ox.Section(0)).
+					Int("stop-timeout", "Timeout (in seconds) to stop a", ox.Section(0)).
+					Slice("storage-opt", "Storage driver options for the", ox.Elem(ox.StringT), ox.Section(0)).
+					Map("sysctl", "Sysctl options", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]"), ox.Section(0)).
+					Slice("tmpfs", "Mount a tmpfs directory", ox.Elem(ox.StringT), ox.Section(0)).
+					Bool("tty", "Allocate a pseudo-TTY", ox.Short("t"), ox.Section(0)).
+					String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]"), ox.Section(0)).
+					Bool("use-api-socket", "Bind mount Docker API socket and", ox.Section(0)).
+					String("user", "Username or UID (format:", ox.Short("u"), ox.Section(0)).
+					String("userns", "User namespace to use", ox.Section(0)).
+					String("uts", "UTS namespace to use", ox.Section(0)).
+					Slice("volume", "Bind mount a volume", ox.Elem(ox.StringT), ox.Short("v"), ox.Section(0)).
+					String("volume-driver", "Optional volume driver for the", ox.Section(0)).
+					Slice("volumes-from", "Mount volumes from the specified", ox.Elem(ox.StringT), ox.Section(0)).
+					String("workdir", "Working directory inside the", ox.Short("w"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Start one or more stopped containers"),
 				ox.Usage("start", "Start one or more stopped containers"),
 				ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 				ox.Aliases("docker start"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("attach", "Attach STDOUT/STDERR and forward signals", ox.Short("a")).
-					String("checkpoint", "Restore from this checkpoint").
-					String("checkpoint-dir", "Use a custom checkpoint storage directory").
-					String("detach-keys", "Override the key sequence for detaching a").
-					Bool("interactive", "Attach container's STDIN", ox.Short("i")),
-			), ox.Sub(
+					Bool("attach", "Attach STDOUT/STDERR and forward signals", ox.Short("a"), ox.Section(0)).
+					String("checkpoint", "Restore from this checkpoint", ox.Section(0)).
+					String("checkpoint-dir", "Use a custom checkpoint storage directory", ox.Section(0)).
+					String("detach-keys", "Override the key sequence for detaching a", ox.Section(0)).
+					Bool("interactive", "Attach container's STDIN", ox.Short("i"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Display a live stream of container(s) resource usage statistics"),
 				ox.Usage("stats", "Display a live stream of container(s) resource usage statistics"),
 				ox.Spec("[OPTIONS] [CONTAINER...]"),
 				ox.Aliases("docker stats"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("all", "Show all containers", ox.Default("shows just running"), ox.Short("a")).
-					String("format", "Format output using a custom template:").
-					Bool("no-stream", "Disable streaming stats and only pull the first result").
-					Bool("no-trunc", "Do not truncate output"),
-			), ox.Sub(
+					Bool("all", "Show all containers", ox.Default("shows just running"), ox.Short("a"), ox.Section(0)).
+					String("format", "Format output using a custom template:", ox.Section(0)).
+					Bool("no-stream", "Disable streaming stats and only pull the first result", ox.Section(0)).
+					Bool("no-trunc", "Do not truncate output", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Stop one or more running containers"),
 				ox.Usage("stop", "Stop one or more running containers"),
 				ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 				ox.Aliases("docker stop"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("signal", "Signal to send to the container", ox.Short("s")).
-					Int("time", "Seconds to wait before killing the container", ox.Short("t")),
-			), ox.Sub(
+					String("signal", "Signal to send to the container", ox.Short("s"), ox.Section(0)).
+					Int("timeout", "Seconds to wait before killing the container", ox.Short("t"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Display the running processes of a container"),
 				ox.Usage("top", "Display the running processes of a container"),
 				ox.Spec("CONTAINER [ps OPTIONS]"),
 				ox.Aliases("docker top"),
 				ox.Section(0),
-			), ox.Sub(
+			),
+			ox.Sub(
 				ox.Banner("Unpause all processes within one or more containers"),
 				ox.Usage("unpause", "Unpause all processes within one or more containers"),
 				ox.Spec("CONTAINER [CONTAINER...]"),
 				ox.Aliases("docker unpause"),
 				ox.Section(0),
-			), ox.Sub(
+			),
+			ox.Sub(
 				ox.Banner("Update configuration of one or more containers"),
 				ox.Usage("update", "Update configuration of one or more containers"),
 				ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 				ox.Aliases("docker update"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Uint16("blkio-weight", "Block IO (relative weight), between 10").
-					Int("cpu-period", "Limit CPU CFS (Completely Fair").
-					Int("cpu-quota", "Limit CPU CFS (Completely Fair").
-					Int("cpu-rt-period", "Limit the CPU real-time period in").
-					Int("cpu-rt-runtime", "Limit the CPU real-time runtime in").
-					Int("cpu-shares", "CPU shares (relative weight)", ox.Short("c")).
-					Float32("cpus", "Number of CPUs", ox.Spec("decimal")).
-					String("cpuset-cpus", "CPUs in which to allow execution (0-3, 0,1)").
-					String("cpuset-mems", "MEMs in which to allow execution (0-3, 0,1)").
-					Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m")).
-					Slice("memory-reservation", "Memory soft limit", ox.Elem(ox.UintT)).
-					Slice("memory-swap", "Swap limit equal to memory plus swap:", ox.Elem(ox.UintT)).
-					Int("pids-limit", "Tune container pids limit (set -1 for").
-					String("restart", "Restart policy to apply when a"),
-			), ox.Sub(
+					Uint16("blkio-weight", "Block IO (relative weight), between 10", ox.Section(0)).
+					Int("cpu-period", "Limit CPU CFS (Completely Fair", ox.Section(0)).
+					Int("cpu-quota", "Limit CPU CFS (Completely Fair", ox.Section(0)).
+					Int("cpu-rt-period", "Limit the CPU real-time period in", ox.Section(0)).
+					Int("cpu-rt-runtime", "Limit the CPU real-time runtime in", ox.Section(0)).
+					Int("cpu-shares", "CPU shares (relative weight)", ox.Short("c"), ox.Section(0)).
+					Float32("cpus", "Number of CPUs", ox.Spec("decimal"), ox.Section(0)).
+					String("cpuset-cpus", "CPUs in which to allow execution (0-3, 0,1)", ox.Section(0)).
+					String("cpuset-mems", "MEMs in which to allow execution (0-3, 0,1)", ox.Section(0)).
+					Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m"), ox.Section(0)).
+					Slice("memory-reservation", "Memory soft limit", ox.Elem(ox.UintT), ox.Section(0)).
+					Slice("memory-swap", "Swap limit equal to memory plus swap:", ox.Elem(ox.UintT), ox.Section(0)).
+					Int("pids-limit", "Tune container pids limit (set -1 for", ox.Section(0)).
+					String("restart", "Restart policy to apply when a", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Block until one or more containers stop, then print their exit codes"),
 				ox.Usage("wait", "Block until one or more containers stop, then print their exit codes"),
 				ox.Spec("CONTAINER [CONTAINER...]"),
 				ox.Aliases("docker wait"),
 				ox.Section(0),
-			)), ox.Sub(
+			),
+		),
+		ox.Sub(
 			ox.Banner("Manage contexts"),
 			ox.Usage("context", "Manage contexts"),
 			ox.Spec("COMMAND"),
@@ -802,54 +951,75 @@ func main() {
 				ox.Spec("[OPTIONS] CONTEXT [FILE|-]"),
 				ox.Section(0),
 				ox.Footer("Export a context to a tar archive FILE or a tar stream on STDOUT."),
-			), ox.Sub(
+			),
+			ox.Sub(
 				ox.Usage("import", "Import a context from a tar or zip file"),
 				ox.Spec("CONTEXT FILE|-"),
 				ox.Section(0),
 				ox.Footer("Import a context from a tar or zip file"),
-			), ox.Sub(
+			),
+			ox.Sub(
 				ox.Banner("Display detailed information on one or more contexts"),
 				ox.Usage("inspect", "Display detailed information on one or more contexts"),
 				ox.Spec("[OPTIONS] [CONTEXT] [CONTEXT...]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("format", "Format output using a custom template:", ox.Short("f")),
-			), ox.Sub(
+					String("format", "Format output using a custom template:", ox.Short("f"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("List contexts"),
 				ox.Usage("ls", "List contexts"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("docker context list"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("format", "Format output using a custom template:").
-					Bool("quiet", "Only show context names", ox.Short("q")),
-			), ox.Sub(
+					String("format", "Format output using a custom template:", ox.Section(0)).
+					Bool("quiet", "Only show context names", ox.Short("q"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Remove one or more contexts"),
 				ox.Usage("rm", "Remove one or more contexts"),
 				ox.Spec("CONTEXT [CONTEXT...]"),
 				ox.Aliases("docker context remove"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("force", "Force the removal of a context in use", ox.Short("f")),
-			), ox.Sub(
+					Bool("force", "Force the removal of a context in use", ox.Short("f"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Usage("show", "Print the name of the current context"),
 				ox.Section(0),
 				ox.Footer("Print the name of the current context"),
-			), ox.Sub(
+			),
+			ox.Sub(
 				ox.Banner("Update a context"),
 				ox.Usage("update", "Update a context"),
 				ox.Spec("[OPTIONS] CONTEXT"),
 				ox.Example("\n$ docker context update my-context --description \"some description\" --docker \"host=tcp://myserver:2376,ca=~/ca-file,cert=~/cert-file,key=~/key-file\""),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("description", "Description of the context").
-					Map("docker", "set the docker endpoint", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("[]")),
-			), ox.Sub(
+					String("description", "Description of the context", ox.Section(0)).
+					Map("docker", "set the docker endpoint", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Usage("use", "Set the current docker context"),
 				ox.Spec("CONTEXT"),
 				ox.Section(0),
 				ox.Footer("Set the current docker context"),
-			)), ox.Sub(
+			),
+		),
+		ox.Sub(
 			ox.Banner("Manage images"),
 			ox.Usage("image", "Manage images"),
 			ox.Spec("COMMAND"),
@@ -862,143 +1032,193 @@ func main() {
 				ox.Spec("[OPTIONS] PATH | URL | -"),
 				ox.Aliases("docker build", "docker builder build"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Slice("add-host", "Add a custom host-to-IP mapping (\"host:ip\")", ox.Elem(ox.StringT)).
-					Slice("build-arg", "Set build-time variables", ox.Elem(ox.StringT)).
-					Slice("cache-from", "Images to consider as cache sources", ox.Elem(ox.StringT)).
-					String("cgroup-parent", "Set the parent cgroup for the \"RUN\"").
-					Bool("compress", "Compress the build context using gzip").
-					Int("cpu-period", "Limit the CPU CFS (Completely Fair").
-					Int("cpu-quota", "Limit the CPU CFS (Completely Fair").
-					Int("cpu-shares", "CPU shares (relative weight)", ox.Short("c")).
-					String("cpuset-cpus", "CPUs in which to allow execution (0-3, 0,1)").
-					String("cpuset-mems", "MEMs in which to allow execution (0-3, 0,1)").
-					Bool("disable-content-trust", "Skip image verification", ox.Default("true")).
-					String("file", "Name of the Dockerfile (Default is", ox.Short("f")).
-					Bool("force-rm", "Always remove intermediate containers").
-					String("iidfile", "Write the image ID to the file").
-					String("isolation", "Container isolation technology").
-					Slice("label", "Set metadata for an image", ox.Elem(ox.StringT)).
-					Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m")).
-					Slice("memory-swap", "Swap limit equal to memory plus swap: -1", ox.Elem(ox.UintT)).
-					String("network", "Set the networking mode for the RUN").
-					Bool("no-cache", "Do not use cache when building the image").
-					String("platform", "Set platform if server is multi-platform").
-					Bool("pull", "Always attempt to pull a newer version of").
-					Bool("quiet", "Suppress the build output and print image", ox.Short("q")).
-					Bool("rm", "Remove intermediate containers after a").
-					Slice("security-opt", "Security options", ox.Elem(ox.StringT)).
-					Slice("shm-size", "Size of \"/dev/shm\"", ox.Elem(ox.UintT)).
-					Bool("squash", "Squash newly built layers into a single").
-					Slice("tag", "Name and optionally a tag in the", ox.Elem(ox.StringT), ox.Short("t")).
-					String("target", "Set the target build stage to build.").
-					String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]")),
-			), ox.Sub(
+					Slice("add-host", "Add a custom host-to-IP mapping (\"host:ip\")", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("build-arg", "Set build-time variables", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("cache-from", "Images to consider as cache sources", ox.Elem(ox.StringT), ox.Section(0)).
+					String("cgroup-parent", "Set the parent cgroup for the \"RUN\"", ox.Section(0)).
+					Bool("compress", "Compress the build context using gzip", ox.Section(0)).
+					Int("cpu-period", "Limit the CPU CFS (Completely Fair", ox.Section(0)).
+					Int("cpu-quota", "Limit the CPU CFS (Completely Fair", ox.Section(0)).
+					Int("cpu-shares", "CPU shares (relative weight)", ox.Short("c"), ox.Section(0)).
+					String("cpuset-cpus", "CPUs in which to allow execution (0-3, 0,1)", ox.Section(0)).
+					String("cpuset-mems", "MEMs in which to allow execution (0-3, 0,1)", ox.Section(0)).
+					Bool("disable-content-trust", "Skip image verification", ox.Default("true"), ox.Section(0)).
+					String("file", "Name of the Dockerfile (Default is", ox.Short("f"), ox.Section(0)).
+					Bool("force-rm", "Always remove intermediate containers", ox.Section(0)).
+					String("iidfile", "Write the image ID to the file", ox.Section(0)).
+					String("isolation", "Container isolation technology", ox.Section(0)).
+					Slice("label", "Set metadata for an image", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m"), ox.Section(0)).
+					Slice("memory-swap", "Swap limit equal to memory plus swap: -1", ox.Elem(ox.UintT), ox.Section(0)).
+					String("network", "Set the networking mode for the RUN", ox.Section(0)).
+					Bool("no-cache", "Do not use cache when building the image", ox.Section(0)).
+					String("platform", "Set platform if server is multi-platform", ox.Section(0)).
+					Bool("pull", "Always attempt to pull a newer version of", ox.Section(0)).
+					Bool("quiet", "Suppress the build output and print image", ox.Short("q"), ox.Section(0)).
+					Bool("rm", "Remove intermediate containers after a", ox.Section(0)).
+					Slice("security-opt", "Security options", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("shm-size", "Size of \"/dev/shm\"", ox.Elem(ox.UintT), ox.Section(0)).
+					Bool("squash", "Squash newly built layers into a single", ox.Section(0)).
+					Slice("tag", "Name and optionally a tag in the", ox.Elem(ox.StringT), ox.Short("t"), ox.Section(0)).
+					String("target", "Set the target build stage to build.", ox.Section(0)).
+					String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Show the history of an image"),
 				ox.Usage("history", "Show the history of an image"),
 				ox.Spec("[OPTIONS] IMAGE"),
 				ox.Aliases("docker history"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("format", "Format output using a custom template:").
-					Bool("human", "Print sizes and dates in human readable format", ox.Short("H")).
-					Bool("no-trunc", "Don't truncate output").
-					Bool("quiet", "Only show image IDs", ox.Short("q")),
-			), ox.Sub(
+					String("format", "Format output using a custom template:", ox.Section(0)).
+					Bool("human", "Print sizes and dates in human readable format", ox.Short("H"), ox.Section(0)).
+					Bool("no-trunc", "Don't truncate output", ox.Section(0)).
+					String("platform", "Show history for the given platform. Formatted", ox.Section(0)).
+					Bool("quiet", "Only show image IDs", ox.Short("q"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Import the contents from a tarball to create a filesystem image"),
 				ox.Usage("import", "Import the contents from a tarball to create a filesystem image"),
 				ox.Spec("[OPTIONS] file|URL|- [REPOSITORY[:TAG]]"),
 				ox.Aliases("docker import"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Slice("change", "Apply Dockerfile instruction to the created image", ox.Elem(ox.StringT), ox.Short("c")).
-					String("message", "Set commit message for imported image", ox.Short("m")).
-					String("platform", "Set platform if server is multi-platform capable"),
-			), ox.Sub(
+					Slice("change", "Apply Dockerfile instruction to the created image", ox.Elem(ox.StringT), ox.Short("c"), ox.Section(0)).
+					String("message", "Set commit message for imported image", ox.Short("m"), ox.Section(0)).
+					String("platform", "Set platform if server is multi-platform capable", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Display detailed information on one or more images"),
 				ox.Usage("inspect", "Display detailed information on one or more images"),
 				ox.Spec("[OPTIONS] IMAGE [IMAGE...]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("format", "Format output using a custom template:", ox.Short("f")),
-			), ox.Sub(
+					String("format", "Format output using a custom template:", ox.Short("f"), ox.Section(0)).
+					String("platform", "Inspect a specific platform of the", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Load an image from a tar archive or STDIN"),
 				ox.Usage("load", "Load an image from a tar archive or STDIN"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("docker load"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("input", "Read from tar archive file, instead of STDIN", ox.Short("i")).
-					Bool("quiet", "Suppress the load output", ox.Short("q")),
-			), ox.Sub(
+					String("input", "Read from tar archive file, instead of STDIN", ox.Short("i"), ox.Section(0)).
+					String("platform", "Load only the given platform variant. Formatted", ox.Section(0)).
+					Bool("quiet", "Suppress the load output", ox.Short("q"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("List images"),
 				ox.Usage("ls", "List images"),
 				ox.Spec("[OPTIONS] [REPOSITORY[:TAG]]"),
 				ox.Aliases("docker image list", "docker images"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("all", "Show all images", ox.Default("hides intermediate images"), ox.Short("a")).
-					Bool("digests", "Show digests").
-					String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f")).
-					String("format", "Format output using a custom template:").
-					Bool("no-trunc", "Don't truncate output").
-					Bool("quiet", "Only show image IDs", ox.Short("q")).
-					Bool("tree", "List multi-platform images as a tree (EXPERIMENTAL)"),
-			), ox.Sub(
+					Bool("all", "Show all images", ox.Default("hides intermediate images"), ox.Short("a"), ox.Section(0)).
+					Bool("digests", "Show digests", ox.Section(0)).
+					String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f"), ox.Section(0)).
+					String("format", "Format output using a custom template:", ox.Section(0)).
+					Bool("no-trunc", "Don't truncate output", ox.Section(0)).
+					Bool("quiet", "Only show image IDs", ox.Short("q"), ox.Section(0)).
+					Bool("tree", "List multi-platform images as a tree (EXPERIMENTAL)", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Remove unused images"),
 				ox.Usage("prune", "Remove unused images"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("all", "Remove all unused images, not just dangling ones", ox.Short("a")).
-					String("filter", "Provide filter values (e.g. \"until=<timestamp>\")", ox.Spec("filter")).
-					Bool("force", "Do not prompt for confirmation", ox.Short("f")),
-			), ox.Sub(
+					Bool("all", "Remove all unused images, not just dangling ones", ox.Short("a"), ox.Section(0)).
+					String("filter", "Provide filter values (e.g. \"until=<timestamp>\")", ox.Spec("filter"), ox.Section(0)).
+					Bool("force", "Do not prompt for confirmation", ox.Short("f"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Download an image from a registry"),
 				ox.Usage("pull", "Download an image from a registry"),
 				ox.Spec("[OPTIONS] NAME[:TAG|@DIGEST]"),
 				ox.Aliases("docker pull"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("all-tags", "Download all tagged images in the repository", ox.Short("a")).
-					Bool("disable-content-trust", "Skip image verification", ox.Default("true")).
-					String("platform", "Set platform if server is multi-platform").
-					Bool("quiet", "Suppress verbose output", ox.Short("q")),
-			), ox.Sub(
+					Bool("all-tags", "Download all tagged images in the repository", ox.Short("a"), ox.Section(0)).
+					Bool("disable-content-trust", "Skip image verification", ox.Default("true"), ox.Section(0)).
+					String("platform", "Set platform if server is multi-platform", ox.Section(0)).
+					Bool("quiet", "Suppress verbose output", ox.Short("q"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Upload an image to a registry"),
 				ox.Usage("push", "Upload an image to a registry"),
 				ox.Spec("[OPTIONS] NAME[:TAG]"),
 				ox.Aliases("docker push"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("all-tags", "Push all tags of an image to the repository", ox.Short("a")).
-					Bool("disable-content-trust", "Skip image signing", ox.Default("true")).
-					String("platform", "Push a platform-specific manifest as a").
-					Bool("quiet", "Suppress verbose output", ox.Short("q")),
-			), ox.Sub(
+					Bool("all-tags", "Push all tags of an image to the repository", ox.Short("a"), ox.Section(0)).
+					Bool("disable-content-trust", "Skip image signing", ox.Default("true"), ox.Section(0)).
+					String("platform", "Push a platform-specific manifest as a", ox.Section(0)).
+					Bool("quiet", "Suppress verbose output", ox.Short("q"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Remove one or more images"),
 				ox.Usage("rm", "Remove one or more images"),
 				ox.Spec("[OPTIONS] IMAGE [IMAGE...]"),
 				ox.Aliases("docker image remove", "docker rmi"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("force", "Force removal of the image", ox.Short("f")).
-					Bool("no-prune", "Do not delete untagged parents"),
-			), ox.Sub(
+					Bool("force", "Force removal of the image", ox.Short("f"), ox.Section(0)).
+					Bool("no-prune", "Do not delete untagged parents", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Save one or more images to a tar archive (streamed to STDOUT by default)"),
 				ox.Usage("save", "Save one or more images to a tar archive (streamed to STDOUT by default)"),
 				ox.Spec("[OPTIONS] IMAGE [IMAGE...]"),
 				ox.Aliases("docker save"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("output", "Write to a file, instead of STDOUT", ox.Short("o")),
-			), ox.Sub(
+					String("output", "Write to a file, instead of STDOUT", ox.Short("o"), ox.Section(0)).
+					String("platform", "Save only the given platform variant. Formatted", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE"),
 				ox.Usage("tag", "Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE"),
 				ox.Spec("SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]"),
 				ox.Aliases("docker tag"),
 				ox.Section(0),
-			)), ox.Sub(
+			),
+		),
+		ox.Sub(
 			ox.Banner("The **docker manifest** command has subcommands for managing image manifests and\nmanifest lists. A manifest list allows you to use one name to refer to the same image\nbuilt for multiple architectures.\n\nTo see help for a subcommand, use:\n\n    docker manifest CMD --help\n\nFor full details on using docker manifest lists, see the registry v2 specification."),
 			ox.Usage("manifest", "Manage Docker image manifests and manifest lists"),
 			ox.Spec("COMMAND"),
@@ -1010,42 +1230,60 @@ func main() {
 				ox.Usage("annotate", "Add additional information to a local image manifest"),
 				ox.Spec("[OPTIONS] MANIFEST_LIST MANIFEST"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("arch", "Set architecture").
-					String("os", "Set operating system").
-					Slice("os-features", "Set operating system feature", ox.Elem(ox.StringT)).
-					String("os-version", "Set operating system version").
-					String("variant", "Set architecture variant"),
-			), ox.Sub(
+					String("arch", "Set architecture", ox.Section(0)).
+					String("os", "Set operating system", ox.Section(0)).
+					Slice("os-features", "Set operating system feature", ox.Elem(ox.StringT), ox.Section(0)).
+					String("os-version", "Set operating system version", ox.Section(0)).
+					String("variant", "Set architecture variant", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Create a local manifest list for annotating and pushing to a registry"),
 				ox.Usage("create", "Create a local manifest list for annotating and pushing to a registry"),
 				ox.Spec("MANIFEST_LIST MANIFEST [MANIFEST...]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("amend", "Amend an existing manifest list", ox.Short("a")).
-					Bool("insecure", "Allow communication with an insecure registry"),
-			), ox.Sub(
+					Bool("amend", "Amend an existing manifest list", ox.Short("a"), ox.Section(0)).
+					Bool("insecure", "Allow communication with an insecure registry", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Display an image manifest, or manifest list"),
 				ox.Usage("inspect", "Display an image manifest, or manifest list"),
 				ox.Spec("[OPTIONS] [MANIFEST_LIST] MANIFEST"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("insecure", "Allow communication with an insecure registry").
-					Bool("verbose", "Output additional info including layers and platform", ox.Short("v")),
-			), ox.Sub(
+					Bool("insecure", "Allow communication with an insecure registry", ox.Section(0)).
+					Bool("verbose", "Output additional info including layers and platform", ox.Short("v"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Push a manifest list to a repository"),
 				ox.Usage("push", "Push a manifest list to a repository"),
 				ox.Spec("[OPTIONS] MANIFEST_LIST"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("insecure", "Allow push to an insecure registry").
-					Bool("purge", "Remove the local manifest list after push", ox.Short("p")),
-			), ox.Sub(
+					Bool("insecure", "Allow push to an insecure registry", ox.Section(0)).
+					Bool("purge", "Remove the local manifest list after push", ox.Short("p"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Delete one or more manifest lists from local storage"),
 				ox.Usage("rm", "Delete one or more manifest lists from local storage"),
 				ox.Spec("MANIFEST_LIST [MANIFEST_LIST...]"),
 				ox.Section(0),
-			)), ox.Sub(
+			),
+		),
+		ox.Sub(
 			ox.Banner("Manage networks"),
 			ox.Usage("network", "Manage networks"),
 			ox.Spec("COMMAND"),
@@ -1057,78 +1295,109 @@ func main() {
 				ox.Usage("connect", "Connect a container to a network"),
 				ox.Spec("[OPTIONS] NETWORK CONTAINER"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Slice("alias", "Add network-scoped alias for the container", ox.Elem(ox.StringT)).
-					Slice("driver-opt", "driver options for the network", ox.Elem(ox.StringT)).
-					String("ip", "IPv4 address (e.g., \"172.30.100.104\")").
-					String("ip6", "IPv6 address (e.g., \"2001:db8::33\")").
-					Slice("link", "Add link to another container", ox.Elem(ox.StringT)).
-					Slice("link-local-ip", "Add a link-local address for the container", ox.Elem(ox.StringT)),
-			), ox.Sub(
+					Slice("alias", "Add network-scoped alias for the container", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("driver-opt", "driver options for the network", ox.Elem(ox.StringT), ox.Section(0)).
+					Int("gw-priority", "Highest gw-priority provides the default", ox.Section(0)).
+					String("ip", "IPv4 address (e.g., \"172.30.100.104\")", ox.Section(0)).
+					String("ip6", "IPv6 address (e.g., \"2001:db8::33\")", ox.Section(0)).
+					Slice("link", "Add link to another container", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("link-local-ip", "Add a link-local address for the container", ox.Elem(ox.StringT), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Create a network"),
 				ox.Usage("create", "Create a network"),
 				ox.Spec("[OPTIONS] NETWORK"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("attachable", "Enable manual container attachment").
-					Map("aux-address", "Auxiliary IPv4 or IPv6 addresses used by", ox.MapKey(ox.StringT), ox.Elem(ox.StringT)).
-					String("config-from", "The network from which to copy the configuration").
-					Bool("config-only", "Create a configuration only network").
-					String("driver", "Driver to manage the Network", ox.Default("bridge"), ox.Short("d")).
-					Slice("gateway", "IPv4 or IPv6 Gateway for the master subnet", ox.Elem(ox.StringT)).
-					Bool("ingress", "Create swarm routing-mesh network").
-					Bool("internal", "Restrict external access to the network").
-					Slice("ip-range", "Allocate container ip from a sub-range", ox.Elem(ox.StringT)).
-					String("ipam-driver", "IP Address Management Driver", ox.Default("default")).
-					Map("ipam-opt", "Set IPAM driver specific options", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]")).
-					Bool("ipv6", "Enable or disable IPv6 networking").
-					Slice("label", "Set metadata on a network", ox.Elem(ox.StringT)).
-					Map("opt", "Set driver specific options", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]"), ox.Short("o")).
-					String("scope", "Control the network's scope").
-					Slice("subnet", "Subnet in CIDR format that represents a", ox.Elem(ox.StringT)),
-			), ox.Sub(
+					Bool("attachable", "Enable manual container attachment", ox.Section(0)).
+					Map("aux-address", "Auxiliary IPv4 or IPv6 addresses used by", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Section(0)).
+					String("config-from", "The network from which to copy the configuration", ox.Section(0)).
+					Bool("config-only", "Create a configuration only network", ox.Section(0)).
+					String("driver", "Driver to manage the Network", ox.Default("bridge"), ox.Short("d"), ox.Section(0)).
+					Slice("gateway", "IPv4 or IPv6 Gateway for the master subnet", ox.Elem(ox.StringT), ox.Section(0)).
+					Bool("ingress", "Create swarm routing-mesh network", ox.Section(0)).
+					Bool("internal", "Restrict external access to the network", ox.Section(0)).
+					Slice("ip-range", "Allocate container ip from a sub-range", ox.Elem(ox.StringT), ox.Section(0)).
+					String("ipam-driver", "IP Address Management Driver", ox.Default("default"), ox.Section(0)).
+					Map("ipam-opt", "Set IPAM driver specific options", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]"), ox.Section(0)).
+					Bool("ipv4", "Enable or disable IPv4 address assignment", ox.Section(0)).
+					Bool("ipv6", "Enable or disable IPv6 address assignment", ox.Section(0)).
+					Slice("label", "Set metadata on a network", ox.Elem(ox.StringT), ox.Section(0)).
+					Map("opt", "Set driver specific options", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]"), ox.Short("o"), ox.Section(0)).
+					String("scope", "Control the network's scope", ox.Section(0)).
+					Slice("subnet", "Subnet in CIDR format that represents a", ox.Elem(ox.StringT), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Disconnect a container from a network"),
 				ox.Usage("disconnect", "Disconnect a container from a network"),
 				ox.Spec("[OPTIONS] NETWORK CONTAINER"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("force", "Force the container to disconnect from a network", ox.Short("f")),
-			), ox.Sub(
+					Bool("force", "Force the container to disconnect from a network", ox.Short("f"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Display detailed information on one or more networks"),
 				ox.Usage("inspect", "Display detailed information on one or more networks"),
 				ox.Spec("[OPTIONS] NETWORK [NETWORK...]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("format", "Format output using a custom template:", ox.Short("f")).
-					Bool("verbose", "Verbose output for diagnostics", ox.Short("v")),
-			), ox.Sub(
+					String("format", "Format output using a custom template:", ox.Short("f"), ox.Section(0)).
+					Bool("verbose", "Verbose output for diagnostics", ox.Short("v"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("List networks"),
 				ox.Usage("ls", "List networks"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("docker network list"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("filter", "Provide filter values (e.g. \"driver=bridge\")", ox.Spec("filter"), ox.Short("f")).
-					String("format", "Format output using a custom template:").
-					Bool("no-trunc", "Do not truncate the output").
-					Bool("quiet", "Only display network IDs", ox.Short("q")),
-			), ox.Sub(
+					String("filter", "Provide filter values (e.g. \"driver=bridge\")", ox.Spec("filter"), ox.Short("f"), ox.Section(0)).
+					String("format", "Format output using a custom template:", ox.Section(0)).
+					Bool("no-trunc", "Do not truncate the output", ox.Section(0)).
+					Bool("quiet", "Only display network IDs", ox.Short("q"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Remove all unused networks"),
 				ox.Usage("prune", "Remove all unused networks"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("filter", "Provide filter values (e.g. \"until=<timestamp>\")", ox.Spec("filter")).
-					Bool("force", "Do not prompt for confirmation", ox.Short("f")),
-			), ox.Sub(
+					String("filter", "Provide filter values (e.g. \"until=<timestamp>\")", ox.Spec("filter"), ox.Section(0)).
+					Bool("force", "Do not prompt for confirmation", ox.Short("f"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Remove one or more networks"),
 				ox.Usage("rm", "Remove one or more networks"),
 				ox.Spec("NETWORK [NETWORK...]"),
 				ox.Aliases("docker network remove"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("force", "Do not error if the network does not exist", ox.Short("f")),
-			)), ox.Sub(
+					Bool("force", "Do not error if the network does not exist", ox.Short("f"), ox.Section(0)),
+			),
+		),
+		ox.Sub(
 			ox.Banner("Manage plugins"),
 			ox.Usage("plugin", "Manage plugins"),
 			ox.Spec("COMMAND"),
@@ -1140,80 +1409,118 @@ func main() {
 				ox.Usage("create", "Create a plugin from a rootfs and configuration. Plugin data directory must contain config.json and rootfs directory."),
 				ox.Spec("[OPTIONS] PLUGIN PLUGIN-DATA-DIR"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("compress", "Compress the context using gzip"),
-			), ox.Sub(
+					Bool("compress", "Compress the context using gzip", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Disable a plugin"),
 				ox.Usage("disable", "Disable a plugin"),
 				ox.Spec("[OPTIONS] PLUGIN"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("force", "Force the disable of an active plugin", ox.Short("f")),
-			), ox.Sub(
+					Bool("force", "Force the disable of an active plugin", ox.Short("f"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Enable a plugin"),
 				ox.Usage("enable", "Enable a plugin"),
 				ox.Spec("[OPTIONS] PLUGIN"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Int("timeout", "HTTP client timeout (in seconds)", ox.Default("30")),
-			), ox.Sub(
+					Int("timeout", "HTTP client timeout (in seconds)", ox.Default("30"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Display detailed information on one or more plugins"),
 				ox.Usage("inspect", "Display detailed information on one or more plugins"),
 				ox.Spec("[OPTIONS] PLUGIN [PLUGIN...]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("format", "Format output using a custom template:", ox.Short("f")),
-			), ox.Sub(
+					String("format", "Format output using a custom template:", ox.Short("f"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Install a plugin"),
 				ox.Usage("install", "Install a plugin"),
 				ox.Spec("[OPTIONS] PLUGIN [KEY=VALUE...]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("alias", "Local name for plugin").
-					Bool("disable", "Do not enable the plugin on install").
-					Bool("disable-content-trust", "Skip image verification", ox.Default("true")).
-					Bool("grant-all-permissions", "Grant all permissions necessary to run"),
-			), ox.Sub(
+					String("alias", "Local name for plugin", ox.Section(0)).
+					Bool("disable", "Do not enable the plugin on install", ox.Section(0)).
+					Bool("disable-content-trust", "Skip image verification", ox.Default("true"), ox.Section(0)).
+					Bool("grant-all-permissions", "Grant all permissions necessary to run", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("List plugins"),
 				ox.Usage("ls", "List plugins"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("docker plugin list"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("filter", "Provide filter values (e.g. \"enabled=true\")", ox.Spec("filter"), ox.Short("f")).
-					String("format", "Format output using a custom template:").
-					Bool("no-trunc", "Don't truncate output").
-					Bool("quiet", "Only display plugin IDs", ox.Short("q")),
-			), ox.Sub(
+					String("filter", "Provide filter values (e.g. \"enabled=true\")", ox.Spec("filter"), ox.Short("f"), ox.Section(0)).
+					String("format", "Format output using a custom template:", ox.Section(0)).
+					Bool("no-trunc", "Don't truncate output", ox.Section(0)).
+					Bool("quiet", "Only display plugin IDs", ox.Short("q"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Push a plugin to a registry"),
 				ox.Usage("push", "Push a plugin to a registry"),
 				ox.Spec("[OPTIONS] PLUGIN[:TAG]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("disable-content-trust", "Skip image signing", ox.Default("true")),
-			), ox.Sub(
+					Bool("disable-content-trust", "Skip image signing", ox.Default("true"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Remove one or more plugins"),
 				ox.Usage("rm", "Remove one or more plugins"),
 				ox.Spec("[OPTIONS] PLUGIN [PLUGIN...]"),
 				ox.Aliases("docker plugin remove"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("force", "Force the removal of an active plugin", ox.Short("f")),
-			), ox.Sub(
+					Bool("force", "Force the removal of an active plugin", ox.Short("f"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Usage("set", "Change settings for a plugin"),
 				ox.Spec("PLUGIN KEY=VALUE [KEY=VALUE...]"),
 				ox.Section(0),
 				ox.Footer("Change settings for a plugin"),
-			), ox.Sub(
+			),
+			ox.Sub(
 				ox.Banner("Upgrade an existing plugin"),
 				ox.Usage("upgrade", "Upgrade an existing plugin"),
 				ox.Spec("[OPTIONS] PLUGIN [REMOTE]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("disable-content-trust", "Skip image verification", ox.Default("true")).
-					Bool("grant-all-permissions", "Grant all permissions necessary to run").
-					Bool("skip-remote-check", "Do not check if specified remote plugin"),
-			)), ox.Sub(
+					Bool("disable-content-trust", "Skip image verification", ox.Default("true"), ox.Section(0)).
+					Bool("grant-all-permissions", "Grant all permissions necessary to run", ox.Section(0)).
+					Bool("skip-remote-check", "Do not check if specified remote plugin", ox.Section(0)),
+			),
+		),
+		ox.Sub(
 			ox.Banner("Manage Docker"),
 			ox.Usage("system", "Manage Docker"),
 			ox.Spec("COMMAND"),
@@ -1225,39 +1532,56 @@ func main() {
 				ox.Usage("df", "Show docker disk usage"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("format", "Format output using a custom template:").
-					Bool("verbose", "Show detailed information on space usage", ox.Short("v")),
-			), ox.Sub(
+					String("format", "Format output using a custom template:", ox.Section(0)).
+					Bool("verbose", "Show detailed information on space usage", ox.Short("v"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Get real time events from the server"),
 				ox.Usage("events", "Get real time events from the server"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("docker events"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f")).
-					String("format", "Format output using a custom template:").
-					String("since", "Show all events created since timestamp").
-					String("until", "Stream events until this timestamp"),
-			), ox.Sub(
+					String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f"), ox.Section(0)).
+					String("format", "Format output using a custom template:", ox.Section(0)).
+					String("since", "Show all events created since timestamp", ox.Section(0)).
+					String("until", "Stream events until this timestamp", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Display system-wide information"),
 				ox.Usage("info", "Display system-wide information"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("docker info"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("format", "Format output using a custom template:", ox.Short("f")),
-			), ox.Sub(
+					String("format", "Format output using a custom template:", ox.Short("f"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Remove unused data"),
 				ox.Usage("prune", "Remove unused data"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("all", "Remove all unused images not just dangling ones", ox.Short("a")).
-					String("filter", "Provide filter values (e.g. \"label=<key>=<value>\")", ox.Spec("filter")).
-					Bool("force", "Do not prompt for confirmation", ox.Short("f")).
-					Bool("volumes", "Prune anonymous volumes"),
-			)), ox.Sub(
+					Bool("all", "Remove all unused images not just dangling ones", ox.Short("a"), ox.Section(0)).
+					String("filter", "Provide filter values (e.g. \"label=<key>=<value>\")", ox.Spec("filter"), ox.Section(0)).
+					Bool("force", "Do not prompt for confirmation", ox.Short("f"), ox.Section(0)).
+					Bool("volumes", "Prune anonymous volumes", ox.Section(0)),
+			),
+		),
+		ox.Sub(
 			ox.Banner("Manage trust on Docker images"),
 			ox.Usage("trust", "Manage trust on Docker images"),
 			ox.Spec("COMMAND"),
@@ -1276,16 +1600,25 @@ func main() {
 					ox.Usage("generate", "Generate and load a signing key-pair"),
 					ox.Spec("NAME"),
 					ox.Section(0),
+					ox.Help(ox.Sections(
+						"Options",
+					)),
 					ox.Flags().
-						String("dir", "Directory to generate key in, defaults to current"),
-				), ox.Sub(
+						String("dir", "Directory to generate key in, defaults to current", ox.Section(0)),
+				),
+				ox.Sub(
 					ox.Banner("Load a private key file for signing"),
 					ox.Usage("load", "Load a private key file for signing"),
 					ox.Spec("[OPTIONS] KEYFILE"),
 					ox.Section(0),
+					ox.Help(ox.Sections(
+						"Options",
+					)),
 					ox.Flags().
-						String("name", "Name for the loaded key", ox.Default("signer")),
-				)), ox.Sub(
+						String("name", "Name for the loaded key", ox.Default("signer"), ox.Section(0)),
+				),
+			),
+			ox.Sub(
 				ox.Banner("Manage entities who can sign Docker images"),
 				ox.Usage("signer", "Manage entities who can sign Docker images"),
 				ox.Spec("COMMAND"),
@@ -1297,37 +1630,59 @@ func main() {
 					ox.Usage("add", "Add a signer"),
 					ox.Spec("OPTIONS NAME REPOSITORY [REPOSITORY...]"),
 					ox.Section(0),
+					ox.Help(ox.Sections(
+						"Options",
+					)),
 					ox.Flags().
-						Slice("key", "Path to the signer's public key file", ox.Elem(ox.StringT)),
-				), ox.Sub(
+						Slice("key", "Path to the signer's public key file", ox.Elem(ox.StringT), ox.Section(0)),
+				),
+				ox.Sub(
 					ox.Banner("Remove a signer"),
 					ox.Usage("remove", "Remove a signer"),
 					ox.Spec("[OPTIONS] NAME REPOSITORY [REPOSITORY...]"),
 					ox.Section(0),
+					ox.Help(ox.Sections(
+						"Options",
+					)),
 					ox.Flags().
-						Bool("force", "Do not prompt for confirmation before removing the most", ox.Short("f")),
-				)), ox.Sub(
+						Bool("force", "Do not prompt for confirmation before removing the most", ox.Short("f"), ox.Section(0)),
+				),
+			),
+			ox.Sub(
 				ox.Banner("Return low-level information about keys and signatures"),
 				ox.Usage("inspect", "Return low-level information about keys and signatures"),
 				ox.Spec("IMAGE[:TAG] [IMAGE[:TAG]...]"),
 				ox.Section(1),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("pretty", "Print the information in a human friendly format"),
-			), ox.Sub(
+					Bool("pretty", "Print the information in a human friendly format", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Remove trust for an image"),
 				ox.Usage("revoke", "Remove trust for an image"),
 				ox.Spec("[OPTIONS] IMAGE[:TAG]"),
 				ox.Section(1),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("yes", "Do not prompt for confirmation", ox.Short("y")),
-			), ox.Sub(
+					Bool("yes", "Do not prompt for confirmation", ox.Short("y"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Sign an image"),
 				ox.Usage("sign", "Sign an image"),
 				ox.Spec("IMAGE:TAG"),
 				ox.Section(1),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("local", "Sign a locally tagged image"),
-			)), ox.Sub(
+					Bool("local", "Sign a locally tagged image", ox.Section(0)),
+			),
+		),
+		ox.Sub(
 			ox.Banner("Manage volumes"),
 			ox.Usage("volume", "Manage volumes"),
 			ox.Spec("COMMAND"),
@@ -1339,64 +1694,88 @@ func main() {
 				ox.Usage("create", "Create a volume"),
 				ox.Spec("[OPTIONS] [VOLUME]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("availability", "Cluster Volume availability (\"active\",").
-					String("driver", "Specify volume driver name", ox.Default("local"), ox.Short("d")).
-					String("group", "Cluster Volume group (cluster volumes)").
-					Slice("label", "Set metadata for a volume", ox.Elem(ox.StringT)).
-					Slice("limit-bytes", "Minimum size of the Cluster Volume in bytes", ox.Elem(ox.UintT)).
-					Map("opt", "Set driver specific options", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]"), ox.Short("o")).
-					Slice("required-bytes", "Maximum size of the Cluster Volume in bytes", ox.Elem(ox.UintT)).
-					String("scope", "Cluster Volume access scope (\"single\",").
-					Map("secret", "Cluster Volume secrets", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]")).
-					String("sharing", "Cluster Volume access sharing (\"none\",").
-					Slice("topology-preferred", "A topology that the Cluster Volume", ox.Elem(ox.StringT)).
-					Slice("topology-required", "A topology that the Cluster Volume must", ox.Elem(ox.StringT)).
-					String("type", "Cluster Volume access type (\"mount\","),
-			), ox.Sub(
+					String("availability", "Cluster Volume availability (\"active\",", ox.Section(0)).
+					String("driver", "Specify volume driver name", ox.Default("local"), ox.Short("d"), ox.Section(0)).
+					String("group", "Cluster Volume group (cluster volumes)", ox.Section(0)).
+					Slice("label", "Set metadata for a volume", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("limit-bytes", "Minimum size of the Cluster Volume in bytes", ox.Elem(ox.UintT), ox.Section(0)).
+					Map("opt", "Set driver specific options", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]"), ox.Short("o"), ox.Section(0)).
+					Slice("required-bytes", "Maximum size of the Cluster Volume in bytes", ox.Elem(ox.UintT), ox.Section(0)).
+					String("scope", "Cluster Volume access scope (\"single\",", ox.Section(0)).
+					Map("secret", "Cluster Volume secrets", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]"), ox.Section(0)).
+					String("sharing", "Cluster Volume access sharing (\"none\",", ox.Section(0)).
+					Slice("topology-preferred", "A topology that the Cluster Volume", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("topology-required", "A topology that the Cluster Volume must", ox.Elem(ox.StringT), ox.Section(0)).
+					String("type", "Cluster Volume access type (\"mount\",", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Display detailed information on one or more volumes"),
 				ox.Usage("inspect", "Display detailed information on one or more volumes"),
 				ox.Spec("[OPTIONS] VOLUME [VOLUME...]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("format", "Format output using a custom template:", ox.Short("f")),
-			), ox.Sub(
+					String("format", "Format output using a custom template:", ox.Short("f"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("List volumes"),
 				ox.Usage("ls", "List volumes"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("docker volume list"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("cluster", "Display only cluster volumes, and use cluster").
-					String("filter", "Provide filter values (e.g. \"dangling=true\")", ox.Spec("filter"), ox.Short("f")).
-					String("format", "Format output using a custom template:").
-					Bool("quiet", "Only display volume names", ox.Short("q")),
-			), ox.Sub(
+					Bool("cluster", "Display only cluster volumes, and use cluster", ox.Section(0)).
+					String("filter", "Provide filter values (e.g. \"dangling=true\")", ox.Spec("filter"), ox.Short("f"), ox.Section(0)).
+					String("format", "Format output using a custom template:", ox.Section(0)).
+					Bool("quiet", "Only display volume names", ox.Short("q"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Remove unused local volumes"),
 				ox.Usage("prune", "Remove unused local volumes"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("all", "Remove all unused volumes, not just anonymous ones", ox.Short("a")).
-					String("filter", "Provide filter values (e.g. \"label=<label>\")", ox.Spec("filter")).
-					Bool("force", "Do not prompt for confirmation", ox.Short("f")),
-			), ox.Sub(
+					Bool("all", "Remove all unused volumes, not just anonymous ones", ox.Short("a"), ox.Section(0)).
+					String("filter", "Provide filter values (e.g. \"label=<label>\")", ox.Spec("filter"), ox.Section(0)).
+					Bool("force", "Do not prompt for confirmation", ox.Short("f"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Remove one or more volumes. You cannot remove a volume that is in use by a container."),
 				ox.Usage("rm", "Remove one or more volumes"),
 				ox.Spec("[OPTIONS] VOLUME [VOLUME...]"),
 				ox.Aliases("docker volume remove"),
-				ox.Example("\n$ docker volume rm hello\nhello"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("force", "Force the removal of one or more volumes", ox.Short("f")),
-			), ox.Sub(
+					Bool("force", "Force the removal of one or more volumes", ox.Short("f"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Update a volume (cluster volumes only)"),
 				ox.Usage("update", "Update a volume (cluster volumes only)"),
 				ox.Spec("[OPTIONS] [VOLUME]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("availability", "Cluster Volume availability (\"active\","),
-			)), ox.Sub(
+					String("availability", "Cluster Volume availability (\"active\",", ox.Section(0)),
+			),
+		),
+		ox.Sub(
 			ox.Banner("Manage Swarm configs"),
 			ox.Usage("config", "Manage Swarm configs"),
 			ox.Spec("COMMAND"),
@@ -1408,34 +1787,48 @@ func main() {
 				ox.Usage("create", "Create a config from a file or STDIN"),
 				ox.Spec("[OPTIONS] CONFIG file|-"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Slice("label", "Config labels", ox.Elem(ox.StringT), ox.Short("l")).
-					String("template-driver", "Template driver"),
-			), ox.Sub(
+					Slice("label", "Config labels", ox.Elem(ox.StringT), ox.Short("l"), ox.Section(0)).
+					String("template-driver", "Template driver", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Display detailed information on one or more configs"),
 				ox.Usage("inspect", "Display detailed information on one or more configs"),
 				ox.Spec("[OPTIONS] CONFIG [CONFIG...]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("format", "Format output using a custom template:", ox.Short("f")).
-					Bool("pretty", "Print the information in a human friendly format"),
-			), ox.Sub(
+					String("format", "Format output using a custom template:", ox.Short("f"), ox.Section(0)).
+					Bool("pretty", "Print the information in a human friendly format", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("List configs"),
 				ox.Usage("ls", "List configs"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("docker config list"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f")).
-					String("format", "Format output using a custom template:").
-					Bool("quiet", "Only display IDs", ox.Short("q")),
-			), ox.Sub(
+					String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f"), ox.Section(0)).
+					String("format", "Format output using a custom template:", ox.Section(0)).
+					Bool("quiet", "Only display IDs", ox.Short("q"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Remove one or more configs"),
 				ox.Usage("rm", "Remove one or more configs"),
 				ox.Spec("CONFIG [CONFIG...]"),
 				ox.Aliases("docker config remove"),
 				ox.Section(0),
-			)), ox.Sub(
+			),
+		),
+		ox.Sub(
 			ox.Banner("Manage Swarm nodes"),
 			ox.Usage("node", "Manage Swarm nodes"),
 			ox.Spec("COMMAND"),
@@ -1447,59 +1840,82 @@ func main() {
 				ox.Spec("NODE [NODE...]"),
 				ox.Section(0),
 				ox.Footer("Demote one or more nodes from manager in the swarm"),
-			), ox.Sub(
+			),
+			ox.Sub(
 				ox.Banner("Display detailed information on one or more nodes"),
 				ox.Usage("inspect", "Display detailed information on one or more nodes"),
 				ox.Spec("[OPTIONS] self|NODE [NODE...]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("format", "Format output using a custom template:", ox.Short("f")).
-					Bool("pretty", "Print the information in a human friendly format"),
-			), ox.Sub(
+					String("format", "Format output using a custom template:", ox.Short("f"), ox.Section(0)).
+					Bool("pretty", "Print the information in a human friendly format", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("List nodes in the swarm"),
 				ox.Usage("ls", "List nodes in the swarm"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("docker node list"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f")).
-					String("format", "Format output using a custom template:").
-					Bool("quiet", "Only display IDs", ox.Short("q")),
-			), ox.Sub(
+					String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f"), ox.Section(0)).
+					String("format", "Format output using a custom template:", ox.Section(0)).
+					Bool("quiet", "Only display IDs", ox.Short("q"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Usage("promote", "Promote one or more nodes to manager in the swarm"),
 				ox.Spec("NODE [NODE...]"),
 				ox.Section(0),
 				ox.Footer("Promote one or more nodes to manager in the swarm"),
-			), ox.Sub(
+			),
+			ox.Sub(
 				ox.Banner("List tasks running on one or more nodes, defaults to current node"),
 				ox.Usage("ps", "List tasks running on one or more nodes, defaults to current node"),
 				ox.Spec("[OPTIONS] [NODE...]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f")).
-					String("format", "Pretty-print tasks using a Go template").
-					Bool("no-resolve", "Do not map IDs to Names").
-					Bool("no-trunc", "Do not truncate output").
-					Bool("quiet", "Only display task IDs", ox.Short("q")),
-			), ox.Sub(
+					String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f"), ox.Section(0)).
+					String("format", "Pretty-print tasks using a Go template", ox.Section(0)).
+					Bool("no-resolve", "Do not map IDs to Names", ox.Section(0)).
+					Bool("no-trunc", "Do not truncate output", ox.Section(0)).
+					Bool("quiet", "Only display task IDs", ox.Short("q"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Remove one or more nodes from the swarm"),
 				ox.Usage("rm", "Remove one or more nodes from the swarm"),
 				ox.Spec("[OPTIONS] NODE [NODE...]"),
 				ox.Aliases("docker node remove"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("force", "Force remove a node from the swarm", ox.Short("f")),
-			), ox.Sub(
+					Bool("force", "Force remove a node from the swarm", ox.Short("f"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Update a node"),
 				ox.Usage("update", "Update a node"),
 				ox.Spec("[OPTIONS] NODE"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("availability", "Availability of the node (\"active\",").
-					Slice("label-add", "Add or update a node label (\"key=value\")", ox.Elem(ox.StringT)).
-					Slice("label-rm", "Remove a node label if exists", ox.Elem(ox.StringT)).
-					String("role", "Role of the node (\"worker\", \"manager\")"),
-			)), ox.Sub(
+					String("availability", "Availability of the node (\"active\",", ox.Section(0)).
+					Slice("label-add", "Add or update a node label (\"key=value\")", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("label-rm", "Remove a node label if exists", ox.Elem(ox.StringT), ox.Section(0)).
+					String("role", "Role of the node (\"worker\", \"manager\")", ox.Section(0)),
+			),
+		),
+		ox.Sub(
 			ox.Banner("Manage Swarm secrets"),
 			ox.Usage("secret", "Manage Swarm secrets"),
 			ox.Spec("COMMAND"),
@@ -1511,35 +1927,49 @@ func main() {
 				ox.Usage("create", "Create a secret from a file or STDIN as content"),
 				ox.Spec("[OPTIONS] SECRET [file|-]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("driver", "Secret driver", ox.Short("d")).
-					Slice("label", "Secret labels", ox.Elem(ox.StringT), ox.Short("l")).
-					String("template-driver", "Template driver"),
-			), ox.Sub(
+					String("driver", "Secret driver", ox.Short("d"), ox.Section(0)).
+					Slice("label", "Secret labels", ox.Elem(ox.StringT), ox.Short("l"), ox.Section(0)).
+					String("template-driver", "Template driver", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Display detailed information on one or more secrets"),
 				ox.Usage("inspect", "Display detailed information on one or more secrets"),
 				ox.Spec("[OPTIONS] SECRET [SECRET...]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("format", "Format output using a custom template:", ox.Short("f")).
-					Bool("pretty", "Print the information in a human friendly format"),
-			), ox.Sub(
+					String("format", "Format output using a custom template:", ox.Short("f"), ox.Section(0)).
+					Bool("pretty", "Print the information in a human friendly format", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("List secrets"),
 				ox.Usage("ls", "List secrets"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("docker secret list"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f")).
-					String("format", "Format output using a custom template:").
-					Bool("quiet", "Only display IDs", ox.Short("q")),
-			), ox.Sub(
+					String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f"), ox.Section(0)).
+					String("format", "Format output using a custom template:", ox.Section(0)).
+					Bool("quiet", "Only display IDs", ox.Short("q"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Remove one or more secrets"),
 				ox.Usage("rm", "Remove one or more secrets"),
 				ox.Spec("SECRET [SECRET...]"),
 				ox.Aliases("docker secret remove"),
 				ox.Section(0),
-			)), ox.Sub(
+			),
+		),
+		ox.Sub(
 			ox.Banner("Manage Swarm services"),
 			ox.Usage("service", "Manage Swarm services"),
 			ox.Spec("COMMAND"),
@@ -1551,244 +1981,278 @@ func main() {
 				ox.Usage("create", "Create a new service"),
 				ox.Spec("[OPTIONS] IMAGE [COMMAND] [ARG...]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Slice("cap-add", "Add Linux capabilities", ox.Elem(ox.StringT)).
-					Slice("cap-drop", "Drop Linux capabilities", ox.Elem(ox.StringT)).
-					String("config", "Specify configurations to", ox.Spec("config")).
-					Slice("constraint", "Placement constraints", ox.Elem(ox.StringT)).
-					Slice("container-label", "Container labels", ox.Elem(ox.StringT)).
-					String("credential-spec", "Credential spec for managed", ox.Spec("credential-spec")).
-					Bool("detach", "Exit immediately instead of", ox.Short("d")).
-					Slice("dns", "Set custom DNS servers", ox.Elem(ox.StringT)).
-					Slice("dns-option", "Set DNS options", ox.Elem(ox.StringT)).
-					Slice("dns-search", "Set custom DNS search domains", ox.Elem(ox.StringT)).
-					String("endpoint-mode", "Endpoint mode (vip or dnsrr)").
-					String("entrypoint", "Overwrite the default", ox.Spec("command")).
-					Slice("env", "Set environment variables", ox.Elem(ox.StringT), ox.Short("e")).
-					Slice("env-file", "Read in a file of environment", ox.Elem(ox.StringT)).
-					Slice("generic-resource", "User defined resources", ox.Elem(ox.StringT)).
-					Slice("group", "Set one or more supplementary", ox.Elem(ox.StringT)).
-					String("health-cmd", "Command to run to check health").
-					Duration("health-interval", "Time between running the check").
-					Int("health-retries", "Consecutive failures needed to").
-					Duration("health-start-interval", "Time between running the check").
-					Duration("health-start-period", "Start period for the container").
-					Duration("health-timeout", "Maximum time to allow one").
-					Slice("host", "Set one or more custom", ox.Elem(ox.StringT)).
-					String("hostname", "Container hostname").
-					Bool("init", "Use an init inside each").
-					String("isolation", "Service container isolation mode").
-					Slice("label", "Service labels", ox.Elem(ox.StringT), ox.Short("l")).
-					Float32("limit-cpu", "Limit CPUs", ox.Spec("decimal")).
-					Slice("limit-memory", "Limit Memory", ox.Elem(ox.UintT)).
-					Int("limit-pids", "Limit maximum number of").
-					String("log-driver", "Logging driver for service").
-					Slice("log-opt", "Logging driver options", ox.Elem(ox.StringT)).
-					Uint("max-concurrent", "Number of job tasks to run").
-					String("mode", "Service mode (\"replicated\",").
-					String("mount", "Attach a filesystem mount to", ox.Spec("mount")).
-					String("name", "Service name").
-					String("network", "Network attachments", ox.Spec("network")).
-					Bool("no-healthcheck", "Disable any").
-					Bool("no-resolve-image", "Do not query the registry to").
-					Int("oom-score-adj", "Tune host's OOM preferences").
-					String("placement-pref", "Add a placement preference", ox.Spec("pref")).
-					Uint("publish", "Publish a port as a node port", ox.Spec("port"), ox.Short("p")).
-					Bool("quiet", "Suppress progress output", ox.Short("q")).
-					Bool("read-only", "Mount the container's root").
-					Uint("replicas", "Number of tasks").
-					Uint("replicas-max-per-node", "Maximum number of tasks per").
-					Float32("reserve-cpu", "Reserve CPUs", ox.Spec("decimal")).
-					Slice("reserve-memory", "Reserve Memory", ox.Elem(ox.UintT)).
-					String("restart-condition", "Restart when condition is met").
-					Duration("restart-delay", "Delay between restart attempts").
-					Uint("restart-max-attempts", "Maximum number of restarts").
-					Duration("restart-window", "Window used to evaluate the").
-					Duration("rollback-delay", "Delay between task rollbacks").
-					String("rollback-failure-action", "Action on rollback failure").
-					Float32("rollback-max-failure-ratio", "Failure rate to tolerate", ox.Spec("float")).
-					Duration("rollback-monitor", "Duration after each task").
-					String("rollback-order", "Rollback order (\"start-first\",").
-					Uint("rollback-parallelism", "Maximum number of tasks rolled").
-					String("secret", "Specify secrets to expose to", ox.Spec("secret")).
-					Duration("stop-grace-period", "Time to wait before force").
-					String("stop-signal", "Signal to stop the container").
-					Slice("sysctl", "Sysctl options", ox.Elem(ox.StringT)).
-					Bool("tty", "Allocate a pseudo-TTY", ox.Short("t")).
-					String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]")).
-					Duration("update-delay", "Delay between updates").
-					String("update-failure-action", "Action on update failure").
-					Float32("update-max-failure-ratio", "Failure rate to tolerate", ox.Spec("float")).
-					Duration("update-monitor", "Duration after each task").
-					String("update-order", "Update order (\"start-first\",").
-					Uint("update-parallelism", "Maximum number of tasks").
-					String("user", "Username or UID (format:", ox.Short("u")).
-					Bool("with-registry-auth", "Send registry authentication").
-					String("workdir", "Working directory inside the", ox.Short("w")),
-			), ox.Sub(
+					Slice("cap-add", "Add Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("cap-drop", "Drop Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
+					String("config", "Specify configurations to", ox.Spec("config"), ox.Section(0)).
+					Slice("constraint", "Placement constraints", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("container-label", "Container labels", ox.Elem(ox.StringT), ox.Section(0)).
+					String("credential-spec", "Credential spec for managed", ox.Spec("credential-spec"), ox.Section(0)).
+					Bool("detach", "Exit immediately instead of", ox.Short("d"), ox.Section(0)).
+					Slice("dns", "Set custom DNS servers", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("dns-option", "Set DNS options", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("dns-search", "Set custom DNS search domains", ox.Elem(ox.StringT), ox.Section(0)).
+					String("endpoint-mode", "Endpoint mode (vip or dnsrr)", ox.Section(0)).
+					String("entrypoint", "Overwrite the default", ox.Spec("command"), ox.Section(0)).
+					Slice("env", "Set environment variables", ox.Elem(ox.StringT), ox.Short("e"), ox.Section(0)).
+					Slice("env-file", "Read in a file of environment", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("generic-resource", "User defined resources", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("group", "Set one or more supplementary", ox.Elem(ox.StringT), ox.Section(0)).
+					String("health-cmd", "Command to run to check health", ox.Section(0)).
+					Duration("health-interval", "Time between running the check", ox.Section(0)).
+					Int("health-retries", "Consecutive failures needed to", ox.Section(0)).
+					Duration("health-start-interval", "Time between running the check", ox.Section(0)).
+					Duration("health-start-period", "Start period for the container", ox.Section(0)).
+					Duration("health-timeout", "Maximum time to allow one", ox.Section(0)).
+					Slice("host", "Set one or more custom", ox.Elem(ox.StringT), ox.Section(0)).
+					String("hostname", "Container hostname", ox.Section(0)).
+					Bool("init", "Use an init inside each", ox.Section(0)).
+					String("isolation", "Service container isolation mode", ox.Section(0)).
+					Slice("label", "Service labels", ox.Elem(ox.StringT), ox.Short("l"), ox.Section(0)).
+					Float32("limit-cpu", "Limit CPUs", ox.Spec("decimal"), ox.Section(0)).
+					Slice("limit-memory", "Limit Memory", ox.Elem(ox.UintT), ox.Section(0)).
+					Int("limit-pids", "Limit maximum number of", ox.Section(0)).
+					String("log-driver", "Logging driver for service", ox.Section(0)).
+					Slice("log-opt", "Logging driver options", ox.Elem(ox.StringT), ox.Section(0)).
+					Uint("max-concurrent", "Number of job tasks to run", ox.Section(0)).
+					String("mode", "Service mode (\"replicated\",", ox.Section(0)).
+					String("mount", "Attach a filesystem mount to", ox.Spec("mount"), ox.Section(0)).
+					String("name", "Service name", ox.Section(0)).
+					String("network", "Network attachments", ox.Spec("network"), ox.Section(0)).
+					Bool("no-healthcheck", "Disable any", ox.Section(0)).
+					Bool("no-resolve-image", "Do not query the registry to", ox.Section(0)).
+					Int("oom-score-adj", "Tune host's OOM preferences", ox.Section(0)).
+					String("placement-pref", "Add a placement preference", ox.Spec("pref"), ox.Section(0)).
+					Uint("publish", "Publish a port as a node port", ox.Spec("port"), ox.Short("p"), ox.Section(0)).
+					Bool("quiet", "Suppress progress output", ox.Short("q"), ox.Section(0)).
+					Bool("read-only", "Mount the container's root", ox.Section(0)).
+					Uint("replicas", "Number of tasks", ox.Section(0)).
+					Uint("replicas-max-per-node", "Maximum number of tasks per", ox.Section(0)).
+					Float32("reserve-cpu", "Reserve CPUs", ox.Spec("decimal"), ox.Section(0)).
+					Slice("reserve-memory", "Reserve Memory", ox.Elem(ox.UintT), ox.Section(0)).
+					String("restart-condition", "Restart when condition is met", ox.Section(0)).
+					Duration("restart-delay", "Delay between restart attempts", ox.Section(0)).
+					Uint("restart-max-attempts", "Maximum number of restarts", ox.Section(0)).
+					Duration("restart-window", "Window used to evaluate the", ox.Section(0)).
+					Duration("rollback-delay", "Delay between task rollbacks", ox.Section(0)).
+					String("rollback-failure-action", "Action on rollback failure", ox.Section(0)).
+					Float32("rollback-max-failure-ratio", "Failure rate to tolerate", ox.Spec("float"), ox.Section(0)).
+					Duration("rollback-monitor", "Duration after each task", ox.Section(0)).
+					String("rollback-order", "Rollback order (\"start-first\",", ox.Section(0)).
+					Uint("rollback-parallelism", "Maximum number of tasks rolled", ox.Section(0)).
+					String("secret", "Specify secrets to expose to", ox.Spec("secret"), ox.Section(0)).
+					Duration("stop-grace-period", "Time to wait before force", ox.Section(0)).
+					String("stop-signal", "Signal to stop the container", ox.Section(0)).
+					Slice("sysctl", "Sysctl options", ox.Elem(ox.StringT), ox.Section(0)).
+					Bool("tty", "Allocate a pseudo-TTY", ox.Short("t"), ox.Section(0)).
+					String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]"), ox.Section(0)).
+					Duration("update-delay", "Delay between updates", ox.Section(0)).
+					String("update-failure-action", "Action on update failure", ox.Section(0)).
+					Float32("update-max-failure-ratio", "Failure rate to tolerate", ox.Spec("float"), ox.Section(0)).
+					Duration("update-monitor", "Duration after each task", ox.Section(0)).
+					String("update-order", "Update order (\"start-first\",", ox.Section(0)).
+					Uint("update-parallelism", "Maximum number of tasks", ox.Section(0)).
+					String("user", "Username or UID (format:", ox.Short("u"), ox.Section(0)).
+					Bool("with-registry-auth", "Send registry authentication", ox.Section(0)).
+					String("workdir", "Working directory inside the", ox.Short("w"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Display detailed information on one or more services"),
 				ox.Usage("inspect", "Display detailed information on one or more services"),
 				ox.Spec("[OPTIONS] SERVICE [SERVICE...]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("format", "Format output using a custom template:", ox.Short("f")).
-					Bool("pretty", "Print the information in a human friendly format"),
-			), ox.Sub(
+					String("format", "Format output using a custom template:", ox.Short("f"), ox.Section(0)).
+					Bool("pretty", "Print the information in a human friendly format", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Fetch the logs of a service or task"),
 				ox.Usage("logs", "Fetch the logs of a service or task"),
 				ox.Spec("[OPTIONS] SERVICE|TASK"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("details", "Show extra details provided to logs").
-					Bool("follow", "Follow log output", ox.Short("f")).
-					Bool("no-resolve", "Do not map IDs to Names in output").
-					Bool("no-task-ids", "Do not include task IDs in output").
-					Bool("no-trunc", "Do not truncate output").
-					Bool("raw", "Do not neatly format logs").
-					String("since", "Show logs since timestamp (e.g.").
-					String("tail", "Number of lines to show from the end of the logs", ox.Short("n")).
-					Bool("timestamps", "Show timestamps", ox.Short("t")),
-			), ox.Sub(
+					Bool("details", "Show extra details provided to logs", ox.Section(0)).
+					Bool("follow", "Follow log output", ox.Short("f"), ox.Section(0)).
+					Bool("no-resolve", "Do not map IDs to Names in output", ox.Section(0)).
+					Bool("no-task-ids", "Do not include task IDs in output", ox.Section(0)).
+					Bool("no-trunc", "Do not truncate output", ox.Section(0)).
+					Bool("raw", "Do not neatly format logs", ox.Section(0)).
+					String("since", "Show logs since timestamp (e.g.", ox.Section(0)).
+					String("tail", "Number of lines to show from the end of the logs", ox.Short("n"), ox.Section(0)).
+					Bool("timestamps", "Show timestamps", ox.Short("t"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("List services"),
 				ox.Usage("ls", "List services"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("docker service list"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f")).
-					String("format", "Format output using a custom template:").
-					Bool("quiet", "Only display IDs", ox.Short("q")),
-			), ox.Sub(
+					String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f"), ox.Section(0)).
+					String("format", "Format output using a custom template:", ox.Section(0)).
+					Bool("quiet", "Only display IDs", ox.Short("q"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("List the tasks of one or more services"),
 				ox.Usage("ps", "List the tasks of one or more services"),
 				ox.Spec("[OPTIONS] SERVICE [SERVICE...]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f")).
-					String("format", "Pretty-print tasks using a Go template").
-					Bool("no-resolve", "Do not map IDs to Names").
-					Bool("no-trunc", "Do not truncate output").
-					Bool("quiet", "Only display task IDs", ox.Short("q")),
-			), ox.Sub(
+					String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f"), ox.Section(0)).
+					String("format", "Pretty-print tasks using a Go template", ox.Section(0)).
+					Bool("no-resolve", "Do not map IDs to Names", ox.Section(0)).
+					Bool("no-trunc", "Do not truncate output", ox.Section(0)).
+					Bool("quiet", "Only display task IDs", ox.Short("q"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Remove one or more services"),
 				ox.Usage("rm", "Remove one or more services"),
 				ox.Spec("SERVICE [SERVICE...]"),
 				ox.Aliases("docker service remove"),
 				ox.Section(0),
-			), ox.Sub(
+			),
+			ox.Sub(
 				ox.Banner("Revert changes to a service's configuration"),
 				ox.Usage("rollback", "Revert changes to a service's configuration"),
 				ox.Spec("[OPTIONS] SERVICE"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("detach", "Exit immediately instead of waiting for the service to", ox.Short("d")).
-					Bool("quiet", "Suppress progress output", ox.Short("q")),
-			), ox.Sub(
+					Bool("detach", "Exit immediately instead of waiting for the service to", ox.Short("d"), ox.Section(0)).
+					Bool("quiet", "Suppress progress output", ox.Short("q"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Scale one or multiple replicated services"),
 				ox.Usage("scale", "Scale one or multiple replicated services"),
 				ox.Spec("SERVICE=REPLICAS [SERVICE=REPLICAS...]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("detach", "Exit immediately instead of waiting for the service to", ox.Short("d")),
-			), ox.Sub(
+					Bool("detach", "Exit immediately instead of waiting for the service to", ox.Short("d"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Update a service"),
 				ox.Usage("update", "Update a service"),
 				ox.Spec("[OPTIONS] SERVICE"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("args", "Service command args", ox.Spec("command")).
-					Slice("cap-add", "Add Linux capabilities", ox.Elem(ox.StringT)).
-					Slice("cap-drop", "Drop Linux capabilities", ox.Elem(ox.StringT)).
-					String("config-add", "Add or update a config file on", ox.Spec("config")).
-					Slice("config-rm", "Remove a configuration file", ox.Elem(ox.StringT)).
-					Slice("constraint-add", "Add or update a placement", ox.Elem(ox.StringT)).
-					Slice("constraint-rm", "Remove a constraint", ox.Elem(ox.StringT)).
-					Slice("container-label-add", "Add or update a container label", ox.Elem(ox.StringT)).
-					Slice("container-label-rm", "Remove a container label by its key", ox.Elem(ox.StringT)).
-					String("credential-spec", "Credential spec for managed", ox.Spec("credential-spec")).
-					Bool("detach", "Exit immediately instead of", ox.Short("d")).
-					Slice("dns-add", "Add or update a custom DNS server", ox.Elem(ox.StringT)).
-					Slice("dns-option-add", "Add or update a DNS option", ox.Elem(ox.StringT)).
-					Slice("dns-option-rm", "Remove a DNS option", ox.Elem(ox.StringT)).
-					Slice("dns-rm", "Remove a custom DNS server", ox.Elem(ox.StringT)).
-					Slice("dns-search-add", "Add or update a custom DNS", ox.Elem(ox.StringT)).
-					Slice("dns-search-rm", "Remove a DNS search domain", ox.Elem(ox.StringT)).
-					String("endpoint-mode", "Endpoint mode (vip or dnsrr)").
-					String("entrypoint", "Overwrite the default", ox.Spec("command")).
-					Slice("env-add", "Add or update an environment", ox.Elem(ox.StringT)).
-					Slice("env-rm", "Remove an environment variable", ox.Elem(ox.StringT)).
-					Bool("force", "Force update even if no").
-					Slice("generic-resource-add", "Add a Generic resource", ox.Elem(ox.StringT)).
-					Slice("generic-resource-rm", "Remove a Generic resource", ox.Elem(ox.StringT)).
-					Slice("group-add", "Add an additional", ox.Elem(ox.StringT)).
-					Slice("group-rm", "Remove a previously added", ox.Elem(ox.StringT)).
-					String("health-cmd", "Command to run to check health").
-					Duration("health-interval", "Time between running the check").
-					Int("health-retries", "Consecutive failures needed to").
-					Duration("health-start-interval", "Time between running the check").
-					Duration("health-start-period", "Start period for the container").
-					Duration("health-timeout", "Maximum time to allow one").
-					Slice("host-add", "Add a custom host-to-IP", ox.Elem(ox.StringT)).
-					Slice("host-rm", "Remove a custom host-to-IP", ox.Elem(ox.StringT)).
-					String("hostname", "Container hostname").
-					String("image", "Service image tag").
-					Bool("init", "Use an init inside each").
-					String("isolation", "Service container isolation mode").
-					Slice("label-add", "Add or update a service label", ox.Elem(ox.StringT)).
-					Slice("label-rm", "Remove a label by its key", ox.Elem(ox.StringT)).
-					Float32("limit-cpu", "Limit CPUs", ox.Spec("decimal")).
-					Slice("limit-memory", "Limit Memory", ox.Elem(ox.UintT)).
-					Int("limit-pids", "Limit maximum number of").
-					String("log-driver", "Logging driver for service").
-					Slice("log-opt", "Logging driver options", ox.Elem(ox.StringT)).
-					Uint("max-concurrent", "Number of job tasks to run").
-					String("mount-add", "Add or update a mount on a service", ox.Spec("mount")).
-					Slice("mount-rm", "Remove a mount by its target path", ox.Elem(ox.StringT)).
-					String("network-add", "Add a network", ox.Spec("network")).
-					Slice("network-rm", "Remove a network", ox.Elem(ox.StringT)).
-					Bool("no-healthcheck", "Disable any").
-					Bool("no-resolve-image", "Do not query the registry to").
-					Int("oom-score-adj", "Tune host's OOM preferences").
-					String("placement-pref-add", "Add a placement preference", ox.Spec("pref")).
-					String("placement-pref-rm", "Remove a placement preference", ox.Spec("pref")).
-					Uint("publish-add", "Add or update a published port", ox.Spec("port")).
-					Uint("publish-rm", "Remove a published port by its", ox.Spec("port")).
-					Bool("quiet", "Suppress progress output", ox.Short("q")).
-					Bool("read-only", "Mount the container's root").
-					Uint("replicas", "Number of tasks").
-					Uint("replicas-max-per-node", "Maximum number of tasks per").
-					Float32("reserve-cpu", "Reserve CPUs", ox.Spec("decimal")).
-					Slice("reserve-memory", "Reserve Memory", ox.Elem(ox.UintT)).
-					String("restart-condition", "Restart when condition is met").
-					Duration("restart-delay", "Delay between restart attempts").
-					Uint("restart-max-attempts", "Maximum number of restarts").
-					Duration("restart-window", "Window used to evaluate the").
-					Bool("rollback", "Rollback to previous specification").
-					Duration("rollback-delay", "Delay between task rollbacks").
-					String("rollback-failure-action", "Action on rollback failure").
-					Float32("rollback-max-failure-ratio", "Failure rate to tolerate", ox.Spec("float")).
-					Duration("rollback-monitor", "Duration after each task").
-					String("rollback-order", "Rollback order (\"start-first\",").
-					Uint("rollback-parallelism", "Maximum number of tasks rolled").
-					String("secret-add", "Add or update a secret on a service", ox.Spec("secret")).
-					Slice("secret-rm", "Remove a secret", ox.Elem(ox.StringT)).
-					Duration("stop-grace-period", "Time to wait before force").
-					String("stop-signal", "Signal to stop the container").
-					Slice("sysctl-add", "Add or update a Sysctl option", ox.Elem(ox.StringT)).
-					Slice("sysctl-rm", "Remove a Sysctl option", ox.Elem(ox.StringT)).
-					Bool("tty", "Allocate a pseudo-TTY", ox.Short("t")).
-					String("ulimit-add", "Add or update a ulimit option", ox.Spec("ulimit")).
-					Slice("ulimit-rm", "Remove a ulimit option", ox.Elem(ox.StringT)).
-					Duration("update-delay", "Delay between updates").
-					String("update-failure-action", "Action on update failure").
-					Float32("update-max-failure-ratio", "Failure rate to tolerate", ox.Spec("float")).
-					Duration("update-monitor", "Duration after each task").
-					String("update-order", "Update order (\"start-first\",").
-					Uint("update-parallelism", "Maximum number of tasks").
-					String("user", "Username or UID (format:", ox.Short("u")).
-					Bool("with-registry-auth", "Send registry authentication").
-					String("workdir", "Working directory inside the", ox.Short("w")),
-			)), ox.Sub(
+					String("args", "Service command args", ox.Spec("command"), ox.Section(0)).
+					Slice("cap-add", "Add Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("cap-drop", "Drop Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
+					String("config-add", "Add or update a config file on", ox.Spec("config"), ox.Section(0)).
+					Slice("config-rm", "Remove a configuration file", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("constraint-add", "Add or update a placement", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("constraint-rm", "Remove a constraint", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("container-label-add", "Add or update a container label", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("container-label-rm", "Remove a container label by its key", ox.Elem(ox.StringT), ox.Section(0)).
+					String("credential-spec", "Credential spec for managed", ox.Spec("credential-spec"), ox.Section(0)).
+					Bool("detach", "Exit immediately instead of", ox.Short("d"), ox.Section(0)).
+					Slice("dns-add", "Add or update a custom DNS server", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("dns-option-add", "Add or update a DNS option", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("dns-option-rm", "Remove a DNS option", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("dns-rm", "Remove a custom DNS server", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("dns-search-add", "Add or update a custom DNS", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("dns-search-rm", "Remove a DNS search domain", ox.Elem(ox.StringT), ox.Section(0)).
+					String("endpoint-mode", "Endpoint mode (vip or dnsrr)", ox.Section(0)).
+					String("entrypoint", "Overwrite the default", ox.Spec("command"), ox.Section(0)).
+					Slice("env-add", "Add or update an environment", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("env-rm", "Remove an environment variable", ox.Elem(ox.StringT), ox.Section(0)).
+					Bool("force", "Force update even if no", ox.Section(0)).
+					Slice("generic-resource-add", "Add a Generic resource", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("generic-resource-rm", "Remove a Generic resource", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("group-add", "Add an additional", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("group-rm", "Remove a previously added", ox.Elem(ox.StringT), ox.Section(0)).
+					String("health-cmd", "Command to run to check health", ox.Section(0)).
+					Duration("health-interval", "Time between running the check", ox.Section(0)).
+					Int("health-retries", "Consecutive failures needed to", ox.Section(0)).
+					Duration("health-start-interval", "Time between running the check", ox.Section(0)).
+					Duration("health-start-period", "Start period for the container", ox.Section(0)).
+					Duration("health-timeout", "Maximum time to allow one", ox.Section(0)).
+					Slice("host-add", "Add a custom host-to-IP", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("host-rm", "Remove a custom host-to-IP", ox.Elem(ox.StringT), ox.Section(0)).
+					String("hostname", "Container hostname", ox.Section(0)).
+					String("image", "Service image tag", ox.Section(0)).
+					Bool("init", "Use an init inside each", ox.Section(0)).
+					String("isolation", "Service container isolation mode", ox.Section(0)).
+					Slice("label-add", "Add or update a service label", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("label-rm", "Remove a label by its key", ox.Elem(ox.StringT), ox.Section(0)).
+					Float32("limit-cpu", "Limit CPUs", ox.Spec("decimal"), ox.Section(0)).
+					Slice("limit-memory", "Limit Memory", ox.Elem(ox.UintT), ox.Section(0)).
+					Int("limit-pids", "Limit maximum number of", ox.Section(0)).
+					String("log-driver", "Logging driver for service", ox.Section(0)).
+					Slice("log-opt", "Logging driver options", ox.Elem(ox.StringT), ox.Section(0)).
+					Uint("max-concurrent", "Number of job tasks to run", ox.Section(0)).
+					String("mount-add", "Add or update a mount on a service", ox.Spec("mount"), ox.Section(0)).
+					Slice("mount-rm", "Remove a mount by its target path", ox.Elem(ox.StringT), ox.Section(0)).
+					String("network-add", "Add a network", ox.Spec("network"), ox.Section(0)).
+					Slice("network-rm", "Remove a network", ox.Elem(ox.StringT), ox.Section(0)).
+					Bool("no-healthcheck", "Disable any", ox.Section(0)).
+					Bool("no-resolve-image", "Do not query the registry to", ox.Section(0)).
+					Int("oom-score-adj", "Tune host's OOM preferences", ox.Section(0)).
+					String("placement-pref-add", "Add a placement preference", ox.Spec("pref"), ox.Section(0)).
+					String("placement-pref-rm", "Remove a placement preference", ox.Spec("pref"), ox.Section(0)).
+					Uint("publish-add", "Add or update a published port", ox.Spec("port"), ox.Section(0)).
+					Uint("publish-rm", "Remove a published port by its", ox.Spec("port"), ox.Section(0)).
+					Bool("quiet", "Suppress progress output", ox.Short("q"), ox.Section(0)).
+					Bool("read-only", "Mount the container's root", ox.Section(0)).
+					Uint("replicas", "Number of tasks", ox.Section(0)).
+					Uint("replicas-max-per-node", "Maximum number of tasks per", ox.Section(0)).
+					Float32("reserve-cpu", "Reserve CPUs", ox.Spec("decimal"), ox.Section(0)).
+					Slice("reserve-memory", "Reserve Memory", ox.Elem(ox.UintT), ox.Section(0)).
+					String("restart-condition", "Restart when condition is met", ox.Section(0)).
+					Duration("restart-delay", "Delay between restart attempts", ox.Section(0)).
+					Uint("restart-max-attempts", "Maximum number of restarts", ox.Section(0)).
+					Duration("restart-window", "Window used to evaluate the", ox.Section(0)).
+					Bool("rollback", "Rollback to previous specification", ox.Section(0)).
+					Duration("rollback-delay", "Delay between task rollbacks", ox.Section(0)).
+					String("rollback-failure-action", "Action on rollback failure", ox.Section(0)).
+					Float32("rollback-max-failure-ratio", "Failure rate to tolerate", ox.Spec("float"), ox.Section(0)).
+					Duration("rollback-monitor", "Duration after each task", ox.Section(0)).
+					String("rollback-order", "Rollback order (\"start-first\",", ox.Section(0)).
+					Uint("rollback-parallelism", "Maximum number of tasks rolled", ox.Section(0)).
+					String("secret-add", "Add or update a secret on a service", ox.Spec("secret"), ox.Section(0)).
+					Slice("secret-rm", "Remove a secret", ox.Elem(ox.StringT), ox.Section(0)).
+					Duration("stop-grace-period", "Time to wait before force", ox.Section(0)).
+					String("stop-signal", "Signal to stop the container", ox.Section(0)).
+					Slice("sysctl-add", "Add or update a Sysctl option", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("sysctl-rm", "Remove a Sysctl option", ox.Elem(ox.StringT), ox.Section(0)).
+					Bool("tty", "Allocate a pseudo-TTY", ox.Short("t"), ox.Section(0)).
+					String("ulimit-add", "Add or update a ulimit option", ox.Spec("ulimit"), ox.Section(0)).
+					Slice("ulimit-rm", "Remove a ulimit option", ox.Elem(ox.StringT), ox.Section(0)).
+					Duration("update-delay", "Delay between updates", ox.Section(0)).
+					String("update-failure-action", "Action on update failure", ox.Section(0)).
+					Float32("update-max-failure-ratio", "Failure rate to tolerate", ox.Spec("float"), ox.Section(0)).
+					Duration("update-monitor", "Duration after each task", ox.Section(0)).
+					String("update-order", "Update order (\"start-first\",", ox.Section(0)).
+					Uint("update-parallelism", "Maximum number of tasks", ox.Section(0)).
+					String("user", "Username or UID (format:", ox.Short("u"), ox.Section(0)).
+					Bool("with-registry-auth", "Send registry authentication", ox.Section(0)).
+					String("workdir", "Working directory inside the", ox.Short("w"), ox.Section(0)),
+			),
+		),
+		ox.Sub(
 			ox.Banner("Manage Swarm stacks"),
 			ox.Usage("stack", "Manage Swarm stacks"),
 			ox.Spec("COMMAND"),
@@ -1800,59 +2264,84 @@ func main() {
 				ox.Usage("config", "Outputs the final config file, after doing merges and interpolations"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Slice("compose-file", "Path to a Compose file, or \"-\" to read", ox.Elem(ox.StringT), ox.Short("c")).
-					Bool("skip-interpolation", "Skip interpolation and output only merged"),
-			), ox.Sub(
+					Slice("compose-file", "Path to a Compose file, or \"-\" to read", ox.Elem(ox.StringT), ox.Short("c"), ox.Section(0)).
+					Bool("skip-interpolation", "Skip interpolation and output only merged", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Deploy a new stack or update an existing stack"),
 				ox.Usage("deploy", "Deploy a new stack or update an existing stack"),
 				ox.Spec("[OPTIONS] STACK"),
 				ox.Aliases("docker stack up"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Slice("compose-file", "Path to a Compose file, or \"-\" to read", ox.Elem(ox.StringT), ox.Short("c")).
-					Bool("detach", "Exit immediately instead of waiting for", ox.Short("d")).
-					Bool("prune", "Prune services that are no longer referenced").
-					Bool("quiet", "Suppress progress output", ox.Short("q")).
-					String("resolve-image", "Query the registry to resolve image digest").
-					Bool("with-registry-auth", "Send registry authentication details to"),
-			), ox.Sub(
+					Slice("compose-file", "Path to a Compose file, or \"-\" to read", ox.Elem(ox.StringT), ox.Short("c"), ox.Section(0)).
+					Bool("detach", "Exit immediately instead of waiting for", ox.Short("d"), ox.Section(0)).
+					Bool("prune", "Prune services that are no longer referenced", ox.Section(0)).
+					Bool("quiet", "Suppress progress output", ox.Short("q"), ox.Section(0)).
+					String("resolve-image", "Query the registry to resolve image digest", ox.Section(0)).
+					Bool("with-registry-auth", "Send registry authentication details to", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("List stacks"),
 				ox.Usage("ls", "List stacks"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("docker stack list"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("format", "Format output using a custom template:"),
-			), ox.Sub(
+					String("format", "Format output using a custom template:", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("List the tasks in the stack"),
 				ox.Usage("ps", "List the tasks in the stack"),
 				ox.Spec("[OPTIONS] STACK"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f")).
-					String("format", "Format output using a custom template:").
-					Bool("no-resolve", "Do not map IDs to Names").
-					Bool("no-trunc", "Do not truncate output").
-					Bool("quiet", "Only display task IDs", ox.Short("q")),
-			), ox.Sub(
+					String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f"), ox.Section(0)).
+					String("format", "Format output using a custom template:", ox.Section(0)).
+					Bool("no-resolve", "Do not map IDs to Names", ox.Section(0)).
+					Bool("no-trunc", "Do not truncate output", ox.Section(0)).
+					Bool("quiet", "Only display task IDs", ox.Short("q"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Remove one or more stacks"),
 				ox.Usage("rm", "Remove one or more stacks"),
 				ox.Spec("[OPTIONS] STACK [STACK...]"),
 				ox.Aliases("docker stack remove", "docker stack down"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("detach", "Do not wait for stack removal", ox.Default("true"), ox.Short("d")),
-			), ox.Sub(
+					Bool("detach", "Do not wait for stack removal", ox.Default("true"), ox.Short("d"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("List the services in the stack"),
 				ox.Usage("services", "List the services in the stack"),
 				ox.Spec("[OPTIONS] STACK"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f")).
-					String("format", "Format output using a custom template:").
-					Bool("quiet", "Only display IDs", ox.Short("q")),
-			)), ox.Sub(
+					String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f"), ox.Section(0)).
+					String("format", "Format output using a custom template:", ox.Section(0)).
+					Bool("quiet", "Only display IDs", ox.Short("q"), ox.Section(0)),
+			),
+		),
+		ox.Sub(
 			ox.Banner("Manage Swarm"),
 			ox.Usage("swarm", "Manage Swarm"),
 			ox.Spec("COMMAND"),
@@ -1864,449 +2353,571 @@ func main() {
 				ox.Usage("ca", "Display and rotate the root CA"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("ca-cert", "Path to the PEM-formatted root CA", ox.Spec("pem-file")).
-					String("ca-key", "Path to the PEM-formatted root CA key", ox.Spec("pem-file")).
-					Duration("cert-expiry", "Validity period for node certificates").
-					Bool("detach", "Exit immediately instead of waiting for", ox.Short("d")).
-					String("external-ca", "Specifications of one or more", ox.Spec("external-ca")).
-					Bool("quiet", "Suppress progress output", ox.Short("q")).
-					Bool("rotate", "Rotate the swarm CA - if no certificate"),
-			), ox.Sub(
+					String("ca-cert", "Path to the PEM-formatted root CA", ox.Spec("pem-file"), ox.Section(0)).
+					String("ca-key", "Path to the PEM-formatted root CA key", ox.Spec("pem-file"), ox.Section(0)).
+					Duration("cert-expiry", "Validity period for node certificates", ox.Section(0)).
+					Bool("detach", "Exit immediately instead of waiting for", ox.Short("d"), ox.Section(0)).
+					String("external-ca", "Specifications of one or more", ox.Spec("external-ca"), ox.Section(0)).
+					Bool("quiet", "Suppress progress output", ox.Short("q"), ox.Section(0)).
+					Bool("rotate", "Rotate the swarm CA - if no certificate", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Initialize a swarm"),
 				ox.Usage("init", "Initialize a swarm"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("advertise-addr", "Advertised address").
-					Bool("autolock", "Enable manager autolocking").
-					String("availability", "Availability of the node").
-					Duration("cert-expiry", "Validity period for node").
-					String("data-path-addr", "Address or interface to").
-					Uint32("data-path-port", "Port number to use for").
-					Slice("default-addr-pool", "default address pool in", ox.Elem(ox.CIDRT)).
-					Uint32("default-addr-pool-mask-length", "default address pool").
-					Duration("dispatcher-heartbeat", "Dispatcher heartbeat").
-					String("external-ca", "Specifications of one or", ox.Spec("external-ca")).
-					Bool("force-new-cluster", "Force create a new cluster").
-					AddrPort("listen-addr", "Listen address (format:").
-					Uint("max-snapshots", "Number of additional Raft").
-					Uint("snapshot-interval", "Number of log entries").
-					Int("task-history-limit", "Task history retention"),
-			), ox.Sub(
+					String("advertise-addr", "Advertised address", ox.Section(0)).
+					Bool("autolock", "Enable manager autolocking", ox.Section(0)).
+					String("availability", "Availability of the node", ox.Section(0)).
+					Duration("cert-expiry", "Validity period for node", ox.Section(0)).
+					String("data-path-addr", "Address or interface to", ox.Section(0)).
+					Uint32("data-path-port", "Port number to use for", ox.Section(0)).
+					Slice("default-addr-pool", "default address pool in", ox.Elem(ox.CIDRT), ox.Section(0)).
+					Uint32("default-addr-pool-mask-length", "default address pool", ox.Section(0)).
+					Duration("dispatcher-heartbeat", "Dispatcher heartbeat", ox.Section(0)).
+					String("external-ca", "Specifications of one or", ox.Spec("external-ca"), ox.Section(0)).
+					Bool("force-new-cluster", "Force create a new cluster", ox.Section(0)).
+					AddrPort("listen-addr", "Listen address (format:", ox.Section(0)).
+					Uint("max-snapshots", "Number of additional Raft", ox.Section(0)).
+					Uint("snapshot-interval", "Number of log entries", ox.Section(0)).
+					Int("task-history-limit", "Task history retention", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Join a swarm as a node and/or manager"),
 				ox.Usage("join", "Join a swarm as a node and/or manager"),
 				ox.Spec("[OPTIONS] HOST:PORT"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					String("advertise-addr", "Advertised address (format:").
-					String("availability", "Availability of the node (\"active\",").
-					String("data-path-addr", "Address or interface to use for data path").
-					AddrPort("listen-addr", "Listen address (format:").
-					String("token", "Token for entry into the swarm"),
-			), ox.Sub(
+					String("advertise-addr", "Advertised address (format:", ox.Section(0)).
+					String("availability", "Availability of the node (\"active\",", ox.Section(0)).
+					String("data-path-addr", "Address or interface to use for data path", ox.Section(0)).
+					AddrPort("listen-addr", "Listen address (format:", ox.Section(0)).
+					String("token", "Token for entry into the swarm", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Manage join tokens"),
 				ox.Usage("join-token", "Manage join tokens"),
 				ox.Spec("[OPTIONS] (worker|manager)"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("quiet", "Only display token", ox.Short("q")).
-					Bool("rotate", "Rotate join token"),
-			), ox.Sub(
+					Bool("quiet", "Only display token", ox.Short("q"), ox.Section(0)).
+					Bool("rotate", "Rotate join token", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Leave the swarm"),
 				ox.Usage("leave", "Leave the swarm"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("force", "Force this node to leave the swarm, ignoring warnings", ox.Short("f")),
-			), ox.Sub(
+					Bool("force", "Force this node to leave the swarm, ignoring warnings", ox.Short("f"), ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Usage("unlock", "Unlock swarm"),
 				ox.Section(0),
 				ox.Footer("Unlock swarm"),
-			), ox.Sub(
+			),
+			ox.Sub(
 				ox.Banner("Manage the unlock key"),
 				ox.Usage("unlock-key", "Manage the unlock key"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("quiet", "Only display token", ox.Short("q")).
-					Bool("rotate", "Rotate unlock key"),
-			), ox.Sub(
+					Bool("quiet", "Only display token", ox.Short("q"), ox.Section(0)).
+					Bool("rotate", "Rotate unlock key", ox.Section(0)),
+			),
+			ox.Sub(
 				ox.Banner("Update the swarm"),
 				ox.Usage("update", "Update the swarm"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
+				ox.Help(ox.Sections(
+					"Options",
+				)),
 				ox.Flags().
-					Bool("autolock", "Change manager autolocking").
-					Duration("cert-expiry", "Validity period for node").
-					Duration("dispatcher-heartbeat", "Dispatcher heartbeat period").
-					String("external-ca", "Specifications of one or more", ox.Spec("external-ca")).
-					Uint("max-snapshots", "Number of additional Raft").
-					Uint("snapshot-interval", "Number of log entries between").
-					Int("task-history-limit", "Task history retention limit"),
-			)), ox.Sub(
+					Bool("autolock", "Change manager autolocking", ox.Section(0)).
+					Duration("cert-expiry", "Validity period for node", ox.Section(0)).
+					Duration("dispatcher-heartbeat", "Dispatcher heartbeat period", ox.Section(0)).
+					String("external-ca", "Specifications of one or more", ox.Spec("external-ca"), ox.Section(0)).
+					Uint("max-snapshots", "Number of additional Raft", ox.Section(0)).
+					Uint("snapshot-interval", "Number of log entries between", ox.Section(0)).
+					Int("task-history-limit", "Task history retention limit", ox.Section(0)),
+			),
+		),
+		ox.Sub(
 			ox.Banner("Attach local standard input, output, and error streams to a running container"),
 			ox.Usage("attach", "Attach local standard input, output, and error streams to a running container"),
 			ox.Spec("[OPTIONS] CONTAINER"),
 			ox.Aliases("docker container attach", "docker attach"),
 			ox.Section(3),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				String("detach-keys", "Override the key sequence for detaching a").
-				Bool("no-stdin", "Do not attach STDIN").
-				Bool("sig-proxy", "Proxy all received signals to the process"),
-		), ox.Sub(
+				String("detach-keys", "Override the key sequence for detaching a", ox.Section(0)).
+				Bool("no-stdin", "Do not attach STDIN", ox.Section(0)).
+				Bool("sig-proxy", "Proxy all received signals to the process", ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Create a new image from a container's changes"),
 			ox.Usage("commit", "Create a new image from a container's changes"),
 			ox.Spec("[OPTIONS] CONTAINER [REPOSITORY[:TAG]]"),
 			ox.Aliases("docker container commit", "docker commit"),
 			ox.Section(3),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				String("author", "Author (e.g., \"John Hannibal Smith", ox.Short("a")).
-				Slice("change", "Apply Dockerfile instruction to the created image", ox.Elem(ox.StringT), ox.Short("c")).
-				String("message", "Commit message", ox.Short("m")).
-				Bool("pause", "Pause container during commit", ox.Default("true"), ox.Short("p")),
-		), ox.Sub(
+				String("author", "Author (e.g., \"John Hannibal Smith", ox.Short("a"), ox.Section(0)).
+				Slice("change", "Apply Dockerfile instruction to the created image", ox.Elem(ox.StringT), ox.Short("c"), ox.Section(0)).
+				String("message", "Commit message", ox.Short("m"), ox.Section(0)).
+				Bool("pause", "Pause container during commit", ox.Default("true"), ox.Short("p"), ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("docker cp [OPTIONS] SRC_PATH|- CONTAINER:DEST_PATH\n\nCopy files/folders between a container and the local filesystem\n\nUse '-' as the source to read a tar archive from stdin\nand extract it to a directory destination in a container.\nUse '-' as the destination to stream a tar archive of a\ncontainer source to stdout."),
 			ox.Usage("cp", "Copy files/folders between a container and the local filesystem"),
 			ox.Spec("[OPTIONS] CONTAINER:SRC_PATH DEST_PATH|-"),
 			ox.Aliases("docker container cp", "docker cp"),
 			ox.Section(3),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				Bool("archive", "Archive mode (copy all uid/gid information)", ox.Short("a")).
-				Bool("follow-link", "Always follow symbol link in SRC_PATH", ox.Short("L")).
-				Bool("quiet", "Suppress progress output during copy. Progress", ox.Short("q")),
-		), ox.Sub(
+				Bool("archive", "Archive mode (copy all uid/gid information)", ox.Short("a"), ox.Section(0)).
+				Bool("follow-link", "Always follow symbol link in SRC_PATH", ox.Short("L"), ox.Section(0)).
+				Bool("quiet", "Suppress progress output during copy. Progress", ox.Short("q"), ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Create a new container"),
 			ox.Usage("create", "Create a new container"),
 			ox.Spec("[OPTIONS] IMAGE [COMMAND] [ARG...]"),
 			ox.Aliases("docker container create", "docker create"),
 			ox.Section(3),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				Slice("add-host", "Add a custom host-to-IP mapping", ox.Elem(ox.StringT)).
-				Map("annotation", "Add an annotation to the", ox.MapKey(ox.StringT), ox.Elem(ox.StringT)).
-				Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Elem(ox.StringT), ox.Short("a")).
-				Uint16("blkio-weight", "Block IO (relative weight),").
-				Slice("blkio-weight-device", "Block IO weight (relative device", ox.Elem(ox.StringT)).
-				Slice("cap-add", "Add Linux capabilities", ox.Elem(ox.StringT)).
-				Slice("cap-drop", "Drop Linux capabilities", ox.Elem(ox.StringT)).
-				String("cgroup-parent", "Optional parent cgroup for the").
-				String("cgroupns", "Cgroup namespace to use").
-				String("cidfile", "Write the container ID to the file").
-				Int("cpu-count", "CPU count (Windows only)").
-				Int("cpu-percent", "CPU percent (Windows only)").
-				Int("cpu-period", "Limit CPU CFS (Completely Fair").
-				Int("cpu-quota", "Limit CPU CFS (Completely Fair").
-				Int("cpu-rt-period", "Limit CPU real-time period in").
-				Int("cpu-rt-runtime", "Limit CPU real-time runtime in").
-				Int("cpu-shares", "CPU shares (relative weight)", ox.Short("c")).
-				Float32("cpus", "Number of CPUs", ox.Spec("decimal")).
-				String("cpuset-cpus", "CPUs in which to allow execution").
-				String("cpuset-mems", "MEMs in which to allow execution").
-				Slice("device", "Add a host device to the container", ox.Elem(ox.StringT)).
-				Slice("device-cgroup-rule", "Add a rule to the cgroup allowed", ox.Elem(ox.StringT)).
-				Slice("device-read-bps", "Limit read rate (bytes per", ox.Elem(ox.StringT)).
-				Slice("device-read-iops", "Limit read rate (IO per second)", ox.Elem(ox.StringT)).
-				Slice("device-write-bps", "Limit write rate (bytes per", ox.Elem(ox.StringT)).
-				Slice("device-write-iops", "Limit write rate (IO per second)", ox.Elem(ox.StringT)).
-				Bool("disable-content-trust", "Skip image verification (default").
-				Slice("dns", "Set custom DNS servers", ox.Elem(ox.StringT)).
-				Slice("dns-option", "Set DNS options", ox.Elem(ox.StringT)).
-				Slice("dns-search", "Set custom DNS search domains", ox.Elem(ox.StringT)).
-				String("domainname", "Container NIS domain name").
-				String("entrypoint", "Overwrite the default ENTRYPOINT").
-				Slice("env", "Set environment variables", ox.Elem(ox.StringT), ox.Short("e")).
-				Slice("env-file", "Read in a file of environment", ox.Elem(ox.StringT)).
-				Slice("expose", "Expose a port or a range of ports", ox.Elem(ox.StringT)).
-				String("gpus", "GPU devices to add to the", ox.Spec("gpu-request")).
-				Slice("group-add", "Add additional groups to join", ox.Elem(ox.StringT)).
-				String("health-cmd", "Command to run to check health").
-				Duration("health-interval", "Time between running the check").
-				Int("health-retries", "Consecutive failures needed to").
-				Duration("health-start-interval", "Time between running the check").
-				Duration("health-start-period", "Start period for the container").
-				Duration("health-timeout", "Maximum time to allow one check").
-				String("hostname", "Container host name", ox.Short("h")).
-				Bool("init", "Run an init inside the container").
-				Bool("interactive", "Keep STDIN open even if not attached", ox.Short("i")).
-				Slice("io-maxbandwidth", "Maximum IO bandwidth limit for", ox.Elem(ox.UintT)).
-				Uint("io-maxiops", "Maximum IOps limit for the").
-				String("ip", "IPv4 address (e.g., 172.30.100.104)").
-				String("ip6", "IPv6 address (e.g., 2001:db8::33)").
-				String("ipc", "IPC mode to use").
-				String("isolation", "Container isolation technology").
-				Slice("kernel-memory", "Kernel memory limit", ox.Elem(ox.UintT)).
-				Slice("label", "Set meta data on a container", ox.Elem(ox.StringT), ox.Short("l")).
-				Slice("label-file", "Read in a line delimited file of", ox.Elem(ox.StringT)).
-				Slice("link", "Add link to another container", ox.Elem(ox.StringT)).
-				Slice("link-local-ip", "Container IPv4/IPv6 link-local", ox.Elem(ox.StringT)).
-				String("log-driver", "Logging driver for the container").
-				Slice("log-opt", "Log driver options", ox.Elem(ox.StringT)).
-				String("mac-address", "Container MAC address (e.g.,").
-				Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m")).
-				Slice("memory-reservation", "Memory soft limit", ox.Elem(ox.UintT)).
-				Slice("memory-swap", "Swap limit equal to memory plus", ox.Elem(ox.UintT)).
-				Int("memory-swappiness", "Tune container memory swappiness").
-				String("mount", "Attach a filesystem mount to the", ox.Spec("mount")).
-				String("name", "Assign a name to the container").
-				String("network", "Connect a container to a network", ox.Spec("network")).
-				Slice("network-alias", "Add network-scoped alias for the", ox.Elem(ox.StringT)).
-				Bool("no-healthcheck", "Disable any container-specified").
-				Bool("oom-kill-disable", "Disable OOM Killer").
-				Int("oom-score-adj", "Tune host's OOM preferences").
-				String("pid", "PID namespace to use").
-				Int("pids-limit", "Tune container pids limit (set").
-				String("platform", "Set platform if server is").
-				Bool("privileged", "Give extended privileges to this").
-				Slice("publish", "Publish a container's port(s) to", ox.Elem(ox.StringT), ox.Short("p")).
-				Bool("publish-all", "Publish all exposed ports to", ox.Short("P")).
-				String("pull", "Pull image before creating").
-				Bool("quiet", "Suppress the pull output", ox.Short("q")).
-				Bool("read-only", "Mount the container's root").
-				String("restart", "Restart policy to apply when a").
-				Bool("rm", "Automatically remove the").
-				String("runtime", "Runtime to use for this container").
-				Slice("security-opt", "Security Options", ox.Elem(ox.StringT)).
-				Slice("shm-size", "Size of /dev/shm", ox.Elem(ox.UintT)).
-				String("stop-signal", "Signal to stop the container").
-				Int("stop-timeout", "Timeout (in seconds) to stop a").
-				Slice("storage-opt", "Storage driver options for the", ox.Elem(ox.StringT)).
-				Map("sysctl", "Sysctl options", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]")).
-				Slice("tmpfs", "Mount a tmpfs directory", ox.Elem(ox.StringT)).
-				Bool("tty", "Allocate a pseudo-TTY", ox.Short("t")).
-				String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]")).
-				String("user", "Username or UID (format:", ox.Short("u")).
-				String("userns", "User namespace to use").
-				String("uts", "UTS namespace to use").
-				Slice("volume", "Bind mount a volume", ox.Elem(ox.StringT), ox.Short("v")).
-				String("volume-driver", "Optional volume driver for the").
-				Slice("volumes-from", "Mount volumes from the specified", ox.Elem(ox.StringT)).
-				String("workdir", "Working directory inside the", ox.Short("w")),
-		), ox.Sub(
+				Slice("add-host", "Add a custom host-to-IP mapping", ox.Elem(ox.StringT), ox.Section(0)).
+				Map("annotation", "Add an annotation to the", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Elem(ox.StringT), ox.Short("a"), ox.Section(0)).
+				Uint16("blkio-weight", "Block IO (relative weight),", ox.Section(0)).
+				Slice("blkio-weight-device", "Block IO weight (relative device", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("cap-add", "Add Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("cap-drop", "Drop Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
+				String("cgroup-parent", "Optional parent cgroup for the", ox.Section(0)).
+				String("cgroupns", "Cgroup namespace to use", ox.Section(0)).
+				String("cidfile", "Write the container ID to the file", ox.Section(0)).
+				Int("cpu-count", "CPU count (Windows only)", ox.Section(0)).
+				Int("cpu-percent", "CPU percent (Windows only)", ox.Section(0)).
+				Int("cpu-period", "Limit CPU CFS (Completely Fair", ox.Section(0)).
+				Int("cpu-quota", "Limit CPU CFS (Completely Fair", ox.Section(0)).
+				Int("cpu-rt-period", "Limit CPU real-time period in", ox.Section(0)).
+				Int("cpu-rt-runtime", "Limit CPU real-time runtime in", ox.Section(0)).
+				Int("cpu-shares", "CPU shares (relative weight)", ox.Short("c"), ox.Section(0)).
+				Float32("cpus", "Number of CPUs", ox.Spec("decimal"), ox.Section(0)).
+				String("cpuset-cpus", "CPUs in which to allow execution", ox.Section(0)).
+				String("cpuset-mems", "MEMs in which to allow execution", ox.Section(0)).
+				Slice("device", "Add a host device to the container", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("device-cgroup-rule", "Add a rule to the cgroup allowed", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("device-read-bps", "Limit read rate (bytes per", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("device-read-iops", "Limit read rate (IO per second)", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("device-write-bps", "Limit write rate (bytes per", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("device-write-iops", "Limit write rate (IO per second)", ox.Elem(ox.StringT), ox.Section(0)).
+				Bool("disable-content-trust", "Skip image verification (default", ox.Section(0)).
+				Slice("dns", "Set custom DNS servers", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("dns-option", "Set DNS options", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("dns-search", "Set custom DNS search domains", ox.Elem(ox.StringT), ox.Section(0)).
+				String("domainname", "Container NIS domain name", ox.Section(0)).
+				String("entrypoint", "Overwrite the default ENTRYPOINT", ox.Section(0)).
+				Slice("env", "Set environment variables", ox.Elem(ox.StringT), ox.Short("e"), ox.Section(0)).
+				Slice("env-file", "Read in a file of environment", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("expose", "Expose a port or a range of ports", ox.Elem(ox.StringT), ox.Section(0)).
+				String("gpus", "GPU devices to add to the", ox.Spec("gpu-request"), ox.Section(0)).
+				Slice("group-add", "Add additional groups to join", ox.Elem(ox.StringT), ox.Section(0)).
+				String("health-cmd", "Command to run to check health", ox.Section(0)).
+				Duration("health-interval", "Time between running the check", ox.Section(0)).
+				Int("health-retries", "Consecutive failures needed to", ox.Section(0)).
+				Duration("health-start-interval", "Time between running the check", ox.Section(0)).
+				Duration("health-start-period", "Start period for the container", ox.Section(0)).
+				Duration("health-timeout", "Maximum time to allow one check", ox.Section(0)).
+				String("hostname", "Container host name", ox.Short("h"), ox.Section(0)).
+				Bool("init", "Run an init inside the container", ox.Section(0)).
+				Bool("interactive", "Keep STDIN open even if not attached", ox.Short("i"), ox.Section(0)).
+				Slice("io-maxbandwidth", "Maximum IO bandwidth limit for", ox.Elem(ox.UintT), ox.Section(0)).
+				Uint("io-maxiops", "Maximum IOps limit for the", ox.Section(0)).
+				String("ip", "IPv4 address (e.g., 172.30.100.104)", ox.Section(0)).
+				String("ip6", "IPv6 address (e.g., 2001:db8::33)", ox.Section(0)).
+				String("ipc", "IPC mode to use", ox.Section(0)).
+				String("isolation", "Container isolation technology", ox.Section(0)).
+				Slice("kernel-memory", "Kernel memory limit", ox.Elem(ox.UintT), ox.Section(0)).
+				Slice("label", "Set meta data on a container", ox.Elem(ox.StringT), ox.Short("l"), ox.Section(0)).
+				Slice("label-file", "Read in a line delimited file of", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("link", "Add link to another container", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("link-local-ip", "Container IPv4/IPv6 link-local", ox.Elem(ox.StringT), ox.Section(0)).
+				String("log-driver", "Logging driver for the container", ox.Section(0)).
+				Slice("log-opt", "Log driver options", ox.Elem(ox.StringT), ox.Section(0)).
+				String("mac-address", "Container MAC address (e.g.,", ox.Section(0)).
+				Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m"), ox.Section(0)).
+				Slice("memory-reservation", "Memory soft limit", ox.Elem(ox.UintT), ox.Section(0)).
+				Slice("memory-swap", "Swap limit equal to memory plus", ox.Elem(ox.UintT), ox.Section(0)).
+				Int("memory-swappiness", "Tune container memory swappiness", ox.Section(0)).
+				String("mount", "Attach a filesystem mount to the", ox.Spec("mount"), ox.Section(0)).
+				String("name", "Assign a name to the container", ox.Section(0)).
+				String("network", "Connect a container to a network", ox.Spec("network"), ox.Section(0)).
+				Slice("network-alias", "Add network-scoped alias for the", ox.Elem(ox.StringT), ox.Section(0)).
+				Bool("no-healthcheck", "Disable any container-specified", ox.Section(0)).
+				Bool("oom-kill-disable", "Disable OOM Killer", ox.Section(0)).
+				Int("oom-score-adj", "Tune host's OOM preferences", ox.Section(0)).
+				String("pid", "PID namespace to use", ox.Section(0)).
+				Int("pids-limit", "Tune container pids limit (set", ox.Section(0)).
+				String("platform", "Set platform if server is", ox.Section(0)).
+				Bool("privileged", "Give extended privileges to this", ox.Section(0)).
+				Slice("publish", "Publish a container's port(s) to", ox.Elem(ox.StringT), ox.Short("p"), ox.Section(0)).
+				Bool("publish-all", "Publish all exposed ports to", ox.Short("P"), ox.Section(0)).
+				String("pull", "Pull image before creating", ox.Section(0)).
+				Bool("quiet", "Suppress the pull output", ox.Short("q"), ox.Section(0)).
+				Bool("read-only", "Mount the container's root", ox.Section(0)).
+				String("restart", "Restart policy to apply when a", ox.Section(0)).
+				Bool("rm", "Automatically remove the", ox.Section(0)).
+				String("runtime", "Runtime to use for this container", ox.Section(0)).
+				Slice("security-opt", "Security Options", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("shm-size", "Size of /dev/shm", ox.Elem(ox.UintT), ox.Section(0)).
+				String("stop-signal", "Signal to stop the container", ox.Section(0)).
+				Int("stop-timeout", "Timeout (in seconds) to stop a", ox.Section(0)).
+				Slice("storage-opt", "Storage driver options for the", ox.Elem(ox.StringT), ox.Section(0)).
+				Map("sysctl", "Sysctl options", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]"), ox.Section(0)).
+				Slice("tmpfs", "Mount a tmpfs directory", ox.Elem(ox.StringT), ox.Section(0)).
+				Bool("tty", "Allocate a pseudo-TTY", ox.Short("t"), ox.Section(0)).
+				String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]"), ox.Section(0)).
+				Bool("use-api-socket", "Bind mount Docker API socket and", ox.Section(0)).
+				String("user", "Username or UID (format:", ox.Short("u"), ox.Section(0)).
+				String("userns", "User namespace to use", ox.Section(0)).
+				String("uts", "UTS namespace to use", ox.Section(0)).
+				Slice("volume", "Bind mount a volume", ox.Elem(ox.StringT), ox.Short("v"), ox.Section(0)).
+				String("volume-driver", "Optional volume driver for the", ox.Section(0)).
+				Slice("volumes-from", "Mount volumes from the specified", ox.Elem(ox.StringT), ox.Section(0)).
+				String("workdir", "Working directory inside the", ox.Short("w"), ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Inspect changes to files or directories on a container's filesystem"),
 			ox.Usage("diff", "Inspect changes to files or directories on a container's filesystem"),
 			ox.Spec("CONTAINER"),
 			ox.Aliases("docker container diff", "docker diff"),
 			ox.Section(3),
-		), ox.Sub(
+		),
+		ox.Sub(
 			ox.Banner("Get real time events from the server"),
 			ox.Usage("events", "Get real time events from the server"),
 			ox.Spec("[OPTIONS]"),
 			ox.Aliases("docker system events", "docker events"),
 			ox.Section(3),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f")).
-				String("format", "Format output using a custom template:").
-				String("since", "Show all events created since timestamp").
-				String("until", "Stream events until this timestamp"),
-		), ox.Sub(
+				String("filter", "Filter output based on conditions provided", ox.Spec("filter"), ox.Short("f"), ox.Section(0)).
+				String("format", "Format output using a custom template:", ox.Section(0)).
+				String("since", "Show all events created since timestamp", ox.Section(0)).
+				String("until", "Stream events until this timestamp", ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Export a container's filesystem as a tar archive"),
 			ox.Usage("export", "Export a container's filesystem as a tar archive"),
 			ox.Spec("[OPTIONS] CONTAINER"),
 			ox.Aliases("docker container export", "docker export"),
 			ox.Section(3),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				String("output", "Write to a file, instead of STDOUT", ox.Short("o")),
-		), ox.Sub(
+				String("output", "Write to a file, instead of STDOUT", ox.Short("o"), ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Show the history of an image"),
 			ox.Usage("history", "Show the history of an image"),
 			ox.Spec("[OPTIONS] IMAGE"),
 			ox.Aliases("docker image history", "docker history"),
 			ox.Section(3),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				String("format", "Format output using a custom template:").
-				Bool("human", "Print sizes and dates in human readable format", ox.Short("H")).
-				Bool("no-trunc", "Don't truncate output").
-				Bool("quiet", "Only show image IDs", ox.Short("q")),
-		), ox.Sub(
+				String("format", "Format output using a custom template:", ox.Section(0)).
+				Bool("human", "Print sizes and dates in human readable format", ox.Short("H"), ox.Section(0)).
+				Bool("no-trunc", "Don't truncate output", ox.Section(0)).
+				String("platform", "Show history for the given platform. Formatted", ox.Section(0)).
+				Bool("quiet", "Only show image IDs", ox.Short("q"), ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Import the contents from a tarball to create a filesystem image"),
 			ox.Usage("import", "Import the contents from a tarball to create a filesystem image"),
 			ox.Spec("[OPTIONS] file|URL|- [REPOSITORY[:TAG]]"),
 			ox.Aliases("docker image import", "docker import"),
 			ox.Section(3),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				Slice("change", "Apply Dockerfile instruction to the created image", ox.Elem(ox.StringT), ox.Short("c")).
-				String("message", "Set commit message for imported image", ox.Short("m")).
-				String("platform", "Set platform if server is multi-platform capable"),
-		), ox.Sub(
+				Slice("change", "Apply Dockerfile instruction to the created image", ox.Elem(ox.StringT), ox.Short("c"), ox.Section(0)).
+				String("message", "Set commit message for imported image", ox.Short("m"), ox.Section(0)).
+				String("platform", "Set platform if server is multi-platform capable", ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Return low-level information on Docker objects"),
 			ox.Usage("inspect", "Return low-level information on Docker objects"),
 			ox.Spec("[OPTIONS] NAME|ID [NAME|ID...]"),
 			ox.Section(3),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				String("format", "Format output using a custom template:", ox.Short("f")).
-				Bool("size", "Display total file sizes if the type is container", ox.Short("s")).
-				String("type", "Return JSON for specified type"),
-		), ox.Sub(
+				String("format", "Format output using a custom template:", ox.Short("f"), ox.Section(0)).
+				Bool("size", "Display total file sizes if the type is container", ox.Short("s"), ox.Section(0)).
+				String("type", "Return JSON for specified type", ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Kill one or more running containers"),
 			ox.Usage("kill", "Kill one or more running containers"),
 			ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 			ox.Aliases("docker container kill", "docker kill"),
 			ox.Section(3),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				String("signal", "Signal to send to the container", ox.Short("s")),
-		), ox.Sub(
+				String("signal", "Signal to send to the container", ox.Short("s"), ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Load an image from a tar archive or STDIN"),
 			ox.Usage("load", "Load an image from a tar archive or STDIN"),
 			ox.Spec("[OPTIONS]"),
 			ox.Aliases("docker image load", "docker load"),
 			ox.Section(3),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				String("input", "Read from tar archive file, instead of STDIN", ox.Short("i")).
-				Bool("quiet", "Suppress the load output", ox.Short("q")),
-		), ox.Sub(
+				String("input", "Read from tar archive file, instead of STDIN", ox.Short("i"), ox.Section(0)).
+				String("platform", "Load only the given platform variant. Formatted", ox.Section(0)).
+				Bool("quiet", "Suppress the load output", ox.Short("q"), ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Fetch the logs of a container"),
 			ox.Usage("logs", "Fetch the logs of a container"),
 			ox.Spec("[OPTIONS] CONTAINER"),
 			ox.Aliases("docker container logs", "docker logs"),
 			ox.Section(3),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				Bool("details", "Show extra details provided to logs").
-				Bool("follow", "Follow log output", ox.Short("f")).
-				String("since", "Show logs since timestamp (e.g.").
-				String("tail", "Number of lines to show from the end of the logs", ox.Short("n")).
-				Bool("timestamps", "Show timestamps", ox.Short("t")).
-				String("until", "Show logs before a timestamp (e.g."),
-		), ox.Sub(
+				Bool("details", "Show extra details provided to logs", ox.Section(0)).
+				Bool("follow", "Follow log output", ox.Short("f"), ox.Section(0)).
+				String("since", "Show logs since timestamp (e.g.", ox.Section(0)).
+				String("tail", "Number of lines to show from the end of the logs", ox.Short("n"), ox.Section(0)).
+				Bool("timestamps", "Show timestamps", ox.Short("t"), ox.Section(0)).
+				String("until", "Show logs before a timestamp (e.g.", ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Pause all processes within one or more containers"),
 			ox.Usage("pause", "Pause all processes within one or more containers"),
 			ox.Spec("CONTAINER [CONTAINER...]"),
 			ox.Aliases("docker container pause", "docker pause"),
 			ox.Section(3),
-		), ox.Sub(
+		),
+		ox.Sub(
 			ox.Banner("List port mappings or a specific mapping for the container"),
 			ox.Usage("port", "List port mappings or a specific mapping for the container"),
 			ox.Spec("CONTAINER [PRIVATE_PORT[/PROTO]]"),
 			ox.Aliases("docker container port", "docker port"),
 			ox.Section(3),
-		), ox.Sub(
+		),
+		ox.Sub(
 			ox.Banner("Rename a container"),
 			ox.Usage("rename", "Rename a container"),
 			ox.Spec("CONTAINER NEW_NAME"),
 			ox.Aliases("docker container rename", "docker rename"),
 			ox.Section(3),
-		), ox.Sub(
+		),
+		ox.Sub(
 			ox.Banner("Restart one or more containers"),
 			ox.Usage("restart", "Restart one or more containers"),
 			ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 			ox.Aliases("docker container restart", "docker restart"),
 			ox.Section(3),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				String("signal", "Signal to send to the container", ox.Short("s")).
-				Int("time", "Seconds to wait before killing the container", ox.Short("t")),
-		), ox.Sub(
+				String("signal", "Signal to send to the container", ox.Short("s"), ox.Section(0)).
+				Int("timeout", "Seconds to wait before killing the container", ox.Short("t"), ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Remove one or more containers"),
 			ox.Usage("rm", "Remove one or more containers"),
 			ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 			ox.Aliases("docker container rm", "docker container remove", "docker rm"),
 			ox.Section(3),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				Bool("force", "Force the removal of a running container (uses SIGKILL)", ox.Short("f")).
-				Bool("link", "Remove the specified link", ox.Short("l")).
-				Bool("volumes", "Remove anonymous volumes associated with the container", ox.Short("v")),
-		), ox.Sub(
+				Bool("force", "Force the removal of a running container (uses SIGKILL)", ox.Short("f"), ox.Section(0)).
+				Bool("link", "Remove the specified link", ox.Short("l"), ox.Section(0)).
+				Bool("volumes", "Remove anonymous volumes associated with the container", ox.Short("v"), ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Remove one or more images"),
 			ox.Usage("rmi", "Remove one or more images"),
 			ox.Spec("[OPTIONS] IMAGE [IMAGE...]"),
 			ox.Aliases("docker image rm", "docker image remove", "docker rmi"),
 			ox.Section(3),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				Bool("force", "Force removal of the image", ox.Short("f")).
-				Bool("no-prune", "Do not delete untagged parents"),
-		), ox.Sub(
+				Bool("force", "Force removal of the image", ox.Short("f"), ox.Section(0)).
+				Bool("no-prune", "Do not delete untagged parents", ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Save one or more images to a tar archive (streamed to STDOUT by default)"),
 			ox.Usage("save", "Save one or more images to a tar archive (streamed to STDOUT by default)"),
 			ox.Spec("[OPTIONS] IMAGE [IMAGE...]"),
 			ox.Aliases("docker image save", "docker save"),
 			ox.Section(3),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				String("output", "Write to a file, instead of STDOUT", ox.Short("o")),
-		), ox.Sub(
+				String("output", "Write to a file, instead of STDOUT", ox.Short("o"), ox.Section(0)).
+				String("platform", "Save only the given platform variant. Formatted", ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Start one or more stopped containers"),
 			ox.Usage("start", "Start one or more stopped containers"),
 			ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 			ox.Aliases("docker container start", "docker start"),
 			ox.Section(3),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				Bool("attach", "Attach STDOUT/STDERR and forward signals", ox.Short("a")).
-				String("checkpoint", "Restore from this checkpoint").
-				String("checkpoint-dir", "Use a custom checkpoint storage directory").
-				String("detach-keys", "Override the key sequence for detaching a").
-				Bool("interactive", "Attach container's STDIN", ox.Short("i")),
-		), ox.Sub(
+				Bool("attach", "Attach STDOUT/STDERR and forward signals", ox.Short("a"), ox.Section(0)).
+				String("checkpoint", "Restore from this checkpoint", ox.Section(0)).
+				String("checkpoint-dir", "Use a custom checkpoint storage directory", ox.Section(0)).
+				String("detach-keys", "Override the key sequence for detaching a", ox.Section(0)).
+				Bool("interactive", "Attach container's STDIN", ox.Short("i"), ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Display a live stream of container(s) resource usage statistics"),
 			ox.Usage("stats", "Display a live stream of container(s) resource usage statistics"),
 			ox.Spec("[OPTIONS] [CONTAINER...]"),
 			ox.Aliases("docker container stats", "docker stats"),
 			ox.Section(3),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				Bool("all", "Show all containers", ox.Default("shows just running"), ox.Short("a")).
-				String("format", "Format output using a custom template:").
-				Bool("no-stream", "Disable streaming stats and only pull the first result").
-				Bool("no-trunc", "Do not truncate output"),
-		), ox.Sub(
+				Bool("all", "Show all containers", ox.Default("shows just running"), ox.Short("a"), ox.Section(0)).
+				String("format", "Format output using a custom template:", ox.Section(0)).
+				Bool("no-stream", "Disable streaming stats and only pull the first result", ox.Section(0)).
+				Bool("no-trunc", "Do not truncate output", ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Stop one or more running containers"),
 			ox.Usage("stop", "Stop one or more running containers"),
 			ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 			ox.Aliases("docker container stop", "docker stop"),
 			ox.Section(3),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				String("signal", "Signal to send to the container", ox.Short("s")).
-				Int("time", "Seconds to wait before killing the container", ox.Short("t")),
-		), ox.Sub(
+				String("signal", "Signal to send to the container", ox.Short("s"), ox.Section(0)).
+				Int("timeout", "Seconds to wait before killing the container", ox.Short("t"), ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE"),
 			ox.Usage("tag", "Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE"),
 			ox.Spec("SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]"),
 			ox.Aliases("docker image tag", "docker tag"),
 			ox.Section(3),
-		), ox.Sub(
+		),
+		ox.Sub(
 			ox.Banner("Display the running processes of a container"),
 			ox.Usage("top", "Display the running processes of a container"),
 			ox.Spec("CONTAINER [ps OPTIONS]"),
 			ox.Aliases("docker container top", "docker top"),
 			ox.Section(3),
-		), ox.Sub(
+		),
+		ox.Sub(
 			ox.Banner("Unpause all processes within one or more containers"),
 			ox.Usage("unpause", "Unpause all processes within one or more containers"),
 			ox.Spec("CONTAINER [CONTAINER...]"),
 			ox.Aliases("docker container unpause", "docker unpause"),
 			ox.Section(3),
-		), ox.Sub(
+		),
+		ox.Sub(
 			ox.Banner("Update configuration of one or more containers"),
 			ox.Usage("update", "Update configuration of one or more containers"),
 			ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 			ox.Aliases("docker container update", "docker update"),
 			ox.Section(3),
+			ox.Help(ox.Sections(
+				"Options",
+			)),
 			ox.Flags().
-				Uint16("blkio-weight", "Block IO (relative weight), between 10").
-				Int("cpu-period", "Limit CPU CFS (Completely Fair").
-				Int("cpu-quota", "Limit CPU CFS (Completely Fair").
-				Int("cpu-rt-period", "Limit the CPU real-time period in").
-				Int("cpu-rt-runtime", "Limit the CPU real-time runtime in").
-				Int("cpu-shares", "CPU shares (relative weight)", ox.Short("c")).
-				Float32("cpus", "Number of CPUs", ox.Spec("decimal")).
-				String("cpuset-cpus", "CPUs in which to allow execution (0-3, 0,1)").
-				String("cpuset-mems", "MEMs in which to allow execution (0-3, 0,1)").
-				Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m")).
-				Slice("memory-reservation", "Memory soft limit", ox.Elem(ox.UintT)).
-				Slice("memory-swap", "Swap limit equal to memory plus swap:", ox.Elem(ox.UintT)).
-				Int("pids-limit", "Tune container pids limit (set -1 for").
-				String("restart", "Restart policy to apply when a"),
-		), ox.Sub(
+				Uint16("blkio-weight", "Block IO (relative weight), between 10", ox.Section(0)).
+				Int("cpu-period", "Limit CPU CFS (Completely Fair", ox.Section(0)).
+				Int("cpu-quota", "Limit CPU CFS (Completely Fair", ox.Section(0)).
+				Int("cpu-rt-period", "Limit the CPU real-time period in", ox.Section(0)).
+				Int("cpu-rt-runtime", "Limit the CPU real-time runtime in", ox.Section(0)).
+				Int("cpu-shares", "CPU shares (relative weight)", ox.Short("c"), ox.Section(0)).
+				Float32("cpus", "Number of CPUs", ox.Spec("decimal"), ox.Section(0)).
+				String("cpuset-cpus", "CPUs in which to allow execution (0-3, 0,1)", ox.Section(0)).
+				String("cpuset-mems", "MEMs in which to allow execution (0-3, 0,1)", ox.Section(0)).
+				Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m"), ox.Section(0)).
+				Slice("memory-reservation", "Memory soft limit", ox.Elem(ox.UintT), ox.Section(0)).
+				Slice("memory-swap", "Swap limit equal to memory plus swap:", ox.Elem(ox.UintT), ox.Section(0)).
+				Int("pids-limit", "Tune container pids limit (set -1 for", ox.Section(0)).
+				String("restart", "Restart policy to apply when a", ox.Section(0)),
+		),
+		ox.Sub(
 			ox.Banner("Block until one or more containers stop, then print their exit codes"),
 			ox.Usage("wait", "Block until one or more containers stop, then print their exit codes"),
 			ox.Spec("CONTAINER [CONTAINER...]"),
 			ox.Aliases("docker container wait", "docker wait"),
 			ox.Section(3),
-		), ox.Flags().
-			String("config", "Location of client config files (default").
-			String("context", "Name of the context to use to connect to the", ox.Short("c")).
-			Bool("debug", "Enable debug mode", ox.Short("D")).
-			Slice("host", "Daemon socket to connect to", ox.Elem(ox.StringT), ox.Short("H")).
-			String("log-level", "Set the logging level (\"debug\", \"info\",", ox.Short("l")).
-			Bool("tls", "Use TLS; implied by --tlsverify").
-			String("tlscacert", "Trust certs signed only by this CA (default").
-			String("tlscert", "Path to TLS certificate file (default").
-			String("tlskey", "Path to TLS key file (default").
-			Bool("tlsverify", "Use TLS and verify the remote"),
+		),
+		ox.Flags().
+			String("config", "Location of client config files (default", ox.Section(0)).
+			String("context", "Name of the context to use to connect to the", ox.Short("c"), ox.Section(0)).
+			Bool("debug", "Enable debug mode", ox.Short("D"), ox.Section(0)).
+			Slice("host", "Daemon socket to connect to", ox.Elem(ox.StringT), ox.Short("H"), ox.Section(0)).
+			String("log-level", "Set the logging level (\"debug\", \"info\",", ox.Short("l"), ox.Section(0)).
+			Bool("tls", "Use TLS; implied by --tlsverify", ox.Section(0)).
+			String("tlscacert", "Trust certs signed only by this CA (default", ox.Section(0)).
+			String("tlscert", "Path to TLS certificate file (default", ox.Section(0)).
+			String("tlskey", "Path to TLS key file (default", ox.Section(0)).
+			Bool("tlsverify", "Use TLS and verify the remote", ox.Section(0)),
 	)
 }

@@ -23,7 +23,8 @@ func AddHelpFlag(cmd *Command) error {
 	}
 	var opts []Option
 	if help, ok := cmd.Help.(*CommandHelp); ok {
-		opts = append(opts,
+		opts = append(
+			opts,
 			Sort(help.Sort),
 			CommandSort(help.CommandSort),
 			MaxDist(help.MaxDist),
@@ -59,13 +60,19 @@ func NewVersion(cmd *Command, opts ...Option) error {
 // NewVersionFlag adds a `--version` flag to the command, or hooks the command's
 // flag with `Special == "hook:version"`.
 func NewVersionFlag(cmd *Command, opts ...Option) error {
-	if g := cmd.FlagSpecial(`hook:version`); g != nil {
-		g.Type, g.Def, g.NoArg, g.NoArgDef = HookT, DefaultVersion, true, ""
-	} else {
+	const special = `hook:version`
+	if g := cmd.FlagSpecial(special); g == nil {
 		if cmd.Flag(text.VersionFlagShort, false, true) == nil {
 			opts = append(opts, Short(text.VersionFlagShort))
 		}
-		cmd.Flags = cmd.Flags.Hook(text.VersionFlagName, text.VersionFlagUsage, DefaultVersion, opts...)
+		cmd.Flags = cmd.Flags.Hook(
+			text.VersionFlagName,
+			text.VersionFlagUsage,
+			DefaultVersion,
+			append(opts, Special(special))...,
+		)
+	} else {
+		g.Type, g.Def, g.NoArg, g.NoArgDef = HookT, DefaultVersion, true, ""
 	}
 	return nil
 }
@@ -89,6 +96,7 @@ func NewHelp(cmd *Command, opts ...Option) error {
 // NewHelpFlag adds a `--help` flag to the command, or hooks the command's flag
 // with `Special == "hook:help"`.
 func NewHelpFlag(cmd *Command, opts ...Option) error {
+	const special = `hook:help`
 	var err error
 	if cmd.Help != nil {
 		if help, ok := cmd.Help.(*CommandHelp); ok {
@@ -104,14 +112,18 @@ func NewHelpFlag(cmd *Command, opts ...Option) error {
 		_, _ = cmd.HelpContext(ctx).WriteTo(ctx.Stdout)
 		return ErrExit
 	}
-	if g := cmd.FlagSpecial(`hook:help`); g != nil {
-		g.Type, g.Def, g.NoArg, g.NoArgDef = HookT, f, true, ""
-	} else {
-		var opts []Option
+	if g := cmd.FlagSpecial(special); g == nil {
 		if cmd.Flag(text.HelpFlagShort, false, true) == nil {
 			opts = append(opts, Short(text.HelpFlagShort))
 		}
-		cmd.Flags = cmd.Flags.Hook(text.HelpFlagName, text.HelpFlagUsage, f, opts...)
+		cmd.Flags = cmd.Flags.Hook(
+			text.HelpFlagName,
+			text.HelpFlagUsage,
+			f,
+			append(opts, Special(special))...,
+		)
+	} else {
+		g.Type, g.Def, g.NoArg, g.NoArgDef = HookT, f, true, ""
 	}
 	return nil
 }
