@@ -675,6 +675,8 @@ type Flag struct {
 	Split string
 	// Special is the flag's special value.
 	Special string
+	// Valid are the flag's validators.
+	Valid []func(any) (bool, error)
 }
 
 // NewFlag creates a new command-line flag.

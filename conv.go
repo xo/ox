@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"fmt"
 	"reflect"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -672,6 +673,17 @@ func bitSize[T inti | uinti | floati | complexi]() int {
 		return 8
 	}
 	return 0
+}
+
+// isValid creates a validator func for the provided values.
+func isValid[T comparable](values ...T) func(any) (bool, error) {
+	return func(val any) (bool, error) {
+		v, err := as[T](val, layout(val))
+		if err != nil {
+			return false, err
+		}
+		return slices.Contains(values, v.(T)), nil
+	}
 }
 
 // stringi is the string interface.

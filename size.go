@@ -173,7 +173,7 @@ func FormatRate(rate Rate, verb rune, prec int, space bool) string {
 type Size int64
 
 // NewSize creates a byte size.
-func NewSize[T inti | uinti](size T) Size {
+func NewSize[T ~int64 | ~int32 | ~int16 | ~int8 | ~int | ~uint64 | ~uint32 | ~uint16 | ~uint8 | ~uint](size T) Size {
 	return Size(size)
 }
 
@@ -209,7 +209,7 @@ type Rate struct {
 }
 
 // NewRate creates a byte rate.
-func NewRate[T inti | uinti](size T, unit time.Duration) Rate {
+func NewRate[T ~int64 | ~int32 | ~int16 | ~int8 | ~int | ~uint64 | ~uint32 | ~uint16 | ~uint8 | ~uint](size T, unit time.Duration) Rate {
 	return Rate{
 		Size: NewSize(size),
 		Unit: unit,

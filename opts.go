@@ -290,6 +290,17 @@ func ArgsFunc(funcs ...func([]string) error) CommandOption {
 	}
 }
 
+// Valid is a [Flag] option to add
+func Valid[T comparable](values ...T) FlagOption {
+	return option{
+		name: "Valid",
+		flag: func(g *Flag) error {
+			g.Valid = append(g.Valid, isValid(values...))
+			return nil
+		},
+	}
+}
+
 // ValidArgs is a [Command] option to add a argument validation func to the
 // command that validates the range of allowed minimum/maximum argruments and
 // allowed argument values. A minimum/maximum < 0 means no minimum/maximum.
@@ -443,7 +454,7 @@ func Elem(elem Type) FlagOption {
 	}
 }
 
-// BindRef is a [Flag] option to add a reflected value to a flag.
+// BindRef is a [Flag] option to bind a reflected value to a flag.
 func BindRef(value reflect.Value, set *bool) FlagOption {
 	return option{
 		name: "BindRef",
@@ -458,7 +469,7 @@ func BindRef(value reflect.Value, set *bool) FlagOption {
 	}
 }
 
-// Bind is a [Flag] option to add a bound variable to a flag.
+// Bind is a [Flag] option to bind a variable to a flag.
 func Bind[T *E, E any](v T) FlagOption {
 	return option{
 		name: "Bind",
@@ -473,7 +484,7 @@ func Bind[T *E, E any](v T) FlagOption {
 	}
 }
 
-// BindSet is a [Flag] option to add a bound variable to a flag.
+// BindSet is a [Flag] option to bind a variable and a set variable to a flag.
 func BindSet[T *E, E any](v T, set *bool) FlagOption {
 	return option{
 		name: "BindSet",
@@ -490,7 +501,7 @@ func BindSet[T *E, E any](v T, set *bool) FlagOption {
 
 // Default is a [Flag] option to set the flag's default value.
 //
-// Special strings can be used are expanded when the flag is created:
+// Special strings can be used that will be expanded when the flag is created:
 //
 //	$HOME - the current user's home directory
 //	$USER - the current user's user name
@@ -507,7 +518,7 @@ func BindSet[T *E, E any](v T, set *bool) FlagOption {
 //	ox.Default("$APPCACHE") - expands to /home/$USER/.cache/myApp if the root command's name is "myApp" on most Unix systems
 //	ox.Default("$ENV{MY_VAR}") - expands to value of the environment var $MY_VAR
 //	ox.Default("$CFG{yaml::a.b.c}") - expands to the registered YAML config file's key of a.b.c
-//	ox.Default("$CFG{a.b.c}") - expands to the first registered config file that returns a non-nil value for key a.b.c
+//	ox.Default("$CFG{a.b.c}") - expands to the first registered config file that returns a non-nil value and nil error for key a.b.c
 //
 // See [Context.Expand] for more expansion details.
 func Default(def any) FlagOption {
