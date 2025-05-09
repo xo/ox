@@ -970,7 +970,7 @@ func qlist(v []string) string {
 	return str
 }
 
-const templ = `// Command %[1]s is a xo/ox version of ` + "`+%[1]s`" + `. 
+const templ = `// Command %[1]s is a xo/ox version of ` + "`%[1]s`" + `. 
 //
 // Generated from _examples/gen.go.
 package main

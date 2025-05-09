@@ -1,4 +1,4 @@
-// Command gh is a xo/ox version of `+gh`.
+// Command gh is a xo/ox version of `gh`.
 //
 // Generated from _examples/gen.go.
 package main

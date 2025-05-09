@@ -1,4 +1,4 @@
-// Command helm is a xo/ox version of `+helm`.
+// Command helm is a xo/ox version of `helm`.
 //
 // Generated from _examples/gen.go.
 package main

@@ -1,4 +1,4 @@
-// Command docker is a xo/ox version of `+docker`.
+// Command docker is a xo/ox version of `docker`.
 //
 // Generated from _examples/gen.go.
 package main

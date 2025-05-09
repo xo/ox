@@ -1,4 +1,4 @@
-// Command podman is a xo/ox version of `+podman`.
+// Command podman is a xo/ox version of `podman`.
 //
 // Generated from _examples/gen.go.
 package main
@@ -2056,7 +2056,7 @@ func main() {
 				Bool("no-trunc", "Do not truncate output", ox.Section(0)).
 				Bool("noheading", "Do not print column headings", ox.Short("n"), ox.Section(0)).
 				Bool("quiet", "Display only image IDs", ox.Short("q"), ox.Section(0)).
-				String("sort", "Sort by size, tag, created, id, repository", ox.Default("created"), ox.Section(0)),
+				String("sort", "Sort by created, id, repository, size, tag", ox.Default("created"), ox.Section(0)),
 		),
 		ox.Sub(
 			ox.Usage("import", "Import a tarball to create a filesystem image"),

@@ -1,4 +1,4 @@
-// Command hugo is a xo/ox version of `+hugo`.
+// Command hugo is a xo/ox version of `hugo`.
 //
 // Generated from _examples/gen.go.
 package main

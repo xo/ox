@@ -1,4 +1,4 @@
-// Command doctl is a xo/ox version of `+doctl`.
+// Command doctl is a xo/ox version of `doctl`.
 //
 // Generated from _examples/gen.go.
 package main

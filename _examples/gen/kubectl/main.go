@@ -1,4 +1,4 @@
-// Command kubectl is a xo/ox version of `+kubectl`.
+// Command kubectl is a xo/ox version of `kubectl`.
 //
 // Generated from _examples/gen.go.
 package main

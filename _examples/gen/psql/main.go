@@ -1,4 +1,4 @@
-// Command psql is a xo/ox version of `+psql`.
+// Command psql is a xo/ox version of `psql`.
 //
 // Generated from _examples/gen.go.
 package main
