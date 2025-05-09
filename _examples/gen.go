@@ -122,11 +122,12 @@ func (args *Args) write(root *command) error {
 		return err
 	}
 	buf := new(bytes.Buffer)
-	var extra string
+	var extraImports, extra string
 	if root.app == "psql" {
+		extraImports = "\n\t\"github.com/xo/ox/text\""
 		extra = initTempl
 	}
-	_, _ = fmt.Fprintf(buf, templ, root.name, cmd.String(), extra)
+	_, _ = fmt.Fprintf(buf, templ, root.name, cmd.String(), extraImports, extra)
 	if args.Dump {
 		_, _ = os.Stdout.Write(buf.Bytes())
 		return nil
@@ -983,8 +984,8 @@ package main
 import (
 	"context"
 
-	"github.com/xo/ox"
-)%[3]s
+	"github.com/xo/ox"%[3]s
+)%[4]s
 
 func main() {
 	ox.RunContext(
@@ -996,10 +997,6 @@ func main() {
 `
 
 const initTempl = `
-import (
-	"github.com/xo/ox/text"
-)
-
 func init() {
 	text.FlagSpecSpacer = "="
 }`

@@ -2280,7 +2280,7 @@ Description:
 					Bool(`no-trunc`, `Do not truncate output`, ox.Section(0)).
 					Bool(`noheading`, `Do not print column headings`, ox.Short("n"), ox.Section(0)).
 					Bool(`quiet`, `Display only image IDs`, ox.Short("q"), ox.Section(0)).
-					String(`sort`, `Sort by tag, created, id, repository, size`, ox.Default("created"), ox.Section(0)),
+					String(`sort`, `Sort by created, id, repository, size, tag`, ox.Default("created"), ox.Section(0)),
 			),
 			ox.Sub(
 				ox.Usage(`load`, `Load image(s) from a tar archive`),

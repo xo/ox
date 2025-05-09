@@ -7,8 +7,6 @@ import (
 	"context"
 
 	"github.com/xo/ox"
-)
-import (
 	"github.com/xo/ox/text"
 )
 
