@@ -140,18 +140,18 @@ func (args *Args) write(root *command) error {
 
 func (args *Args) writeCommand(w io.Writer, cmd *command, indent int) error {
 	padding := strings.Repeat("\t", indent)
-	fmt.Fprintf(w, "%sox.Usage(%q, %q),\n", padding, cmd.name, cmd.usage)
+	fmt.Fprintf(w, "%sox.Usage(%s, %s),\n", padding, bq(cmd.name), bq(cmd.usage))
 	if cmd.banner != "" {
-		fmt.Fprintf(w, "%sox.Banner(%q),\n", padding, cmd.banner)
+		fmt.Fprintf(w, "%sox.Banner(%s),\n", padding, bq(cmd.banner))
 	}
 	if cmd.spec != "" {
-		fmt.Fprintf(w, "%sox.Spec(%q),\n", padding, cmd.spec)
+		fmt.Fprintf(w, "%sox.Spec(%s),\n", padding, bq(cmd.spec))
 	}
 	if len(cmd.aliases) != 0 {
 		fmt.Fprintf(w, "%sox.Aliases(%s),\n", padding, qlist(cmd.aliases))
 	}
 	if cmd.example != "" {
-		fmt.Fprintf(w, "%sox.Example(%q),\n", padding, cmd.example)
+		fmt.Fprintf(w, "%sox.Example(%s),\n", padding, bq(cmd.example))
 	}
 	if len(cmd.commandSections) != 0 {
 		fmt.Fprintf(w, "%sox.Sections(%s),\n", padding, qlist(cmd.commandSections))
@@ -167,14 +167,7 @@ func (args *Args) writeCommand(w io.Writer, cmd *command, indent int) error {
 		fmt.Fprintf(w, "%s)),\n", padding)
 	}
 	if cmd.footer != "" {
-		fmt.Fprintf(w, "%sox.Footer(%q),\n", padding, cmd.footer)
-	}
-	for _, c := range cmd.commands {
-		fmt.Fprintf(w, "%sox.Sub(\n", padding)
-		if err := args.writeCommand(w, c, indent+1); err != nil {
-			return err
-		}
-		fmt.Fprintf(w, "%s),\n", padding)
+		fmt.Fprintf(w, "%sox.Footer(%s),\n", padding, bq(cmd.footer))
 	}
 	if len(cmd.flags) != 0 {
 		fmt.Fprintf(w, "%sox.Flags()", padding)
@@ -185,13 +178,20 @@ func (args *Args) writeCommand(w io.Writer, cmd *command, indent int) error {
 		}
 		fmt.Fprintf(w, ",\n")
 	}
+	for _, c := range cmd.commands {
+		fmt.Fprintf(w, "%sox.Sub(\n", padding)
+		if err := args.writeCommand(w, c, indent+1); err != nil {
+			return err
+		}
+		fmt.Fprintf(w, "%s),\n", padding)
+	}
 	return nil
 }
 
 func (args *Args) writeFlag(w io.Writer, g flag, indent int) error {
 	var v []string
 	if g.spec != "" {
-		v = append(v, fmt.Sprintf("ox.Spec(%q)", g.spec))
+		v = append(v, fmt.Sprintf("ox.Spec(%s)", bq(g.spec)))
 	}
 	if g.key != "" {
 		if typ := oxType(g.key); typ != "String" {
@@ -216,7 +216,7 @@ func (args *Args) writeFlag(w io.Writer, g flag, indent int) error {
 	if len(v) != 0 {
 		opts = ", " + strings.Join(v, ", ")
 	}
-	fmt.Fprintf(w, ".\n%s%s(%q, %q%s)", strings.Repeat("\t", indent), oxType(g.typ), g.name, g.desc, opts)
+	fmt.Fprintf(w, ".\n%s%s(%s, %s%s)", strings.Repeat("\t", indent), oxType(g.typ), bq(g.name), bq(g.desc), opts)
 	return nil
 }
 
@@ -968,6 +968,11 @@ func qlist(v []string) string {
 		str += fmt.Sprintf("%q", s)
 	}
 	return str
+}
+
+// bq backquotes a string for output.
+func bq(s string) string {
+	return "`" + strings.ReplaceAll(s, "`", "` + \"`\" + `") + "`"
 }
 
 const templ = `// Command %[1]s is a xo/ox version of ` + "`%[1]s`" + `. 
