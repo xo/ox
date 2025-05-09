@@ -13,13 +13,13 @@ func main() {
 	ox.RunContext(
 		context.Background(),
 		ox.Defaults(),
-		ox.Banner("The Kubernetes package manager\n\nCommon actions for Helm:\n\n- helm search:    search for charts\n- helm pull:      download a chart to your local directory to view\n- helm install:   upload the chart to Kubernetes\n- helm list:      list releases of charts\n\nEnvironment variables:\n\n| Name                               | Description                                                                                                |\n|------------------------------------|------------------------------------------------------------------------------------------------------------|\n| $HELM_CACHE_HOME                   | set an alternative location for storing cached files.                                                      |\n| $HELM_CONFIG_HOME                  | set an alternative location for storing Helm configuration.                                                |\n| $HELM_DATA_HOME                    | set an alternative location for storing Helm data.                                                         |\n| $HELM_DEBUG                        | indicate whether or not Helm is running in Debug mode                                                      |\n| $HELM_DRIVER                       | set the backend storage driver. Values are: configmap, secret, memory, sql.                                |\n| $HELM_DRIVER_SQL_CONNECTION_STRING | set the connection string the SQL storage driver should use.                                               |\n| $HELM_MAX_HISTORY                  | set the maximum number of helm release history.                                                            |\n| $HELM_NAMESPACE                    | set the namespace used for the helm operations.                                                            |\n| $HELM_NO_PLUGINS                   | disable plugins. Set HELM_NO_PLUGINS=1 to disable plugins.                                                 |\n| $HELM_PLUGINS                      | set the path to the plugins directory                                                                      |\n| $HELM_REGISTRY_CONFIG              | set the path to the registry config file.                                                                  |\n| $HELM_REPOSITORY_CACHE             | set the path to the repository cache directory                                                             |\n| $HELM_REPOSITORY_CONFIG            | set the path to the repositories file.                                                                     |\n| $KUBECONFIG                        | set an alternative Kubernetes configuration file (default \"~/.kube/config\")                                |\n| $HELM_KUBEAPISERVER                | set the Kubernetes API Server Endpoint for authentication                                                  |\n| $HELM_KUBECAFILE                   | set the Kubernetes certificate authority file.                                                             |\n| $HELM_KUBEASGROUPS                 | set the Groups to use for impersonation using a comma-separated list.                                      |\n| $HELM_KUBEASUSER                   | set the Username to impersonate for the operation.                                                         |\n| $HELM_KUBECONTEXT                  | set the name of the kubeconfig context.                                                                    |\n| $HELM_KUBETOKEN                    | set the Bearer KubeToken used for authentication.                                                          |\n| $HELM_KUBEINSECURE_SKIP_TLS_VERIFY | indicate if the Kubernetes API server's certificate validation should be skipped (insecure)                |\n| $HELM_KUBETLS_SERVER_NAME          | set the server name used to validate the Kubernetes API server certificate                                 |\n| $HELM_BURST_LIMIT                  | set the default burst limit in the case the server contains many CRDs (default 100, -1 to disable)         |\n| $HELM_QPS                          | set the Queries Per Second in cases where a high number of calls exceed the option for higher burst values |\n\nHelm stores cache, configuration, and data based on the following configuration order:\n\n- If a HELM_*_HOME environment variable is set, it will be used\n- Otherwise, on systems supporting the XDG base directory specification, the XDG variables will be used\n- When no other location is set a default location will be used based on the operating system\n\nBy default, the default directories depend on the Operating System. The defaults are listed below:\n\n| Operating System | Cache Path                | Configuration Path             | Data Path               |\n|------------------|---------------------------|--------------------------------|-------------------------|\n| Linux            | $HOME/.cache/helm         | $HOME/.config/helm             | $HOME/.local/share/helm |\n| macOS            | $HOME/Library/Caches/helm | $HOME/Library/Preferences/helm | $HOME/Library/helm      |\n| Windows          | %TEMP%\\helm               | %APPDATA%\\helm                 | %APPDATA%\\helm          |"),
 		ox.Usage("helm", ""),
+		ox.Banner("The Kubernetes package manager\n\nCommon actions for Helm:\n\n- helm search:    search for charts\n- helm pull:      download a chart to your local directory to view\n- helm install:   upload the chart to Kubernetes\n- helm list:      list releases of charts\n\nEnvironment variables:\n\n| Name                               | Description                                                                                                |\n|------------------------------------|------------------------------------------------------------------------------------------------------------|\n| $HELM_CACHE_HOME                   | set an alternative location for storing cached files.                                                      |\n| $HELM_CONFIG_HOME                  | set an alternative location for storing Helm configuration.                                                |\n| $HELM_DATA_HOME                    | set an alternative location for storing Helm data.                                                         |\n| $HELM_DEBUG                        | indicate whether or not Helm is running in Debug mode                                                      |\n| $HELM_DRIVER                       | set the backend storage driver. Values are: configmap, secret, memory, sql.                                |\n| $HELM_DRIVER_SQL_CONNECTION_STRING | set the connection string the SQL storage driver should use.                                               |\n| $HELM_MAX_HISTORY                  | set the maximum number of helm release history.                                                            |\n| $HELM_NAMESPACE                    | set the namespace used for the helm operations.                                                            |\n| $HELM_NO_PLUGINS                   | disable plugins. Set HELM_NO_PLUGINS=1 to disable plugins.                                                 |\n| $HELM_PLUGINS                      | set the path to the plugins directory                                                                      |\n| $HELM_REGISTRY_CONFIG              | set the path to the registry config file.                                                                  |\n| $HELM_REPOSITORY_CACHE             | set the path to the repository cache directory                                                             |\n| $HELM_REPOSITORY_CONFIG            | set the path to the repositories file.                                                                     |\n| $KUBECONFIG                        | set an alternative Kubernetes configuration file (default \"~/.kube/config\")                                |\n| $HELM_KUBEAPISERVER                | set the Kubernetes API Server Endpoint for authentication                                                  |\n| $HELM_KUBECAFILE                   | set the Kubernetes certificate authority file.                                                             |\n| $HELM_KUBEASGROUPS                 | set the Groups to use for impersonation using a comma-separated list.                                      |\n| $HELM_KUBEASUSER                   | set the Username to impersonate for the operation.                                                         |\n| $HELM_KUBECONTEXT                  | set the name of the kubeconfig context.                                                                    |\n| $HELM_KUBETOKEN                    | set the Bearer KubeToken used for authentication.                                                          |\n| $HELM_KUBEINSECURE_SKIP_TLS_VERIFY | indicate if the Kubernetes API server's certificate validation should be skipped (insecure)                |\n| $HELM_KUBETLS_SERVER_NAME          | set the server name used to validate the Kubernetes API server certificate                                 |\n| $HELM_BURST_LIMIT                  | set the default burst limit in the case the server contains many CRDs (default 100, -1 to disable)         |\n| $HELM_QPS                          | set the Queries Per Second in cases where a high number of calls exceed the option for higher burst values |\n\nHelm stores cache, configuration, and data based on the following configuration order:\n\n- If a HELM_*_HOME environment variable is set, it will be used\n- Otherwise, on systems supporting the XDG base directory specification, the XDG variables will be used\n- When no other location is set a default location will be used based on the operating system\n\nBy default, the default directories depend on the Operating System. The defaults are listed below:\n\n| Operating System | Cache Path                | Configuration Path             | Data Path               |\n|------------------|---------------------------|--------------------------------|-------------------------|\n| Linux            | $HOME/.cache/helm         | $HOME/.config/helm             | $HOME/.local/share/helm |\n| macOS            | $HOME/Library/Caches/helm | $HOME/Library/Preferences/helm | $HOME/Library/helm      |\n| Windows          | %TEMP%\\helm               | %APPDATA%\\helm                 | %APPDATA%\\helm          |"),
 		ox.Spec("[command]"),
 		ox.Footer("Use \"helm [command] --help\" for more information about a command."),
 		ox.Sub(
-			ox.Banner("\nThis command creates a chart directory along with the common files and\ndirectories used in a chart.\n\nFor example, 'helm create foo' will create a directory structure that looks\nsomething like this:\n\n    foo/\n    ├── .helmignore   # Contains patterns to ignore when packaging Helm charts.\n    ├── Chart.yaml    # Information about your chart\n    ├── values.yaml   # The default values for your templates\n    ├── charts/       # Charts that this chart depends on\n    └── templates/    # The template files\n        └── tests/    # The test files\n\n'helm create' takes a path for an argument. If directories in the given path\ndo not exist, Helm will attempt to create them as it goes. If the given\ndestination exists and there are files in that directory, conflicting files\nwill be overwritten, but other files will be left alone."),
 			ox.Usage("create", "create a new chart with the given name"),
+			ox.Banner("\nThis command creates a chart directory along with the common files and\ndirectories used in a chart.\n\nFor example, 'helm create foo' will create a directory structure that looks\nsomething like this:\n\n    foo/\n    ├── .helmignore   # Contains patterns to ignore when packaging Helm charts.\n    ├── Chart.yaml    # Information about your chart\n    ├── values.yaml   # The default values for your templates\n    ├── charts/       # Charts that this chart depends on\n    └── templates/    # The template files\n        └── tests/    # The test files\n\n'helm create' takes a path for an argument. If directories in the given path\ndo not exist, Helm will attempt to create them as it goes. If the given\ndestination exists and there are files in that directory, conflicting files\nwill be overwritten, but other files will be left alone."),
 			ox.Spec("NAME [flags]"),
 			ox.Help(ox.Sections(
 				"Global Flags",
@@ -44,8 +44,8 @@ func main() {
 				String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("\nManage the dependencies of a chart.\n\nHelm charts store their dependencies in 'charts/'. For chart developers, it is\noften easier to manage dependencies in 'Chart.yaml' which declares all\ndependencies.\n\nThe dependency commands operate on that file, making it easy to synchronize\nbetween the desired dependencies and the actual dependencies stored in the\n'charts/' directory.\n\nFor example, this Chart.yaml declares two dependencies:\n\n    # Chart.yaml\n    dependencies:\n    - name: nginx\n      version: \"1.2.3\"\n      repository: \"https://example.com/charts\"\n    - name: memcached\n      version: \"3.2.1\"\n      repository: \"https://another.example.com/charts\"\n\n\nThe 'name' should be the name of a chart, where that name must match the name\nin that chart's 'Chart.yaml' file.\n\nThe 'version' field should contain a semantic version or version range.\n\nThe 'repository' URL should point to a Chart Repository. Helm expects that by\nappending '/index.yaml' to the URL, it should be able to retrieve the chart\nrepository's index. Note: 'repository' can be an alias. The alias must start\nwith 'alias:' or '@'.\n\nStarting from 2.2.0, repository can be defined as the path to the directory of\nthe dependency charts stored locally. The path should start with a prefix of\n\"file://\". For example,\n\n    # Chart.yaml\n    dependencies:\n    - name: nginx\n      version: \"1.2.3\"\n      repository: \"file://../dependency_chart/nginx\"\n\nIf the dependency chart is retrieved locally, it is not required to have the\nrepository added to helm by \"helm add repo\". Version matching is also supported\nfor this case."),
 			ox.Usage("dependency", "manage a chart's dependencies"),
+			ox.Banner("\nManage the dependencies of a chart.\n\nHelm charts store their dependencies in 'charts/'. For chart developers, it is\noften easier to manage dependencies in 'Chart.yaml' which declares all\ndependencies.\n\nThe dependency commands operate on that file, making it easy to synchronize\nbetween the desired dependencies and the actual dependencies stored in the\n'charts/' directory.\n\nFor example, this Chart.yaml declares two dependencies:\n\n    # Chart.yaml\n    dependencies:\n    - name: nginx\n      version: \"1.2.3\"\n      repository: \"https://example.com/charts\"\n    - name: memcached\n      version: \"3.2.1\"\n      repository: \"https://another.example.com/charts\"\n\n\nThe 'name' should be the name of a chart, where that name must match the name\nin that chart's 'Chart.yaml' file.\n\nThe 'version' field should contain a semantic version or version range.\n\nThe 'repository' URL should point to a Chart Repository. Helm expects that by\nappending '/index.yaml' to the URL, it should be able to retrieve the chart\nrepository's index. Note: 'repository' can be an alias. The alias must start\nwith 'alias:' or '@'.\n\nStarting from 2.2.0, repository can be defined as the path to the directory of\nthe dependency charts stored locally. The path should start with a prefix of\n\"file://\". For example,\n\n    # Chart.yaml\n    dependencies:\n    - name: nginx\n      version: \"1.2.3\"\n      repository: \"file://../dependency_chart/nginx\"\n\nIf the dependency chart is retrieved locally, it is not required to have the\nrepository added to helm by \"helm add repo\". Version matching is also supported\nfor this case."),
 			ox.Spec("[command]"),
 			ox.Aliases("dep", "dependencies"),
 			ox.Help(ox.Sections(
@@ -53,8 +53,8 @@ func main() {
 			)),
 			ox.Footer("Use \"helm dependency [command] --help\" for more information about a command."),
 			ox.Sub(
-				ox.Banner("\nBuild out the charts/ directory from the Chart.lock file.\n\nBuild is used to reconstruct a chart's dependencies to the state specified in\nthe lock file. This will not re-negotiate dependencies, as 'helm dependency update'\ndoes.\n\nIf no lock file is found, 'helm dependency build' will mirror the behavior\nof 'helm dependency update'."),
 				ox.Usage("build", "rebuild the charts/ directory based on the Chart.lock file"),
+				ox.Banner("\nBuild out the charts/ directory from the Chart.lock file.\n\nBuild is used to reconstruct a chart's dependencies to the state specified in\nthe lock file. This will not re-negotiate dependencies, as 'helm dependency update'\ndoes.\n\nIf no lock file is found, 'helm dependency build' will mirror the behavior\nof 'helm dependency update'."),
 				ox.Spec("CHART [flags]"),
 				ox.Help(ox.Sections(
 					"Global Flags",
@@ -88,8 +88,8 @@ func main() {
 					String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("\nList all of the dependencies declared in a chart.\n\nThis can take chart archives and chart directories as input. It will not alter\nthe contents of a chart.\n\nThis will produce an error if the chart cannot be loaded."),
 				ox.Usage("list", "list the dependencies for the given chart"),
+				ox.Banner("\nList all of the dependencies declared in a chart.\n\nThis can take chart archives and chart directories as input. It will not alter\nthe contents of a chart.\n\nThis will produce an error if the chart cannot be loaded."),
 				ox.Spec("CHART [flags]"),
 				ox.Aliases("ls"),
 				ox.Help(ox.Sections(
@@ -115,8 +115,8 @@ func main() {
 					String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("\nUpdate the on-disk dependencies to mirror Chart.yaml.\n\nThis command verifies that the required charts, as expressed in 'Chart.yaml',\nare present in 'charts/' and are at an acceptable version. It will pull down\nthe latest charts that satisfy the dependencies, and clean up old dependencies.\n\nOn successful update, this will generate a lock file that can be used to\nrebuild the dependencies to an exact version.\n\nDependencies are not required to be represented in 'Chart.yaml'. For that\nreason, an update command will not remove charts unless they are (a) present\nin the Chart.yaml file, but (b) at the wrong version."),
 				ox.Usage("update", "update charts/ based on the contents of Chart.yaml"),
+				ox.Banner("\nUpdate the on-disk dependencies to mirror Chart.yaml.\n\nThis command verifies that the required charts, as expressed in 'Chart.yaml',\nare present in 'charts/' and are at an acceptable version. It will pull down\nthe latest charts that satisfy the dependencies, and clean up old dependencies.\n\nOn successful update, this will generate a lock file that can be used to\nrebuild the dependencies to an exact version.\n\nDependencies are not required to be represented in 'Chart.yaml'. For that\nreason, an update command will not remove charts unless they are (a) present\nin the Chart.yaml file, but (b) at the wrong version."),
 				ox.Spec("CHART [flags]"),
 				ox.Aliases("up"),
 				ox.Help(ox.Sections(
@@ -169,8 +169,8 @@ func main() {
 				String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("\nEnv prints out all the environment information in use by Helm."),
 			ox.Usage("env", "helm client environment information"),
+			ox.Banner("\nEnv prints out all the environment information in use by Helm."),
 			ox.Spec("[flags]"),
 			ox.Help(ox.Sections(
 				"Global Flags",
@@ -194,16 +194,16 @@ func main() {
 				String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("\nThis command consists of multiple subcommands which can be used to\nget extended information about the release, including:\n\n- The values used to generate the release\n- The generated manifest file\n- The notes provided by the chart of the release\n- The hooks associated with the release\n- The metadata of the release"),
 			ox.Usage("get", "download extended information of a named release"),
+			ox.Banner("\nThis command consists of multiple subcommands which can be used to\nget extended information about the release, including:\n\n- The values used to generate the release\n- The generated manifest file\n- The notes provided by the chart of the release\n- The hooks associated with the release\n- The metadata of the release"),
 			ox.Spec("[command]"),
 			ox.Help(ox.Sections(
 				"Global Flags",
 			)),
 			ox.Footer("Use \"helm get [command] --help\" for more information about a command."),
 			ox.Sub(
-				ox.Banner("\nThis command prints a human readable collection of information about the\nnotes, hooks, supplied values, and generated manifest file of the given release."),
 				ox.Usage("all", "download all information for a named release"),
+				ox.Banner("\nThis command prints a human readable collection of information about the\nnotes, hooks, supplied values, and generated manifest file of the given release."),
 				ox.Spec("RELEASE_NAME [flags]"),
 				ox.Help(ox.Sections(
 					"Global Flags",
@@ -229,8 +229,8 @@ func main() {
 					String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("\nThis command downloads hooks for a given release.\n\nHooks are formatted in YAML and separated by the YAML '---\\n' separator."),
 				ox.Usage("hooks", "download all hooks for a named release"),
+				ox.Banner("\nThis command downloads hooks for a given release.\n\nHooks are formatted in YAML and separated by the YAML '---\\n' separator."),
 				ox.Spec("RELEASE_NAME [flags]"),
 				ox.Help(ox.Sections(
 					"Global Flags",
@@ -255,8 +255,8 @@ func main() {
 					String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("\nThis command fetches the generated manifest for a given release.\n\nA manifest is a YAML-encoded representation of the Kubernetes resources that\nwere generated from this release's chart(s). If a chart is dependent on other\ncharts, those resources will also be included in the manifest."),
 				ox.Usage("manifest", "download the manifest for a named release"),
+				ox.Banner("\nThis command fetches the generated manifest for a given release.\n\nA manifest is a YAML-encoded representation of the Kubernetes resources that\nwere generated from this release's chart(s). If a chart is dependent on other\ncharts, those resources will also be included in the manifest."),
 				ox.Spec("RELEASE_NAME [flags]"),
 				ox.Help(ox.Sections(
 					"Global Flags",
@@ -281,8 +281,8 @@ func main() {
 					String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("This command fetches metadata for a given release"),
 				ox.Usage("metadata", "This command fetches metadata for a given release"),
+				ox.Banner("This command fetches metadata for a given release"),
 				ox.Spec("RELEASE_NAME [flags]"),
 				ox.Help(ox.Sections(
 					"Global Flags",
@@ -308,8 +308,8 @@ func main() {
 					String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("\nThis command shows notes provided by the chart of a named release."),
 				ox.Usage("notes", "download the notes for a named release"),
+				ox.Banner("\nThis command shows notes provided by the chart of a named release."),
 				ox.Spec("RELEASE_NAME [flags]"),
 				ox.Help(ox.Sections(
 					"Global Flags",
@@ -334,8 +334,8 @@ func main() {
 					String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("\nThis command downloads a values file for a given release."),
 				ox.Usage("values", "download the values file for a named release"),
+				ox.Banner("\nThis command downloads a values file for a given release."),
 				ox.Spec("RELEASE_NAME [flags]"),
 				ox.Help(ox.Sections(
 					"Global Flags",
@@ -380,8 +380,8 @@ func main() {
 				String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("\nHistory prints historical revisions for a given release.\n\nA default maximum of 256 revisions will be returned. Setting '--max'\nconfigures the maximum length of the revision list returned.\n\nThe historical release set is printed as a formatted table, e.g:\n\n    $ helm history angry-bird\n    REVISION    UPDATED                     STATUS          CHART             APP VERSION     DESCRIPTION\n    1           Mon Oct 3 10:15:13 2016     superseded      alpine-0.1.0      1.0             Initial install\n    2           Mon Oct 3 10:15:13 2016     superseded      alpine-0.1.0      1.0             Upgraded successfully\n    3           Mon Oct 3 10:15:13 2016     superseded      alpine-0.1.0      1.0             Rolled back to 2\n    4           Mon Oct 3 10:15:13 2016     deployed        alpine-0.1.0      1.0             Upgraded successfully"),
 			ox.Usage("history", "fetch release history"),
+			ox.Banner("\nHistory prints historical revisions for a given release.\n\nA default maximum of 256 revisions will be returned. Setting '--max'\nconfigures the maximum length of the revision list returned.\n\nThe historical release set is printed as a formatted table, e.g:\n\n    $ helm history angry-bird\n    REVISION    UPDATED                     STATUS          CHART             APP VERSION     DESCRIPTION\n    1           Mon Oct 3 10:15:13 2016     superseded      alpine-0.1.0      1.0             Initial install\n    2           Mon Oct 3 10:15:13 2016     superseded      alpine-0.1.0      1.0             Upgraded successfully\n    3           Mon Oct 3 10:15:13 2016     superseded      alpine-0.1.0      1.0             Rolled back to 2\n    4           Mon Oct 3 10:15:13 2016     deployed        alpine-0.1.0      1.0             Upgraded successfully"),
 			ox.Spec("RELEASE_NAME [flags]"),
 			ox.Aliases("hist"),
 			ox.Help(ox.Sections(
@@ -408,8 +408,8 @@ func main() {
 				String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("\nThis command installs a chart archive.\n\nThe install argument must be a chart reference, a path to a packaged chart,\na path to an unpacked chart directory or a URL.\n\nTo override values in a chart, use either the '--values' flag and pass in a file\nor use the '--set' flag and pass configuration from the command line, to force\na string value use '--set-string'. You can use '--set-file' to set individual\nvalues from a file when the value itself is too long for the command line\nor is dynamically generated. You can also use '--set-json' to set json values\n(scalars/objects/arrays) from the command line.\n\n    $ helm install -f myvalues.yaml myredis ./redis\n\nor\n\n    $ helm install --set name=prod myredis ./redis\n\nor\n\n    $ helm install --set-string long_int=1234567890 myredis ./redis\n\nor\n\n    $ helm install --set-file my_script=dothings.sh myredis ./redis\n\nor\n\n    $ helm install --set-json 'master.sidecars=[{\"name\":\"sidecar\",\"image\":\"myImage\",\"imagePullPolicy\":\"Always\",\"ports\":[{\"name\":\"portname\",\"containerPort\":1234}]}]' myredis ./redis\n\n\nYou can specify the '--values'/'-f' flag multiple times. The priority will be given to the\nlast (right-most) file specified. For example, if both myvalues.yaml and override.yaml\ncontained a key called 'Test', the value set in override.yaml would take precedence:\n\n    $ helm install -f myvalues.yaml -f override.yaml  myredis ./redis\n\nYou can specify the '--set' flag multiple times. The priority will be given to the\nlast (right-most) set specified. For example, if both 'bar' and 'newbar' values are\nset for a key called 'foo', the 'newbar' value would take precedence:\n\n    $ helm install --set foo=bar --set foo=newbar  myredis ./redis\n\nSimilarly, in the following example 'foo' is set to '[\"four\"]':\n\n    $ helm install --set-json='foo=[\"one\", \"two\", \"three\"]' --set-json='foo=[\"four\"]' myredis ./redis\n\nAnd in the following example, 'foo' is set to '{\"key1\":\"value1\",\"key2\":\"bar\"}':\n\n    $ helm install --set-json='foo={\"key1\":\"value1\",\"key2\":\"value2\"}' --set-json='foo.key2=\"bar\"' myredis ./redis\n\nTo check the generated manifests of a release without installing the chart,\nthe --debug and --dry-run flags can be combined.\n\nThe --dry-run flag will output all generated chart manifests, including Secrets\nwhich can contain sensitive values. To hide Kubernetes Secrets use the\n--hide-secret flag. Please carefully consider how and when these flags are used.\n\nIf --verify is set, the chart MUST have a provenance file, and the provenance\nfile MUST pass all verification steps.\n\nThere are six different ways you can express the chart you want to install:\n\n1. By chart reference: helm install mymaria example/mariadb\n2. By path to a packaged chart: helm install mynginx ./nginx-1.2.3.tgz\n3. By path to an unpacked chart directory: helm install mynginx ./nginx\n4. By absolute URL: helm install mynginx https://example.com/charts/nginx-1.2.3.tgz\n5. By chart reference and repo url: helm install --repo https://example.com/charts/ mynginx nginx\n6. By OCI registries: helm install mynginx --version 1.2.3 oci://example.com/charts/nginx\n\nCHART REFERENCES\n\nA chart reference is a convenient way of referencing a chart in a chart repository.\n\nWhen you use a chart reference with a repo prefix ('example/mariadb'), Helm will look in the local\nconfiguration for a chart repository named 'example', and will then look for a\nchart in that repository whose name is 'mariadb'. It will install the latest stable version of that chart\nuntil you specify '--devel' flag to also include development version (alpha, beta, and release candidate releases), or\nsupply a version number with the '--version' flag.\n\nTo see the list of chart repositories, use 'helm repo list'. To search for\ncharts in a repository, use 'helm search'."),
 			ox.Usage("install", "install a chart"),
+			ox.Banner("\nThis command installs a chart archive.\n\nThe install argument must be a chart reference, a path to a packaged chart,\na path to an unpacked chart directory or a URL.\n\nTo override values in a chart, use either the '--values' flag and pass in a file\nor use the '--set' flag and pass configuration from the command line, to force\na string value use '--set-string'. You can use '--set-file' to set individual\nvalues from a file when the value itself is too long for the command line\nor is dynamically generated. You can also use '--set-json' to set json values\n(scalars/objects/arrays) from the command line.\n\n    $ helm install -f myvalues.yaml myredis ./redis\n\nor\n\n    $ helm install --set name=prod myredis ./redis\n\nor\n\n    $ helm install --set-string long_int=1234567890 myredis ./redis\n\nor\n\n    $ helm install --set-file my_script=dothings.sh myredis ./redis\n\nor\n\n    $ helm install --set-json 'master.sidecars=[{\"name\":\"sidecar\",\"image\":\"myImage\",\"imagePullPolicy\":\"Always\",\"ports\":[{\"name\":\"portname\",\"containerPort\":1234}]}]' myredis ./redis\n\n\nYou can specify the '--values'/'-f' flag multiple times. The priority will be given to the\nlast (right-most) file specified. For example, if both myvalues.yaml and override.yaml\ncontained a key called 'Test', the value set in override.yaml would take precedence:\n\n    $ helm install -f myvalues.yaml -f override.yaml  myredis ./redis\n\nYou can specify the '--set' flag multiple times. The priority will be given to the\nlast (right-most) set specified. For example, if both 'bar' and 'newbar' values are\nset for a key called 'foo', the 'newbar' value would take precedence:\n\n    $ helm install --set foo=bar --set foo=newbar  myredis ./redis\n\nSimilarly, in the following example 'foo' is set to '[\"four\"]':\n\n    $ helm install --set-json='foo=[\"one\", \"two\", \"three\"]' --set-json='foo=[\"four\"]' myredis ./redis\n\nAnd in the following example, 'foo' is set to '{\"key1\":\"value1\",\"key2\":\"bar\"}':\n\n    $ helm install --set-json='foo={\"key1\":\"value1\",\"key2\":\"value2\"}' --set-json='foo.key2=\"bar\"' myredis ./redis\n\nTo check the generated manifests of a release without installing the chart,\nthe --debug and --dry-run flags can be combined.\n\nThe --dry-run flag will output all generated chart manifests, including Secrets\nwhich can contain sensitive values. To hide Kubernetes Secrets use the\n--hide-secret flag. Please carefully consider how and when these flags are used.\n\nIf --verify is set, the chart MUST have a provenance file, and the provenance\nfile MUST pass all verification steps.\n\nThere are six different ways you can express the chart you want to install:\n\n1. By chart reference: helm install mymaria example/mariadb\n2. By path to a packaged chart: helm install mynginx ./nginx-1.2.3.tgz\n3. By path to an unpacked chart directory: helm install mynginx ./nginx\n4. By absolute URL: helm install mynginx https://example.com/charts/nginx-1.2.3.tgz\n5. By chart reference and repo url: helm install --repo https://example.com/charts/ mynginx nginx\n6. By OCI registries: helm install mynginx --version 1.2.3 oci://example.com/charts/nginx\n\nCHART REFERENCES\n\nA chart reference is a convenient way of referencing a chart in a chart repository.\n\nWhen you use a chart reference with a repo prefix ('example/mariadb'), Helm will look in the local\nconfiguration for a chart repository named 'example', and will then look for a\nchart in that repository whose name is 'mariadb'. It will install the latest stable version of that chart\nuntil you specify '--devel' flag to also include development version (alpha, beta, and release candidate releases), or\nsupply a version number with the '--version' flag.\n\nTo see the list of chart repositories, use 'helm repo list'. To search for\ncharts in a repository, use 'helm search'."),
 			ox.Spec("[NAME] [CHART] [flags]"),
 			ox.Help(ox.Sections(
 				"Global Flags",
@@ -475,8 +475,8 @@ func main() {
 				String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("\nThis command takes a path to a chart and runs a series of tests to verify that\nthe chart is well-formed.\n\nIf the linter encounters things that will cause the chart to fail installation,\nit will emit [ERROR] messages. If it encounters issues that break with convention\nor recommendation, it will emit [WARNING] messages."),
 			ox.Usage("lint", "examine a chart for possible issues"),
+			ox.Banner("\nThis command takes a path to a chart and runs a series of tests to verify that\nthe chart is well-formed.\n\nIf the linter encounters things that will cause the chart to fail installation,\nit will emit [ERROR] messages. If it encounters issues that break with convention\nor recommendation, it will emit [WARNING] messages."),
 			ox.Spec("PATH [flags]"),
 			ox.Help(ox.Sections(
 				"Global Flags",
@@ -511,8 +511,8 @@ func main() {
 				String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("\nThis command lists all of the releases for a specified namespace (uses current namespace context if namespace not specified).\n\nBy default, it lists only releases that are deployed or failed. Flags like\n'--uninstalled' and '--all' will alter this behavior. Such flags can be combined:\n'--uninstalled --failed'.\n\nBy default, items are sorted alphabetically. Use the '-d' flag to sort by\nrelease date.\n\nIf the --filter flag is provided, it will be treated as a filter. Filters are\nregular expressions (Perl compatible) that are applied to the list of releases.\nOnly items that match the filter will be returned.\n\n    $ helm list --filter 'ara[a-z]+'\n    NAME                UPDATED                                  CHART\n    maudlin-arachnid    2020-06-18 14:17:46.125134977 +0000 UTC  alpine-0.1.0\n\nIf no results are found, 'helm list' will exit 0, but with no output (or in\nthe case of no '-q' flag, only headers).\n\nBy default, up to 256 items may be returned. To limit this, use the '--max' flag.\nSetting '--max' to 0 will not return all results. Rather, it will return the\nserver's default, which may be much higher than 256. Pairing the '--max'\nflag with the '--offset' flag allows you to page through results."),
 			ox.Usage("list", "list releases"),
+			ox.Banner("\nThis command lists all of the releases for a specified namespace (uses current namespace context if namespace not specified).\n\nBy default, it lists only releases that are deployed or failed. Flags like\n'--uninstalled' and '--all' will alter this behavior. Such flags can be combined:\n'--uninstalled --failed'.\n\nBy default, items are sorted alphabetically. Use the '-d' flag to sort by\nrelease date.\n\nIf the --filter flag is provided, it will be treated as a filter. Filters are\nregular expressions (Perl compatible) that are applied to the list of releases.\nOnly items that match the filter will be returned.\n\n    $ helm list --filter 'ara[a-z]+'\n    NAME                UPDATED                                  CHART\n    maudlin-arachnid    2020-06-18 14:17:46.125134977 +0000 UTC  alpine-0.1.0\n\nIf no results are found, 'helm list' will exit 0, but with no output (or in\nthe case of no '-q' flag, only headers).\n\nBy default, up to 256 items may be returned. To limit this, use the '--max' flag.\nSetting '--max' to 0 will not return all results. Rather, it will return the\nserver's default, which may be much higher than 256. Pairing the '--max'\nflag with the '--offset' flag allows you to page through results."),
 			ox.Spec("[flags]"),
 			ox.Aliases("ls"),
 			ox.Help(ox.Sections(
@@ -555,8 +555,8 @@ func main() {
 				String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("\nThis command packages a chart into a versioned chart archive file. If a path\nis given, this will look at that path for a chart (which must contain a\nChart.yaml file) and then package that directory.\n\nVersioned chart archives are used by Helm package repositories.\n\nTo sign a chart, use the '--sign' flag. In most cases, you should also\nprovide '--keyring path/to/secret/keys' and '--key keyname'.\n\n  $ helm package --sign ./mychart --key mykey --keyring ~/.gnupg/secring.gpg\n\nIf '--keyring' is not specified, Helm usually defaults to the public keyring\nunless your environment is otherwise configured."),
 			ox.Usage("package", "package a chart directory into a chart archive"),
+			ox.Banner("\nThis command packages a chart into a versioned chart archive file. If a path\nis given, this will look at that path for a chart (which must contain a\nChart.yaml file) and then package that directory.\n\nVersioned chart archives are used by Helm package repositories.\n\nTo sign a chart, use the '--sign' flag. In most cases, you should also\nprovide '--keyring path/to/secret/keys' and '--key keyname'.\n\n  $ helm package --sign ./mychart --key mykey --keyring ~/.gnupg/secring.gpg\n\nIf '--keyring' is not specified, Helm usually defaults to the public keyring\nunless your environment is otherwise configured."),
 			ox.Spec("[CHART_PATH] [...] [flags]"),
 			ox.Help(ox.Sections(
 				"Global Flags",
@@ -594,16 +594,16 @@ func main() {
 				String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("\nManage client-side Helm plugins."),
 			ox.Usage("plugin", "install, list, or uninstall Helm plugins"),
+			ox.Banner("\nManage client-side Helm plugins."),
 			ox.Spec("[command]"),
 			ox.Help(ox.Sections(
 				"Global Flags",
 			)),
 			ox.Footer("Use \"helm plugin [command] --help\" for more information about a command."),
 			ox.Sub(
-				ox.Banner("\nThis command allows you to install a plugin from a url to a VCS repo or a local path."),
 				ox.Usage("install", "install a Helm plugin"),
+				ox.Banner("\nThis command allows you to install a plugin from a url to a VCS repo or a local path."),
 				ox.Spec("[options] <path|url> [flags]"),
 				ox.Aliases("add"),
 				ox.Help(ox.Sections(
@@ -628,8 +628,8 @@ func main() {
 					String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("list installed Helm plugins"),
 				ox.Usage("list", "list installed Helm plugins"),
+				ox.Banner("list installed Helm plugins"),
 				ox.Spec("[flags]"),
 				ox.Aliases("ls"),
 				ox.Help(ox.Sections(
@@ -654,8 +654,8 @@ func main() {
 					String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("uninstall one or more Helm plugins"),
 				ox.Usage("uninstall", "uninstall one or more Helm plugins"),
+				ox.Banner("uninstall one or more Helm plugins"),
 				ox.Spec("<plugin>... [flags]"),
 				ox.Aliases("rm", "remove"),
 				ox.Help(ox.Sections(
@@ -680,8 +680,8 @@ func main() {
 					String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("update one or more Helm plugins"),
 				ox.Usage("update", "update one or more Helm plugins"),
+				ox.Banner("update one or more Helm plugins"),
 				ox.Spec("<plugin>... [flags]"),
 				ox.Aliases("up"),
 				ox.Help(ox.Sections(
@@ -724,8 +724,8 @@ func main() {
 				String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("\nRetrieve a package from a package repository, and download it locally.\n\nThis is useful for fetching packages to inspect, modify, or repackage. It can\nalso be used to perform cryptographic verification of a chart without installing\nthe chart.\n\nThere are options for unpacking the chart after download. This will create a\ndirectory for the chart and uncompress into that directory.\n\nIf the --verify flag is specified, the requested chart MUST have a provenance\nfile, and MUST pass the verification process. Failure in any part of this will\nresult in an error, and the chart will not be saved locally."),
 			ox.Usage("pull", "download a chart from a repository and (optionally) unpack it in local directory"),
+			ox.Banner("\nRetrieve a package from a package repository, and download it locally.\n\nThis is useful for fetching packages to inspect, modify, or repackage. It can\nalso be used to perform cryptographic verification of a chart without installing\nthe chart.\n\nThere are options for unpacking the chart after download. This will create a\ndirectory for the chart and uncompress into that directory.\n\nIf the --verify flag is specified, the requested chart MUST have a provenance\nfile, and MUST pass the verification process. Failure in any part of this will\nresult in an error, and the chart will not be saved locally."),
 			ox.Spec("[chart URL | repo/chartname] [...] [flags]"),
 			ox.Aliases("fetch"),
 			ox.Help(ox.Sections(
@@ -766,8 +766,8 @@ func main() {
 				String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("\nUpload a chart to a registry.\n\nIf the chart has an associated provenance file,\nit will also be uploaded."),
 			ox.Usage("push", "push a chart to remote"),
+			ox.Banner("\nUpload a chart to a registry.\n\nIf the chart has an associated provenance file,\nit will also be uploaded."),
 			ox.Spec("[chart] [remote] [flags]"),
 			ox.Help(ox.Sections(
 				"Global Flags",
@@ -798,16 +798,16 @@ func main() {
 				String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("\nThis command consists of multiple subcommands to interact with registries."),
 			ox.Usage("registry", "login to or logout from a registry"),
+			ox.Banner("\nThis command consists of multiple subcommands to interact with registries."),
 			ox.Spec("[command]"),
 			ox.Help(ox.Sections(
 				"Global Flags",
 			)),
 			ox.Footer("Use \"helm registry [command] --help\" for more information about a command."),
 			ox.Sub(
-				ox.Banner("\nAuthenticate to a remote registry."),
 				ox.Usage("login", "login to a registry"),
+				ox.Banner("\nAuthenticate to a remote registry."),
 				ox.Spec("[host] [flags]"),
 				ox.Help(ox.Sections(
 					"Global Flags",
@@ -838,8 +838,8 @@ func main() {
 					String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("\nRemove credentials stored for a remote registry."),
 				ox.Usage("logout", "logout from a registry"),
+				ox.Banner("\nRemove credentials stored for a remote registry."),
 				ox.Spec("[host] [flags]"),
 				ox.Help(ox.Sections(
 					"Global Flags",
@@ -881,16 +881,16 @@ func main() {
 				String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("\nThis command consists of multiple subcommands to interact with chart repositories.\n\nIt can be used to add, remove, list, and index chart repositories."),
 			ox.Usage("repo", "add, list, remove, update, and index chart repositories"),
+			ox.Banner("\nThis command consists of multiple subcommands to interact with chart repositories.\n\nIt can be used to add, remove, list, and index chart repositories."),
 			ox.Spec("[command]"),
 			ox.Help(ox.Sections(
 				"Global Flags",
 			)),
 			ox.Footer("Use \"helm repo [command] --help\" for more information about a command."),
 			ox.Sub(
-				ox.Banner("add a chart repository"),
 				ox.Usage("add", "add a chart repository"),
+				ox.Banner("add a chart repository"),
 				ox.Spec("[NAME] [URL] [flags]"),
 				ox.Help(ox.Sections(
 					"Global Flags",
@@ -925,8 +925,8 @@ func main() {
 					String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("\nRead the current directory, generate an index file based on the charts found\nand write the result to 'index.yaml' in the current directory.\n\nThis tool is used for creating an 'index.yaml' file for a chart repository. To\nset an absolute URL to the charts, use '--url' flag.\n\nTo merge the generated index with an existing index file, use the '--merge'\nflag. In this case, the charts found in the current directory will be merged\ninto the index passed in with --merge, with local charts taking priority over\nexisting charts."),
 				ox.Usage("index", "generate an index file given a directory containing packaged charts"),
+				ox.Banner("\nRead the current directory, generate an index file based on the charts found\nand write the result to 'index.yaml' in the current directory.\n\nThis tool is used for creating an 'index.yaml' file for a chart repository. To\nset an absolute URL to the charts, use '--url' flag.\n\nTo merge the generated index with an existing index file, use the '--merge'\nflag. In this case, the charts found in the current directory will be merged\ninto the index passed in with --merge, with local charts taking priority over\nexisting charts."),
 				ox.Spec("[DIR] [flags]"),
 				ox.Help(ox.Sections(
 					"Global Flags",
@@ -953,8 +953,8 @@ func main() {
 					String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("list chart repositories"),
 				ox.Usage("list", "list chart repositories"),
+				ox.Banner("list chart repositories"),
 				ox.Spec("[flags]"),
 				ox.Aliases("ls"),
 				ox.Help(ox.Sections(
@@ -980,8 +980,8 @@ func main() {
 					String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("remove one or more chart repositories"),
 				ox.Usage("remove", "remove one or more chart repositories"),
+				ox.Banner("remove one or more chart repositories"),
 				ox.Spec("[REPO1 [REPO2 ...]] [flags]"),
 				ox.Aliases("rm"),
 				ox.Help(ox.Sections(
@@ -1006,8 +1006,8 @@ func main() {
 					String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("\nUpdate gets the latest information about charts from the respective chart repositories.\nInformation is cached locally, where it is used by commands like 'helm search'.\n\nYou can optionally specify a list of repositories you want to update.\n\t$ helm repo update <repo_name> ...\nTo update all the repositories, use 'helm repo update'."),
 				ox.Usage("update", "update information of available charts locally from chart repositories"),
+				ox.Banner("\nUpdate gets the latest information about charts from the respective chart repositories.\nInformation is cached locally, where it is used by commands like 'helm search'.\n\nYou can optionally specify a list of repositories you want to update.\n\t$ helm repo update <repo_name> ...\nTo update all the repositories, use 'helm repo update'."),
 				ox.Spec("[REPO1 [REPO2 ...]] [flags]"),
 				ox.Aliases("up"),
 				ox.Help(ox.Sections(
@@ -1051,8 +1051,8 @@ func main() {
 				String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("\nThis command rolls back a release to a previous revision.\n\nThe first argument of the rollback command is the name of a release, and the\nsecond is a revision (version) number. If this argument is omitted or set to\n0, it will roll back to the previous release.\n\nTo see revision numbers, run 'helm history RELEASE'."),
 			ox.Usage("rollback", "roll back a release to a previous revision"),
+			ox.Banner("\nThis command rolls back a release to a previous revision.\n\nThe first argument of the rollback command is the name of a release, and the\nsecond is a revision (version) number. If this argument is omitted or set to\n0, it will roll back to the previous release.\n\nTo see revision numbers, run 'helm history RELEASE'."),
 			ox.Spec("<RELEASE> [REVISION] [flags]"),
 			ox.Help(ox.Sections(
 				"Global Flags",
@@ -1085,16 +1085,16 @@ func main() {
 				String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("\nSearch provides the ability to search for Helm charts in the various places\nthey can be stored including the Artifact Hub and repositories you have added.\nUse search subcommands to search different locations for charts."),
 			ox.Usage("search", "search for a keyword in charts"),
+			ox.Banner("\nSearch provides the ability to search for Helm charts in the various places\nthey can be stored including the Artifact Hub and repositories you have added.\nUse search subcommands to search different locations for charts."),
 			ox.Spec("[command]"),
 			ox.Help(ox.Sections(
 				"Global Flags",
 			)),
 			ox.Footer("Use \"helm search [command] --help\" for more information about a command."),
 			ox.Sub(
-				ox.Banner("\nSearch for Helm charts in the Artifact Hub or your own hub instance.\n\nArtifact Hub is a web-based application that enables finding, installing, and\npublishing packages and configurations for CNCF projects, including publicly\navailable distributed charts Helm charts. It is a Cloud Native Computing\nFoundation sandbox project. You can browse the hub at https://artifacthub.io/\n\nThe [KEYWORD] argument accepts either a keyword string, or quoted string of rich\nquery options. For rich query options documentation, see\nhttps://artifacthub.github.io/hub/api/?urls.primaryName=Monocular%20compatible%20search%20API#/Monocular/get_api_chartsvc_v1_charts_search\n\nPrevious versions of Helm used an instance of Monocular as the default\n'endpoint', so for backwards compatibility Artifact Hub is compatible with the\nMonocular search API. Similarly, when setting the 'endpoint' flag, the specified\nendpoint must also be implement a Monocular compatible search API endpoint.\nNote that when specifying a Monocular instance as the 'endpoint', rich queries\nare not supported. For API details, see https://github.com/helm/monocular"),
 				ox.Usage("hub", "search for charts in the Artifact Hub or your own hub instance"),
+				ox.Banner("\nSearch for Helm charts in the Artifact Hub or your own hub instance.\n\nArtifact Hub is a web-based application that enables finding, installing, and\npublishing packages and configurations for CNCF projects, including publicly\navailable distributed charts Helm charts. It is a Cloud Native Computing\nFoundation sandbox project. You can browse the hub at https://artifacthub.io/\n\nThe [KEYWORD] argument accepts either a keyword string, or quoted string of rich\nquery options. For rich query options documentation, see\nhttps://artifacthub.github.io/hub/api/?urls.primaryName=Monocular%20compatible%20search%20API#/Monocular/get_api_chartsvc_v1_charts_search\n\nPrevious versions of Helm used an instance of Monocular as the default\n'endpoint', so for backwards compatibility Artifact Hub is compatible with the\nMonocular search API. Similarly, when setting the 'endpoint' flag, the specified\nendpoint must also be implement a Monocular compatible search API endpoint.\nNote that when specifying a Monocular instance as the 'endpoint', rich queries\nare not supported. For API details, see https://github.com/helm/monocular"),
 				ox.Spec("[KEYWORD] [flags]"),
 				ox.Help(ox.Sections(
 					"Global Flags",
@@ -1123,8 +1123,8 @@ func main() {
 					String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("\nSearch reads through all of the repositories configured on the system, and\nlooks for matches. Search of these repositories uses the metadata stored on\nthe system.\n\nIt will display the latest stable versions of the charts found. If you\nspecify the --devel flag, the output will include pre-release versions.\nIf you want to search using a version constraint, use --version.\n\nExamples:\n\n    # Search for stable release versions matching the keyword \"nginx\"\n    $ helm search repo nginx\n\n    # Search for release versions matching the keyword \"nginx\", including pre-release versions\n    $ helm search repo nginx --devel\n\n    # Search for the latest stable release for nginx-ingress with a major version of 1\n    $ helm search repo nginx-ingress --version ^1.0.0\n\nRepositories are managed with 'helm repo' commands."),
 				ox.Usage("repo", "search repositories for a keyword in charts"),
+				ox.Banner("\nSearch reads through all of the repositories configured on the system, and\nlooks for matches. Search of these repositories uses the metadata stored on\nthe system.\n\nIt will display the latest stable versions of the charts found. If you\nspecify the --devel flag, the output will include pre-release versions.\nIf you want to search using a version constraint, use --version.\n\nExamples:\n\n    # Search for stable release versions matching the keyword \"nginx\"\n    $ helm search repo nginx\n\n    # Search for release versions matching the keyword \"nginx\", including pre-release versions\n    $ helm search repo nginx --devel\n\n    # Search for the latest stable release for nginx-ingress with a major version of 1\n    $ helm search repo nginx-ingress --version ^1.0.0\n\nRepositories are managed with 'helm repo' commands."),
 				ox.Spec("[keyword] [flags]"),
 				ox.Help(ox.Sections(
 					"Global Flags",
@@ -1172,8 +1172,8 @@ func main() {
 				String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("\nThis command consists of multiple subcommands to display information about a chart"),
 			ox.Usage("show", "show information of a chart"),
+			ox.Banner("\nThis command consists of multiple subcommands to display information about a chart"),
 			ox.Spec("[command]"),
 			ox.Aliases("inspect"),
 			ox.Help(ox.Sections(
@@ -1181,8 +1181,8 @@ func main() {
 			)),
 			ox.Footer("Use \"helm show [command] --help\" for more information about a command."),
 			ox.Sub(
-				ox.Banner("\nThis command inspects a chart (directory, file, or URL) and displays all its content\n(values.yaml, Chart.yaml, README)"),
 				ox.Usage("all", "show all information of the chart"),
+				ox.Banner("\nThis command inspects a chart (directory, file, or URL) and displays all its content\n(values.yaml, Chart.yaml, README)"),
 				ox.Spec("[CHART] [flags]"),
 				ox.Help(ox.Sections(
 					"Global Flags",
@@ -1218,8 +1218,8 @@ func main() {
 					String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("\nThis command inspects a chart (directory, file, or URL) and displays the contents\nof the Chart.yaml file"),
 				ox.Usage("chart", "show the chart's definition"),
+				ox.Banner("\nThis command inspects a chart (directory, file, or URL) and displays the contents\nof the Chart.yaml file"),
 				ox.Spec("[CHART] [flags]"),
 				ox.Help(ox.Sections(
 					"Global Flags",
@@ -1255,8 +1255,8 @@ func main() {
 					String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("\nThis command inspects a chart (directory, file, or URL) and displays the contents\nof the CustomResourceDefinition files"),
 				ox.Usage("crds", "show the chart's CRDs"),
+				ox.Banner("\nThis command inspects a chart (directory, file, or URL) and displays the contents\nof the CustomResourceDefinition files"),
 				ox.Spec("[CHART] [flags]"),
 				ox.Help(ox.Sections(
 					"Global Flags",
@@ -1292,8 +1292,8 @@ func main() {
 					String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("\nThis command inspects a chart (directory, file, or URL) and displays the contents\nof the README file"),
 				ox.Usage("readme", "show the chart's README"),
+				ox.Banner("\nThis command inspects a chart (directory, file, or URL) and displays the contents\nof the README file"),
 				ox.Spec("[CHART] [flags]"),
 				ox.Help(ox.Sections(
 					"Global Flags",
@@ -1329,8 +1329,8 @@ func main() {
 					String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("\nThis command inspects a chart (directory, file, or URL) and displays the contents\nof the values.yaml file"),
 				ox.Usage("values", "show the chart's values"),
+				ox.Banner("\nThis command inspects a chart (directory, file, or URL) and displays the contents\nof the values.yaml file"),
 				ox.Spec("[CHART] [flags]"),
 				ox.Help(ox.Sections(
 					"Global Flags",
@@ -1385,8 +1385,8 @@ func main() {
 				String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("\nThis command shows the status of a named release.\nThe status consists of:\n- last deployment time\n- k8s namespace in which the release lives\n- state of the release (can be: unknown, deployed, uninstalled, superseded, failed, uninstalling, pending-install, pending-upgrade or pending-rollback)\n- revision of the release\n- description of the release (can be completion message or error message)\n- list of resources that this release consists of\n- details on last test suite run, if applicable\n- additional notes provided by the chart"),
 			ox.Usage("status", "display the status of the named release"),
+			ox.Banner("\nThis command shows the status of a named release.\nThe status consists of:\n- last deployment time\n- k8s namespace in which the release lives\n- state of the release (can be: unknown, deployed, uninstalled, superseded, failed, uninstalling, pending-install, pending-upgrade or pending-rollback)\n- revision of the release\n- description of the release (can be completion message or error message)\n- list of resources that this release consists of\n- details on last test suite run, if applicable\n- additional notes provided by the chart"),
 			ox.Spec("RELEASE_NAME [flags]"),
 			ox.Help(ox.Sections(
 				"Global Flags",
@@ -1412,8 +1412,8 @@ func main() {
 				String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("\nRender chart templates locally and display the output.\n\nAny values that would normally be looked up or retrieved in-cluster will be\nfaked locally. Additionally, none of the server-side testing of chart validity\n(e.g. whether an API is supported) is done."),
 			ox.Usage("template", "locally render templates"),
+			ox.Banner("\nRender chart templates locally and display the output.\n\nAny values that would normally be looked up or retrieved in-cluster will be\nfaked locally. Additionally, none of the server-side testing of chart validity\n(e.g. whether an API is supported) is done."),
 			ox.Spec("[NAME] [CHART] [flags]"),
 			ox.Help(ox.Sections(
 				"Global Flags",
@@ -1486,8 +1486,8 @@ func main() {
 				String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("\nThe test command runs the tests for a release.\n\nThe argument this command takes is the name of a deployed release.\nThe tests to be run are defined in the chart that was installed."),
 			ox.Usage("test", "run tests for a release"),
+			ox.Banner("\nThe test command runs the tests for a release.\n\nThe argument this command takes is the name of a deployed release.\nThe tests to be run are defined in the chart that was installed."),
 			ox.Spec("[RELEASE] [flags]"),
 			ox.Help(ox.Sections(
 				"Global Flags",
@@ -1515,8 +1515,8 @@ func main() {
 				String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("\nThis command takes a release name and uninstalls the release.\n\nIt removes all of the resources associated with the last release of the chart\nas well as the release history, freeing it up for future use.\n\nUse the '--dry-run' flag to see which releases will be uninstalled without actually\nuninstalling them."),
 			ox.Usage("uninstall", "uninstall a release"),
+			ox.Banner("\nThis command takes a release name and uninstalls the release.\n\nIt removes all of the resources associated with the last release of the chart\nas well as the release history, freeing it up for future use.\n\nUse the '--dry-run' flag to see which releases will be uninstalled without actually\nuninstalling them."),
 			ox.Spec("RELEASE_NAME [...] [flags]"),
 			ox.Aliases("del", "delete", "un"),
 			ox.Help(ox.Sections(
@@ -1549,8 +1549,8 @@ func main() {
 				String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("\nThis command upgrades a release to a new version of a chart.\n\nThe upgrade arguments must be a release and chart. The chart\nargument can be either: a chart reference('example/mariadb'), a path to a chart directory,\na packaged chart, or a fully qualified URL. For chart references, the latest\nversion will be specified unless the '--version' flag is set.\n\nTo override values in a chart, use either the '--values' flag and pass in a file\nor use the '--set' flag and pass configuration from the command line, to force string\nvalues, use '--set-string'. You can use '--set-file' to set individual\nvalues from a file when the value itself is too long for the command line\nor is dynamically generated. You can also use '--set-json' to set json values\n(scalars/objects/arrays) from the command line.\n\nYou can specify the '--values'/'-f' flag multiple times. The priority will be given to the\nlast (right-most) file specified. For example, if both myvalues.yaml and override.yaml\ncontained a key called 'Test', the value set in override.yaml would take precedence:\n\n    $ helm upgrade -f myvalues.yaml -f override.yaml redis ./redis\n\nYou can specify the '--set' flag multiple times. The priority will be given to the\nlast (right-most) set specified. For example, if both 'bar' and 'newbar' values are\nset for a key called 'foo', the 'newbar' value would take precedence:\n\n    $ helm upgrade --set foo=bar --set foo=newbar redis ./redis\n\nYou can update the values for an existing release with this command as well via the\n'--reuse-values' flag. The 'RELEASE' and 'CHART' arguments should be set to the original\nparameters, and existing values will be merged with any values set via '--values'/'-f'\nor '--set' flags. Priority is given to new values.\n\n    $ helm upgrade --reuse-values --set foo=bar --set foo=newbar redis ./redis\n\nThe --dry-run flag will output all generated chart manifests, including Secrets\nwhich can contain sensitive values. To hide Kubernetes Secrets use the\n--hide-secret flag. Please carefully consider how and when these flags are used."),
 			ox.Usage("upgrade", "upgrade a release"),
+			ox.Banner("\nThis command upgrades a release to a new version of a chart.\n\nThe upgrade arguments must be a release and chart. The chart\nargument can be either: a chart reference('example/mariadb'), a path to a chart directory,\na packaged chart, or a fully qualified URL. For chart references, the latest\nversion will be specified unless the '--version' flag is set.\n\nTo override values in a chart, use either the '--values' flag and pass in a file\nor use the '--set' flag and pass configuration from the command line, to force string\nvalues, use '--set-string'. You can use '--set-file' to set individual\nvalues from a file when the value itself is too long for the command line\nor is dynamically generated. You can also use '--set-json' to set json values\n(scalars/objects/arrays) from the command line.\n\nYou can specify the '--values'/'-f' flag multiple times. The priority will be given to the\nlast (right-most) file specified. For example, if both myvalues.yaml and override.yaml\ncontained a key called 'Test', the value set in override.yaml would take precedence:\n\n    $ helm upgrade -f myvalues.yaml -f override.yaml redis ./redis\n\nYou can specify the '--set' flag multiple times. The priority will be given to the\nlast (right-most) set specified. For example, if both 'bar' and 'newbar' values are\nset for a key called 'foo', the 'newbar' value would take precedence:\n\n    $ helm upgrade --set foo=bar --set foo=newbar redis ./redis\n\nYou can update the values for an existing release with this command as well via the\n'--reuse-values' flag. The 'RELEASE' and 'CHART' arguments should be set to the original\nparameters, and existing values will be merged with any values set via '--values'/'-f'\nor '--set' flags. Priority is given to new values.\n\n    $ helm upgrade --reuse-values --set foo=bar --set foo=newbar redis ./redis\n\nThe --dry-run flag will output all generated chart manifests, including Secrets\nwhich can contain sensitive values. To hide Kubernetes Secrets use the\n--hide-secret flag. Please carefully consider how and when these flags are used."),
 			ox.Spec("[RELEASE] [CHART] [flags]"),
 			ox.Help(ox.Sections(
 				"Global Flags",
@@ -1619,8 +1619,8 @@ func main() {
 				String("repository-config", "path to the file containing repository names and URLs", ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("\nVerify that the given chart has a valid provenance file.\n\nProvenance files provide cryptographic verification that a chart has not been\ntampered with, and was packaged by a trusted provider.\n\nThis command can be used to verify a local chart. Several other commands provide\n'--verify' flags that run the same validation. To generate a signed package, use\nthe 'helm package --sign' command."),
 			ox.Usage("verify", "verify that a chart at the given path has been signed and is valid"),
+			ox.Banner("\nVerify that the given chart has a valid provenance file.\n\nProvenance files provide cryptographic verification that a chart has not been\ntampered with, and was packaged by a trusted provider.\n\nThis command can be used to verify a local chart. Several other commands provide\n'--verify' flags that run the same validation. To generate a signed package, use\nthe 'helm package --sign' command."),
 			ox.Spec("PATH [flags]"),
 			ox.Help(ox.Sections(
 				"Global Flags",

@@ -140,10 +140,10 @@ func (args *Args) write(root *command) error {
 
 func (args *Args) writeCommand(w io.Writer, cmd *command, indent int) error {
 	padding := strings.Repeat("\t", indent)
+	fmt.Fprintf(w, "%sox.Usage(%q, %q),\n", padding, cmd.name, cmd.usage)
 	if cmd.banner != "" {
 		fmt.Fprintf(w, "%sox.Banner(%q),\n", padding, cmd.banner)
 	}
-	fmt.Fprintf(w, "%sox.Usage(%q, %q),\n", padding, cmd.name, cmd.usage)
 	if cmd.spec != "" {
 		fmt.Fprintf(w, "%sox.Spec(%q),\n", padding, cmd.spec)
 	}

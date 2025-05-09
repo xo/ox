@@ -20,8 +20,8 @@ func main() {
 	ox.RunContext(
 		context.Background(),
 		ox.Defaults(),
-		ox.Banner("psql is the PostgreSQL interactive terminal."),
 		ox.Usage("psql", ""),
+		ox.Banner("psql is the PostgreSQL interactive terminal."),
 		ox.Spec("[OPTION]... [DBNAME [USERNAME]]"),
 		ox.Help(ox.Sections(
 			"General options",

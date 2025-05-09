@@ -13,8 +13,8 @@ func main() {
 	ox.RunContext(
 		context.Background(),
 		ox.Defaults(),
-		ox.Banner("A self-sufficient runtime for containers"),
 		ox.Usage("docker", ""),
+		ox.Banner("A self-sufficient runtime for containers"),
 		ox.Spec("[OPTIONS] COMMAND"),
 		ox.Sections("Common Commands", "Management Commands", "Swarm Commands", "Commands"),
 		ox.Help(ox.Sections(
@@ -22,8 +22,8 @@ func main() {
 		)),
 		ox.Footer("Run 'docker COMMAND --help' for more information on a command.\n\nFor more help on how to use Docker, head to https://docs.docker.com/go/guides/"),
 		ox.Sub(
-			ox.Banner("Create and run a new container from an image"),
 			ox.Usage("run", "Create and run a new container from an image"),
+			ox.Banner("Create and run a new container from an image"),
 			ox.Spec("[OPTIONS] IMAGE [COMMAND] [ARG...]"),
 			ox.Aliases("container run"),
 			ox.Section(0),
@@ -136,8 +136,8 @@ func main() {
 				String("workdir", "Working directory inside the", ox.Short("w"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Execute a command in a running container"),
 			ox.Usage("exec", "Execute a command in a running container"),
+			ox.Banner("Execute a command in a running container"),
 			ox.Spec("[OPTIONS] CONTAINER COMMAND [ARG...]"),
 			ox.Aliases("container exec"),
 			ox.Section(0),
@@ -156,8 +156,8 @@ func main() {
 				String("workdir", "Working directory inside the container", ox.Short("w"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("List containers"),
 			ox.Usage("ps", "List containers"),
+			ox.Banner("List containers"),
 			ox.Spec("[OPTIONS]"),
 			ox.Aliases("container ls", "container list", "container ps"),
 			ox.Section(0),
@@ -175,8 +175,8 @@ func main() {
 				Bool("size", "Display total file sizes", ox.Short("s"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Build an image from a Dockerfile"),
 			ox.Usage("build", "Build an image from a Dockerfile"),
+			ox.Banner("Build an image from a Dockerfile"),
 			ox.Spec("[OPTIONS] PATH | URL | -"),
 			ox.Aliases("image build", "builder build"),
 			ox.Section(0),
@@ -216,8 +216,8 @@ func main() {
 				String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Download an image from a registry"),
 			ox.Usage("pull", "Download an image from a registry"),
+			ox.Banner("Download an image from a registry"),
 			ox.Spec("[OPTIONS] NAME[:TAG|@DIGEST]"),
 			ox.Aliases("image pull"),
 			ox.Section(0),
@@ -231,8 +231,8 @@ func main() {
 				Bool("quiet", "Suppress verbose output", ox.Short("q"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Upload an image to a registry"),
 			ox.Usage("push", "Upload an image to a registry"),
+			ox.Banner("Upload an image to a registry"),
 			ox.Spec("[OPTIONS] NAME[:TAG]"),
 			ox.Aliases("image push"),
 			ox.Section(0),
@@ -246,8 +246,8 @@ func main() {
 				Bool("quiet", "Suppress verbose output", ox.Short("q"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("List images"),
 			ox.Usage("images", "List images"),
+			ox.Banner("List images"),
 			ox.Spec("[OPTIONS] [REPOSITORY[:TAG]]"),
 			ox.Aliases("image ls", "image list"),
 			ox.Section(0),
@@ -264,8 +264,8 @@ func main() {
 				Bool("tree", "List multi-platform images as a tree (EXPERIMENTAL)", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Authenticate to a registry.\nDefaults to Docker Hub if no server is specified."),
 			ox.Usage("login", "Authenticate to a registry"),
+			ox.Banner("Authenticate to a registry.\nDefaults to Docker Hub if no server is specified."),
 			ox.Spec("[OPTIONS] [SERVER]"),
 			ox.Section(0),
 			ox.Help(ox.Sections(
@@ -283,8 +283,8 @@ func main() {
 			ox.Footer("Log out from a registry.\nIf no server is specified, the default is defined by the daemon."),
 		),
 		ox.Sub(
-			ox.Banner("Search Docker Hub for images"),
 			ox.Usage("search", "Search Docker Hub for images"),
+			ox.Banner("Search Docker Hub for images"),
 			ox.Spec("[OPTIONS] TERM"),
 			ox.Section(0),
 			ox.Help(ox.Sections(
@@ -297,8 +297,8 @@ func main() {
 				Bool("no-trunc", "Don't truncate output", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Display system-wide information"),
 			ox.Usage("info", "Display system-wide information"),
+			ox.Banner("Display system-wide information"),
 			ox.Spec("[OPTIONS]"),
 			ox.Aliases("system info"),
 			ox.Section(0),
@@ -309,15 +309,15 @@ func main() {
 				String("format", "Format output using a custom template:", ox.Short("f"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Manage builds"),
 			ox.Usage("builder", "Manage builds"),
+			ox.Banner("Manage builds"),
 			ox.Spec("COMMAND"),
 			ox.Sections("Commands"),
 			ox.Section(1),
 			ox.Footer("Run 'docker builder COMMAND --help' for more information on a command."),
 			ox.Sub(
-				ox.Banner("Build an image from a Dockerfile"),
 				ox.Usage("build", "Build an image from a Dockerfile"),
+				ox.Banner("Build an image from a Dockerfile"),
 				ox.Spec("[OPTIONS] PATH | URL | -"),
 				ox.Aliases("image build", "builder build"),
 				ox.Section(0),
@@ -357,8 +357,8 @@ func main() {
 					String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove build cache"),
 				ox.Usage("prune", "Remove build cache"),
+				ox.Banner("Remove build cache"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
 					"Options",
@@ -371,15 +371,15 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Manage checkpoints"),
 			ox.Usage("checkpoint", "Manage checkpoints"),
+			ox.Banner("Manage checkpoints"),
 			ox.Spec("COMMAND"),
 			ox.Sections("Commands"),
 			ox.Section(1),
 			ox.Footer("Run 'docker checkpoint COMMAND --help' for more information on a command."),
 			ox.Sub(
-				ox.Banner("Create a checkpoint from a running container"),
 				ox.Usage("create", "Create a checkpoint from a running container"),
+				ox.Banner("Create a checkpoint from a running container"),
 				ox.Spec("[OPTIONS] CONTAINER CHECKPOINT"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -390,8 +390,8 @@ func main() {
 					Bool("leave-running", "Leave the container running after checkpoint", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List checkpoints for a container"),
 				ox.Usage("ls", "List checkpoints for a container"),
+				ox.Banner("List checkpoints for a container"),
 				ox.Spec("[OPTIONS] CONTAINER"),
 				ox.Aliases("checkpoint ls", "checkpoint list"),
 				ox.Section(0),
@@ -402,8 +402,8 @@ func main() {
 					String("checkpoint-dir", "Use a custom checkpoint storage directory", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove a checkpoint"),
 				ox.Usage("rm", "Remove a checkpoint"),
+				ox.Banner("Remove a checkpoint"),
 				ox.Spec("[OPTIONS] CONTAINER CHECKPOINT"),
 				ox.Aliases("checkpoint rm", "checkpoint remove"),
 				ox.Section(0),
@@ -415,15 +415,15 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Manage containers"),
 			ox.Usage("container", "Manage containers"),
+			ox.Banner("Manage containers"),
 			ox.Spec("COMMAND"),
 			ox.Sections("Commands"),
 			ox.Section(1),
 			ox.Footer("Run 'docker container COMMAND --help' for more information on a command."),
 			ox.Sub(
-				ox.Banner("Attach local standard input, output, and error streams to a running container"),
 				ox.Usage("attach", "Attach local standard input, output, and error streams to a running container"),
+				ox.Banner("Attach local standard input, output, and error streams to a running container"),
 				ox.Spec("[OPTIONS] CONTAINER"),
 				ox.Aliases("container attach"),
 				ox.Section(0),
@@ -436,8 +436,8 @@ func main() {
 					Bool("sig-proxy", "Proxy all received signals to the process", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Create a new image from a container's changes"),
 				ox.Usage("commit", "Create a new image from a container's changes"),
+				ox.Banner("Create a new image from a container's changes"),
 				ox.Spec("[OPTIONS] CONTAINER [REPOSITORY[:TAG]]"),
 				ox.Aliases("container commit"),
 				ox.Section(0),
@@ -451,8 +451,8 @@ func main() {
 					Bool("pause", "Pause container during commit", ox.Default("true"), ox.Short("p"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("docker cp [OPTIONS] SRC_PATH|- CONTAINER:DEST_PATH\n\nCopy files/folders between a container and the local filesystem\n\nUse '-' as the source to read a tar archive from stdin\nand extract it to a directory destination in a container.\nUse '-' as the destination to stream a tar archive of a\ncontainer source to stdout."),
 				ox.Usage("cp", "Copy files/folders between a container and the local filesystem"),
+				ox.Banner("docker cp [OPTIONS] SRC_PATH|- CONTAINER:DEST_PATH\n\nCopy files/folders between a container and the local filesystem\n\nUse '-' as the source to read a tar archive from stdin\nand extract it to a directory destination in a container.\nUse '-' as the destination to stream a tar archive of a\ncontainer source to stdout."),
 				ox.Spec("[OPTIONS] CONTAINER:SRC_PATH DEST_PATH|-"),
 				ox.Aliases("container cp"),
 				ox.Section(0),
@@ -465,8 +465,8 @@ func main() {
 					Bool("quiet", "Suppress progress output during copy. Progress", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Create a new container"),
 				ox.Usage("create", "Create a new container"),
+				ox.Banner("Create a new container"),
 				ox.Spec("[OPTIONS] IMAGE [COMMAND] [ARG...]"),
 				ox.Aliases("container create"),
 				ox.Section(0),
@@ -576,15 +576,15 @@ func main() {
 					String("workdir", "Working directory inside the", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Inspect changes to files or directories on a container's filesystem"),
 				ox.Usage("diff", "Inspect changes to files or directories on a container's filesystem"),
+				ox.Banner("Inspect changes to files or directories on a container's filesystem"),
 				ox.Spec("CONTAINER"),
 				ox.Aliases("container diff"),
 				ox.Section(0),
 			),
 			ox.Sub(
-				ox.Banner("Execute a command in a running container"),
 				ox.Usage("exec", "Execute a command in a running container"),
+				ox.Banner("Execute a command in a running container"),
 				ox.Spec("[OPTIONS] CONTAINER COMMAND [ARG...]"),
 				ox.Aliases("container exec"),
 				ox.Section(0),
@@ -603,8 +603,8 @@ func main() {
 					String("workdir", "Working directory inside the container", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Export a container's filesystem as a tar archive"),
 				ox.Usage("export", "Export a container's filesystem as a tar archive"),
+				ox.Banner("Export a container's filesystem as a tar archive"),
 				ox.Spec("[OPTIONS] CONTAINER"),
 				ox.Aliases("container export"),
 				ox.Section(0),
@@ -615,8 +615,8 @@ func main() {
 					String("output", "Write to a file, instead of STDOUT", ox.Short("o"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Display detailed information on one or more containers"),
 				ox.Usage("inspect", "Display detailed information on one or more containers"),
+				ox.Banner("Display detailed information on one or more containers"),
 				ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -627,8 +627,8 @@ func main() {
 					Bool("size", "Display total file sizes", ox.Short("s"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Kill one or more running containers"),
 				ox.Usage("kill", "Kill one or more running containers"),
+				ox.Banner("Kill one or more running containers"),
 				ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 				ox.Aliases("container kill"),
 				ox.Section(0),
@@ -639,8 +639,8 @@ func main() {
 					String("signal", "Signal to send to the container", ox.Short("s"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Fetch the logs of a container"),
 				ox.Usage("logs", "Fetch the logs of a container"),
+				ox.Banner("Fetch the logs of a container"),
 				ox.Spec("[OPTIONS] CONTAINER"),
 				ox.Aliases("container logs"),
 				ox.Section(0),
@@ -656,8 +656,8 @@ func main() {
 					String("until", "Show logs before a timestamp (e.g.", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List containers"),
 				ox.Usage("ls", "List containers"),
+				ox.Banner("List containers"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("container ls", "container list", "container ps", "ps"),
 				ox.Section(0),
@@ -675,22 +675,22 @@ func main() {
 					Bool("size", "Display total file sizes", ox.Short("s"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Pause all processes within one or more containers"),
 				ox.Usage("pause", "Pause all processes within one or more containers"),
+				ox.Banner("Pause all processes within one or more containers"),
 				ox.Spec("CONTAINER [CONTAINER...]"),
 				ox.Aliases("container pause"),
 				ox.Section(0),
 			),
 			ox.Sub(
-				ox.Banner("List port mappings or a specific mapping for the container"),
 				ox.Usage("port", "List port mappings or a specific mapping for the container"),
+				ox.Banner("List port mappings or a specific mapping for the container"),
 				ox.Spec("CONTAINER [PRIVATE_PORT[/PROTO]]"),
 				ox.Aliases("container port"),
 				ox.Section(0),
 			),
 			ox.Sub(
-				ox.Banner("Remove all stopped containers"),
 				ox.Usage("prune", "Remove all stopped containers"),
+				ox.Banner("Remove all stopped containers"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -701,15 +701,15 @@ func main() {
 					Bool("force", "Do not prompt for confirmation", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Rename a container"),
 				ox.Usage("rename", "Rename a container"),
+				ox.Banner("Rename a container"),
 				ox.Spec("CONTAINER NEW_NAME"),
 				ox.Aliases("container rename"),
 				ox.Section(0),
 			),
 			ox.Sub(
-				ox.Banner("Restart one or more containers"),
 				ox.Usage("restart", "Restart one or more containers"),
+				ox.Banner("Restart one or more containers"),
 				ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 				ox.Aliases("container restart"),
 				ox.Section(0),
@@ -721,8 +721,8 @@ func main() {
 					Int("timeout", "Seconds to wait before killing the container", ox.Short("t"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove one or more containers"),
 				ox.Usage("rm", "Remove one or more containers"),
+				ox.Banner("Remove one or more containers"),
 				ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 				ox.Aliases("container rm", "container remove"),
 				ox.Section(0),
@@ -735,8 +735,8 @@ func main() {
 					Bool("volumes", "Remove anonymous volumes associated with the container", ox.Short("v"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Create and run a new container from an image"),
 				ox.Usage("run", "Create and run a new container from an image"),
+				ox.Banner("Create and run a new container from an image"),
 				ox.Spec("[OPTIONS] IMAGE [COMMAND] [ARG...]"),
 				ox.Aliases("container run"),
 				ox.Section(0),
@@ -849,8 +849,8 @@ func main() {
 					String("workdir", "Working directory inside the", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Start one or more stopped containers"),
 				ox.Usage("start", "Start one or more stopped containers"),
+				ox.Banner("Start one or more stopped containers"),
 				ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 				ox.Aliases("container start"),
 				ox.Section(0),
@@ -865,8 +865,8 @@ func main() {
 					Bool("interactive", "Attach container's STDIN", ox.Short("i"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Display a live stream of container(s) resource usage statistics"),
 				ox.Usage("stats", "Display a live stream of container(s) resource usage statistics"),
+				ox.Banner("Display a live stream of container(s) resource usage statistics"),
 				ox.Spec("[OPTIONS] [CONTAINER...]"),
 				ox.Aliases("container stats"),
 				ox.Section(0),
@@ -880,8 +880,8 @@ func main() {
 					Bool("no-trunc", "Do not truncate output", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Stop one or more running containers"),
 				ox.Usage("stop", "Stop one or more running containers"),
+				ox.Banner("Stop one or more running containers"),
 				ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 				ox.Aliases("container stop"),
 				ox.Section(0),
@@ -893,22 +893,22 @@ func main() {
 					Int("timeout", "Seconds to wait before killing the container", ox.Short("t"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Display the running processes of a container"),
 				ox.Usage("top", "Display the running processes of a container"),
+				ox.Banner("Display the running processes of a container"),
 				ox.Spec("CONTAINER [ps OPTIONS]"),
 				ox.Aliases("container top"),
 				ox.Section(0),
 			),
 			ox.Sub(
-				ox.Banner("Unpause all processes within one or more containers"),
 				ox.Usage("unpause", "Unpause all processes within one or more containers"),
+				ox.Banner("Unpause all processes within one or more containers"),
 				ox.Spec("CONTAINER [CONTAINER...]"),
 				ox.Aliases("container unpause"),
 				ox.Section(0),
 			),
 			ox.Sub(
-				ox.Banner("Update configuration of one or more containers"),
 				ox.Usage("update", "Update configuration of one or more containers"),
+				ox.Banner("Update configuration of one or more containers"),
 				ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 				ox.Aliases("container update"),
 				ox.Section(0),
@@ -932,16 +932,16 @@ func main() {
 					String("restart", "Restart policy to apply when a", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Block until one or more containers stop, then print their exit codes"),
 				ox.Usage("wait", "Block until one or more containers stop, then print their exit codes"),
+				ox.Banner("Block until one or more containers stop, then print their exit codes"),
 				ox.Spec("CONTAINER [CONTAINER...]"),
 				ox.Aliases("container wait"),
 				ox.Section(0),
 			),
 		),
 		ox.Sub(
-			ox.Banner("Manage contexts"),
 			ox.Usage("context", "Manage contexts"),
+			ox.Banner("Manage contexts"),
 			ox.Spec("COMMAND"),
 			ox.Sections("Commands"),
 			ox.Section(1),
@@ -959,8 +959,8 @@ func main() {
 				ox.Footer("Import a context from a tar or zip file"),
 			),
 			ox.Sub(
-				ox.Banner("Display detailed information on one or more contexts"),
 				ox.Usage("inspect", "Display detailed information on one or more contexts"),
+				ox.Banner("Display detailed information on one or more contexts"),
 				ox.Spec("[OPTIONS] [CONTEXT] [CONTEXT...]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -970,8 +970,8 @@ func main() {
 					String("format", "Format output using a custom template:", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List contexts"),
 				ox.Usage("ls", "List contexts"),
+				ox.Banner("List contexts"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("context ls", "context list"),
 				ox.Section(0),
@@ -983,8 +983,8 @@ func main() {
 					Bool("quiet", "Only show context names", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove one or more contexts"),
 				ox.Usage("rm", "Remove one or more contexts"),
+				ox.Banner("Remove one or more contexts"),
 				ox.Spec("CONTEXT [CONTEXT...]"),
 				ox.Aliases("context rm", "context remove"),
 				ox.Section(0),
@@ -1000,8 +1000,8 @@ func main() {
 				ox.Footer("Print the name of the current context"),
 			),
 			ox.Sub(
-				ox.Banner("Update a context"),
 				ox.Usage("update", "Update a context"),
+				ox.Banner("Update a context"),
 				ox.Spec("[OPTIONS] CONTEXT"),
 				ox.Example("\n$ docker context update my-context --description \"some description\" --docker \"host=tcp://myserver:2376,ca=~/ca-file,cert=~/cert-file,key=~/key-file\""),
 				ox.Section(0),
@@ -1020,15 +1020,15 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Manage images"),
 			ox.Usage("image", "Manage images"),
+			ox.Banner("Manage images"),
 			ox.Spec("COMMAND"),
 			ox.Sections("Commands"),
 			ox.Section(1),
 			ox.Footer("Run 'docker image COMMAND --help' for more information on a command."),
 			ox.Sub(
-				ox.Banner("Build an image from a Dockerfile"),
 				ox.Usage("build", "Build an image from a Dockerfile"),
+				ox.Banner("Build an image from a Dockerfile"),
 				ox.Spec("[OPTIONS] PATH | URL | -"),
 				ox.Aliases("image build", "builder build"),
 				ox.Section(0),
@@ -1068,8 +1068,8 @@ func main() {
 					String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Show the history of an image"),
 				ox.Usage("history", "Show the history of an image"),
+				ox.Banner("Show the history of an image"),
 				ox.Spec("[OPTIONS] IMAGE"),
 				ox.Aliases("image history"),
 				ox.Section(0),
@@ -1084,8 +1084,8 @@ func main() {
 					Bool("quiet", "Only show image IDs", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Import the contents from a tarball to create a filesystem image"),
 				ox.Usage("import", "Import the contents from a tarball to create a filesystem image"),
+				ox.Banner("Import the contents from a tarball to create a filesystem image"),
 				ox.Spec("[OPTIONS] file|URL|- [REPOSITORY[:TAG]]"),
 				ox.Aliases("image import"),
 				ox.Section(0),
@@ -1098,8 +1098,8 @@ func main() {
 					String("platform", "Set platform if server is multi-platform capable", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Display detailed information on one or more images"),
 				ox.Usage("inspect", "Display detailed information on one or more images"),
+				ox.Banner("Display detailed information on one or more images"),
 				ox.Spec("[OPTIONS] IMAGE [IMAGE...]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1110,8 +1110,8 @@ func main() {
 					String("platform", "Inspect a specific platform of the", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Load an image from a tar archive or STDIN"),
 				ox.Usage("load", "Load an image from a tar archive or STDIN"),
+				ox.Banner("Load an image from a tar archive or STDIN"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("image load"),
 				ox.Section(0),
@@ -1124,8 +1124,8 @@ func main() {
 					Bool("quiet", "Suppress the load output", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List images"),
 				ox.Usage("ls", "List images"),
+				ox.Banner("List images"),
 				ox.Spec("[OPTIONS] [REPOSITORY[:TAG]]"),
 				ox.Aliases("image ls", "image list", "images"),
 				ox.Section(0),
@@ -1142,8 +1142,8 @@ func main() {
 					Bool("tree", "List multi-platform images as a tree (EXPERIMENTAL)", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove unused images"),
 				ox.Usage("prune", "Remove unused images"),
+				ox.Banner("Remove unused images"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1155,8 +1155,8 @@ func main() {
 					Bool("force", "Do not prompt for confirmation", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Download an image from a registry"),
 				ox.Usage("pull", "Download an image from a registry"),
+				ox.Banner("Download an image from a registry"),
 				ox.Spec("[OPTIONS] NAME[:TAG|@DIGEST]"),
 				ox.Aliases("image pull"),
 				ox.Section(0),
@@ -1170,8 +1170,8 @@ func main() {
 					Bool("quiet", "Suppress verbose output", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Upload an image to a registry"),
 				ox.Usage("push", "Upload an image to a registry"),
+				ox.Banner("Upload an image to a registry"),
 				ox.Spec("[OPTIONS] NAME[:TAG]"),
 				ox.Aliases("image push"),
 				ox.Section(0),
@@ -1185,8 +1185,8 @@ func main() {
 					Bool("quiet", "Suppress verbose output", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove one or more images"),
 				ox.Usage("rm", "Remove one or more images"),
+				ox.Banner("Remove one or more images"),
 				ox.Spec("[OPTIONS] IMAGE [IMAGE...]"),
 				ox.Aliases("image rm", "image remove", "rmi"),
 				ox.Section(0),
@@ -1198,8 +1198,8 @@ func main() {
 					Bool("no-prune", "Do not delete untagged parents", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Save one or more images to a tar archive (streamed to STDOUT by default)"),
 				ox.Usage("save", "Save one or more images to a tar archive (streamed to STDOUT by default)"),
+				ox.Banner("Save one or more images to a tar archive (streamed to STDOUT by default)"),
 				ox.Spec("[OPTIONS] IMAGE [IMAGE...]"),
 				ox.Aliases("image save"),
 				ox.Section(0),
@@ -1211,23 +1211,23 @@ func main() {
 					String("platform", "Save only the given platform variant. Formatted", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE"),
 				ox.Usage("tag", "Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE"),
+				ox.Banner("Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE"),
 				ox.Spec("SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]"),
 				ox.Aliases("image tag"),
 				ox.Section(0),
 			),
 		),
 		ox.Sub(
-			ox.Banner("The **docker manifest** command has subcommands for managing image manifests and\nmanifest lists. A manifest list allows you to use one name to refer to the same image\nbuilt for multiple architectures.\n\nTo see help for a subcommand, use:\n\n    docker manifest CMD --help\n\nFor full details on using docker manifest lists, see the registry v2 specification."),
 			ox.Usage("manifest", "Manage Docker image manifests and manifest lists"),
+			ox.Banner("The **docker manifest** command has subcommands for managing image manifests and\nmanifest lists. A manifest list allows you to use one name to refer to the same image\nbuilt for multiple architectures.\n\nTo see help for a subcommand, use:\n\n    docker manifest CMD --help\n\nFor full details on using docker manifest lists, see the registry v2 specification."),
 			ox.Spec("COMMAND"),
 			ox.Sections("Commands"),
 			ox.Section(1),
 			ox.Footer("Run 'docker manifest COMMAND --help' for more information on a command."),
 			ox.Sub(
-				ox.Banner("Add additional information to a local image manifest"),
 				ox.Usage("annotate", "Add additional information to a local image manifest"),
+				ox.Banner("Add additional information to a local image manifest"),
 				ox.Spec("[OPTIONS] MANIFEST_LIST MANIFEST"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1241,8 +1241,8 @@ func main() {
 					String("variant", "Set architecture variant", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Create a local manifest list for annotating and pushing to a registry"),
 				ox.Usage("create", "Create a local manifest list for annotating and pushing to a registry"),
+				ox.Banner("Create a local manifest list for annotating and pushing to a registry"),
 				ox.Spec("MANIFEST_LIST MANIFEST [MANIFEST...]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1253,8 +1253,8 @@ func main() {
 					Bool("insecure", "Allow communication with an insecure registry", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Display an image manifest, or manifest list"),
 				ox.Usage("inspect", "Display an image manifest, or manifest list"),
+				ox.Banner("Display an image manifest, or manifest list"),
 				ox.Spec("[OPTIONS] [MANIFEST_LIST] MANIFEST"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1265,8 +1265,8 @@ func main() {
 					Bool("verbose", "Output additional info including layers and platform", ox.Short("v"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Push a manifest list to a repository"),
 				ox.Usage("push", "Push a manifest list to a repository"),
+				ox.Banner("Push a manifest list to a repository"),
 				ox.Spec("[OPTIONS] MANIFEST_LIST"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1277,22 +1277,22 @@ func main() {
 					Bool("purge", "Remove the local manifest list after push", ox.Short("p"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Delete one or more manifest lists from local storage"),
 				ox.Usage("rm", "Delete one or more manifest lists from local storage"),
+				ox.Banner("Delete one or more manifest lists from local storage"),
 				ox.Spec("MANIFEST_LIST [MANIFEST_LIST...]"),
 				ox.Section(0),
 			),
 		),
 		ox.Sub(
-			ox.Banner("Manage networks"),
 			ox.Usage("network", "Manage networks"),
+			ox.Banner("Manage networks"),
 			ox.Spec("COMMAND"),
 			ox.Sections("Commands"),
 			ox.Section(1),
 			ox.Footer("Run 'docker network COMMAND --help' for more information on a command."),
 			ox.Sub(
-				ox.Banner("Connect a container to a network"),
 				ox.Usage("connect", "Connect a container to a network"),
+				ox.Banner("Connect a container to a network"),
 				ox.Spec("[OPTIONS] NETWORK CONTAINER"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1308,8 +1308,8 @@ func main() {
 					Slice("link-local-ip", "Add a link-local address for the container", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Create a network"),
 				ox.Usage("create", "Create a network"),
+				ox.Banner("Create a network"),
 				ox.Spec("[OPTIONS] NETWORK"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1335,8 +1335,8 @@ func main() {
 					Slice("subnet", "Subnet in CIDR format that represents a", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Disconnect a container from a network"),
 				ox.Usage("disconnect", "Disconnect a container from a network"),
+				ox.Banner("Disconnect a container from a network"),
 				ox.Spec("[OPTIONS] NETWORK CONTAINER"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1346,8 +1346,8 @@ func main() {
 					Bool("force", "Force the container to disconnect from a network", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Display detailed information on one or more networks"),
 				ox.Usage("inspect", "Display detailed information on one or more networks"),
+				ox.Banner("Display detailed information on one or more networks"),
 				ox.Spec("[OPTIONS] NETWORK [NETWORK...]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1358,8 +1358,8 @@ func main() {
 					Bool("verbose", "Verbose output for diagnostics", ox.Short("v"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List networks"),
 				ox.Usage("ls", "List networks"),
+				ox.Banner("List networks"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("network ls", "network list"),
 				ox.Section(0),
@@ -1373,8 +1373,8 @@ func main() {
 					Bool("quiet", "Only display network IDs", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove all unused networks"),
 				ox.Usage("prune", "Remove all unused networks"),
+				ox.Banner("Remove all unused networks"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1385,8 +1385,8 @@ func main() {
 					Bool("force", "Do not prompt for confirmation", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove one or more networks"),
 				ox.Usage("rm", "Remove one or more networks"),
+				ox.Banner("Remove one or more networks"),
 				ox.Spec("NETWORK [NETWORK...]"),
 				ox.Aliases("network rm", "network remove"),
 				ox.Section(0),
@@ -1398,15 +1398,15 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Manage plugins"),
 			ox.Usage("plugin", "Manage plugins"),
+			ox.Banner("Manage plugins"),
 			ox.Spec("COMMAND"),
 			ox.Sections("Commands"),
 			ox.Section(1),
 			ox.Footer("Run 'docker plugin COMMAND --help' for more information on a command."),
 			ox.Sub(
-				ox.Banner("Create a plugin from a rootfs and configuration. Plugin data directory must contain config.json and rootfs directory."),
 				ox.Usage("create", "Create a plugin from a rootfs and configuration. Plugin data directory must contain config.json and rootfs directory."),
+				ox.Banner("Create a plugin from a rootfs and configuration. Plugin data directory must contain config.json and rootfs directory."),
 				ox.Spec("[OPTIONS] PLUGIN PLUGIN-DATA-DIR"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1416,8 +1416,8 @@ func main() {
 					Bool("compress", "Compress the context using gzip", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Disable a plugin"),
 				ox.Usage("disable", "Disable a plugin"),
+				ox.Banner("Disable a plugin"),
 				ox.Spec("[OPTIONS] PLUGIN"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1427,8 +1427,8 @@ func main() {
 					Bool("force", "Force the disable of an active plugin", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Enable a plugin"),
 				ox.Usage("enable", "Enable a plugin"),
+				ox.Banner("Enable a plugin"),
 				ox.Spec("[OPTIONS] PLUGIN"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1438,8 +1438,8 @@ func main() {
 					Int("timeout", "HTTP client timeout (in seconds)", ox.Default("30"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Display detailed information on one or more plugins"),
 				ox.Usage("inspect", "Display detailed information on one or more plugins"),
+				ox.Banner("Display detailed information on one or more plugins"),
 				ox.Spec("[OPTIONS] PLUGIN [PLUGIN...]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1449,8 +1449,8 @@ func main() {
 					String("format", "Format output using a custom template:", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Install a plugin"),
 				ox.Usage("install", "Install a plugin"),
+				ox.Banner("Install a plugin"),
 				ox.Spec("[OPTIONS] PLUGIN [KEY=VALUE...]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1463,8 +1463,8 @@ func main() {
 					Bool("grant-all-permissions", "Grant all permissions necessary to run", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List plugins"),
 				ox.Usage("ls", "List plugins"),
+				ox.Banner("List plugins"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("plugin ls", "plugin list"),
 				ox.Section(0),
@@ -1478,8 +1478,8 @@ func main() {
 					Bool("quiet", "Only display plugin IDs", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Push a plugin to a registry"),
 				ox.Usage("push", "Push a plugin to a registry"),
+				ox.Banner("Push a plugin to a registry"),
 				ox.Spec("[OPTIONS] PLUGIN[:TAG]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1489,8 +1489,8 @@ func main() {
 					Bool("disable-content-trust", "Skip image signing", ox.Default("true"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove one or more plugins"),
 				ox.Usage("rm", "Remove one or more plugins"),
+				ox.Banner("Remove one or more plugins"),
 				ox.Spec("[OPTIONS] PLUGIN [PLUGIN...]"),
 				ox.Aliases("plugin rm", "plugin remove"),
 				ox.Section(0),
@@ -1507,8 +1507,8 @@ func main() {
 				ox.Footer("Change settings for a plugin"),
 			),
 			ox.Sub(
-				ox.Banner("Upgrade an existing plugin"),
 				ox.Usage("upgrade", "Upgrade an existing plugin"),
+				ox.Banner("Upgrade an existing plugin"),
 				ox.Spec("[OPTIONS] PLUGIN [REMOTE]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1521,15 +1521,15 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Manage Docker"),
 			ox.Usage("system", "Manage Docker"),
+			ox.Banner("Manage Docker"),
 			ox.Spec("COMMAND"),
 			ox.Sections("Commands"),
 			ox.Section(1),
 			ox.Footer("Run 'docker system COMMAND --help' for more information on a command."),
 			ox.Sub(
-				ox.Banner("Show docker disk usage"),
 				ox.Usage("df", "Show docker disk usage"),
+				ox.Banner("Show docker disk usage"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1540,8 +1540,8 @@ func main() {
 					Bool("verbose", "Show detailed information on space usage", ox.Short("v"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Get real time events from the server"),
 				ox.Usage("events", "Get real time events from the server"),
+				ox.Banner("Get real time events from the server"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("system events"),
 				ox.Section(0),
@@ -1555,8 +1555,8 @@ func main() {
 					String("until", "Stream events until this timestamp", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Display system-wide information"),
 				ox.Usage("info", "Display system-wide information"),
+				ox.Banner("Display system-wide information"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("system info"),
 				ox.Section(0),
@@ -1567,8 +1567,8 @@ func main() {
 					String("format", "Format output using a custom template:", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove unused data"),
 				ox.Usage("prune", "Remove unused data"),
+				ox.Banner("Remove unused data"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1582,22 +1582,22 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Manage trust on Docker images"),
 			ox.Usage("trust", "Manage trust on Docker images"),
+			ox.Banner("Manage trust on Docker images"),
 			ox.Spec("COMMAND"),
 			ox.Sections("Management Commands", "Commands"),
 			ox.Section(1),
 			ox.Footer("Run 'docker trust COMMAND --help' for more information on a command."),
 			ox.Sub(
-				ox.Banner("Manage keys for signing Docker images"),
 				ox.Usage("key", "Manage keys for signing Docker images"),
+				ox.Banner("Manage keys for signing Docker images"),
 				ox.Spec("COMMAND"),
 				ox.Sections("Commands"),
 				ox.Section(0),
 				ox.Footer("Run 'docker trust key COMMAND --help' for more information on a command."),
 				ox.Sub(
-					ox.Banner("Generate and load a signing key-pair"),
 					ox.Usage("generate", "Generate and load a signing key-pair"),
+					ox.Banner("Generate and load a signing key-pair"),
 					ox.Spec("NAME"),
 					ox.Section(0),
 					ox.Help(ox.Sections(
@@ -1607,8 +1607,8 @@ func main() {
 						String("dir", "Directory to generate key in, defaults to current", ox.Section(0)),
 				),
 				ox.Sub(
-					ox.Banner("Load a private key file for signing"),
 					ox.Usage("load", "Load a private key file for signing"),
+					ox.Banner("Load a private key file for signing"),
 					ox.Spec("[OPTIONS] KEYFILE"),
 					ox.Section(0),
 					ox.Help(ox.Sections(
@@ -1619,15 +1619,15 @@ func main() {
 				),
 			),
 			ox.Sub(
-				ox.Banner("Manage entities who can sign Docker images"),
 				ox.Usage("signer", "Manage entities who can sign Docker images"),
+				ox.Banner("Manage entities who can sign Docker images"),
 				ox.Spec("COMMAND"),
 				ox.Sections("Commands"),
 				ox.Section(0),
 				ox.Footer("Run 'docker trust signer COMMAND --help' for more information on a command."),
 				ox.Sub(
-					ox.Banner("Add a signer"),
 					ox.Usage("add", "Add a signer"),
+					ox.Banner("Add a signer"),
 					ox.Spec("OPTIONS NAME REPOSITORY [REPOSITORY...]"),
 					ox.Section(0),
 					ox.Help(ox.Sections(
@@ -1637,8 +1637,8 @@ func main() {
 						Slice("key", "Path to the signer's public key file", ox.Section(0)),
 				),
 				ox.Sub(
-					ox.Banner("Remove a signer"),
 					ox.Usage("remove", "Remove a signer"),
+					ox.Banner("Remove a signer"),
 					ox.Spec("[OPTIONS] NAME REPOSITORY [REPOSITORY...]"),
 					ox.Section(0),
 					ox.Help(ox.Sections(
@@ -1649,8 +1649,8 @@ func main() {
 				),
 			),
 			ox.Sub(
-				ox.Banner("Return low-level information about keys and signatures"),
 				ox.Usage("inspect", "Return low-level information about keys and signatures"),
+				ox.Banner("Return low-level information about keys and signatures"),
 				ox.Spec("IMAGE[:TAG] [IMAGE[:TAG]...]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -1660,8 +1660,8 @@ func main() {
 					Bool("pretty", "Print the information in a human friendly format", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove trust for an image"),
 				ox.Usage("revoke", "Remove trust for an image"),
+				ox.Banner("Remove trust for an image"),
 				ox.Spec("[OPTIONS] IMAGE[:TAG]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -1671,8 +1671,8 @@ func main() {
 					Bool("yes", "Do not prompt for confirmation", ox.Short("y"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Sign an image"),
 				ox.Usage("sign", "Sign an image"),
+				ox.Banner("Sign an image"),
 				ox.Spec("IMAGE:TAG"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -1683,15 +1683,15 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Manage volumes"),
 			ox.Usage("volume", "Manage volumes"),
+			ox.Banner("Manage volumes"),
 			ox.Spec("COMMAND"),
 			ox.Sections("Commands"),
 			ox.Section(1),
 			ox.Footer("Run 'docker volume COMMAND --help' for more information on a command."),
 			ox.Sub(
-				ox.Banner("Create a volume"),
 				ox.Usage("create", "Create a volume"),
+				ox.Banner("Create a volume"),
 				ox.Spec("[OPTIONS] [VOLUME]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1713,8 +1713,8 @@ func main() {
 					String("type", "Cluster Volume access type (\"mount\",", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Display detailed information on one or more volumes"),
 				ox.Usage("inspect", "Display detailed information on one or more volumes"),
+				ox.Banner("Display detailed information on one or more volumes"),
 				ox.Spec("[OPTIONS] VOLUME [VOLUME...]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1724,8 +1724,8 @@ func main() {
 					String("format", "Format output using a custom template:", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List volumes"),
 				ox.Usage("ls", "List volumes"),
+				ox.Banner("List volumes"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("volume ls", "volume list"),
 				ox.Section(0),
@@ -1739,8 +1739,8 @@ func main() {
 					Bool("quiet", "Only display volume names", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove unused local volumes"),
 				ox.Usage("prune", "Remove unused local volumes"),
+				ox.Banner("Remove unused local volumes"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1752,8 +1752,8 @@ func main() {
 					Bool("force", "Do not prompt for confirmation", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove one or more volumes. You cannot remove a volume that is in use by a container."),
 				ox.Usage("rm", "Remove one or more volumes"),
+				ox.Banner("Remove one or more volumes. You cannot remove a volume that is in use by a container."),
 				ox.Spec("[OPTIONS] VOLUME [VOLUME...]"),
 				ox.Aliases("volume rm", "volume remove"),
 				ox.Section(0),
@@ -1764,8 +1764,8 @@ func main() {
 					Bool("force", "Force the removal of one or more volumes", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Update a volume (cluster volumes only)"),
 				ox.Usage("update", "Update a volume (cluster volumes only)"),
+				ox.Banner("Update a volume (cluster volumes only)"),
 				ox.Spec("[OPTIONS] [VOLUME]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1776,15 +1776,15 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Manage Swarm configs"),
 			ox.Usage("config", "Manage Swarm configs"),
+			ox.Banner("Manage Swarm configs"),
 			ox.Spec("COMMAND"),
 			ox.Sections("Commands"),
 			ox.Section(2),
 			ox.Footer("Run 'docker config COMMAND --help' for more information on a command."),
 			ox.Sub(
-				ox.Banner("Create a config from a file or STDIN"),
 				ox.Usage("create", "Create a config from a file or STDIN"),
+				ox.Banner("Create a config from a file or STDIN"),
 				ox.Spec("[OPTIONS] CONFIG file|-"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1795,8 +1795,8 @@ func main() {
 					String("template-driver", "Template driver", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Display detailed information on one or more configs"),
 				ox.Usage("inspect", "Display detailed information on one or more configs"),
+				ox.Banner("Display detailed information on one or more configs"),
 				ox.Spec("[OPTIONS] CONFIG [CONFIG...]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1807,8 +1807,8 @@ func main() {
 					Bool("pretty", "Print the information in a human friendly format", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List configs"),
 				ox.Usage("ls", "List configs"),
+				ox.Banner("List configs"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("config ls", "config list"),
 				ox.Section(0),
@@ -1821,16 +1821,16 @@ func main() {
 					Bool("quiet", "Only display IDs", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove one or more configs"),
 				ox.Usage("rm", "Remove one or more configs"),
+				ox.Banner("Remove one or more configs"),
 				ox.Spec("CONFIG [CONFIG...]"),
 				ox.Aliases("config rm", "config remove"),
 				ox.Section(0),
 			),
 		),
 		ox.Sub(
-			ox.Banner("Manage Swarm nodes"),
 			ox.Usage("node", "Manage Swarm nodes"),
+			ox.Banner("Manage Swarm nodes"),
 			ox.Spec("COMMAND"),
 			ox.Sections("Commands"),
 			ox.Section(2),
@@ -1842,8 +1842,8 @@ func main() {
 				ox.Footer("Demote one or more nodes from manager in the swarm"),
 			),
 			ox.Sub(
-				ox.Banner("Display detailed information on one or more nodes"),
 				ox.Usage("inspect", "Display detailed information on one or more nodes"),
+				ox.Banner("Display detailed information on one or more nodes"),
 				ox.Spec("[OPTIONS] self|NODE [NODE...]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1854,8 +1854,8 @@ func main() {
 					Bool("pretty", "Print the information in a human friendly format", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List nodes in the swarm"),
 				ox.Usage("ls", "List nodes in the swarm"),
+				ox.Banner("List nodes in the swarm"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("node ls", "node list"),
 				ox.Section(0),
@@ -1874,8 +1874,8 @@ func main() {
 				ox.Footer("Promote one or more nodes to manager in the swarm"),
 			),
 			ox.Sub(
-				ox.Banner("List tasks running on one or more nodes, defaults to current node"),
 				ox.Usage("ps", "List tasks running on one or more nodes, defaults to current node"),
+				ox.Banner("List tasks running on one or more nodes, defaults to current node"),
 				ox.Spec("[OPTIONS] [NODE...]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1889,8 +1889,8 @@ func main() {
 					Bool("quiet", "Only display task IDs", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove one or more nodes from the swarm"),
 				ox.Usage("rm", "Remove one or more nodes from the swarm"),
+				ox.Banner("Remove one or more nodes from the swarm"),
 				ox.Spec("[OPTIONS] NODE [NODE...]"),
 				ox.Aliases("node rm", "node remove"),
 				ox.Section(0),
@@ -1901,8 +1901,8 @@ func main() {
 					Bool("force", "Force remove a node from the swarm", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Update a node"),
 				ox.Usage("update", "Update a node"),
+				ox.Banner("Update a node"),
 				ox.Spec("[OPTIONS] NODE"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1916,15 +1916,15 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Manage Swarm secrets"),
 			ox.Usage("secret", "Manage Swarm secrets"),
+			ox.Banner("Manage Swarm secrets"),
 			ox.Spec("COMMAND"),
 			ox.Sections("Commands"),
 			ox.Section(2),
 			ox.Footer("Run 'docker secret COMMAND --help' for more information on a command."),
 			ox.Sub(
-				ox.Banner("Create a secret from a file or STDIN as content"),
 				ox.Usage("create", "Create a secret from a file or STDIN as content"),
+				ox.Banner("Create a secret from a file or STDIN as content"),
 				ox.Spec("[OPTIONS] SECRET [file|-]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1936,8 +1936,8 @@ func main() {
 					String("template-driver", "Template driver", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Display detailed information on one or more secrets"),
 				ox.Usage("inspect", "Display detailed information on one or more secrets"),
+				ox.Banner("Display detailed information on one or more secrets"),
 				ox.Spec("[OPTIONS] SECRET [SECRET...]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -1948,8 +1948,8 @@ func main() {
 					Bool("pretty", "Print the information in a human friendly format", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List secrets"),
 				ox.Usage("ls", "List secrets"),
+				ox.Banner("List secrets"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("secret ls", "secret list"),
 				ox.Section(0),
@@ -1962,23 +1962,23 @@ func main() {
 					Bool("quiet", "Only display IDs", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove one or more secrets"),
 				ox.Usage("rm", "Remove one or more secrets"),
+				ox.Banner("Remove one or more secrets"),
 				ox.Spec("SECRET [SECRET...]"),
 				ox.Aliases("secret rm", "secret remove"),
 				ox.Section(0),
 			),
 		),
 		ox.Sub(
-			ox.Banner("Manage Swarm services"),
 			ox.Usage("service", "Manage Swarm services"),
+			ox.Banner("Manage Swarm services"),
 			ox.Spec("COMMAND"),
 			ox.Sections("Commands"),
 			ox.Section(2),
 			ox.Footer("Run 'docker service COMMAND --help' for more information on a command."),
 			ox.Sub(
-				ox.Banner("Create a new service"),
 				ox.Usage("create", "Create a new service"),
+				ox.Banner("Create a new service"),
 				ox.Spec("[OPTIONS] IMAGE [COMMAND] [ARG...]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -2060,8 +2060,8 @@ func main() {
 					String("workdir", "Working directory inside the", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Display detailed information on one or more services"),
 				ox.Usage("inspect", "Display detailed information on one or more services"),
+				ox.Banner("Display detailed information on one or more services"),
 				ox.Spec("[OPTIONS] SERVICE [SERVICE...]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -2072,8 +2072,8 @@ func main() {
 					Bool("pretty", "Print the information in a human friendly format", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Fetch the logs of a service or task"),
 				ox.Usage("logs", "Fetch the logs of a service or task"),
+				ox.Banner("Fetch the logs of a service or task"),
 				ox.Spec("[OPTIONS] SERVICE|TASK"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -2091,8 +2091,8 @@ func main() {
 					Bool("timestamps", "Show timestamps", ox.Short("t"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List services"),
 				ox.Usage("ls", "List services"),
+				ox.Banner("List services"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("service ls", "service list"),
 				ox.Section(0),
@@ -2105,8 +2105,8 @@ func main() {
 					Bool("quiet", "Only display IDs", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List the tasks of one or more services"),
 				ox.Usage("ps", "List the tasks of one or more services"),
+				ox.Banner("List the tasks of one or more services"),
 				ox.Spec("[OPTIONS] SERVICE [SERVICE...]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -2120,15 +2120,15 @@ func main() {
 					Bool("quiet", "Only display task IDs", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove one or more services"),
 				ox.Usage("rm", "Remove one or more services"),
+				ox.Banner("Remove one or more services"),
 				ox.Spec("SERVICE [SERVICE...]"),
 				ox.Aliases("service rm", "service remove"),
 				ox.Section(0),
 			),
 			ox.Sub(
-				ox.Banner("Revert changes to a service's configuration"),
 				ox.Usage("rollback", "Revert changes to a service's configuration"),
+				ox.Banner("Revert changes to a service's configuration"),
 				ox.Spec("[OPTIONS] SERVICE"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -2139,8 +2139,8 @@ func main() {
 					Bool("quiet", "Suppress progress output", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Scale one or multiple replicated services"),
 				ox.Usage("scale", "Scale one or multiple replicated services"),
+				ox.Banner("Scale one or multiple replicated services"),
 				ox.Spec("SERVICE=REPLICAS [SERVICE=REPLICAS...]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -2150,8 +2150,8 @@ func main() {
 					Bool("detach", "Exit immediately instead of waiting for the service to", ox.Short("d"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Update a service"),
 				ox.Usage("update", "Update a service"),
+				ox.Banner("Update a service"),
 				ox.Spec("[OPTIONS] SERVICE"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -2253,15 +2253,15 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Manage Swarm stacks"),
 			ox.Usage("stack", "Manage Swarm stacks"),
+			ox.Banner("Manage Swarm stacks"),
 			ox.Spec("COMMAND"),
 			ox.Sections("Commands"),
 			ox.Section(2),
 			ox.Footer("Run 'docker stack COMMAND --help' for more information on a command."),
 			ox.Sub(
-				ox.Banner("Outputs the final config file, after doing merges and interpolations"),
 				ox.Usage("config", "Outputs the final config file, after doing merges and interpolations"),
+				ox.Banner("Outputs the final config file, after doing merges and interpolations"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -2272,8 +2272,8 @@ func main() {
 					Bool("skip-interpolation", "Skip interpolation and output only merged", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Deploy a new stack or update an existing stack"),
 				ox.Usage("deploy", "Deploy a new stack or update an existing stack"),
+				ox.Banner("Deploy a new stack or update an existing stack"),
 				ox.Spec("[OPTIONS] STACK"),
 				ox.Aliases("stack deploy", "stack up"),
 				ox.Section(0),
@@ -2289,8 +2289,8 @@ func main() {
 					Bool("with-registry-auth", "Send registry authentication details to", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List stacks"),
 				ox.Usage("ls", "List stacks"),
+				ox.Banner("List stacks"),
 				ox.Spec("[OPTIONS]"),
 				ox.Aliases("stack ls", "stack list"),
 				ox.Section(0),
@@ -2301,8 +2301,8 @@ func main() {
 					String("format", "Format output using a custom template:", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List the tasks in the stack"),
 				ox.Usage("ps", "List the tasks in the stack"),
+				ox.Banner("List the tasks in the stack"),
 				ox.Spec("[OPTIONS] STACK"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -2316,8 +2316,8 @@ func main() {
 					Bool("quiet", "Only display task IDs", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove one or more stacks"),
 				ox.Usage("rm", "Remove one or more stacks"),
+				ox.Banner("Remove one or more stacks"),
 				ox.Spec("[OPTIONS] STACK [STACK...]"),
 				ox.Aliases("stack rm", "stack remove", "stack down"),
 				ox.Section(0),
@@ -2328,8 +2328,8 @@ func main() {
 					Bool("detach", "Do not wait for stack removal", ox.Default("true"), ox.Short("d"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List the services in the stack"),
 				ox.Usage("services", "List the services in the stack"),
+				ox.Banner("List the services in the stack"),
 				ox.Spec("[OPTIONS] STACK"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -2342,15 +2342,15 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Manage Swarm"),
 			ox.Usage("swarm", "Manage Swarm"),
+			ox.Banner("Manage Swarm"),
 			ox.Spec("COMMAND"),
 			ox.Sections("Commands"),
 			ox.Section(2),
 			ox.Footer("Run 'docker swarm COMMAND --help' for more information on a command."),
 			ox.Sub(
-				ox.Banner("Display and rotate the root CA"),
 				ox.Usage("ca", "Display and rotate the root CA"),
+				ox.Banner("Display and rotate the root CA"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -2366,8 +2366,8 @@ func main() {
 					Bool("rotate", "Rotate the swarm CA - if no certificate", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Initialize a swarm"),
 				ox.Usage("init", "Initialize a swarm"),
+				ox.Banner("Initialize a swarm"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -2391,8 +2391,8 @@ func main() {
 					Int("task-history-limit", "Task history retention", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Join a swarm as a node and/or manager"),
 				ox.Usage("join", "Join a swarm as a node and/or manager"),
+				ox.Banner("Join a swarm as a node and/or manager"),
 				ox.Spec("[OPTIONS] HOST:PORT"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -2406,8 +2406,8 @@ func main() {
 					String("token", "Token for entry into the swarm", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Manage join tokens"),
 				ox.Usage("join-token", "Manage join tokens"),
+				ox.Banner("Manage join tokens"),
 				ox.Spec("[OPTIONS] (worker|manager)"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -2418,8 +2418,8 @@ func main() {
 					Bool("rotate", "Rotate join token", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Leave the swarm"),
 				ox.Usage("leave", "Leave the swarm"),
+				ox.Banner("Leave the swarm"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -2434,8 +2434,8 @@ func main() {
 				ox.Footer("Unlock swarm"),
 			),
 			ox.Sub(
-				ox.Banner("Manage the unlock key"),
 				ox.Usage("unlock-key", "Manage the unlock key"),
+				ox.Banner("Manage the unlock key"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -2446,8 +2446,8 @@ func main() {
 					Bool("rotate", "Rotate unlock key", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Update the swarm"),
 				ox.Usage("update", "Update the swarm"),
+				ox.Banner("Update the swarm"),
 				ox.Spec("[OPTIONS]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -2464,8 +2464,8 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Attach local standard input, output, and error streams to a running container"),
 			ox.Usage("attach", "Attach local standard input, output, and error streams to a running container"),
+			ox.Banner("Attach local standard input, output, and error streams to a running container"),
 			ox.Spec("[OPTIONS] CONTAINER"),
 			ox.Aliases("container attach"),
 			ox.Section(3),
@@ -2478,8 +2478,8 @@ func main() {
 				Bool("sig-proxy", "Proxy all received signals to the process", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Create a new image from a container's changes"),
 			ox.Usage("commit", "Create a new image from a container's changes"),
+			ox.Banner("Create a new image from a container's changes"),
 			ox.Spec("[OPTIONS] CONTAINER [REPOSITORY[:TAG]]"),
 			ox.Aliases("container commit"),
 			ox.Section(3),
@@ -2493,8 +2493,8 @@ func main() {
 				Bool("pause", "Pause container during commit", ox.Default("true"), ox.Short("p"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("docker cp [OPTIONS] SRC_PATH|- CONTAINER:DEST_PATH\n\nCopy files/folders between a container and the local filesystem\n\nUse '-' as the source to read a tar archive from stdin\nand extract it to a directory destination in a container.\nUse '-' as the destination to stream a tar archive of a\ncontainer source to stdout."),
 			ox.Usage("cp", "Copy files/folders between a container and the local filesystem"),
+			ox.Banner("docker cp [OPTIONS] SRC_PATH|- CONTAINER:DEST_PATH\n\nCopy files/folders between a container and the local filesystem\n\nUse '-' as the source to read a tar archive from stdin\nand extract it to a directory destination in a container.\nUse '-' as the destination to stream a tar archive of a\ncontainer source to stdout."),
 			ox.Spec("[OPTIONS] CONTAINER:SRC_PATH DEST_PATH|-"),
 			ox.Aliases("container cp"),
 			ox.Section(3),
@@ -2507,8 +2507,8 @@ func main() {
 				Bool("quiet", "Suppress progress output during copy. Progress", ox.Short("q"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Create a new container"),
 			ox.Usage("create", "Create a new container"),
+			ox.Banner("Create a new container"),
 			ox.Spec("[OPTIONS] IMAGE [COMMAND] [ARG...]"),
 			ox.Aliases("container create"),
 			ox.Section(3),
@@ -2618,15 +2618,15 @@ func main() {
 				String("workdir", "Working directory inside the", ox.Short("w"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Inspect changes to files or directories on a container's filesystem"),
 			ox.Usage("diff", "Inspect changes to files or directories on a container's filesystem"),
+			ox.Banner("Inspect changes to files or directories on a container's filesystem"),
 			ox.Spec("CONTAINER"),
 			ox.Aliases("container diff"),
 			ox.Section(3),
 		),
 		ox.Sub(
-			ox.Banner("Get real time events from the server"),
 			ox.Usage("events", "Get real time events from the server"),
+			ox.Banner("Get real time events from the server"),
 			ox.Spec("[OPTIONS]"),
 			ox.Aliases("system events"),
 			ox.Section(3),
@@ -2640,8 +2640,8 @@ func main() {
 				String("until", "Stream events until this timestamp", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Export a container's filesystem as a tar archive"),
 			ox.Usage("export", "Export a container's filesystem as a tar archive"),
+			ox.Banner("Export a container's filesystem as a tar archive"),
 			ox.Spec("[OPTIONS] CONTAINER"),
 			ox.Aliases("container export"),
 			ox.Section(3),
@@ -2652,8 +2652,8 @@ func main() {
 				String("output", "Write to a file, instead of STDOUT", ox.Short("o"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Show the history of an image"),
 			ox.Usage("history", "Show the history of an image"),
+			ox.Banner("Show the history of an image"),
 			ox.Spec("[OPTIONS] IMAGE"),
 			ox.Aliases("image history"),
 			ox.Section(3),
@@ -2668,8 +2668,8 @@ func main() {
 				Bool("quiet", "Only show image IDs", ox.Short("q"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Import the contents from a tarball to create a filesystem image"),
 			ox.Usage("import", "Import the contents from a tarball to create a filesystem image"),
+			ox.Banner("Import the contents from a tarball to create a filesystem image"),
 			ox.Spec("[OPTIONS] file|URL|- [REPOSITORY[:TAG]]"),
 			ox.Aliases("image import"),
 			ox.Section(3),
@@ -2682,8 +2682,8 @@ func main() {
 				String("platform", "Set platform if server is multi-platform capable", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Return low-level information on Docker objects"),
 			ox.Usage("inspect", "Return low-level information on Docker objects"),
+			ox.Banner("Return low-level information on Docker objects"),
 			ox.Spec("[OPTIONS] NAME|ID [NAME|ID...]"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
@@ -2695,8 +2695,8 @@ func main() {
 				String("type", "Return JSON for specified type", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Kill one or more running containers"),
 			ox.Usage("kill", "Kill one or more running containers"),
+			ox.Banner("Kill one or more running containers"),
 			ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 			ox.Aliases("container kill"),
 			ox.Section(3),
@@ -2707,8 +2707,8 @@ func main() {
 				String("signal", "Signal to send to the container", ox.Short("s"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Load an image from a tar archive or STDIN"),
 			ox.Usage("load", "Load an image from a tar archive or STDIN"),
+			ox.Banner("Load an image from a tar archive or STDIN"),
 			ox.Spec("[OPTIONS]"),
 			ox.Aliases("image load"),
 			ox.Section(3),
@@ -2721,8 +2721,8 @@ func main() {
 				Bool("quiet", "Suppress the load output", ox.Short("q"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Fetch the logs of a container"),
 			ox.Usage("logs", "Fetch the logs of a container"),
+			ox.Banner("Fetch the logs of a container"),
 			ox.Spec("[OPTIONS] CONTAINER"),
 			ox.Aliases("container logs"),
 			ox.Section(3),
@@ -2738,29 +2738,29 @@ func main() {
 				String("until", "Show logs before a timestamp (e.g.", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Pause all processes within one or more containers"),
 			ox.Usage("pause", "Pause all processes within one or more containers"),
+			ox.Banner("Pause all processes within one or more containers"),
 			ox.Spec("CONTAINER [CONTAINER...]"),
 			ox.Aliases("container pause"),
 			ox.Section(3),
 		),
 		ox.Sub(
-			ox.Banner("List port mappings or a specific mapping for the container"),
 			ox.Usage("port", "List port mappings or a specific mapping for the container"),
+			ox.Banner("List port mappings or a specific mapping for the container"),
 			ox.Spec("CONTAINER [PRIVATE_PORT[/PROTO]]"),
 			ox.Aliases("container port"),
 			ox.Section(3),
 		),
 		ox.Sub(
-			ox.Banner("Rename a container"),
 			ox.Usage("rename", "Rename a container"),
+			ox.Banner("Rename a container"),
 			ox.Spec("CONTAINER NEW_NAME"),
 			ox.Aliases("container rename"),
 			ox.Section(3),
 		),
 		ox.Sub(
-			ox.Banner("Restart one or more containers"),
 			ox.Usage("restart", "Restart one or more containers"),
+			ox.Banner("Restart one or more containers"),
 			ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 			ox.Aliases("container restart"),
 			ox.Section(3),
@@ -2772,8 +2772,8 @@ func main() {
 				Int("timeout", "Seconds to wait before killing the container", ox.Short("t"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Remove one or more containers"),
 			ox.Usage("rm", "Remove one or more containers"),
+			ox.Banner("Remove one or more containers"),
 			ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 			ox.Aliases("container rm", "container remove"),
 			ox.Section(3),
@@ -2786,8 +2786,8 @@ func main() {
 				Bool("volumes", "Remove anonymous volumes associated with the container", ox.Short("v"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Remove one or more images"),
 			ox.Usage("rmi", "Remove one or more images"),
+			ox.Banner("Remove one or more images"),
 			ox.Spec("[OPTIONS] IMAGE [IMAGE...]"),
 			ox.Aliases("image rm", "image remove"),
 			ox.Section(3),
@@ -2799,8 +2799,8 @@ func main() {
 				Bool("no-prune", "Do not delete untagged parents", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Save one or more images to a tar archive (streamed to STDOUT by default)"),
 			ox.Usage("save", "Save one or more images to a tar archive (streamed to STDOUT by default)"),
+			ox.Banner("Save one or more images to a tar archive (streamed to STDOUT by default)"),
 			ox.Spec("[OPTIONS] IMAGE [IMAGE...]"),
 			ox.Aliases("image save"),
 			ox.Section(3),
@@ -2812,8 +2812,8 @@ func main() {
 				String("platform", "Save only the given platform variant. Formatted", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Start one or more stopped containers"),
 			ox.Usage("start", "Start one or more stopped containers"),
+			ox.Banner("Start one or more stopped containers"),
 			ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 			ox.Aliases("container start"),
 			ox.Section(3),
@@ -2828,8 +2828,8 @@ func main() {
 				Bool("interactive", "Attach container's STDIN", ox.Short("i"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Display a live stream of container(s) resource usage statistics"),
 			ox.Usage("stats", "Display a live stream of container(s) resource usage statistics"),
+			ox.Banner("Display a live stream of container(s) resource usage statistics"),
 			ox.Spec("[OPTIONS] [CONTAINER...]"),
 			ox.Aliases("container stats"),
 			ox.Section(3),
@@ -2843,8 +2843,8 @@ func main() {
 				Bool("no-trunc", "Do not truncate output", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Stop one or more running containers"),
 			ox.Usage("stop", "Stop one or more running containers"),
+			ox.Banner("Stop one or more running containers"),
 			ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 			ox.Aliases("container stop"),
 			ox.Section(3),
@@ -2856,29 +2856,29 @@ func main() {
 				Int("timeout", "Seconds to wait before killing the container", ox.Short("t"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE"),
 			ox.Usage("tag", "Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE"),
+			ox.Banner("Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE"),
 			ox.Spec("SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]"),
 			ox.Aliases("image tag"),
 			ox.Section(3),
 		),
 		ox.Sub(
-			ox.Banner("Display the running processes of a container"),
 			ox.Usage("top", "Display the running processes of a container"),
+			ox.Banner("Display the running processes of a container"),
 			ox.Spec("CONTAINER [ps OPTIONS]"),
 			ox.Aliases("container top"),
 			ox.Section(3),
 		),
 		ox.Sub(
-			ox.Banner("Unpause all processes within one or more containers"),
 			ox.Usage("unpause", "Unpause all processes within one or more containers"),
+			ox.Banner("Unpause all processes within one or more containers"),
 			ox.Spec("CONTAINER [CONTAINER...]"),
 			ox.Aliases("container unpause"),
 			ox.Section(3),
 		),
 		ox.Sub(
-			ox.Banner("Update configuration of one or more containers"),
 			ox.Usage("update", "Update configuration of one or more containers"),
+			ox.Banner("Update configuration of one or more containers"),
 			ox.Spec("[OPTIONS] CONTAINER [CONTAINER...]"),
 			ox.Aliases("container update"),
 			ox.Section(3),
@@ -2902,8 +2902,8 @@ func main() {
 				String("restart", "Restart policy to apply when a", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Block until one or more containers stop, then print their exit codes"),
 			ox.Usage("wait", "Block until one or more containers stop, then print their exit codes"),
+			ox.Banner("Block until one or more containers stop, then print their exit codes"),
 			ox.Spec("CONTAINER [CONTAINER...]"),
 			ox.Aliases("container wait"),
 			ox.Section(3),

@@ -13,19 +13,19 @@ func main() {
 	ox.RunContext(
 		context.Background(),
 		ox.Defaults(),
-		ox.Banner("Manage pods, containers and images"),
 		ox.Usage("podman", ""),
+		ox.Banner("Manage pods, containers and images"),
 		ox.Spec("[options] [command]"),
 		ox.Help(ox.Sections(
 			"Options",
 		)),
 		ox.Sub(
-			ox.Banner("Manage OCI artifacts\n\nDescription:\n  Manage OCI artifacts"),
 			ox.Usage("artifact", "Manage OCI artifacts"),
+			ox.Banner("Manage OCI artifacts\n\nDescription:\n  Manage OCI artifacts"),
 			ox.Spec("[command]"),
 			ox.Sub(
-				ox.Banner("Add an OCI artifact to the local store\n\nDescription:\n  Add an OCI artifact to the local store from the local filesystem"),
 				ox.Usage("add", "Add an OCI artifact to the local store"),
+				ox.Banner("Add an OCI artifact to the local store\n\nDescription:\n  Add an OCI artifact to the local store from the local filesystem"),
 				ox.Spec("[options] ARTIFACT PATH [...PATH]"),
 				ox.Example("\n  podman artifact add quay.io/myimage/myartifact:latest /tmp/foobar.txt"),
 				ox.Help(ox.Sections(
@@ -36,14 +36,14 @@ func main() {
 					String("type", "Use type to describe an artifact", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Inspect an OCI artifact\n\nDescription:\n  Provide details on an OCI artifact"),
 				ox.Usage("inspect", "Inspect an OCI artifact"),
+				ox.Banner("Inspect an OCI artifact\n\nDescription:\n  Provide details on an OCI artifact"),
 				ox.Spec("[ARTIFACT...]"),
 				ox.Example("\n  podman artifact inspect quay.io/myimage/myartifact:latest"),
 			),
 			ox.Sub(
-				ox.Banner("List OCI artifacts\n\nDescription:\n  List OCI artifacts in local store"),
 				ox.Usage("ls", "List OCI artifacts"),
+				ox.Banner("List OCI artifacts\n\nDescription:\n  List OCI artifacts in local store"),
 				ox.Spec("[options]"),
 				ox.Aliases("list"),
 				ox.Example("\n  podman artifact ls"),
@@ -56,8 +56,8 @@ func main() {
 					Bool("noheading", "Do not print column headings", ox.Short("n"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Pull an OCI artifact\n\nDescription:\n  Pulls an artifact from a registry and stores it locally."),
 				ox.Usage("pull", "Pull an OCI artifact"),
+				ox.Banner("Pull an OCI artifact\n\nDescription:\n  Pulls an artifact from a registry and stores it locally."),
 				ox.Spec("[options] ARTIFACT"),
 				ox.Example("\n  podman artifact pull quay.io/myimage/myartifact:latest"),
 				ox.Help(ox.Sections(
@@ -74,8 +74,8 @@ func main() {
 					Bool("tls-verify", "Require HTTPS and verify certificates when contacting registries", ox.Default("true"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Push an OCI artifact\n\nDescription:\n  Push an OCI artifact from local storage to an image registry"),
 				ox.Usage("push", "Push an OCI artifact"),
+				ox.Banner("Push an OCI artifact\n\nDescription:\n  Push an OCI artifact from local storage to an image registry"),
 				ox.Spec("[options] ARTIFACT."),
 				ox.Example("\n  podman artifact push quay.io/myimage/myartifact:latest"),
 				ox.Help(ox.Sections(
@@ -96,16 +96,16 @@ func main() {
 					Bool("tls-verify", "Require HTTPS and verify certificates when contacting registries", ox.Default("true"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove an OCI artifact\n\nDescription:\n  Remove an OCI from local storage"),
 				ox.Usage("rm", "Remove an OCI artifact"),
+				ox.Banner("Remove an OCI artifact\n\nDescription:\n  Remove an OCI from local storage"),
 				ox.Spec("ARTIFACT"),
 				ox.Aliases("remove"),
 				ox.Example("\n  podman artifact rm quay.io/myimage/myartifact:latest"),
 			),
 		),
 		ox.Sub(
-			ox.Banner("Attach to a running container\n\nDescription:\n  The podman attach command allows you to attach to a running container using the container's ID or name, either to view its ongoing output or to control it interactively."),
 			ox.Usage("attach", "Attach to a running container"),
+			ox.Banner("Attach to a running container\n\nDescription:\n  The podman attach command allows you to attach to a running container using the container's ID or name, either to view its ongoing output or to control it interactively."),
 			ox.Spec("[options] CONTAINER"),
 			ox.Example("\n  podman attach ctrID\n  podman attach 1234\n  podman attach --no-stdin foobar"),
 			ox.Help(ox.Sections(
@@ -118,8 +118,8 @@ func main() {
 				Bool("sig-proxy", "Proxy received signals to the process", ox.Default("true"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Auto update containers according to their auto-update policy\n\nDescription:\n  Auto update containers according to their auto-update policy.\n\n  Auto-update policies are specified with the \"io.containers.autoupdate\" label.\n  Containers are expected to run in systemd units created with \"podman-generate-systemd --new\",\n  or similar units that create new containers in order to run the updated images.\n  Please refer to the podman-auto-update(1) man page for details."),
 			ox.Usage("auto-update", "Auto update containers according to their auto-update policy"),
+			ox.Banner("Auto update containers according to their auto-update policy\n\nDescription:\n  Auto update containers according to their auto-update policy.\n\n  Auto-update policies are specified with the \"io.containers.autoupdate\" label.\n  Containers are expected to run in systemd units created with \"podman-generate-systemd --new\",\n  or similar units that create new containers in order to run the updated images.\n  Please refer to the podman-auto-update(1) man page for details."),
 			ox.Spec("[options]"),
 			ox.Example("\n  podman auto-update\n  podman auto-update --authfile ~/authfile.json"),
 			ox.Help(ox.Sections(
@@ -133,8 +133,8 @@ func main() {
 				Bool("tls-verify", "Require HTTPS and verify certificates when contacting registries", ox.Default("true"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Build an image using instructions from Containerfiles\n\nDescription:\n  Builds an OCI or Docker image using instructions from one or more Containerfiles and a specified build context directory."),
 			ox.Usage("build", "Build an image using instructions from Containerfiles"),
+			ox.Banner("Build an image using instructions from Containerfiles\n\nDescription:\n  Builds an OCI or Docker image using instructions from one or more Containerfiles and a specified build context directory."),
 			ox.Spec("[options] [CONTEXT]"),
 			ox.Example("\n  podman build .\n  podman build --creds=username:password -t imageName -f Containerfile.simple .\n  podman build --layers --force-rm --tag imageName ."),
 			ox.Help(ox.Sections(
@@ -247,8 +247,8 @@ func main() {
 				Array("volume", "bind mount a volume into the container", ox.Short("v"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Create new image based on the changed container\n\nDescription:\n  Create an image from a container's changes. Optionally tag the image created, set the author with the --author flag, set the commit message with the --message flag, and make changes to the instructions with the --change flag."),
 			ox.Usage("commit", "Create new image based on the changed container"),
+			ox.Banner("Create new image based on the changed container\n\nDescription:\n  Create an image from a container's changes. Optionally tag the image created, set the author with the --author flag, set the commit message with the --message flag, and make changes to the instructions with the --change flag."),
 			ox.Spec("[options] CONTAINER [IMAGE]"),
 			ox.Example("\n  podman commit -q --message \"committing container to image\" reverent_golick image-committed\n  podman commit -q --author \"firstName lastName\" reverent_golick image-committed\n  podman commit -q --pause=false containerID image-committed\n  podman commit containerID"),
 			ox.Help(ox.Sections(
@@ -267,18 +267,18 @@ func main() {
 				Bool("squash", "squash newly built layers into a single new layer", ox.Short("s"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Run compose workloads via an external provider such as docker-compose or podman-compose\n\nDescription:\n  This command is a thin wrapper around an external compose provider such as docker-compose or podman-compose.  This means that podman compose is executing another tool that implements the compose functionality but sets up the environment in a way to let the compose provider communicate transparently with the local Podman socket.  The specified options as well the command and argument are passed directly to the compose provider.\n\nThe default compose providers are docker-compose and podman-compose.  If installed, docker-compose takes precedence since it is the original implementation of the Compose specification and is widely used on the supported platforms (i.e., Linux, Mac OS, Windows).\n\nIf you want to change the default behavior or have a custom installation path for your provider of choice, please change the compose_providers field in containers.conf(5) to compose_providers = [\"/path/to/provider\"]. You may also set the PODMAN_COMPOSE_PROVIDER environment variable."),
 			ox.Usage("compose", "Run compose workloads via an external provider such as docker-compose or podman-compose"),
+			ox.Banner("Run compose workloads via an external provider such as docker-compose or podman-compose\n\nDescription:\n  This command is a thin wrapper around an external compose provider such as docker-compose or podman-compose.  This means that podman compose is executing another tool that implements the compose functionality but sets up the environment in a way to let the compose provider communicate transparently with the local Podman socket.  The specified options as well the command and argument are passed directly to the compose provider.\n\nThe default compose providers are docker-compose and podman-compose.  If installed, docker-compose takes precedence since it is the original implementation of the Compose specification and is widely used on the supported platforms (i.e., Linux, Mac OS, Windows).\n\nIf you want to change the default behavior or have a custom installation path for your provider of choice, please change the compose_providers field in containers.conf(5) to compose_providers = [\"/path/to/provider\"]. You may also set the PODMAN_COMPOSE_PROVIDER environment variable."),
 			ox.Spec("[options]"),
 			ox.Example("\n  podman compose -f nginx.yaml up --detach\n  podman --log-level=debug compose -f many-images.yaml pull"),
 		),
 		ox.Sub(
-			ox.Banner("Manage containers\n\nDescription:\n  Manage containers"),
 			ox.Usage("container", "Manage containers"),
+			ox.Banner("Manage containers\n\nDescription:\n  Manage containers"),
 			ox.Spec("[command]"),
 			ox.Sub(
-				ox.Banner("Attach to a running container\n\nDescription:\n  The podman attach command allows you to attach to a running container using the container's ID or name, either to view its ongoing output or to control it interactively."),
 				ox.Usage("attach", "Attach to a running container"),
+				ox.Banner("Attach to a running container\n\nDescription:\n  The podman attach command allows you to attach to a running container using the container's ID or name, either to view its ongoing output or to control it interactively."),
 				ox.Spec("[options] CONTAINER"),
 				ox.Example("\n  podman container attach ctrID\n\tpodman container attach 1234\n\tpodman container attach --no-stdin foobar"),
 				ox.Help(ox.Sections(
@@ -291,8 +291,8 @@ func main() {
 					Bool("sig-proxy", "Proxy received signals to the process", ox.Default("true"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Checkpoint one or more containers\n\nDescription:\n  \n   podman container checkpoint\n\n   Checkpoints one or more running containers. The container name or ID can be used."),
 				ox.Usage("checkpoint", "Checkpoint one or more containers"),
+				ox.Banner("Checkpoint one or more containers\n\nDescription:\n  \n   podman container checkpoint\n\n   Checkpoints one or more running containers. The container name or ID can be used."),
 				ox.Spec("[options] CONTAINER [CONTAINER...]"),
 				ox.Example("\n  podman container checkpoint --keep ctrID\n  podman container checkpoint --all\n  podman container checkpoint --leave-running ctrID"),
 				ox.Help(ox.Sections(
@@ -315,8 +315,8 @@ func main() {
 					Bool("with-previous", "Checkpoint container with pre-checkpoint images", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Clean up network and mountpoints of one or more containers\n\nDescription:\n  \n   podman container cleanup\n\n   Cleans up mount points and network stacks on one or more containers from the host. The container name or ID can be used. This command is used internally when running containers, but can also be used if container cleanup has failed when a container exits."),
 				ox.Usage("cleanup", "Clean up network and mountpoints of one or more containers"),
+				ox.Banner("Clean up network and mountpoints of one or more containers\n\nDescription:\n  \n   podman container cleanup\n\n   Cleans up mount points and network stacks on one or more containers from the host. The container name or ID can be used. This command is used internally when running containers, but can also be used if container cleanup has failed when a container exits."),
 				ox.Spec("[options] CONTAINER [CONTAINER...]"),
 				ox.Example("\n  podman container cleanup ctrID1 ctrID2 ctrID3\n  podman container cleanup --all"),
 				ox.Help(ox.Sections(
@@ -330,8 +330,8 @@ func main() {
 					Bool("rmi", "After cleanup, remove the image entirely", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Clone an existing container\n\nDescription:\n  Creates a copy of an existing container."),
 				ox.Usage("clone", "Clone an existing container"),
+				ox.Banner("Clone an existing container\n\nDescription:\n  Creates a copy of an existing container."),
 				ox.Spec("[options] CONTAINER NAME IMAGE"),
 				ox.Example("\n  podman container clone container_name new_name image_name"),
 				ox.Help(ox.Sections(
@@ -361,8 +361,8 @@ func main() {
 					Bool("run", "run the new container", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Create new image based on the changed container\n\nDescription:\n  Create an image from a container's changes. Optionally tag the image created, set the author with the --author flag, set the commit message with the --message flag, and make changes to the instructions with the --change flag."),
 				ox.Usage("commit", "Create new image based on the changed container"),
+				ox.Banner("Create new image based on the changed container\n\nDescription:\n  Create an image from a container's changes. Optionally tag the image created, set the author with the --author flag, set the commit message with the --message flag, and make changes to the instructions with the --change flag."),
 				ox.Spec("[options] CONTAINER [IMAGE]"),
 				ox.Example("\n  podman container commit -q --message \"committing container to image\" reverent_golick image-committed\n  podman container commit -q --author \"firstName lastName\" reverent_golick image-committed\n  podman container commit -q --pause=false containerID image-committed\n  podman container commit containerID"),
 				ox.Help(ox.Sections(
@@ -381,8 +381,8 @@ func main() {
 					Bool("squash", "squash newly built layers into a single new layer", ox.Short("s"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Copy files/folders between a container and the local filesystem\n\nDescription:\n  Copy the contents of SRC_PATH to the DEST_PATH.\n\n  You can copy from the container's file system to the local machine or the reverse, from the local filesystem to the container. If \"-\" is specified for either the SRC_PATH or DEST_PATH, you can also stream a tar archive from STDIN or to STDOUT. The CONTAINER can be a running or stopped container. The SRC_PATH or DEST_PATH can be a file or a directory."),
 				ox.Usage("cp", "Copy files/folders between a container and the local filesystem"),
+				ox.Banner("Copy files/folders between a container and the local filesystem\n\nDescription:\n  Copy the contents of SRC_PATH to the DEST_PATH.\n\n  You can copy from the container's file system to the local machine or the reverse, from the local filesystem to the container. If \"-\" is specified for either the SRC_PATH or DEST_PATH, you can also stream a tar archive from STDIN or to STDOUT. The CONTAINER can be a running or stopped container. The SRC_PATH or DEST_PATH can be a file or a directory."),
 				ox.Spec("[options] [CONTAINER:]SRC_PATH [CONTAINER:]DEST_PATH"),
 				ox.Example("\n  podman container cp [CONTAINER:]SRC_PATH [CONTAINER:]DEST_PATH"),
 				ox.Help(ox.Sections(
@@ -393,8 +393,8 @@ func main() {
 					Bool("overwrite", "Allow to overwrite directories with non-directories and vice versa", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Create but do not start a container\n\nDescription:\n  Creates a new container from the given image or storage and prepares it for running the specified command.\n\n  The container ID is then printed to stdout. You can then start it at any time with the podman start <container_id> command. The container will be created with the initial state 'created'."),
 				ox.Usage("create", "Create but do not start a container"),
+				ox.Banner("Create but do not start a container\n\nDescription:\n  Creates a new container from the given image or storage and prepares it for running the specified command.\n\n  The container ID is then printed to stdout. You can then start it at any time with the podman start <container_id> command. The container will be created with the initial state 'created'."),
 				ox.Spec("[options] IMAGE [COMMAND [ARG...]]"),
 				ox.Example("\n  podman container create alpine ls\n  podman container create --annotation HELLO=WORLD alpine ls\n  podman container create -t -i --name myctr alpine ls"),
 				ox.Help(ox.Sections(
@@ -544,8 +544,8 @@ func main() {
 					String("workdir", "Working directory inside the container", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Inspect changes to the container's file systems\n\nDescription:\n  Displays changes to the container filesystem's'.  The container will be compared to its parent layer or the second argument when given."),
 				ox.Usage("diff", "Inspect changes to the container's file systems"),
+				ox.Banner("Inspect changes to the container's file systems\n\nDescription:\n  Displays changes to the container filesystem's'.  The container will be compared to its parent layer or the second argument when given."),
 				ox.Spec("[options] CONTAINER [CONTAINER]"),
 				ox.Example("\n  podman container diff myCtr\n  podman container diff -l --format json myCtr"),
 				ox.Help(ox.Sections(
@@ -556,8 +556,8 @@ func main() {
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Run a process in a running container\n\nDescription:\n  Execute the specified command inside a running container."),
 				ox.Usage("exec", "Run a process in a running container"),
+				ox.Banner("Run a process in a running container\n\nDescription:\n  Execute the specified command inside a running container."),
 				ox.Spec("[options] CONTAINER COMMAND [ARG...]"),
 				ox.Example("\n  podman container exec -it ctrID ls\n  podman container exec -it -w /tmp myCtr pwd\n  podman container exec --user root ctrID ls"),
 				ox.Help(ox.Sections(
@@ -578,8 +578,8 @@ func main() {
 					String("workdir", "Working directory inside the container", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Check if a container exists in local storage\n\nDescription:\n  If the named container exists in local storage, podman container exists exits with 0, otherwise the exit code will be 1."),
 				ox.Usage("exists", "Check if a container exists in local storage"),
+				ox.Banner("Check if a container exists in local storage\n\nDescription:\n  If the named container exists in local storage, podman container exists exits with 0, otherwise the exit code will be 1."),
 				ox.Spec("[options] CONTAINER"),
 				ox.Example("\n  podman container exists --external containerID\n  podman container exists myctr || podman run --name myctr [etc...]"),
 				ox.Help(ox.Sections(
@@ -589,8 +589,8 @@ func main() {
 					Bool("external", "Check external storage containers as well as Podman containers", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Export container's filesystem contents as a tar archive\n\nDescription:\n  Exports container's filesystem contents as a tar archive and saves it on the local machine."),
 				ox.Usage("export", "Export container's filesystem contents as a tar archive"),
+				ox.Banner("Export container's filesystem contents as a tar archive\n\nDescription:\n  Exports container's filesystem contents as a tar archive and saves it on the local machine."),
 				ox.Spec("[options] CONTAINER"),
 				ox.Example("\n  podman container export ctrID > myCtr.tar\n  podman container export --output=\"myCtr.tar\" ctrID"),
 				ox.Help(ox.Sections(
@@ -600,8 +600,8 @@ func main() {
 					String("output", "Write to a specified file (default: stdout, which must be redirected)", ox.Short("o"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Initialize one or more containers\n\nDescription:\n  Initialize one or more containers, creating the OCI spec and mounts for inspection. Container names or IDs can be used."),
 				ox.Usage("init", "Initialize one or more containers"),
+				ox.Banner("Initialize one or more containers\n\nDescription:\n  Initialize one or more containers, creating the OCI spec and mounts for inspection. Container names or IDs can be used."),
 				ox.Spec("[options] CONTAINER [CONTAINER...]"),
 				ox.Example("\n  podman container init 3c45ef19d893\n  podman container init test1"),
 				ox.Help(ox.Sections(
@@ -612,8 +612,8 @@ func main() {
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Display the configuration of a container\n\nDescription:\n  Displays the low-level information on a container identified by name or ID."),
 				ox.Usage("inspect", "Display the configuration of a container"),
+				ox.Banner("Display the configuration of a container\n\nDescription:\n  Displays the low-level information on a container identified by name or ID."),
 				ox.Spec("[options] CONTAINER [CONTAINER...]"),
 				ox.Example("\n  podman container inspect myCtr\n  podman container inspect -l --format '{{.Id}} {{.Config.Labels}}'"),
 				ox.Help(ox.Sections(
@@ -625,8 +625,8 @@ func main() {
 					Bool("size", "Display total file size", ox.Short("s"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Kill one or more running containers with a specific signal\n\nDescription:\n  The main process inside each container specified will be sent SIGKILL, or any signal specified with option --signal."),
 				ox.Usage("kill", "Kill one or more running containers with a specific signal"),
+				ox.Banner("Kill one or more running containers with a specific signal\n\nDescription:\n  The main process inside each container specified will be sent SIGKILL, or any signal specified with option --signal."),
 				ox.Spec("[options] CONTAINER [CONTAINER...]"),
 				ox.Example("\n  podman container kill mywebserver\n  podman container kill 860a4b23\n  podman container kill --signal TERM ctrID"),
 				ox.Help(ox.Sections(
@@ -639,8 +639,8 @@ func main() {
 					String("signal", "Signal to send to the container", ox.Default("KILL"), ox.Short("s"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List containers\n\nDescription:\n  Prints out information about the containers"),
 				ox.Usage("list", "List containers"),
+				ox.Banner("List containers\n\nDescription:\n  Prints out information about the containers"),
 				ox.Spec("[options]"),
 				ox.Aliases("ls"),
 				ox.Example("\n  podman container list -a\n  podman container list -a --format \"{{.ID}}  {{.Image}}  {{.Labels}}  {{.Mounts}}\"\n  podman container list --size --sort names"),
@@ -665,8 +665,8 @@ func main() {
 					Uint("watch", "Watch the ps output on an interval in seconds", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Fetch the logs of one or more containers\n\nDescription:\n  Retrieves logs for one or more containers.\n\n  This does not guarantee execution order when combined with podman run (i.e., your run may not have generated any logs at the time you execute podman logs)."),
 				ox.Usage("logs", "Fetch the logs of one or more containers"),
+				ox.Banner("Fetch the logs of one or more containers\n\nDescription:\n  Retrieves logs for one or more containers.\n\n  This does not guarantee execution order when combined with podman run (i.e., your run may not have generated any logs at the time you execute podman logs)."),
 				ox.Spec("[options] CONTAINER [CONTAINER...]"),
 				ox.Example("\n  podman container logs ctrID\n\t\tpodman container logs --names ctrID1 ctrID2\n\t\tpodman container logs --color --names ctrID1 ctrID2\n\t\tpodman container logs --tail 2 mywebserver\n\t\tpodman container logs --follow=true --since 10m ctrID\n\t\tpodman container logs mywebserver mydbserver"),
 				ox.Help(ox.Sections(
@@ -683,8 +683,8 @@ func main() {
 					String("until", "Show logs until TIMESTAMP", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Mount a working container's root filesystem\n\nDescription:\n  podman mount\n    Lists all mounted containers mount points if no container is specified\n\n  podman mount CONTAINER-NAME-OR-ID\n    Mounts the specified container and outputs the mountpoint"),
 				ox.Usage("mount", "Mount a working container's root filesystem"),
+				ox.Banner("Mount a working container's root filesystem\n\nDescription:\n  podman mount\n    Lists all mounted containers mount points if no container is specified\n\n  podman mount CONTAINER-NAME-OR-ID\n    Mounts the specified container and outputs the mountpoint"),
 				ox.Spec("[options] [CONTAINER...]"),
 				ox.Help(ox.Sections(
 					"Options",
@@ -696,8 +696,8 @@ func main() {
 					Bool("no-trunc", "Do not truncate output", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Pause all the processes in one or more containers\n\nDescription:\n  Pauses one or more running containers.  The container name or ID can be used."),
 				ox.Usage("pause", "Pause all the processes in one or more containers"),
+				ox.Banner("Pause all the processes in one or more containers\n\nDescription:\n  Pauses one or more running containers.  The container name or ID can be used."),
 				ox.Spec("[options] CONTAINER [CONTAINER...]"),
 				ox.Example("\n  podman container pause mywebserver\n  podman container pause 860a4b23\n  podman container pause --all"),
 				ox.Help(ox.Sections(
@@ -710,8 +710,8 @@ func main() {
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List port mappings or a specific mapping for the container\n\nDescription:\n  List port mappings for the CONTAINER, or look up the public-facing port that is NAT-ed to the PRIVATE_PORT"),
 				ox.Usage("port", "List port mappings or a specific mapping for the container"),
+				ox.Banner("List port mappings or a specific mapping for the container\n\nDescription:\n  List port mappings for the CONTAINER, or look up the public-facing port that is NAT-ed to the PRIVATE_PORT"),
 				ox.Spec("[options] CONTAINER [PORT]"),
 				ox.Example("\n  podman container port --all\n  podman container port CTRID 80"),
 				ox.Help(ox.Sections(
@@ -722,8 +722,8 @@ func main() {
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove all non running containers\n\nDescription:\n  podman container prune\n\n\tRemoves all non running containers"),
 				ox.Usage("prune", "Remove all non running containers"),
+				ox.Banner("Remove all non running containers\n\nDescription:\n  podman container prune\n\n\tRemoves all non running containers"),
 				ox.Spec("[options]"),
 				ox.Example("\n  podman container prune"),
 				ox.Help(ox.Sections(
@@ -734,8 +734,8 @@ func main() {
 					Bool("force", "Do not prompt for confirmation.  The default is false", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List containers\n\nDescription:\n  Prints out information about the containers"),
 				ox.Usage("ps", "List containers"),
+				ox.Banner("List containers\n\nDescription:\n  Prints out information about the containers"),
 				ox.Spec("[options]"),
 				ox.Example("\n  podman container ps -a\n  podman container ps -a --format \"{{.ID}}  {{.Image}}  {{.Labels}}  {{.Mounts}}\"\n  podman container ps --size --sort names"),
 				ox.Help(ox.Sections(
@@ -759,14 +759,14 @@ func main() {
 					Uint("watch", "Watch the ps output on an interval in seconds", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Rename an existing container\n\nDescription:\n  The podman rename command allows you to rename an existing container"),
 				ox.Usage("rename", "Rename an existing container"),
+				ox.Banner("Rename an existing container\n\nDescription:\n  The podman rename command allows you to rename an existing container"),
 				ox.Spec("CONTAINER NAME"),
 				ox.Example("\n  podman container rename containerA newName"),
 			),
 			ox.Sub(
-				ox.Banner("Restart one or more containers\n\nDescription:\n  Restarts one or more running containers. The container ID or name can be used.\n\n  A timeout before forcibly stopping can be set, but defaults to 10 seconds."),
 				ox.Usage("restart", "Restart one or more containers"),
+				ox.Banner("Restart one or more containers\n\nDescription:\n  Restarts one or more running containers. The container ID or name can be used.\n\n  A timeout before forcibly stopping can be set, but defaults to 10 seconds."),
 				ox.Spec("[options] CONTAINER [CONTAINER...]"),
 				ox.Example("\n  podman container restart ctrID\n  podman container restart ctrID1 ctrID2"),
 				ox.Help(ox.Sections(
@@ -781,8 +781,8 @@ func main() {
 					Int("time", "Seconds to wait for stop before killing the container", ox.Default("10"), ox.Short("t"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Restore one or more containers from a checkpoint\n\nDescription:\n  \n   podman container restore\n\n   Restores a container from a checkpoint. The container name or ID can be used."),
 				ox.Usage("restore", "Restore one or more containers from a checkpoint"),
+				ox.Banner("Restore one or more containers from a checkpoint\n\nDescription:\n  \n   podman container restore\n\n   Restores a container from a checkpoint. The container name or ID can be used."),
 				ox.Spec("[options] CONTAINER|IMAGE [CONTAINER|IMAGE...]"),
 				ox.Example("\n  podman container restore ctrID\n  podman container restore imageID\n  podman container restore --all"),
 				ox.Help(ox.Sections(
@@ -806,8 +806,8 @@ func main() {
 					Bool("tcp-established", "Restore a container with established TCP connections", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove one or more containers\n\nDescription:\n  Removes one or more containers from the host. The container name or ID can be used.\n\n  Command does not remove images. Running or unusable containers will not be removed without the -f option."),
 				ox.Usage("rm", "Remove one or more containers"),
+				ox.Banner("Remove one or more containers\n\nDescription:\n  Removes one or more containers from the host. The container name or ID can be used.\n\n  Command does not remove images. Running or unusable containers will not be removed without the -f option."),
 				ox.Spec("[options] CONTAINER [CONTAINER...]"),
 				ox.Example("\n  podman container rm imageID\n  podman container rm mywebserver myflaskserver 860a4b23\n  podman container rm --force --all\n  podman container rm -f c684f0d469f2"),
 				ox.Help(ox.Sections(
@@ -825,8 +825,8 @@ func main() {
 					Bool("volumes", "Remove anonymous volumes associated with the container", ox.Short("v"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Run a command in a new container\n\nDescription:\n  Runs a command in a new container from the given image"),
 				ox.Usage("run", "Run a command in a new container"),
+				ox.Banner("Run a command in a new container\n\nDescription:\n  Runs a command in a new container from the given image"),
 				ox.Spec("[options] IMAGE [COMMAND [ARG...]]"),
 				ox.Example("\n  podman container run imageID ls -alF /etc\n\tpodman container run --network=host imageID dnf -y install java\n\tpodman container run --volume /var/hostdir:/var/ctrdir -i -t fedora /bin/bash"),
 				ox.Help(ox.Sections(
@@ -982,8 +982,8 @@ func main() {
 					String("workdir", "Working directory inside the container", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Execute the command described by an image label\n\nDescription:\n  Executes a command as described by a container image label."),
 				ox.Usage("runlabel", "Execute the command described by an image label"),
+				ox.Banner("Execute the command described by an image label\n\nDescription:\n  Executes a command as described by a container image label."),
 				ox.Spec("[options] LABEL IMAGE [ARG...]"),
 				ox.Example("\n  podman container runlabel run imageID\n  podman container runlabel install imageID arg1 arg2\n  podman container runlabel --display run myImage"),
 				ox.Help(ox.Sections(
@@ -1000,8 +1000,8 @@ func main() {
 					Bool("tls-verify", "Require HTTPS and verify certificates when contacting registries", ox.Default("true"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Start one or more containers\n\nDescription:\n  Starts one or more containers.  The container name or ID can be used."),
 				ox.Usage("start", "Start one or more containers"),
+				ox.Banner("Start one or more containers\n\nDescription:\n  Starts one or more containers.  The container name or ID can be used."),
 				ox.Spec("[options] CONTAINER [CONTAINER...]"),
 				ox.Example("\n  podman container start 860a4b231279 5421ab43b45\n  podman container start --interactive --attach imageID"),
 				ox.Help(ox.Sections(
@@ -1017,8 +1017,8 @@ func main() {
 					Bool("sig-proxy", "Proxy received signals to the process", ox.Default("true if attaching, false otherwise"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Display a live stream of container resource usage statistics\n\nDescription:\n  Display percentage of CPU, memory, network I/O, block I/O and PIDs for one or more containers."),
 				ox.Usage("stats", "Display a live stream of container resource usage statistics"),
+				ox.Banner("Display a live stream of container resource usage statistics\n\nDescription:\n  Display percentage of CPU, memory, network I/O, block I/O and PIDs for one or more containers."),
 				ox.Spec("[options] [CONTAINER...]"),
 				ox.Example("\n  podman container stats --all --no-stream\n  podman container stats ctrID\n  podman container stats --no-stream --format \"table {{.ID}} {{.Name}} {{.MemUsage}}\" ctrID"),
 				ox.Help(ox.Sections(
@@ -1034,8 +1034,8 @@ func main() {
 					Bool("no-trunc", "Do not truncate output", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Stop one or more containers\n\nDescription:\n  Stops one or more running containers.  The container name or ID can be used.\n\n  A timeout to forcibly stop the container can also be set but defaults to 10 seconds otherwise."),
 				ox.Usage("stop", "Stop one or more containers"),
+				ox.Banner("Stop one or more containers\n\nDescription:\n  Stops one or more running containers.  The container name or ID can be used.\n\n  A timeout to forcibly stop the container can also be set but defaults to 10 seconds otherwise."),
 				ox.Spec("[options] CONTAINER [CONTAINER...]"),
 				ox.Example("\n  podman container stop ctrID\n  podman container stop --time 2 mywebserver 6e534f14da9d"),
 				ox.Help(ox.Sections(
@@ -1050,8 +1050,8 @@ func main() {
 					Int("time", "Seconds to wait for stop before killing the container", ox.Default("10"), ox.Short("t"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Display the running processes of a container\n\nDescription:\n  Display the running processes of a container.\n\n  The top command extends the ps(1) compatible AIX descriptors with container-specific ones as shown below.  In the presence of ps(1) specific flags (e.g, -eo), Podman will execute ps(1) inside the container."),
 				ox.Usage("top", "Display the running processes of a container"),
+				ox.Banner("Display the running processes of a container\n\nDescription:\n  Display the running processes of a container.\n\n  The top command extends the ps(1) compatible AIX descriptors with container-specific ones as shown below.  In the presence of ps(1) specific flags (e.g, -eo), Podman will execute ps(1) inside the container."),
 				ox.Spec("[options] CONTAINER [FORMAT-DESCRIPTORS|ARGS...]"),
 				ox.Example("\n  podman container top ctrID\npodman container top ctrID pid seccomp args %C\npodman container top ctrID -eo user,pid,comm"),
 				ox.Help(ox.Sections(
@@ -1061,8 +1061,8 @@ func main() {
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Unmount working container's root filesystem\n\nDescription:\n  Container storage increments a mount counter each time a container is mounted.\n\n  When a container is unmounted, the mount counter is decremented. The container's root filesystem is physically unmounted only when the mount counter reaches zero indicating no other processes are using the mount.\n\n  An unmount can be forced with the --force flag."),
 				ox.Usage("unmount", "Unmount working container's root filesystem"),
+				ox.Banner("Unmount working container's root filesystem\n\nDescription:\n  Container storage increments a mount counter each time a container is mounted.\n\n  When a container is unmounted, the mount counter is decremented. The container's root filesystem is physically unmounted only when the mount counter reaches zero indicating no other processes are using the mount.\n\n  An unmount can be forced with the --force flag."),
 				ox.Spec("[options] CONTAINER [CONTAINER...]"),
 				ox.Aliases("umount"),
 				ox.Example("\n  podman container unmount ctrID\n  podman container unmount ctrID1 ctrID2 ctrID3\n  podman container unmount --all"),
@@ -1075,8 +1075,8 @@ func main() {
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Unpause the processes in one or more containers\n\nDescription:\n  Unpauses one or more previously paused containers.  The container name or ID can be used."),
 				ox.Usage("unpause", "Unpause the processes in one or more containers"),
+				ox.Banner("Unpause the processes in one or more containers\n\nDescription:\n  Unpauses one or more previously paused containers.  The container name or ID can be used."),
 				ox.Spec("[options] CONTAINER [CONTAINER...]"),
 				ox.Example("\n  podman container unpause ctrID\n  podman container unpause --all"),
 				ox.Help(ox.Sections(
@@ -1089,8 +1089,8 @@ func main() {
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Update an existing container\n\nDescription:\n  Updates the configuration of an existing container, allowing changes to resource limits and healthchecks"),
 				ox.Usage("update", "Update an existing container"),
+				ox.Banner("Update an existing container\n\nDescription:\n  Updates the configuration of an existing container, allowing changes to resource limits and healthchecks"),
 				ox.Spec("[options] CONTAINER"),
 				ox.Example("\n  podman container update --cpus=5 foobar_container"),
 				ox.Help(ox.Sections(
@@ -1134,8 +1134,8 @@ func main() {
 					String("restart", "Restart policy to apply when a container exits (\"always\"|\"no\"|\"never\"|\"on-failure\"|\"unless-stopped\")", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Block on one or more containers\n\nDescription:\n  Block until one or more containers stop and then print their exit codes."),
 				ox.Usage("wait", "Block on one or more containers"),
+				ox.Banner("Block on one or more containers\n\nDescription:\n  Block until one or more containers stop and then print their exit codes."),
 				ox.Spec("[options] CONTAINER [CONTAINER...]"),
 				ox.Example("\n  podman container wait --interval 5s ctrID\n  podman container wait ctrID1 ctrID2"),
 				ox.Help(ox.Sections(
@@ -1149,8 +1149,8 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Copy files/folders between a container and the local filesystem\n\nDescription:\n  Copy the contents of SRC_PATH to the DEST_PATH.\n\n  You can copy from the container's file system to the local machine or the reverse, from the local filesystem to the container. If \"-\" is specified for either the SRC_PATH or DEST_PATH, you can also stream a tar archive from STDIN or to STDOUT. The CONTAINER can be a running or stopped container. The SRC_PATH or DEST_PATH can be a file or a directory."),
 			ox.Usage("cp", "Copy files/folders between a container and the local filesystem"),
+			ox.Banner("Copy files/folders between a container and the local filesystem\n\nDescription:\n  Copy the contents of SRC_PATH to the DEST_PATH.\n\n  You can copy from the container's file system to the local machine or the reverse, from the local filesystem to the container. If \"-\" is specified for either the SRC_PATH or DEST_PATH, you can also stream a tar archive from STDIN or to STDOUT. The CONTAINER can be a running or stopped container. The SRC_PATH or DEST_PATH can be a file or a directory."),
 			ox.Spec("[options] [CONTAINER:]SRC_PATH [CONTAINER:]DEST_PATH"),
 			ox.Example("\n  podman cp [options] [CONTAINER:]SRC_PATH [CONTAINER:]DEST_PATH"),
 			ox.Help(ox.Sections(
@@ -1161,8 +1161,8 @@ func main() {
 				Bool("overwrite", "Allow to overwrite directories with non-directories and vice versa", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Create but do not start a container\n\nDescription:\n  Creates a new container from the given image or storage and prepares it for running the specified command.\n\n  The container ID is then printed to stdout. You can then start it at any time with the podman start <container_id> command. The container will be created with the initial state 'created'."),
 			ox.Usage("create", "Create but do not start a container"),
+			ox.Banner("Create but do not start a container\n\nDescription:\n  Creates a new container from the given image or storage and prepares it for running the specified command.\n\n  The container ID is then printed to stdout. You can then start it at any time with the podman start <container_id> command. The container will be created with the initial state 'created'."),
 			ox.Spec("[options] IMAGE [COMMAND [ARG...]]"),
 			ox.Example("\n  podman create alpine ls\n  podman create --annotation HELLO=WORLD alpine ls\n  podman create -t -i --name myctr alpine ls"),
 			ox.Help(ox.Sections(
@@ -1312,8 +1312,8 @@ func main() {
 				String("workdir", "Working directory inside the container", ox.Short("w"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Display the changes to the object's file system\n\nDescription:\n  Displays changes on a container or image's filesystem.  The container or image will be compared to its parent layer or the second argument when given."),
 			ox.Usage("diff", "Display the changes to the object's file system"),
+			ox.Banner("Display the changes to the object's file system\n\nDescription:\n  Displays changes on a container or image's filesystem.  The container or image will be compared to its parent layer or the second argument when given."),
 			ox.Spec("[options] {CONTAINER|IMAGE} [{CONTAINER|IMAGE}]"),
 			ox.Example("\n  podman diff imageID\n  podman diff ctrID\n  podman diff --format json redis:alpine"),
 			ox.Help(ox.Sections(
@@ -1324,8 +1324,8 @@ func main() {
 				Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Show podman system events\n\nDescription:\n  Monitor podman system events.\n\n  By default, streaming mode is used, printing new events as they occur.  Previous events can be listed via --since and --until."),
 			ox.Usage("events", "Show podman system events"),
+			ox.Banner("Show podman system events\n\nDescription:\n  Monitor podman system events.\n\n  By default, streaming mode is used, printing new events as they occur.  Previous events can be listed via --since and --until."),
 			ox.Spec("[options]"),
 			ox.Example("\n  podman events\n  podman events --filter event=create\n  podman events --format {{.Image}}\n  podman events --since 1h30s"),
 			ox.Help(ox.Sections(
@@ -1340,8 +1340,8 @@ func main() {
 				String("until", "show all events until timestamp", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Run a process in a running container\n\nDescription:\n  Execute the specified command inside a running container."),
 			ox.Usage("exec", "Run a process in a running container"),
+			ox.Banner("Run a process in a running container\n\nDescription:\n  Execute the specified command inside a running container."),
 			ox.Spec("[options] CONTAINER COMMAND [ARG...]"),
 			ox.Example("\n  podman exec -it ctrID ls\n  podman exec -it -w /tmp myCtr pwd\n  podman exec --user root ctrID ls"),
 			ox.Help(ox.Sections(
@@ -1362,8 +1362,8 @@ func main() {
 				String("workdir", "Working directory inside the container", ox.Short("w"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Export container's filesystem contents as a tar archive\n\nDescription:\n  Exports container's filesystem contents as a tar archive and saves it on the local machine."),
 			ox.Usage("export", "Export container's filesystem contents as a tar archive"),
+			ox.Banner("Export container's filesystem contents as a tar archive\n\nDescription:\n  Exports container's filesystem contents as a tar archive and saves it on the local machine."),
 			ox.Spec("[options] CONTAINER"),
 			ox.Example("\n  podman export ctrID > myCtr.tar\n  podman export --output=\"myCtr.tar\" ctrID"),
 			ox.Help(ox.Sections(
@@ -1373,12 +1373,12 @@ func main() {
 				String("output", "Write to a specified file (default: stdout, which must be redirected)", ox.Short("o"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Farm out builds to remote machines\n\nDescription:\n  Farm out builds to remote machines that podman can connect to via podman system connection"),
 			ox.Usage("farm", "Farm out builds to remote machines"),
+			ox.Banner("Farm out builds to remote machines\n\nDescription:\n  Farm out builds to remote machines that podman can connect to via podman system connection"),
 			ox.Spec("[command]"),
 			ox.Sub(
-				ox.Banner("Build a container image for multiple architectures\n\nDescription:\n  Build images on farm nodes, then bundle them into a manifest list"),
 				ox.Usage("build", "Build a container image for multiple architectures"),
+				ox.Banner("Build a container image for multiple architectures\n\nDescription:\n  Build images on farm nodes, then bundle them into a manifest list"),
 				ox.Spec("[options] [CONTEXT]"),
 				ox.Example("\n  podman farm build [flags] buildContextDirectory"),
 				ox.Help(ox.Sections(
@@ -1482,14 +1482,14 @@ func main() {
 					Array("volume", "bind mount a volume into the container", ox.Short("v"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Create a new farm\n\nDescription:\n  Create a new farm with connections added via podman system connection add.\n\n\tThe \"podman system connection add --farm\" command can be used to add a new connection to a new or existing farm."),
 				ox.Usage("create", "Create a new farm"),
+				ox.Banner("Create a new farm\n\nDescription:\n  Create a new farm with connections added via podman system connection add.\n\n\tThe \"podman system connection add --farm\" command can be used to add a new connection to a new or existing farm."),
 				ox.Spec("NAME [CONNECTIONS...]"),
 				ox.Example("\n  podman farm create myfarm connection1\n  podman farm create myfarm"),
 			),
 			ox.Sub(
-				ox.Banner("List all existing farms\n\nDescription:\n  podman farm ls\n\nList all available farms. The output of the farms can be filtered\nand the output format can be changed to JSON or a user specified Go template."),
 				ox.Usage("list", "List all existing farms"),
+				ox.Banner("List all existing farms\n\nDescription:\n  podman farm ls\n\nList all available farms. The output of the farms can be filtered\nand the output format can be changed to JSON or a user specified Go template."),
 				ox.Spec("[options]"),
 				ox.Aliases("ls"),
 				ox.Help(ox.Sections(
@@ -1499,8 +1499,8 @@ func main() {
 					String("format", "Format farm output using Go template", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove one or more farms\n\nDescription:\n  Remove one or more existing farms."),
 				ox.Usage("remove", "Remove one or more farms"),
+				ox.Banner("Remove one or more farms\n\nDescription:\n  Remove one or more existing farms."),
 				ox.Spec("[options] [FARM...]"),
 				ox.Aliases("rm"),
 				ox.Example("\n  podman farm rm myfarm1 myfarm2\n  podman farm rm --all"),
@@ -1511,8 +1511,8 @@ func main() {
 					Bool("all", "Remove all farms", ox.Short("a"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Update an existing farm\n\nDescription:\n  Update an existing farm by adding a connection, removing a connection, or changing it to the default farm."),
 				ox.Usage("update", "Update an existing farm"),
+				ox.Banner("Update an existing farm\n\nDescription:\n  Update an existing farm by adding a connection, removing a connection, or changing it to the default farm."),
 				ox.Spec("[options] FARM"),
 				ox.Example("\n  podman farm update --add con1 farm1\n\tpodman farm update --remove con2 farm2\n\tpodman farm update --default farm3"),
 				ox.Help(ox.Sections(
@@ -1525,12 +1525,12 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Generate structured data based on containers, pods or volumes\n\nDescription:\n  Generate structured data (e.g., Kubernetes YAML or systemd units) based on containers, pods or volumes."),
 			ox.Usage("generate", "Generate structured data based on containers, pods or volumes"),
+			ox.Banner("Generate structured data based on containers, pods or volumes\n\nDescription:\n  Generate structured data (e.g., Kubernetes YAML or systemd units) based on containers, pods or volumes."),
 			ox.Spec("[command]"),
 			ox.Sub(
-				ox.Banner("Generate Kubernetes YAML from containers, pods or volumes.\n\nDescription:\n  Command generates Kubernetes Pod, Service or PersistentVolumeClaim YAML (v1 specification) from Podman containers, pods or volumes.\n\n  Whether the input is for a container or pod, Podman will always generate the specification as a pod."),
 				ox.Usage("kube", "Generate Kubernetes YAML from containers, pods or volumes."),
+				ox.Banner("Generate Kubernetes YAML from containers, pods or volumes.\n\nDescription:\n  Command generates Kubernetes Pod, Service or PersistentVolumeClaim YAML (v1 specification) from Podman containers, pods or volumes.\n\n  Whether the input is for a container or pod, Podman will always generate the specification as a pod."),
 				ox.Spec("[options] {CONTAINER...|POD...|VOLUME...}"),
 				ox.Example("\n  podman kube generate ctrID\n  podman kube generate podID\n  podman kube generate --service podID\n  podman kube generate volumeName\n  podman kube generate ctrID podID volumeName --service"),
 				ox.Help(ox.Sections(
@@ -1544,8 +1544,8 @@ func main() {
 					String("type", "Generate YAML for the given Kubernetes kind", ox.Default("pod"), ox.Short("t"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Generate Specgen JSON based on containers or pods\n\nDescription:\n  Generate Specgen JSON based on containers or pods"),
 				ox.Usage("spec", "Generate Specgen JSON based on containers or pods"),
+				ox.Banner("Generate Specgen JSON based on containers or pods\n\nDescription:\n  Generate Specgen JSON based on containers or pods"),
 				ox.Spec("[options] {CONTAINER|POD}"),
 				ox.Example("\n  podman generate spec ctrID"),
 				ox.Help(ox.Sections(
@@ -1557,8 +1557,8 @@ func main() {
 					Bool("name", "Specify a new name for the generated spec", ox.Default("true"), ox.Short("n"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("[DEPRECATED] Generate systemd units\n\nDescription:\n  Generate systemd units for a pod or container.\n  The generated units can later be controlled via systemctl(1).\n\nDEPRECATED command:\nIt is recommended to use Quadlets for running containers and pods under systemd.\n\nPlease refer to podman-systemd.unit(5) for details."),
 				ox.Usage("systemd", "[DEPRECATED] Generate systemd units"),
+				ox.Banner("[DEPRECATED] Generate systemd units\n\nDescription:\n  Generate systemd units for a pod or container.\n  The generated units can later be controlled via systemctl(1).\n\nDEPRECATED command:\nIt is recommended to use Quadlets for running containers and pods under systemd.\n\nPlease refer to podman-systemd.unit(5) for details."),
 				ox.Spec("[options] {CONTAINER|POD}"),
 				ox.Example("\n  podman generate systemd CTR\n  podman generate systemd --new --time 10 CTR\n  podman generate systemd --files --name POD"),
 				ox.Help(ox.Sections(
@@ -1585,19 +1585,19 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Manage health checks on containers\n\nDescription:\n  Run health checks on containers"),
 			ox.Usage("healthcheck", "Manage health checks on containers"),
+			ox.Banner("Manage health checks on containers\n\nDescription:\n  Run health checks on containers"),
 			ox.Spec("[command]"),
 			ox.Sub(
-				ox.Banner("Run the health check of a container\n\nDescription:\n  Run the health check of a container"),
 				ox.Usage("run", "Run the health check of a container"),
+				ox.Banner("Run the health check of a container\n\nDescription:\n  Run the health check of a container"),
 				ox.Spec("CONTAINER"),
 				ox.Example("\n  podman healthcheck run mywebapp"),
 			),
 		),
 		ox.Sub(
-			ox.Banner("Show history of a specified image\n\nDescription:\n  Displays the history of an image.\n\n  The information can be printed out in an easy to read, or user specified format, and can be truncated."),
 			ox.Usage("history", "Show history of a specified image"),
+			ox.Banner("Show history of a specified image\n\nDescription:\n  Displays the history of an image.\n\n  The information can be printed out in an easy to read, or user specified format, and can be truncated."),
 			ox.Spec("[options] IMAGE"),
 			ox.Example("\n  podman history quay.io/fedora/fedora"),
 			ox.Help(ox.Sections(
@@ -1610,12 +1610,12 @@ func main() {
 				Bool("quiet", "Display the numeric IDs only", ox.Short("q"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Manage images\n\nDescription:\n  Manage images"),
 			ox.Usage("image", "Manage images"),
+			ox.Banner("Manage images\n\nDescription:\n  Manage images"),
 			ox.Spec("[command]"),
 			ox.Sub(
-				ox.Banner("Build an image using instructions from Containerfiles\n\nDescription:\n  Builds an OCI or Docker image using instructions from one or more Containerfiles and a specified build context directory."),
 				ox.Usage("build", "Build an image using instructions from Containerfiles"),
+				ox.Banner("Build an image using instructions from Containerfiles\n\nDescription:\n  Builds an OCI or Docker image using instructions from one or more Containerfiles and a specified build context directory."),
 				ox.Spec("[options] [CONTEXT]"),
 				ox.Example("\n  podman image build .\n  podman image build --creds=username:password -t imageName -f Containerfile.simple .\n  podman image build --layers --force-rm --tag imageName ."),
 				ox.Help(ox.Sections(
@@ -1728,8 +1728,8 @@ func main() {
 					Array("volume", "bind mount a volume into the container", ox.Short("v"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Inspect changes to the image's file systems\n\nDescription:\n  Displays changes to the image's filesystem.  The image will be compared to its parent layer or the second argument when given."),
 				ox.Usage("diff", "Inspect changes to the image's file systems"),
+				ox.Banner("Inspect changes to the image's file systems\n\nDescription:\n  Displays changes to the image's filesystem.  The image will be compared to its parent layer or the second argument when given."),
 				ox.Spec("[options] IMAGE [IMAGE]"),
 				ox.Example("\n  podman image diff myImage\n  podman image diff --format json redis:alpine"),
 				ox.Help(ox.Sections(
@@ -1739,14 +1739,14 @@ func main() {
 					String("format", "Change the output format (json)", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Check if an image exists in local storage\n\nDescription:\n  If the named image exists in local storage, podman image exists exits with 0, otherwise the exit code will be 1."),
 				ox.Usage("exists", "Check if an image exists in local storage"),
+				ox.Banner("Check if an image exists in local storage\n\nDescription:\n  If the named image exists in local storage, podman image exists exits with 0, otherwise the exit code will be 1."),
 				ox.Spec("IMAGE"),
 				ox.Example("\n  podman image exists ID\n  podman image exists IMAGE && podman pull IMAGE"),
 			),
 			ox.Sub(
-				ox.Banner("Show history of a specified image\n\nDescription:\n  Displays the history of an image.\n\n  The information can be printed out in an easy to read, or user specified format, and can be truncated."),
 				ox.Usage("history", "Show history of a specified image"),
+				ox.Banner("Show history of a specified image\n\nDescription:\n  Displays the history of an image.\n\n  The information can be printed out in an easy to read, or user specified format, and can be truncated."),
 				ox.Spec("[options] IMAGE"),
 				ox.Example("\n  podman image history quay.io/fedora/fedora"),
 				ox.Help(ox.Sections(
@@ -1759,8 +1759,8 @@ func main() {
 					Bool("quiet", "Display the numeric IDs only", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Import a tarball to create a filesystem image\n\nDescription:\n  Create a container image from the contents of the specified tarball (.tar, .tar.gz, .tgz, .bzip, .tar.xz, .txz).\n\n  Note remote tar balls can be specified, via web address.\n  Optionally tag the image. You can specify the instructions using the --change option."),
 				ox.Usage("import", "Import a tarball to create a filesystem image"),
+				ox.Banner("Import a tarball to create a filesystem image\n\nDescription:\n  Create a container image from the contents of the specified tarball (.tar, .tar.gz, .tgz, .bzip, .tar.xz, .txz).\n\n  Note remote tar balls can be specified, via web address.\n  Optionally tag the image. You can specify the instructions using the --change option."),
 				ox.Spec("[options] PATH [REFERENCE]"),
 				ox.Example("\n  podman image import https://example.com/ctr.tar url-image\n  cat ctr.tar | podman -q image import --message \"importing the ctr.tar tarball\" - image-imported\n  cat ctr.tar | podman image import -"),
 				ox.Help(ox.Sections(
@@ -1775,8 +1775,8 @@ func main() {
 					String("variant", "Set the variant of the imported image", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Display the configuration of an image\n\nDescription:\n  Displays the low-level information of an image identified by name or ID."),
 				ox.Usage("inspect", "Display the configuration of an image"),
+				ox.Banner("Display the configuration of an image\n\nDescription:\n  Displays the low-level information of an image identified by name or ID."),
 				ox.Spec("[options] IMAGE [IMAGE...]"),
 				ox.Example("\n  podman image inspect alpine\n  podman image inspect --format \"imageId: {{.Id}} size: {{.Size}}\" alpine\n  podman image inspect --format \"image: {{.ImageName}} driver: {{.Driver}}\" myctr"),
 				ox.Help(ox.Sections(
@@ -1786,8 +1786,8 @@ func main() {
 					String("format", "Format the output to a Go template or json", ox.Default("json"), ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List images in local storage\n\nDescription:\n  Lists images previously pulled to the system or created on the system."),
 				ox.Usage("list", "List images in local storage"),
+				ox.Banner("List images in local storage\n\nDescription:\n  Lists images previously pulled to the system or created on the system."),
 				ox.Spec("[options] [IMAGE]"),
 				ox.Aliases("ls"),
 				ox.Example("\n  podman image list --format json\n  podman image list --sort repository --format \"table {{.ID}} {{.Repository}} {{.Tag}}\"\n  podman image list --filter dangling=true"),
@@ -1803,11 +1803,11 @@ func main() {
 					Bool("no-trunc", "Do not truncate output", ox.Section(0)).
 					Bool("noheading", "Do not print column headings", ox.Short("n"), ox.Section(0)).
 					Bool("quiet", "Display only image IDs", ox.Short("q"), ox.Section(0)).
-					String("sort", "Sort by tag, created, id, repository, size", ox.Default("created"), ox.Section(0)),
+					String("sort", "Sort by created, id, repository, size, tag", ox.Default("created"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Load image(s) from a tar archive\n\nDescription:\n  Loads an image from a locally stored archive (tar file) into container storage."),
 				ox.Usage("load", "Load image(s) from a tar archive"),
+				ox.Banner("Load image(s) from a tar archive\n\nDescription:\n  Loads an image from a locally stored archive (tar file) into container storage."),
 				ox.Spec("[options]"),
 				ox.Help(ox.Sections(
 					"Options",
@@ -1817,8 +1817,8 @@ func main() {
 					Bool("quiet", "Suppress the output", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Mount an image's root filesystem\n\nDescription:\n  podman image mount\n    Lists all mounted images mount points if no images is specified\n\n  podman image mount IMAGE-NAME-OR-ID\n    Mounts the specified image and prints the mountpoint"),
 				ox.Usage("mount", "Mount an image's root filesystem"),
+				ox.Banner("Mount an image's root filesystem\n\nDescription:\n  podman image mount\n    Lists all mounted images mount points if no images is specified\n\n  podman image mount IMAGE-NAME-OR-ID\n    Mounts the specified image and prints the mountpoint"),
 				ox.Spec("[options] [IMAGE...]"),
 				ox.Example("\n  podman image mount imgID\n  podman image mount imgID1 imgID2 imgID3\n  podman image mount\n  podman image mount --all"),
 				ox.Help(ox.Sections(
@@ -1829,8 +1829,8 @@ func main() {
 					String("format", "Print the mounted images in specified format (json)", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove unused images\n\nDescription:\n  Removes dangling or unused images from local storage."),
 				ox.Usage("prune", "Remove unused images"),
+				ox.Banner("Remove unused images\n\nDescription:\n  Removes dangling or unused images from local storage."),
 				ox.Spec("[options]"),
 				ox.Example("\n  podman image prune"),
 				ox.Help(ox.Sections(
@@ -1844,8 +1844,8 @@ func main() {
 					Bool("force", "Do not prompt for confirmation", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Pull an image from a registry\n\nDescription:\n  Pulls an image from a registry and stores it locally.\n\n  An image can be pulled by tag or digest. If a tag is not specified, the image with the 'latest' tag is pulled."),
 				ox.Usage("pull", "Pull an image from a registry"),
+				ox.Banner("Pull an image from a registry\n\nDescription:\n  Pulls an image from a registry and stores it locally.\n\n  An image can be pulled by tag or digest. If a tag is not specified, the image with the 'latest' tag is pulled."),
 				ox.Spec("[options] IMAGE [IMAGE...]"),
 				ox.Example("\n  podman image pull imageName\n  podman image pull fedora:latest"),
 				ox.Help(ox.Sections(
@@ -1868,8 +1868,8 @@ func main() {
 					String("variant", "Use VARIANT instead of the running architecture variant for choosing images", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Push an image to a specified destination\n\nDescription:\n  Pushes a source image to a specified destination.\n\n\tThe Image \"DESTINATION\" uses a \"transport\":\"details\" format. See podman-push(1) section \"DESTINATION\" for the expected format."),
 				ox.Usage("push", "Push an image to a specified destination"),
+				ox.Banner("Push an image to a specified destination\n\nDescription:\n  Pushes a source image to a specified destination.\n\n\tThe Image \"DESTINATION\" uses a \"transport\":\"details\" format. See podman-push(1) section \"DESTINATION\" for the expected format."),
 				ox.Spec("[options] IMAGE [DESTINATION]"),
 				ox.Example("\n  podman image push imageID docker://registry.example.com/repository:tag\n\t\tpodman image push imageID oci-archive:/path/to/layout:image:tag"),
 				ox.Help(ox.Sections(
@@ -1899,8 +1899,8 @@ func main() {
 					Bool("tls-verify", "Require HTTPS and verify certificates when contacting registries", ox.Default("true"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove one or more images from local storage\n\nDescription:\n  Removes one or more previously pulled or locally created images."),
 				ox.Usage("rm", "Remove one or more images from local storage"),
+				ox.Banner("Remove one or more images from local storage\n\nDescription:\n  Removes one or more previously pulled or locally created images."),
 				ox.Spec("[options] IMAGE [IMAGE...]"),
 				ox.Example("\n  podman image rm imageID\n  podman image rm --force alpine\n  podman image rm c4dfb1609ee2 93fd78260bd1 c0ed59d05ff7"),
 				ox.Help(ox.Sections(
@@ -1913,8 +1913,8 @@ func main() {
 					Bool("no-prune", "Do not remove dangling images", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Save image(s) to an archive\n\nDescription:\n  Save an image to docker-archive or oci-archive on the local machine. Default is docker-archive."),
 				ox.Usage("save", "Save image(s) to an archive"),
+				ox.Banner("Save image(s) to an archive\n\nDescription:\n  Save an image to docker-archive or oci-archive on the local machine. Default is docker-archive."),
 				ox.Spec("[options] IMAGE [IMAGE...]"),
 				ox.Example("\n  podman image save --quiet -o myimage.tar imageID\n  podman image save --format docker-dir -o ubuntu-dir ubuntu\n  podman image save > alpine-all.tar alpine:latest"),
 				ox.Help(ox.Sections(
@@ -1929,8 +1929,8 @@ func main() {
 					Bool("uncompressed", "Accept uncompressed layers when copying OCI images", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Securely copy images\n\nDescription:\n  Securely copy an image from one host to another."),
 				ox.Usage("scp", "Securely copy images"),
+				ox.Banner("Securely copy images\n\nDescription:\n  Securely copy an image from one host to another."),
 				ox.Spec("[options] IMAGE [HOST::]"),
 				ox.Example("\n  podman image scp myimage:latest otherhost::"),
 				ox.Help(ox.Sections(
@@ -1940,8 +1940,8 @@ func main() {
 					Bool("quiet", "Suppress the output", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Search registry for image\n\nDescription:\n  Search registries for a given image. Can search all the default registries or a specific registry.\n\n\tUsers can limit the number of results, and filter the output based on certain conditions."),
 				ox.Usage("search", "Search registry for image"),
+				ox.Banner("Search registry for image\n\nDescription:\n  Search registries for a given image. Can search all the default registries or a specific registry.\n\n\tUsers can limit the number of results, and filter the output based on certain conditions."),
 				ox.Spec("[options] TERM"),
 				ox.Example("\n  podman image search --filter=is-official --limit 3 alpine\n  podman image search registry.fedoraproject.org/  # only works with v2 registries\n  podman image search --format \"table {{.Index}} {{.Name}}\" registry.fedoraproject.org/fedora"),
 				ox.Help(ox.Sections(
@@ -1960,8 +1960,8 @@ func main() {
 					Bool("tls-verify", "Require HTTPS and verify certificates when contacting registries", ox.Default("true"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Sign an image\n\nDescription:\n  Create a signature file that can be used later to verify the image."),
 				ox.Usage("sign", "Sign an image"),
+				ox.Banner("Sign an image\n\nDescription:\n  Create a signature file that can be used later to verify the image."),
 				ox.Spec("[options] IMAGE [IMAGE...]"),
 				ox.Example("\n  podman image sign --sign-by mykey imageID\n  podman image sign --sign-by mykey --directory ./mykeydir imageID"),
 				ox.Help(ox.Sections(
@@ -1975,14 +1975,14 @@ func main() {
 					String("sign-by", "Name of the signing key", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Add an additional name to a local image\n\nDescription:\n  Adds one or more additional names to locally-stored image."),
 				ox.Usage("tag", "Add an additional name to a local image"),
+				ox.Banner("Add an additional name to a local image\n\nDescription:\n  Adds one or more additional names to locally-stored image."),
 				ox.Spec("IMAGE TARGET_NAME [TARGET_NAME...]"),
 				ox.Example("\n  podman image tag 0e3bbc2 fedora:latest\n  podman image tag imageID:latest myNewImage:newTag\n  podman image tag httpd myregistryhost:5000/fedora/httpd:v2"),
 			),
 			ox.Sub(
-				ox.Banner("Print layer hierarchy of an image in a tree format\n\nDescription:\n  Print layer hierarchy of an image in a tree format"),
 				ox.Usage("tree", "Print layer hierarchy of an image in a tree format"),
+				ox.Banner("Print layer hierarchy of an image in a tree format\n\nDescription:\n  Print layer hierarchy of an image in a tree format"),
 				ox.Spec("[options] IMAGE"),
 				ox.Example("\n  podman image tree alpine:latest"),
 				ox.Help(ox.Sections(
@@ -1992,12 +1992,12 @@ func main() {
 					Bool("whatrequires", "Show all child images and layers of the specified image", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Manage container image trust policy\n\nDescription:\n  Manages which registries you trust as a source of container images based on their location.\n  The location is determined by the transport and the registry host of the image.  Using this container image docker://quay.io/podman/stable as an example, docker is the transport and quay.io is the registry host."),
 				ox.Usage("trust", "Manage container image trust policy"),
+				ox.Banner("Manage container image trust policy\n\nDescription:\n  Manages which registries you trust as a source of container images based on their location.\n  The location is determined by the transport and the registry host of the image.  Using this container image docker://quay.io/podman/stable as an example, docker is the transport and quay.io is the registry host."),
 				ox.Spec("[command]"),
 				ox.Sub(
-					ox.Banner("Set default trust policy or a new trust policy for a registry\n\nDescription:\n  Set default trust policy or add a new trust policy for a registry"),
 					ox.Usage("set", "Set default trust policy or a new trust policy for a registry"),
+					ox.Banner("Set default trust policy or a new trust policy for a registry\n\nDescription:\n  Set default trust policy or add a new trust policy for a registry"),
 					ox.Spec("[options] REGISTRY"),
 					ox.Help(ox.Sections(
 						"Options",
@@ -2007,8 +2007,8 @@ func main() {
 						String("type", "Trust type, accept values: signedBy(default), accept, reject", ox.Default("signedBy"), ox.Short("t"), ox.Section(0)),
 				),
 				ox.Sub(
-					ox.Banner("Display trust policy for the system\n\nDescription:\n  Display trust policy for the system"),
 					ox.Usage("show", "Display trust policy for the system"),
+					ox.Banner("Display trust policy for the system\n\nDescription:\n  Display trust policy for the system"),
 					ox.Spec("[options] [REGISTRY]"),
 					ox.Help(ox.Sections(
 						"Options",
@@ -2020,8 +2020,8 @@ func main() {
 				),
 			),
 			ox.Sub(
-				ox.Banner("Unmount an image's root filesystem\n\nDescription:\n  Image storage increments a mount counter each time an image is mounted.\n\n  When an image is unmounted, the mount counter is decremented. The image's root filesystem is physically unmounted only when the mount counter reaches zero indicating no other processes are using the mount.\n\n  An unmount can be forced with the --force flag."),
 				ox.Usage("unmount", "Unmount an image's root filesystem"),
+				ox.Banner("Unmount an image's root filesystem\n\nDescription:\n  Image storage increments a mount counter each time an image is mounted.\n\n  When an image is unmounted, the mount counter is decremented. The image's root filesystem is physically unmounted only when the mount counter reaches zero indicating no other processes are using the mount.\n\n  An unmount can be forced with the --force flag."),
 				ox.Spec("[options] IMAGE [IMAGE...]"),
 				ox.Aliases("umount"),
 				ox.Example("\n  podman unmount imgID\n  podman unmount imgID1 imgID2 imgID3\n  podman unmount --all"),
@@ -2033,15 +2033,15 @@ func main() {
 					Bool("force", "Force the complete unmount of the specified mounted images", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove a name from a local image\n\nDescription:\n  Removes one or more names from a locally-stored image."),
 				ox.Usage("untag", "Remove a name from a local image"),
+				ox.Banner("Remove a name from a local image\n\nDescription:\n  Removes one or more names from a locally-stored image."),
 				ox.Spec("IMAGE [IMAGE...]"),
 				ox.Example("\n  podman image untag 0e3bbc2\n  podman image untag imageID:latest otherImageName:latest\n  podman image untag httpd myregistryhost:5000/fedora/httpd:v2"),
 			),
 		),
 		ox.Sub(
-			ox.Banner("List images in local storage\n\nDescription:\n  Lists images previously pulled to the system or created on the system."),
 			ox.Usage("images", "List images in local storage"),
+			ox.Banner("List images in local storage\n\nDescription:\n  Lists images previously pulled to the system or created on the system."),
 			ox.Spec("[options] [IMAGE]"),
 			ox.Example("\n  podman images --format json\n  podman images --sort repository --format \"table {{.ID}} {{.Repository}} {{.Tag}}\"\n  podman images --filter dangling=true"),
 			ox.Help(ox.Sections(
@@ -2056,11 +2056,11 @@ func main() {
 				Bool("no-trunc", "Do not truncate output", ox.Section(0)).
 				Bool("noheading", "Do not print column headings", ox.Short("n"), ox.Section(0)).
 				Bool("quiet", "Display only image IDs", ox.Short("q"), ox.Section(0)).
-				String("sort", "Sort by created, id, repository, size, tag", ox.Default("created"), ox.Section(0)),
+				String("sort", "Sort by size, tag, created, id, repository", ox.Default("created"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Import a tarball to create a filesystem image\n\nDescription:\n  Create a container image from the contents of the specified tarball (.tar, .tar.gz, .tgz, .bzip, .tar.xz, .txz).\n\n  Note remote tar balls can be specified, via web address.\n  Optionally tag the image. You can specify the instructions using the --change option."),
 			ox.Usage("import", "Import a tarball to create a filesystem image"),
+			ox.Banner("Import a tarball to create a filesystem image\n\nDescription:\n  Create a container image from the contents of the specified tarball (.tar, .tar.gz, .tgz, .bzip, .tar.xz, .txz).\n\n  Note remote tar balls can be specified, via web address.\n  Optionally tag the image. You can specify the instructions using the --change option."),
 			ox.Spec("[options] PATH [REFERENCE]"),
 			ox.Example("\n  podman import https://example.com/ctr.tar url-image\n  cat ctr.tar | podman -q import --message \"importing the ctr.tar tarball\" - image-imported\n  cat ctr.tar | podman import -"),
 			ox.Help(ox.Sections(
@@ -2075,8 +2075,8 @@ func main() {
 				String("variant", "Set the variant of the imported image", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Display podman system information\n\nDescription:\n  Display information pertaining to the host, current storage stats, and build of podman.\n\n  Useful for the user and when reporting issues."),
 			ox.Usage("info", "Display podman system information"),
+			ox.Banner("Display podman system information\n\nDescription:\n  Display information pertaining to the host, current storage stats, and build of podman.\n\n  Useful for the user and when reporting issues."),
 			ox.Spec("[options]"),
 			ox.Example("\n  podman info"),
 			ox.Help(ox.Sections(
@@ -2086,8 +2086,8 @@ func main() {
 				String("format", "Change the output format to JSON or a Go template", ox.Short("f"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Initialize one or more containers\n\nDescription:\n  Initialize one or more containers, creating the OCI spec and mounts for inspection. Container names or IDs can be used."),
 			ox.Usage("init", "Initialize one or more containers"),
+			ox.Banner("Initialize one or more containers\n\nDescription:\n  Initialize one or more containers, creating the OCI spec and mounts for inspection. Container names or IDs can be used."),
 			ox.Spec("[options] CONTAINER [CONTAINER...]"),
 			ox.Example("\n  podman init 3c45ef19d893\n  podman init test1"),
 			ox.Help(ox.Sections(
@@ -2098,8 +2098,8 @@ func main() {
 				Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Display the configuration of object denoted by ID\n\nDescription:\n  Displays the low-level information on an object identified by name or ID.\n  For more inspection options, see:\n\n      podman container inspect\n      podman image inspect\n      podman network inspect\n      podman pod inspect\n      podman volume inspect"),
 			ox.Usage("inspect", "Display the configuration of object denoted by ID"),
+			ox.Banner("Display the configuration of object denoted by ID\n\nDescription:\n  Displays the low-level information on an object identified by name or ID.\n  For more inspection options, see:\n\n      podman container inspect\n      podman image inspect\n      podman network inspect\n      podman pod inspect\n      podman volume inspect"),
 			ox.Spec("[options] {CONTAINER|IMAGE|POD|NETWORK|VOLUME} [...]"),
 			ox.Example("\n  podman inspect fedora\n  podman inspect --type image fedora\n  podman inspect CtrID ImgID\n  podman inspect --format \"imageId: {{.Id}} size: {{.Size}}\" fedora"),
 			ox.Help(ox.Sections(
@@ -2112,8 +2112,8 @@ func main() {
 				String("type", "Specify inspect-object type", ox.Default("all"), ox.Short("t"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Kill one or more running containers with a specific signal\n\nDescription:\n  The main process inside each container specified will be sent SIGKILL, or any signal specified with option --signal."),
 			ox.Usage("kill", "Kill one or more running containers with a specific signal"),
+			ox.Banner("Kill one or more running containers with a specific signal\n\nDescription:\n  The main process inside each container specified will be sent SIGKILL, or any signal specified with option --signal."),
 			ox.Spec("[options] CONTAINER [CONTAINER...]"),
 			ox.Example("\n  podman kill mywebserver\n  podman kill 860a4b23\n  podman kill --signal TERM ctrID"),
 			ox.Help(ox.Sections(
@@ -2126,12 +2126,12 @@ func main() {
 				String("signal", "Signal to send to the container", ox.Default("KILL"), ox.Short("s"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Play containers, pods or volumes from a structured file\n\nDescription:\n  Play structured data (e.g., Kubernetes YAML) based on containers, pods or volumes."),
 			ox.Usage("kube", "Play containers, pods or volumes from a structured file"),
+			ox.Banner("Play containers, pods or volumes from a structured file\n\nDescription:\n  Play structured data (e.g., Kubernetes YAML) based on containers, pods or volumes."),
 			ox.Spec("[command]"),
 			ox.Sub(
-				ox.Banner("Deploy a podman container, pod, volume, or Kubernetes yaml to a Kubernetes cluster\n\nDescription:\n  Command applies a podman container, pod, volume, or kube yaml to a Kubernetes cluster when a kubeconfig file is given."),
 				ox.Usage("apply", "Deploy a podman container, pod, volume, or Kubernetes yaml to a Kubernetes cluster"),
+				ox.Banner("Deploy a podman container, pod, volume, or Kubernetes yaml to a Kubernetes cluster\n\nDescription:\n  Command applies a podman container, pod, volume, or kube yaml to a Kubernetes cluster when a kubeconfig file is given."),
 				ox.Spec("[options] [CONTAINER...|POD...|VOLUME...]"),
 				ox.Example("\n  podman kube apply ctrName volName\n  podman kube apply --namespace project -f fileName"),
 				ox.Help(ox.Sections(
@@ -2145,8 +2145,8 @@ func main() {
 					Bool("service", "Create a service object for the container being deployed.", ox.Short("s"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove pods based on Kubernetes YAML\n\nDescription:\n  Reads in a structured file of Kubernetes YAML.\n\n  Removes pods that have been based on the Kubernetes kind described in the YAML."),
 				ox.Usage("down", "Remove pods based on Kubernetes YAML"),
+				ox.Banner("Remove pods based on Kubernetes YAML\n\nDescription:\n  Reads in a structured file of Kubernetes YAML.\n\n  Removes pods that have been based on the Kubernetes kind described in the YAML."),
 				ox.Spec("[options] KUBEFILE|-"),
 				ox.Example("\n  podman kube down nginx.yml\n   cat nginx.yml | podman kube down -\n   podman kube down https://example.com/nginx.yml"),
 				ox.Help(ox.Sections(
@@ -2156,8 +2156,8 @@ func main() {
 					Bool("force", "remove volumes", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Generate Kubernetes YAML from containers, pods or volumes.\n\nDescription:\n  Command generates Kubernetes Pod, Service or PersistentVolumeClaim YAML (v1 specification) from Podman containers, pods or volumes.\n\n  Whether the input is for a container or pod, Podman will always generate the specification as a pod."),
 				ox.Usage("generate", "Generate Kubernetes YAML from containers, pods or volumes."),
+				ox.Banner("Generate Kubernetes YAML from containers, pods or volumes.\n\nDescription:\n  Command generates Kubernetes Pod, Service or PersistentVolumeClaim YAML (v1 specification) from Podman containers, pods or volumes.\n\n  Whether the input is for a container or pod, Podman will always generate the specification as a pod."),
 				ox.Spec("[options] {CONTAINER...|POD...|VOLUME...}"),
 				ox.Example("\n  podman kube generate ctrID\n  podman kube generate podID\n  podman kube generate --service podID\n  podman kube generate volumeName\n  podman kube generate ctrID podID volumeName --service"),
 				ox.Help(ox.Sections(
@@ -2171,8 +2171,8 @@ func main() {
 					String("type", "Generate YAML for the given Kubernetes kind", ox.Default("pod"), ox.Short("t"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Play a pod or volume based on Kubernetes YAML\n\nDescription:\n  Reads in a structured file of Kubernetes YAML.\n\n  Creates pods or volumes based on the Kubernetes kind described in the YAML. Supported kinds are Pods, Deployments, DaemonSets, Jobs, and PersistentVolumeClaims."),
 				ox.Usage("play", "Play a pod or volume based on Kubernetes YAML"),
+				ox.Banner("Play a pod or volume based on Kubernetes YAML\n\nDescription:\n  Reads in a structured file of Kubernetes YAML.\n\n  Creates pods or volumes based on the Kubernetes kind described in the YAML. Supported kinds are Pods, Deployments, DaemonSets, Jobs, and PersistentVolumeClaims."),
 				ox.Spec("[options] KUBEFILE|-"),
 				ox.Example("\n  podman kube play nginx.yml\n  cat nginx.yml | podman kube play -\n  podman kube play --creds user:password --seccomp-profile-root /custom/path apache.yml\n  podman kube play https://example.com/nginx.yml"),
 				ox.Help(ox.Sections(
@@ -2206,8 +2206,8 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Load image(s) from a tar archive\n\nDescription:\n  Loads an image from a locally stored archive (tar file) into container storage."),
 			ox.Usage("load", "Load image(s) from a tar archive"),
+			ox.Banner("Load image(s) from a tar archive\n\nDescription:\n  Loads an image from a locally stored archive (tar file) into container storage."),
 			ox.Spec("[options]"),
 			ox.Help(ox.Sections(
 				"Options",
@@ -2217,8 +2217,8 @@ func main() {
 				Bool("quiet", "Suppress the output", ox.Short("q"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Log in to a container registry\n\nDescription:\n  Log in to a container registry on a specified server."),
 			ox.Usage("login", "Log in to a container registry"),
+			ox.Banner("Log in to a container registry\n\nDescription:\n  Log in to a container registry on a specified server."),
 			ox.Spec("[options] [REGISTRY]"),
 			ox.Example("\n  podman login quay.io\n  podman login --username ... --password ... quay.io\n  podman login --authfile dir/auth.json quay.io"),
 			ox.Help(ox.Sections(
@@ -2237,8 +2237,8 @@ func main() {
 				Bool("verbose", "Write more detailed information to stdout", ox.Short("v"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Log out of a container registry\n\nDescription:\n  Remove the cached username and password for the registry."),
 			ox.Usage("logout", "Log out of a container registry"),
+			ox.Banner("Log out of a container registry\n\nDescription:\n  Remove the cached username and password for the registry."),
 			ox.Spec("[options] [REGISTRY]"),
 			ox.Example("\n  podman logout quay.io\n  podman logout --authfile dir/auth.json quay.io\n  podman logout --all"),
 			ox.Help(ox.Sections(
@@ -2250,8 +2250,8 @@ func main() {
 				String("compat-auth-file", "path of a Docker-compatible config file to update instead", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Fetch the logs of one or more containers\n\nDescription:\n  Retrieves logs for one or more containers.\n\n  This does not guarantee execution order when combined with podman run (i.e., your run may not have generated any logs at the time you execute podman logs)."),
 			ox.Usage("logs", "Fetch the logs of one or more containers"),
+			ox.Banner("Fetch the logs of one or more containers\n\nDescription:\n  Retrieves logs for one or more containers.\n\n  This does not guarantee execution order when combined with podman run (i.e., your run may not have generated any logs at the time you execute podman logs)."),
 			ox.Spec("[options] CONTAINER [CONTAINER...]"),
 			ox.Example("\n  podman logs ctrID\n  podman logs --names ctrID1 ctrID2\n  podman logs --tail 2 mywebserver\n  podman logs --follow=true --since 10m ctrID\n  podman logs mywebserver mydbserver"),
 			ox.Help(ox.Sections(
@@ -2268,12 +2268,12 @@ func main() {
 				String("until", "Show logs until TIMESTAMP", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Manage a virtual machine\n\nDescription:\n  Manage a virtual machine. Virtual machines are used to run Podman."),
 			ox.Usage("machine", "Manage a virtual machine"),
+			ox.Banner("Manage a virtual machine\n\nDescription:\n  Manage a virtual machine. Virtual machines are used to run Podman."),
 			ox.Spec("[command]"),
 			ox.Sub(
-				ox.Banner("Display machine host info\n\nDescription:\n  Display information pertaining to the machine host."),
 				ox.Usage("info", "Display machine host info"),
+				ox.Banner("Display machine host info\n\nDescription:\n  Display information pertaining to the machine host."),
 				ox.Spec("[options]"),
 				ox.Example("\n  podman machine info"),
 				ox.Help(ox.Sections(
@@ -2283,8 +2283,8 @@ func main() {
 					String("format", "Change the output format to JSON or a Go template", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Initialize a virtual machine\n\nDescription:\n  Initialize a virtual machine"),
 				ox.Usage("init", "Initialize a virtual machine"),
+				ox.Banner("Initialize a virtual machine\n\nDescription:\n  Initialize a virtual machine"),
 				ox.Spec("[options] [NAME]"),
 				ox.Example("\n  podman machine init podman-machine-default"),
 				ox.Help(ox.Sections(
@@ -2306,8 +2306,8 @@ func main() {
 					Array("volume", "Volumes to mount, source:target", ox.Default("[$HOME:$HOME]"), ox.Short("v"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Inspect an existing machine\n\nDescription:\n  Provide details on a managed virtual machine"),
 				ox.Usage("inspect", "Inspect an existing machine"),
+				ox.Banner("Inspect an existing machine\n\nDescription:\n  Provide details on a managed virtual machine"),
 				ox.Spec("[options] [MACHINE...]"),
 				ox.Example("\n  podman machine inspect myvm"),
 				ox.Help(ox.Sections(
@@ -2317,8 +2317,8 @@ func main() {
 					String("format", "Format volume output using JSON or a Go template", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List machines\n\nDescription:\n  List managed virtual machines."),
 				ox.Usage("list", "List machines"),
+				ox.Banner("List machines\n\nDescription:\n  List managed virtual machines."),
 				ox.Spec("[options]"),
 				ox.Aliases("ls"),
 				ox.Example("\n  podman machine list,\n  podman machine list --format json\n  podman machine ls"),
@@ -2332,12 +2332,12 @@ func main() {
 					Bool("quiet", "Show only machine names", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Manage a Podman virtual machine's OS\n\nDescription:\n  Manage a Podman virtual machine's operating system"),
 				ox.Usage("os", "Manage a Podman virtual machine's OS"),
+				ox.Banner("Manage a Podman virtual machine's OS\n\nDescription:\n  Manage a Podman virtual machine's operating system"),
 				ox.Spec("[command]"),
 				ox.Sub(
-					ox.Banner("Apply an OCI image to a Podman Machine's OS\n\nDescription:\n  Apply custom layers from a containerized Fedora CoreOS OCI image on top of an existing VM"),
 					ox.Usage("apply", "Apply an OCI image to a Podman Machine's OS"),
+					ox.Banner("Apply an OCI image to a Podman Machine's OS\n\nDescription:\n  Apply custom layers from a containerized Fedora CoreOS OCI image on top of an existing VM"),
 					ox.Spec("[options] IMAGE [NAME]"),
 					ox.Example("\n  podman machine os apply myimage"),
 					ox.Help(ox.Sections(
@@ -2348,8 +2348,8 @@ func main() {
 				),
 			),
 			ox.Sub(
-				ox.Banner("Remove all machines\n\nDescription:\n  Remove all machines, configurations, data, and cached images"),
 				ox.Usage("reset", "Remove all machines"),
+				ox.Banner("Remove all machines\n\nDescription:\n  Remove all machines, configurations, data, and cached images"),
 				ox.Spec("[options]"),
 				ox.Example("\n  podman machine reset"),
 				ox.Help(ox.Sections(
@@ -2359,8 +2359,8 @@ func main() {
 					Bool("force", "Do not prompt before reset", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove an existing machine\n\nDescription:\n  Remove a managed virtual machine"),
 				ox.Usage("rm", "Remove an existing machine"),
+				ox.Banner("Remove an existing machine\n\nDescription:\n  Remove a managed virtual machine"),
 				ox.Spec("[options] [MACHINE]"),
 				ox.Example("\n  podman machine rm podman-machine-default"),
 				ox.Help(ox.Sections(
@@ -2372,8 +2372,8 @@ func main() {
 					Bool("save-image", "Do not delete the image file", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Set a virtual machine setting\n\nDescription:\n  Set an updatable virtual machine setting"),
 				ox.Usage("set", "Set a virtual machine setting"),
+				ox.Banner("Set a virtual machine setting\n\nDescription:\n  Set an updatable virtual machine setting"),
 				ox.Spec("[options] [NAME]"),
 				ox.Example("\n  podman machine set --rootful=false"),
 				ox.Help(ox.Sections(
@@ -2388,8 +2388,8 @@ func main() {
 					Bool("user-mode-networking", "Whether this machine should use user-mode networking, routing traffic through a host user-space process", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("SSH into an existing machine\n\nDescription:\n  SSH into a managed virtual machine"),
 				ox.Usage("ssh", "SSH into an existing machine"),
+				ox.Banner("SSH into an existing machine\n\nDescription:\n  SSH into a managed virtual machine"),
 				ox.Spec("[options] [NAME] [COMMAND [ARG ...]]"),
 				ox.Example("\n  podman machine ssh podman-machine-default\n  podman machine ssh myvm echo hello"),
 				ox.Help(ox.Sections(
@@ -2399,8 +2399,8 @@ func main() {
 					String("username", "Username to use when ssh-ing into the VM.", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Start an existing machine\n\nDescription:\n  Start a managed virtual machine"),
 				ox.Usage("start", "Start an existing machine"),
+				ox.Banner("Start an existing machine\n\nDescription:\n  Start a managed virtual machine"),
 				ox.Spec("[options] [MACHINE]"),
 				ox.Example("\n  podman machine start podman-machine-default"),
 				ox.Help(ox.Sections(
@@ -2411,20 +2411,20 @@ func main() {
 					Bool("quiet", "Suppress machine starting status output", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Stop an existing machine\n\nDescription:\n  Stop a managed virtual machine"),
 				ox.Usage("stop", "Stop an existing machine"),
+				ox.Banner("Stop an existing machine\n\nDescription:\n  Stop a managed virtual machine"),
 				ox.Spec("[MACHINE]"),
 				ox.Example("\n  podman machine stop podman-machine-default"),
 			),
 		),
 		ox.Sub(
-			ox.Banner("Manipulate manifest lists and image indexes\n\nDescription:\n  Creates, modifies, and pushes manifest lists and image indexes."),
 			ox.Usage("manifest", "Manipulate manifest lists and image indexes"),
+			ox.Banner("Manipulate manifest lists and image indexes\n\nDescription:\n  Creates, modifies, and pushes manifest lists and image indexes."),
 			ox.Spec("[command]"),
 			ox.Example("\n  podman manifest add mylist:v1.11 image:v1.11-amd64\n  podman manifest create localhost/list\n  podman manifest inspect localhost/list\n  podman manifest annotate --annotation left=right mylist:v1.11 sha256:15352d97781ffdf357bf3459c037be3efac4133dc9070c2dce7eca7c05c3e736\n  podman manifest push mylist:v1.11 docker://quay.io/myuser/image:v1.11\n  podman manifest remove mylist:v1.11 sha256:15352d97781ffdf357bf3459c037be3efac4133dc9070c2dce7eca7c05c3e736\n  podman manifest rm mylist:v1.11"),
 			ox.Sub(
-				ox.Banner("Add images or artifacts to a manifest list or image index\n\nDescription:\n  Adds an image or artifact to a manifest list or image index."),
 				ox.Usage("add", "Add images or artifacts to a manifest list or image index"),
+				ox.Banner("Add images or artifacts to a manifest list or image index\n\nDescription:\n  Adds an image or artifact to a manifest list or image index."),
 				ox.Spec("[options] LIST IMAGEORARTIFACT [IMAGEORARTIFACT...]"),
 				ox.Example("\n  podman manifest add mylist:v1.11 image:v1.11-amd64\n  podman manifest add mylist:v1.11 transport:imageName"),
 				ox.Help(ox.Sections(
@@ -2451,8 +2451,8 @@ func main() {
 					String("variant", "override the Variant of the specified image", ox.Spec("Variant"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Add or update information about an entry in a manifest list or image index\n\nDescription:\n  Adds or updates information about an entry in a manifest list or image index."),
 				ox.Usage("annotate", "Add or update information about an entry in a manifest list or image index"),
+				ox.Banner("Add or update information about an entry in a manifest list or image index\n\nDescription:\n  Adds or updates information about an entry in a manifest list or image index."),
 				ox.Spec("[options] LIST IMAGEORARTIFACT"),
 				ox.Example("\n  podman manifest annotate --annotation left=right mylist:v1.11 sha256:15352d97781ffdf357bf3459c037be3efac4133dc9070c2dce7eca7c05c3e736"),
 				ox.Help(ox.Sections(
@@ -2470,8 +2470,8 @@ func main() {
 					String("variant", "override the Variant of the specified image or artifact", ox.Spec("Variant"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Create manifest list or image index\n\nDescription:\n  Creates manifest lists or image indexes."),
 				ox.Usage("create", "Create manifest list or image index"),
+				ox.Banner("Create manifest list or image index\n\nDescription:\n  Creates manifest lists or image indexes."),
 				ox.Spec("[options] LIST [IMAGE...]"),
 				ox.Example("\n  podman manifest create mylist:v1.11\n  podman manifest create mylist:v1.11 arch-specific-image-to-add\n  podman manifest create mylist:v1.11 arch-specific-image-to-add another-arch-specific-image-to-add\n  podman manifest create --all mylist:v1.11 transport:tagged-image-to-add"),
 				ox.Help(ox.Sections(
@@ -2484,14 +2484,14 @@ func main() {
 					Bool("tls-verify", "require HTTPS and verify certificates when accessing the registry", ox.Default("true"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Check if a manifest list exists in local storage\n\nDescription:\n  If the manifest list exists in local storage, podman manifest exists exits with 0, otherwise the exit code will be 1."),
 				ox.Usage("exists", "Check if a manifest list exists in local storage"),
+				ox.Banner("Check if a manifest list exists in local storage\n\nDescription:\n  If the manifest list exists in local storage, podman manifest exists exits with 0, otherwise the exit code will be 1."),
 				ox.Spec("MANIFEST"),
 				ox.Example("\n  podman manifest exists mylist"),
 			),
 			ox.Sub(
-				ox.Banner("Display the contents of a manifest list or image index\n\nDescription:\n  Display the contents of a manifest list or image index."),
 				ox.Usage("inspect", "Display the contents of a manifest list or image index"),
+				ox.Banner("Display the contents of a manifest list or image index\n\nDescription:\n  Display the contents of a manifest list or image index."),
 				ox.Spec("[options] IMAGE"),
 				ox.Example("\n  podman manifest inspect localhost/list"),
 				ox.Help(ox.Sections(
@@ -2502,8 +2502,8 @@ func main() {
 					Bool("tls-verify", "require HTTPS and verify certificates when accessing the registry", ox.Default("true"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Push a manifest list or image index to a registry\n\nDescription:\n  Pushes manifest lists and image indexes to registries."),
 				ox.Usage("push", "Push a manifest list or image index to a registry"),
+				ox.Banner("Push a manifest list or image index to a registry\n\nDescription:\n  Pushes manifest lists and image indexes to registries."),
 				ox.Spec("[options] LIST DESTINATION"),
 				ox.Example("\n  podman manifest push mylist:v1.11 docker://quay.io/myuser/image:v1.11"),
 				ox.Help(ox.Sections(
@@ -2530,14 +2530,14 @@ func main() {
 					Bool("tls-verify", "require HTTPS and verify certificates when accessing the registry", ox.Default("true"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove an item from a manifest list or image index\n\nDescription:\n  Removes an item from a manifest list or image index."),
 				ox.Usage("remove", "Remove an item from a manifest list or image index"),
+				ox.Banner("Remove an item from a manifest list or image index\n\nDescription:\n  Removes an item from a manifest list or image index."),
 				ox.Spec("LIST DIGEST"),
 				ox.Example("\n  podman manifest remove mylist:v1.11 sha256:15352d97781ffdf357bf3459c037be3efac4133dc9070c2dce7eca7c05c3e736"),
 			),
 			ox.Sub(
-				ox.Banner("Remove manifest list or image index from local storage\n\nDescription:\n  Remove manifest list or image index from local storage."),
 				ox.Usage("rm", "Remove manifest list or image index from local storage"),
+				ox.Banner("Remove manifest list or image index from local storage\n\nDescription:\n  Remove manifest list or image index from local storage."),
 				ox.Spec("[options] LIST [LIST...]"),
 				ox.Example("\n  podman manifest rm mylist:v1.11"),
 				ox.Help(ox.Sections(
@@ -2548,8 +2548,8 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Mount a working container's root filesystem\n\nDescription:\n  podman mount\n    Lists all mounted containers mount points if no container is specified\n\n  podman mount CONTAINER-NAME-OR-ID\n    Mounts the specified container and outputs the mountpoint"),
 			ox.Usage("mount", "Mount a working container's root filesystem"),
+			ox.Banner("Mount a working container's root filesystem\n\nDescription:\n  podman mount\n    Lists all mounted containers mount points if no container is specified\n\n  podman mount CONTAINER-NAME-OR-ID\n    Mounts the specified container and outputs the mountpoint"),
 			ox.Spec("[options] [CONTAINER...]"),
 			ox.Help(ox.Sections(
 				"Options",
@@ -2561,12 +2561,12 @@ func main() {
 				Bool("no-trunc", "Do not truncate output", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Manage networks\n\nDescription:\n  Manage networks"),
 			ox.Usage("network", "Manage networks"),
+			ox.Banner("Manage networks\n\nDescription:\n  Manage networks"),
 			ox.Spec("[command]"),
 			ox.Sub(
-				ox.Banner("Add container to a network\n\nDescription:\n  Add container to a network"),
 				ox.Usage("connect", "Add container to a network"),
+				ox.Banner("Add container to a network\n\nDescription:\n  Add container to a network"),
 				ox.Spec("[options] NETWORK CONTAINER"),
 				ox.Example("\n  podman network connect web secondary"),
 				ox.Help(ox.Sections(
@@ -2579,8 +2579,8 @@ func main() {
 					String("mac-address", "set a static mac address for this container network", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Create networks for containers and pods\n\nDescription:\n  Create networks for containers and pods"),
 				ox.Usage("create", "Create networks for containers and pods"),
+				ox.Banner("Create networks for containers and pods\n\nDescription:\n  Create networks for containers and pods"),
 				ox.Spec("[options] [NAME]"),
 				ox.Example("\n  podman network create podman1"),
 				ox.Help(ox.Sections(
@@ -2603,8 +2603,8 @@ func main() {
 					Array("subnet", "subnets in CIDR format", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Disconnect a container from a network\n\nDescription:\n  Remove container from a network"),
 				ox.Usage("disconnect", "Disconnect a container from a network"),
+				ox.Banner("Disconnect a container from a network\n\nDescription:\n  Remove container from a network"),
 				ox.Spec("[options] NETWORK CONTAINER"),
 				ox.Example("\n  podman network disconnect web secondary"),
 				ox.Help(ox.Sections(
@@ -2614,14 +2614,14 @@ func main() {
 					Bool("force", "force removal of container from network", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Check if network exists\n\nDescription:\n  If the named network exists, podman network exists exits with 0, otherwise the exit code will be 1."),
 				ox.Usage("exists", "Check if network exists"),
+				ox.Banner("Check if network exists\n\nDescription:\n  If the named network exists, podman network exists exits with 0, otherwise the exit code will be 1."),
 				ox.Spec("NETWORK"),
 				ox.Example("\n  podman network exists net1"),
 			),
 			ox.Sub(
-				ox.Banner("Inspect network\n\nDescription:\n  Displays the network configuration for one or more networks."),
 				ox.Usage("inspect", "Inspect network"),
+				ox.Banner("Inspect network\n\nDescription:\n  Displays the network configuration for one or more networks."),
 				ox.Spec("[options] NETWORK [NETWORK...]"),
 				ox.Example("\n  podman network inspect podman"),
 				ox.Help(ox.Sections(
@@ -2631,8 +2631,8 @@ func main() {
 					String("format", "Pretty-print network to JSON or using a Go template", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List networks\n\nDescription:\n  List networks"),
 				ox.Usage("ls", "List networks"),
+				ox.Banner("List networks\n\nDescription:\n  List networks"),
 				ox.Spec("[options]"),
 				ox.Aliases("list"),
 				ox.Example("\n  podman network list"),
@@ -2647,8 +2647,8 @@ func main() {
 					Bool("quiet", "display only names", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Prune unused networks\n\nDescription:\n  Prune unused networks"),
 				ox.Usage("prune", "Prune unused networks"),
+				ox.Banner("Prune unused networks\n\nDescription:\n  Prune unused networks"),
 				ox.Spec("[options]"),
 				ox.Example("\n  podman network prune"),
 				ox.Help(ox.Sections(
@@ -2659,8 +2659,8 @@ func main() {
 					Bool("force", "do not prompt for confirmation", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Reload firewall rules for one or more containers\n\nDescription:\n  Reload container networks, recreating firewall rules"),
 				ox.Usage("reload", "Reload firewall rules for one or more containers"),
+				ox.Banner("Reload firewall rules for one or more containers\n\nDescription:\n  Reload container networks, recreating firewall rules"),
 				ox.Spec("[options] [CONTAINER...]"),
 				ox.Example("\n  podman network reload 3c13ef6dd843\n  podman network reload test1 test2"),
 				ox.Help(ox.Sections(
@@ -2671,8 +2671,8 @@ func main() {
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove networks\n\nDescription:\n  Remove networks"),
 				ox.Usage("rm", "Remove networks"),
+				ox.Banner("Remove networks\n\nDescription:\n  Remove networks"),
 				ox.Spec("[options] NETWORK [NETWORK...]"),
 				ox.Aliases("remove"),
 				ox.Example("\n  podman network rm podman"),
@@ -2684,8 +2684,8 @@ func main() {
 					Int("time", "Seconds to wait for running containers to stop before killing the container", ox.Default("10"), ox.Short("t"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Update an existing podman network\n\nDescription:\n  Update an existing podman network"),
 				ox.Usage("update", "Update an existing podman network"),
+				ox.Banner("Update an existing podman network\n\nDescription:\n  Update an existing podman network"),
 				ox.Spec("[options] NETWORK"),
 				ox.Example("\n  podman network update podman1"),
 				ox.Help(ox.Sections(
@@ -2697,8 +2697,8 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Pause all the processes in one or more containers\n\nDescription:\n  Pauses one or more running containers.  The container name or ID can be used."),
 			ox.Usage("pause", "Pause all the processes in one or more containers"),
+			ox.Banner("Pause all the processes in one or more containers\n\nDescription:\n  Pauses one or more running containers.  The container name or ID can be used."),
 			ox.Spec("[options] CONTAINER [CONTAINER...]"),
 			ox.Example("\n  podman pause mywebserver\n  podman pause 860a4b23\n  podman pause --all"),
 			ox.Help(ox.Sections(
@@ -2711,12 +2711,12 @@ func main() {
 				Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Manage pods\n\nDescription:\n  Pods are a group of one or more containers sharing the same network, pid and ipc namespaces."),
 			ox.Usage("pod", "Manage pods"),
+			ox.Banner("Manage pods\n\nDescription:\n  Pods are a group of one or more containers sharing the same network, pid and ipc namespaces."),
 			ox.Spec("[command]"),
 			ox.Sub(
-				ox.Banner("Clone an existing pod\n\nDescription:\n  Create an exact copy of a pod and the containers within it"),
 				ox.Usage("clone", "Clone an existing pod"),
+				ox.Banner("Clone an existing pod\n\nDescription:\n  Create an exact copy of a pod and the containers within it"),
 				ox.Spec("[options] POD NAME"),
 				ox.Example("\n  podman pod clone pod_name new_name"),
 				ox.Help(ox.Sections(
@@ -2760,8 +2760,8 @@ func main() {
 					Array("volumes-from", "Mount volumes from the specified container(s)", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Create a new empty pod\n\nDescription:\n  After creating the pod, the pod ID is printed to stdout.\n\n  You can then start it at any time with the  podman pod start <pod_id> command. The pod will be created with the initial state 'created'."),
 				ox.Usage("create", "Create a new empty pod"),
+				ox.Banner("Create a new empty pod\n\nDescription:\n  After creating the pod, the pod ID is printed to stdout.\n\n  You can then start it at any time with the  podman pod start <pod_id> command. The pod will be created with the initial state 'created'."),
 				ox.Spec("[options] [NAME]"),
 				ox.Example("\n  podman pod create\n  podman pod create --label foo=bar mypod"),
 				ox.Help(ox.Sections(
@@ -2823,14 +2823,14 @@ func main() {
 					Array("volumes-from", "Mount volumes from the specified container(s)", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Check if a pod exists in local storage\n\nDescription:\n  If the named pod exists in local storage, podman pod exists exits with 0, otherwise the exit code will be 1."),
 				ox.Usage("exists", "Check if a pod exists in local storage"),
+				ox.Banner("Check if a pod exists in local storage\n\nDescription:\n  If the named pod exists in local storage, podman pod exists exits with 0, otherwise the exit code will be 1."),
 				ox.Spec("POD"),
 				ox.Example("\n  podman pod exists podID\n  podman pod exists mypod || podman pod create --name mypod"),
 			),
 			ox.Sub(
-				ox.Banner("Display a pod configuration\n\nDescription:\n  Display the configuration for a pod by name or id\n\n\tBy default, this will render all results in a JSON array."),
 				ox.Usage("inspect", "Display a pod configuration"),
+				ox.Banner("Display a pod configuration\n\nDescription:\n  Display the configuration for a pod by name or id\n\n\tBy default, this will render all results in a JSON array."),
 				ox.Spec("[options] POD [POD...]"),
 				ox.Example("\n  podman pod inspect podID"),
 				ox.Help(ox.Sections(
@@ -2841,8 +2841,8 @@ func main() {
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Send the specified signal or SIGKILL to containers in pod\n\nDescription:\n  Signals are sent to the main process of each container inside the specified pod.\n\n  The default signal is SIGKILL, or any signal specified with option --signal."),
 				ox.Usage("kill", "Send the specified signal or SIGKILL to containers in pod"),
+				ox.Banner("Send the specified signal or SIGKILL to containers in pod\n\nDescription:\n  Signals are sent to the main process of each container inside the specified pod.\n\n  The default signal is SIGKILL, or any signal specified with option --signal."),
 				ox.Spec("[options] POD [POD...]"),
 				ox.Example("\n  podman pod kill podID\n  podman pod kill --signal TERM mywebserver"),
 				ox.Help(ox.Sections(
@@ -2854,8 +2854,8 @@ func main() {
 					String("signal", "Signal to send to the containers in the pod", ox.Default("KILL"), ox.Short("s"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Fetch logs for pod with one or more containers\n\nDescription:\n  Displays logs for pod with one or more containers."),
 				ox.Usage("logs", "Fetch logs for pod with one or more containers"),
+				ox.Banner("Fetch logs for pod with one or more containers\n\nDescription:\n  Displays logs for pod with one or more containers."),
 				ox.Spec("[options] POD"),
 				ox.Example("\n  podman pod logs podID\n\t\tpodman pod logs -c ctrname podName\n\t\tpodman pod logs --tail 2 mywebserver\n\t\tpodman pod logs --follow=true --since 10m podID\n\t\tpodman pod logs mywebserver"),
 				ox.Help(ox.Sections(
@@ -2873,8 +2873,8 @@ func main() {
 					String("until", "Show logs until TIMESTAMP", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Pause one or more pods\n\nDescription:\n  The pod name or ID can be used.\n\n  All running containers within each specified pod will then be paused."),
 				ox.Usage("pause", "Pause one or more pods"),
+				ox.Banner("Pause one or more pods\n\nDescription:\n  The pod name or ID can be used.\n\n  All running containers within each specified pod will then be paused."),
 				ox.Spec("[options] POD [POD...]"),
 				ox.Example("\n  podman pod pause podID1 podID2\n  podman pod pause --all"),
 				ox.Help(ox.Sections(
@@ -2885,8 +2885,8 @@ func main() {
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove all stopped pods and their containers\n\nDescription:\n  podman pod prune Removes all exited pods"),
 				ox.Usage("prune", "Remove all stopped pods and their containers"),
+				ox.Banner("Remove all stopped pods and their containers\n\nDescription:\n  podman pod prune Removes all exited pods"),
 				ox.Spec("[options]"),
 				ox.Example("\n  podman pod prune"),
 				ox.Help(ox.Sections(
@@ -2896,8 +2896,8 @@ func main() {
 					Bool("force", "Do not prompt for confirmation.  The default is false", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List pods\n\nDescription:\n  List all pods on system including their names, ids and current state."),
 				ox.Usage("ps", "List pods"),
+				ox.Banner("List pods\n\nDescription:\n  List all pods on system including their names, ids and current state."),
 				ox.Spec("[options]"),
 				ox.Aliases("ls", "list"),
 				ox.Help(ox.Sections(
@@ -2917,8 +2917,8 @@ func main() {
 					String("sort", "Sort output by created, id, name, or number", ox.Default("created"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Restart one or more pods\n\nDescription:\n  The pod ID or name can be used.\n\n  All of the containers within each of the specified pods will be restarted. If a container in a pod is not currently running it will be started."),
 				ox.Usage("restart", "Restart one or more pods"),
+				ox.Banner("Restart one or more pods\n\nDescription:\n  The pod ID or name can be used.\n\n  All of the containers within each of the specified pods will be restarted. If a container in a pod is not currently running it will be started."),
 				ox.Spec("[options] POD [POD...]"),
 				ox.Example("\n  podman pod restart podID1 podID2\n  podman pod restart --all"),
 				ox.Help(ox.Sections(
@@ -2929,8 +2929,8 @@ func main() {
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove one or more pods\n\nDescription:\n  podman rm will remove one or more stopped pods and their containers from the host.\n\n  The pod name or ID can be used.  A pod with containers will not be removed without --force. If --force is specified, all containers will be stopped, then removed."),
 				ox.Usage("rm", "Remove one or more pods"),
+				ox.Banner("Remove one or more pods\n\nDescription:\n  podman rm will remove one or more stopped pods and their containers from the host.\n\n  The pod name or ID can be used.  A pod with containers will not be removed without --force. If --force is specified, all containers will be stopped, then removed."),
 				ox.Spec("[options] POD [POD...]"),
 				ox.Example("\n  podman pod rm mywebserverpod\n  podman pod rm -f 860a4b23\n  podman pod rm -f -a"),
 				ox.Help(ox.Sections(
@@ -2945,8 +2945,8 @@ func main() {
 					Int("time", "Seconds to wait for pod stop before killing the container", ox.Default("10"), ox.Short("t"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Start one or more pods\n\nDescription:\n  The pod name or ID can be used.\n\n  All containers defined in the pod will be started."),
 				ox.Usage("start", "Start one or more pods"),
+				ox.Banner("Start one or more pods\n\nDescription:\n  The pod name or ID can be used.\n\n  All containers defined in the pod will be started."),
 				ox.Spec("[options] POD [POD...]"),
 				ox.Example("\n  podman pod start podID\n  podman pod start --all"),
 				ox.Help(ox.Sections(
@@ -2958,8 +2958,8 @@ func main() {
 					Array("pod-id-file", "Read the pod ID from the file", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Display a live stream of resource usage statistics for the containers in one or more pods\n\nDescription:\n  Display the containers' resource-usage statistics of one or more running pod"),
 				ox.Usage("stats", "Display a live stream of resource usage statistics for the containers in one or more pods"),
+				ox.Banner("Display a live stream of resource usage statistics for the containers in one or more pods\n\nDescription:\n  Display the containers' resource-usage statistics of one or more running pod"),
 				ox.Spec("[options] [POD...]"),
 				ox.Example("\n  podman pod stats\n  podman pod stats a69b23034235 named-pod\n  podman pod stats --all"),
 				ox.Help(ox.Sections(
@@ -2973,8 +2973,8 @@ func main() {
 					Bool("no-stream", "Disable streaming stats and only pull the first result", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Stop one or more pods\n\nDescription:\n  The pod name or ID can be used.\n\n  This command will stop all running containers in each of the specified pods."),
 				ox.Usage("stop", "Stop one or more pods"),
+				ox.Banner("Stop one or more pods\n\nDescription:\n  The pod name or ID can be used.\n\n  This command will stop all running containers in each of the specified pods."),
 				ox.Spec("[options] POD [POD...]"),
 				ox.Example("\n  podman pod stop mywebserverpod\n  podman pod stop --time 0 490eb 3557fb"),
 				ox.Help(ox.Sections(
@@ -2988,8 +2988,8 @@ func main() {
 					Int("time", "Seconds to wait for pod stop before killing the container", ox.Default("10"), ox.Short("t"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Display the running processes of containers in a pod\n\nDescription:\n  Specify format descriptors to alter the output.\n\n  You may run \"podman pod top -l pid pcpu seccomp\" to print the process ID, the CPU percentage and the seccomp mode of each process of the latest pod.\n\n  Format Descriptors:\n    args,capamb,capbnd,capeff,capinh,capprm,comm,etime,group,groups,hgroup,hgroups,hpid,huid,huser,label,nice,pcpu,pgid,pid,ppid,rgroup,rss,ruser,seccomp,state,stime,time,tty,uid,user,vsz"),
 				ox.Usage("top", "Display the running processes of containers in a pod"),
+				ox.Banner("Display the running processes of containers in a pod\n\nDescription:\n  Specify format descriptors to alter the output.\n\n  You may run \"podman pod top -l pid pcpu seccomp\" to print the process ID, the CPU percentage and the seccomp mode of each process of the latest pod.\n\n  Format Descriptors:\n    args,capamb,capbnd,capeff,capinh,capprm,comm,etime,group,groups,hgroup,hgroups,hpid,huid,huser,label,nice,pcpu,pgid,pid,ppid,rgroup,rss,ruser,seccomp,state,stime,time,tty,uid,user,vsz"),
 				ox.Spec("[options] POD [FORMAT-DESCRIPTORS|ARGS...]"),
 				ox.Example("\n  podman pod top podID\npodman pod top podID pid seccomp args %C\npodman pod top podID -eo user,pid,comm"),
 				ox.Help(ox.Sections(
@@ -2999,8 +2999,8 @@ func main() {
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Unpause one or more pods\n\nDescription:\n  The podman unpause command will unpause all \"paused\" containers assigned to the pod.\n\n  The pod name or ID can be used."),
 				ox.Usage("unpause", "Unpause one or more pods"),
+				ox.Banner("Unpause one or more pods\n\nDescription:\n  The podman unpause command will unpause all \"paused\" containers assigned to the pod.\n\n  The pod name or ID can be used."),
 				ox.Spec("[options] POD [POD...]"),
 				ox.Example("\n  podman pod unpause podID1 podID2\n  podman pod unpause --all"),
 				ox.Help(ox.Sections(
@@ -3012,8 +3012,8 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("List port mappings or a specific mapping for the container\n\nDescription:\n  List port mappings for the CONTAINER, or look up the public-facing port that is NAT-ed to the PRIVATE_PORT"),
 			ox.Usage("port", "List port mappings or a specific mapping for the container"),
+			ox.Banner("List port mappings or a specific mapping for the container\n\nDescription:\n  List port mappings for the CONTAINER, or look up the public-facing port that is NAT-ed to the PRIVATE_PORT"),
 			ox.Spec("[options] CONTAINER [PORT]"),
 			ox.Example("\n  podman port --all\n  podman port ctrID 80/tcp"),
 			ox.Help(ox.Sections(
@@ -3024,8 +3024,8 @@ func main() {
 				Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("List containers\n\nDescription:\n  Prints out information about the containers"),
 			ox.Usage("ps", "List containers"),
+			ox.Banner("List containers\n\nDescription:\n  Prints out information about the containers"),
 			ox.Spec("[options]"),
 			ox.Example("\n  podman ps -a\n  podman ps -a --format \"{{.ID}}  {{.Image}}  {{.Labels}}  {{.Mounts}}\"\n  podman ps --size --sort names"),
 			ox.Help(ox.Sections(
@@ -3049,8 +3049,8 @@ func main() {
 				Uint("watch", "Watch the ps output on an interval in seconds", ox.Short("w"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Pull an image from a registry\n\nDescription:\n  Pulls an image from a registry and stores it locally.\n\n  An image can be pulled by tag or digest. If a tag is not specified, the image with the 'latest' tag is pulled."),
 			ox.Usage("pull", "Pull an image from a registry"),
+			ox.Banner("Pull an image from a registry\n\nDescription:\n  Pulls an image from a registry and stores it locally.\n\n  An image can be pulled by tag or digest. If a tag is not specified, the image with the 'latest' tag is pulled."),
 			ox.Spec("[options] IMAGE [IMAGE...]"),
 			ox.Example("\n  podman pull imageName\n  podman pull fedora:latest"),
 			ox.Help(ox.Sections(
@@ -3073,8 +3073,8 @@ func main() {
 				String("variant", "Use VARIANT instead of the running architecture variant for choosing images", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Push an image to a specified destination\n\nDescription:\n  Pushes a source image to a specified destination.\n\n\tThe Image \"DESTINATION\" uses a \"transport\":\"details\" format. See podman-push(1) section \"DESTINATION\" for the expected format."),
 			ox.Usage("push", "Push an image to a specified destination"),
+			ox.Banner("Push an image to a specified destination\n\nDescription:\n  Pushes a source image to a specified destination.\n\n\tThe Image \"DESTINATION\" uses a \"transport\":\"details\" format. See podman-push(1) section \"DESTINATION\" for the expected format."),
 			ox.Spec("[options] IMAGE [DESTINATION]"),
 			ox.Example("\n  podman push imageID docker://registry.example.com/repository:tag\n\t\tpodman push imageID oci-archive:/path/to/layout:image:tag"),
 			ox.Help(ox.Sections(
@@ -3104,14 +3104,14 @@ func main() {
 				Bool("tls-verify", "Require HTTPS and verify certificates when contacting registries", ox.Default("true"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Rename an existing container\n\nDescription:\n  The podman rename command allows you to rename an existing container"),
 			ox.Usage("rename", "Rename an existing container"),
+			ox.Banner("Rename an existing container\n\nDescription:\n  The podman rename command allows you to rename an existing container"),
 			ox.Spec("CONTAINER NAME"),
 			ox.Example("\n  podman rename containerA newName"),
 		),
 		ox.Sub(
-			ox.Banner("Restart one or more containers\n\nDescription:\n  Restarts one or more running containers. The container ID or name can be used.\n\n  A timeout before forcibly stopping can be set, but defaults to 10 seconds."),
 			ox.Usage("restart", "Restart one or more containers"),
+			ox.Banner("Restart one or more containers\n\nDescription:\n  Restarts one or more running containers. The container ID or name can be used.\n\n  A timeout before forcibly stopping can be set, but defaults to 10 seconds."),
 			ox.Spec("[options] CONTAINER [CONTAINER...]"),
 			ox.Example("\n  podman restart ctrID\n  podman restart ctrID1 ctrID2"),
 			ox.Help(ox.Sections(
@@ -3126,8 +3126,8 @@ func main() {
 				Int("time", "Seconds to wait for stop before killing the container", ox.Default("10"), ox.Short("t"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Remove one or more containers\n\nDescription:\n  Removes one or more containers from the host. The container name or ID can be used.\n\n  Command does not remove images. Running or unusable containers will not be removed without the -f option."),
 			ox.Usage("rm", "Remove one or more containers"),
+			ox.Banner("Remove one or more containers\n\nDescription:\n  Removes one or more containers from the host. The container name or ID can be used.\n\n  Command does not remove images. Running or unusable containers will not be removed without the -f option."),
 			ox.Spec("[options] CONTAINER [CONTAINER...]"),
 			ox.Example("\n  podman rm imageID\n  podman rm mywebserver myflaskserver 860a4b23\n  podman rm --force --all\n  podman rm -f c684f0d469f2"),
 			ox.Help(ox.Sections(
@@ -3145,8 +3145,8 @@ func main() {
 				Bool("volumes", "Remove anonymous volumes associated with the container", ox.Short("v"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Remove one or more images from local storage\n\nDescription:\n  Removes one or more previously pulled or locally created images."),
 			ox.Usage("rmi", "Remove one or more images from local storage"),
+			ox.Banner("Remove one or more images from local storage\n\nDescription:\n  Removes one or more previously pulled or locally created images."),
 			ox.Spec("[options] IMAGE [IMAGE...]"),
 			ox.Example("\n  podman rmi imageID\n  podman rmi --force alpine\n  podman rmi c4dfb1609ee2 93fd78260bd1 c0ed59d05ff7"),
 			ox.Help(ox.Sections(
@@ -3159,8 +3159,8 @@ func main() {
 				Bool("no-prune", "Do not remove dangling images", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Run a command in a new container\n\nDescription:\n  Runs a command in a new container from the given image"),
 			ox.Usage("run", "Run a command in a new container"),
+			ox.Banner("Run a command in a new container\n\nDescription:\n  Runs a command in a new container from the given image"),
 			ox.Spec("[options] IMAGE [COMMAND [ARG...]]"),
 			ox.Example("\n  podman run imageID ls -alF /etc\n  podman run --network=host imageID dnf -y install java\n  podman run --volume /var/hostdir:/var/ctrdir -i -t fedora /bin/bash"),
 			ox.Help(ox.Sections(
@@ -3316,8 +3316,8 @@ func main() {
 				String("workdir", "Working directory inside the container", ox.Short("w"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Save image(s) to an archive\n\nDescription:\n  Save an image to docker-archive or oci-archive on the local machine. Default is docker-archive."),
 			ox.Usage("save", "Save image(s) to an archive"),
+			ox.Banner("Save image(s) to an archive\n\nDescription:\n  Save an image to docker-archive or oci-archive on the local machine. Default is docker-archive."),
 			ox.Spec("[options] IMAGE [IMAGE...]"),
 			ox.Example("\n  podman save --quiet -o myimage.tar imageID\n  podman save --format docker-dir -o ubuntu-dir ubuntu\n  podman save > alpine-all.tar alpine:latest"),
 			ox.Help(ox.Sections(
@@ -3332,8 +3332,8 @@ func main() {
 				Bool("uncompressed", "Accept uncompressed layers when copying OCI images", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Search registry for image\n\nDescription:\n  Search registries for a given image. Can search all the default registries or a specific registry.\n\n\tUsers can limit the number of results, and filter the output based on certain conditions."),
 			ox.Usage("search", "Search registry for image"),
+			ox.Banner("Search registry for image\n\nDescription:\n  Search registries for a given image. Can search all the default registries or a specific registry.\n\n\tUsers can limit the number of results, and filter the output based on certain conditions."),
 			ox.Spec("[options] TERM"),
 			ox.Example("\n  podman search --filter=is-official --limit 3 alpine\n  podman search registry.fedoraproject.org/  # only works with v2 registries\n  podman search --format \"table {{.Index}} {{.Name}}\" registry.fedoraproject.org/fedora"),
 			ox.Help(ox.Sections(
@@ -3352,12 +3352,12 @@ func main() {
 				Bool("tls-verify", "Require HTTPS and verify certificates when contacting registries", ox.Default("true"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Manage secrets\n\nDescription:\n  Manage secrets"),
 			ox.Usage("secret", "Manage secrets"),
+			ox.Banner("Manage secrets\n\nDescription:\n  Manage secrets"),
 			ox.Spec("[command]"),
 			ox.Sub(
-				ox.Banner("Create a new secret\n\nDescription:\n  Create a secret. Input can be a path to a file or \"-\" (read from stdin). Secret drivers \"file\" (default), \"pass\", and \"shell\" are available."),
 				ox.Usage("create", "Create a new secret"),
+				ox.Banner("Create a new secret\n\nDescription:\n  Create a secret. Input can be a path to a file or \"-\" (read from stdin). Secret drivers \"file\" (default), \"pass\", and \"shell\" are available."),
 				ox.Spec("[options] NAME FILE|-"),
 				ox.Example("\n  podman secret create mysecret /path/to/secret\n\t\tprintf \"secretdata\" | podman secret create mysecret -"),
 				ox.Help(ox.Sections(
@@ -3371,14 +3371,14 @@ func main() {
 					Bool("replace", "If a secret with the same name exists, replace it", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Check if a secret exists in local storage\n\nDescription:\n  If the named secret exists in local storage, podman secret exists exits with 0, otherwise the exit code will be 1."),
 				ox.Usage("exists", "Check if a secret exists in local storage"),
+				ox.Banner("Check if a secret exists in local storage\n\nDescription:\n  If the named secret exists in local storage, podman secret exists exits with 0, otherwise the exit code will be 1."),
 				ox.Spec("SECRET"),
 				ox.Example("\n  podman secret exists ID\n  podman secret exists SECRET || podman secret create SECRET <secret source>"),
 			),
 			ox.Sub(
-				ox.Banner("Inspect a secret\n\nDescription:\n  Display detail information on one or more secrets"),
 				ox.Usage("inspect", "Inspect a secret"),
+				ox.Banner("Inspect a secret\n\nDescription:\n  Display detail information on one or more secrets"),
 				ox.Spec("[options] SECRET [SECRET...]"),
 				ox.Example("\n  podman secret inspect MYSECRET"),
 				ox.Help(ox.Sections(
@@ -3390,8 +3390,8 @@ func main() {
 					Bool("showsecret", "Display the secret", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List secrets\n\nDescription:"),
 				ox.Usage("ls", "List secrets"),
+				ox.Banner("List secrets\n\nDescription:"),
 				ox.Spec("[options]"),
 				ox.Aliases("list"),
 				ox.Example("\n  podman secret ls"),
@@ -3405,8 +3405,8 @@ func main() {
 					Bool("quiet", "Print secret IDs only", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove one or more secrets\n\nDescription:"),
 				ox.Usage("rm", "Remove one or more secrets"),
+				ox.Banner("Remove one or more secrets\n\nDescription:"),
 				ox.Spec("[options] SECRET [SECRET...]"),
 				ox.Example("\n  podman secret rm mysecret1 mysecret2"),
 				ox.Help(ox.Sections(
@@ -3418,8 +3418,8 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Start one or more containers\n\nDescription:\n  Starts one or more containers.  The container name or ID can be used."),
 			ox.Usage("start", "Start one or more containers"),
+			ox.Banner("Start one or more containers\n\nDescription:\n  Starts one or more containers.  The container name or ID can be used."),
 			ox.Spec("[options] CONTAINER [CONTAINER...]"),
 			ox.Example("\n  podman start 860a4b231279 5421ab43b45\n  podman start --interactive --attach imageID"),
 			ox.Help(ox.Sections(
@@ -3435,8 +3435,8 @@ func main() {
 				Bool("sig-proxy", "Proxy received signals to the process", ox.Default("true if attaching, false otherwise"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Display a live stream of container resource usage statistics\n\nDescription:\n  Display percentage of CPU, memory, network I/O, block I/O and PIDs for one or more containers."),
 			ox.Usage("stats", "Display a live stream of container resource usage statistics"),
+			ox.Banner("Display a live stream of container resource usage statistics\n\nDescription:\n  Display percentage of CPU, memory, network I/O, block I/O and PIDs for one or more containers."),
 			ox.Spec("[options] [CONTAINER...]"),
 			ox.Example("\n  podman stats --all --no-stream\n  podman stats ctrID\n  podman stats --no-stream --format \"table {{.ID}} {{.Name}} {{.MemUsage}}\" ctrID"),
 			ox.Help(ox.Sections(
@@ -3452,8 +3452,8 @@ func main() {
 				Bool("no-trunc", "Do not truncate output", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Stop one or more containers\n\nDescription:\n  Stops one or more running containers.  The container name or ID can be used.\n\n  A timeout to forcibly stop the container can also be set but defaults to 10 seconds otherwise."),
 			ox.Usage("stop", "Stop one or more containers"),
+			ox.Banner("Stop one or more containers\n\nDescription:\n  Stops one or more running containers.  The container name or ID can be used.\n\n  A timeout to forcibly stop the container can also be set but defaults to 10 seconds otherwise."),
 			ox.Spec("[options] CONTAINER [CONTAINER...]"),
 			ox.Example("\n  podman stop ctrID\n  podman stop --time 2 mywebserver 6e534f14da9d"),
 			ox.Help(ox.Sections(
@@ -3468,12 +3468,12 @@ func main() {
 				Int("time", "Seconds to wait for stop before killing the container", ox.Default("10"), ox.Short("t"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Manage podman\n\nDescription:\n  Manage podman"),
 			ox.Usage("system", "Manage podman"),
+			ox.Banner("Manage podman\n\nDescription:\n  Manage podman"),
 			ox.Spec("[command]"),
 			ox.Sub(
-				ox.Banner("Check storage consistency\n\nDescription:\n  \n\tpodman system check\n\n        Check storage for consistency and remove anything that looks damaged"),
 				ox.Usage("check", "Check storage consistency"),
+				ox.Banner("Check storage consistency\n\nDescription:\n  \n\tpodman system check\n\n        Check storage for consistency and remove anything that looks damaged"),
 				ox.Spec("[options]"),
 				ox.Example("\n  podman system check"),
 				ox.Help(ox.Sections(
@@ -3486,12 +3486,12 @@ func main() {
 					Bool("repair", "Remove inconsistent images", ox.Short("r"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Manage remote API service destinations\n\nDescription:\n  Manage remote API service destination information in podman configuration"),
 				ox.Usage("connection", "Manage remote API service destinations"),
+				ox.Banner("Manage remote API service destinations\n\nDescription:\n  Manage remote API service destination information in podman configuration"),
 				ox.Spec("[command]"),
 				ox.Sub(
-					ox.Banner("Record destination for the Podman service\n\nDescription:\n  Add destination to podman configuration.\n  \"destination\" is one of the form:\n    [user@]hostname (will default to ssh)\n    ssh://[user@]hostname[:port][/path] (will obtain socket path from service, if not given.)\n    tcp://hostname:port (not secured)\n    unix://path (absolute path required)"),
 					ox.Usage("add", "Record destination for the Podman service"),
+					ox.Banner("Record destination for the Podman service\n\nDescription:\n  Add destination to podman configuration.\n  \"destination\" is one of the form:\n    [user@]hostname (will default to ssh)\n    ssh://[user@]hostname[:port][/path] (will obtain socket path from service, if not given.)\n    tcp://hostname:port (not secured)\n    unix://path (absolute path required)"),
 					ox.Spec("[options] NAME DESTINATION"),
 					ox.Example("\n  podman system connection add laptop server.fubar.com\n  podman system connection add --identity ~/.ssh/dev_rsa testing ssh://root@server.fubar.com:2222\n  podman system connection add --identity ~/.ssh/dev_rsa --port 22 production root@server.fubar.com\n  podman system connection add debug tcp://localhost:8080"),
 					ox.Help(ox.Sections(
@@ -3504,14 +3504,14 @@ func main() {
 						String("socket-path", "path to podman socket on remote host.", ox.Default("'/run/$APPNAME/$APPNAME.sock' or '/run/user/{uid}/$APPNAME/$APPNAME.sock"), ox.Section(0)),
 				),
 				ox.Sub(
-					ox.Banner("Set named destination as default\n\nDescription:\n  Set named destination as default for the Podman service"),
 					ox.Usage("default", "Set named destination as default"),
+					ox.Banner("Set named destination as default\n\nDescription:\n  Set named destination as default for the Podman service"),
 					ox.Spec("NAME"),
 					ox.Example("\n  podman system connection default testing"),
 				),
 				ox.Sub(
-					ox.Banner("List destination for the Podman service(s)\n\nDescription:\n  List destination information for the Podman service(s) in podman configuration"),
 					ox.Usage("list", "List destination for the Podman service(s)"),
+					ox.Banner("List destination for the Podman service(s)\n\nDescription:\n  List destination information for the Podman service(s) in podman configuration"),
 					ox.Spec("[options]"),
 					ox.Aliases("ls"),
 					ox.Example("\n  podman system connection list\n  podman system connection ls\n  podman system connection ls --format=json"),
@@ -3523,8 +3523,8 @@ func main() {
 						Bool("quiet", "Custom Go template for printing connections", ox.Short("q"), ox.Section(0)),
 				),
 				ox.Sub(
-					ox.Banner("Delete named destination\n\nDescription:\n  Delete named destination from podman configuration"),
 					ox.Usage("remove", "Delete named destination"),
+					ox.Banner("Delete named destination\n\nDescription:\n  Delete named destination from podman configuration"),
 					ox.Spec("[options] NAME"),
 					ox.Aliases("rm"),
 					ox.Example("\n  podman system connection remove devl\n  podman system connection rm devl"),
@@ -3535,16 +3535,16 @@ func main() {
 						Bool("all", "Remove all connections", ox.Short("a"), ox.Section(0)),
 				),
 				ox.Sub(
-					ox.Banner("Rename \"old\" to \"new\"\n\nDescription:\n  Rename destination for the Podman service from \"old\" to \"new\""),
 					ox.Usage("rename", "Rename \"old\" to \"new\""),
+					ox.Banner("Rename \"old\" to \"new\"\n\nDescription:\n  Rename destination for the Podman service from \"old\" to \"new\""),
 					ox.Spec("OLD NEW"),
 					ox.Aliases("mv"),
 					ox.Example("\n  podman system connection rename laptop devl,\n  podman system connection mv laptop devl"),
 				),
 			),
 			ox.Sub(
-				ox.Banner("Show podman disk usage\n\nDescription:\n  \n\tpodman system df\n\n\tShow podman disk usage"),
 				ox.Usage("df", "Show podman disk usage"),
+				ox.Banner("Show podman disk usage\n\nDescription:\n  \n\tpodman system df\n\n\tShow podman disk usage"),
 				ox.Spec("[options]"),
 				ox.Help(ox.Sections(
 					"Options",
@@ -3554,8 +3554,8 @@ func main() {
 					Bool("verbose", "Show detailed information on disk usage", ox.Short("v"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Show podman system events\n\nDescription:\n  Monitor podman system events.\n\n  By default, streaming mode is used, printing new events as they occur.  Previous events can be listed via --since and --until."),
 				ox.Usage("events", "Show podman system events"),
+				ox.Banner("Show podman system events\n\nDescription:\n  Monitor podman system events.\n\n  By default, streaming mode is used, printing new events as they occur.  Previous events can be listed via --since and --until."),
 				ox.Spec("[options]"),
 				ox.Example("\n  podman system events"),
 				ox.Help(ox.Sections(
@@ -3570,8 +3570,8 @@ func main() {
 					String("until", "show all events until timestamp", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Display podman system information\n\nDescription:\n  Display information pertaining to the host, current storage stats, and build of podman.\n\n  Useful for the user and when reporting issues."),
 				ox.Usage("info", "Display podman system information"),
+				ox.Banner("Display podman system information\n\nDescription:\n  Display information pertaining to the host, current storage stats, and build of podman.\n\n  Useful for the user and when reporting issues."),
 				ox.Spec("[options]"),
 				ox.Example("\n  podman system info"),
 				ox.Help(ox.Sections(
@@ -3581,8 +3581,8 @@ func main() {
 					String("format", "Change the output format to JSON or a Go template", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Migrate containers\n\nDescription:\n  \n        podman system migrate\n\n        Migrate existing containers to a new version of Podman."),
 				ox.Usage("migrate", "Migrate containers"),
+				ox.Banner("Migrate containers\n\nDescription:\n  \n        podman system migrate\n\n        Migrate existing containers to a new version of Podman."),
 				ox.Spec("[options]"),
 				ox.Help(ox.Sections(
 					"Options",
@@ -3591,8 +3591,8 @@ func main() {
 					String("new-runtime", "Specify a new runtime for all containers", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove unused data\n\nDescription:\n  \n\tpodman system prune\n\n        Remove unused data"),
 				ox.Usage("prune", "Remove unused data"),
+				ox.Banner("Remove unused data\n\nDescription:\n  \n\tpodman system prune\n\n        Remove unused data"),
 				ox.Spec("[options]"),
 				ox.Example("\n  podman system prune"),
 				ox.Help(ox.Sections(
@@ -3607,12 +3607,12 @@ func main() {
 					Bool("volumes", "Prune volumes", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Migrate lock numbers\n\nDescription:\n  \n        podman system renumber\n\n        Migrate lock numbers to handle a change in maximum number of locks.\n        Mandatory after the number of locks in containers.conf is changed."),
 				ox.Usage("renumber", "Migrate lock numbers"),
+				ox.Banner("Migrate lock numbers\n\nDescription:\n  \n        podman system renumber\n\n        Migrate lock numbers to handle a change in maximum number of locks.\n        Mandatory after the number of locks in containers.conf is changed."),
 			),
 			ox.Sub(
-				ox.Banner("Reset podman storage\n\nDescription:\n  Reset podman storage back to default state\n\n  All containers will be stopped and removed, and all images, volumes, networks and container content will be removed."),
 				ox.Usage("reset", "Reset podman storage"),
+				ox.Banner("Reset podman storage\n\nDescription:\n  Reset podman storage back to default state\n\n  All containers will be stopped and removed, and all images, volumes, networks and container content will be removed."),
 				ox.Spec("[options]"),
 				ox.Help(ox.Sections(
 					"Options",
@@ -3621,8 +3621,8 @@ func main() {
 					Bool("force", "Do not prompt for confirmation", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Run API service\n\nDescription:\n  Run an API service\n\nEnable a listening service for API access to Podman commands."),
 				ox.Usage("service", "Run API service"),
+				ox.Banner("Run API service\n\nDescription:\n  Run an API service\n\nEnable a listening service for API access to Podman commands."),
 				ox.Spec("[options] [URI]"),
 				ox.Example("\n  podman system service --time=0 unix:///tmp/podman.sock\n  podman system service --time=0 tcp://localhost:8888"),
 				ox.Help(ox.Sections(
@@ -3634,14 +3634,14 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Add an additional name to a local image\n\nDescription:\n  Adds one or more additional names to locally-stored image."),
 			ox.Usage("tag", "Add an additional name to a local image"),
+			ox.Banner("Add an additional name to a local image\n\nDescription:\n  Adds one or more additional names to locally-stored image."),
 			ox.Spec("IMAGE TARGET_NAME [TARGET_NAME...]"),
 			ox.Example("\n  podman tag 0e3bbc2 fedora:latest\n  podman tag imageID:latest myNewImage:newTag\n  podman tag httpd myregistryhost:5000/fedora/httpd:v2"),
 		),
 		ox.Sub(
-			ox.Banner("Display the running processes of a container\n\nDescription:\n  Display the running processes of a container.\n\n  The top command extends the ps(1) compatible AIX descriptors with container-specific ones as shown below.  In the presence of ps(1) specific flags (e.g, -eo), Podman will execute ps(1) inside the container.\n\n\n  Format Descriptors:\n    args,capamb,capbnd,capeff,capinh,capprm,comm,etime,group,groups,hgroup,hgroups,hpid,huid,huser,label,nice,pcpu,pgid,pid,ppid,rgroup,rss,ruser,seccomp,state,stime,time,tty,uid,user,vsz"),
 			ox.Usage("top", "Display the running processes of a container"),
+			ox.Banner("Display the running processes of a container\n\nDescription:\n  Display the running processes of a container.\n\n  The top command extends the ps(1) compatible AIX descriptors with container-specific ones as shown below.  In the presence of ps(1) specific flags (e.g, -eo), Podman will execute ps(1) inside the container.\n\n\n  Format Descriptors:\n    args,capamb,capbnd,capeff,capinh,capprm,comm,etime,group,groups,hgroup,hgroups,hpid,huid,huser,label,nice,pcpu,pgid,pid,ppid,rgroup,rss,ruser,seccomp,state,stime,time,tty,uid,user,vsz"),
 			ox.Spec("[options] CONTAINER [FORMAT-DESCRIPTORS|ARGS...]"),
 			ox.Example("\n  podman top ctrID\npodman top ctrID pid seccomp args %C\npodman top ctrID -eo user,pid,comm"),
 			ox.Help(ox.Sections(
@@ -3651,8 +3651,8 @@ func main() {
 				Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Unmount working container's root filesystem\n\nDescription:\n  Container storage increments a mount counter each time a container is mounted.\n\n  When a container is unmounted, the mount counter is decremented. The container's root filesystem is physically unmounted only when the mount counter reaches zero indicating no other processes are using the mount.\n\n  An unmount can be forced with the --force flag."),
 			ox.Usage("unmount", "Unmount working container's root filesystem"),
+			ox.Banner("Unmount working container's root filesystem\n\nDescription:\n  Container storage increments a mount counter each time a container is mounted.\n\n  When a container is unmounted, the mount counter is decremented. The container's root filesystem is physically unmounted only when the mount counter reaches zero indicating no other processes are using the mount.\n\n  An unmount can be forced with the --force flag."),
 			ox.Spec("[options] CONTAINER [CONTAINER...]"),
 			ox.Aliases("umount"),
 			ox.Example("\n  podman unmount ctrID\n  podman unmount ctrID1 ctrID2 ctrID3\n  podman unmount --all"),
@@ -3665,8 +3665,8 @@ func main() {
 				Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Unpause the processes in one or more containers\n\nDescription:\n  Unpauses one or more previously paused containers.  The container name or ID can be used."),
 			ox.Usage("unpause", "Unpause the processes in one or more containers"),
+			ox.Banner("Unpause the processes in one or more containers\n\nDescription:\n  Unpauses one or more previously paused containers.  The container name or ID can be used."),
 			ox.Spec("[options] CONTAINER [CONTAINER...]"),
 			ox.Example("\n  podman unpause ctrID\n  podman unpause --all"),
 			ox.Help(ox.Sections(
@@ -3679,8 +3679,8 @@ func main() {
 				Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Run a command in a modified user namespace\n\nDescription:\n  Runs a command in a modified user namespace."),
 			ox.Usage("unshare", "Run a command in a modified user namespace"),
+			ox.Banner("Run a command in a modified user namespace\n\nDescription:\n  Runs a command in a modified user namespace."),
 			ox.Spec("[options] [COMMAND [ARG...]]"),
 			ox.Example("\n  podman unshare id\n  podman unshare cat /proc/self/uid_map\n  podman unshare podman-script.sh"),
 			ox.Help(ox.Sections(
@@ -3690,14 +3690,14 @@ func main() {
 				Bool("rootless-netns", "Join the rootless network namespace used for CNI and netavark networking", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Remove a name from a local image\n\nDescription:\n  Removes one or more names from a locally-stored image."),
 			ox.Usage("untag", "Remove a name from a local image"),
+			ox.Banner("Remove a name from a local image\n\nDescription:\n  Removes one or more names from a locally-stored image."),
 			ox.Spec("IMAGE [IMAGE...]"),
 			ox.Example("\n  podman untag 0e3bbc2\n  podman untag imageID:latest otherImageName:latest\n  podman untag httpd myregistryhost:5000/fedora/httpd:v2"),
 		),
 		ox.Sub(
-			ox.Banner("Update an existing container\n\nDescription:\n  Updates the configuration of an existing container, allowing changes to resource limits and healthchecks"),
 			ox.Usage("update", "Update an existing container"),
+			ox.Banner("Update an existing container\n\nDescription:\n  Updates the configuration of an existing container, allowing changes to resource limits and healthchecks"),
 			ox.Spec("[options] CONTAINER"),
 			ox.Example("\n  podman update --cpus=5 foobar_container"),
 			ox.Help(ox.Sections(
@@ -3741,12 +3741,12 @@ func main() {
 				String("restart", "Restart policy to apply when a container exits (\"always\"|\"no\"|\"never\"|\"on-failure\"|\"unless-stopped\")", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Manage volumes\n\nDescription:\n  Volumes are created in and can be shared between containers"),
 			ox.Usage("volume", "Manage volumes"),
+			ox.Banner("Manage volumes\n\nDescription:\n  Volumes are created in and can be shared between containers"),
 			ox.Spec("[command]"),
 			ox.Sub(
-				ox.Banner("Create a new volume\n\nDescription:\n  If using the default driver, \"local\", the volume will be created on the host in the volumes directory under container storage."),
 				ox.Usage("create", "Create a new volume"),
+				ox.Banner("Create a new volume\n\nDescription:\n  If using the default driver, \"local\", the volume will be created on the host in the volumes directory under container storage."),
 				ox.Spec("[options] [NAME]"),
 				ox.Example("\n  podman volume create myvol\n  podman volume create\n  podman volume create --label foo=bar myvol"),
 				ox.Help(ox.Sections(
@@ -3759,14 +3759,14 @@ func main() {
 					Array("opt", "Set driver specific options", ox.Default("[]"), ox.Short("o"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Check if volume exists\n\nDescription:\n  If the given volume exists, podman volume exists exits with 0, otherwise the exit code will be 1."),
 				ox.Usage("exists", "Check if volume exists"),
+				ox.Banner("Check if volume exists\n\nDescription:\n  If the given volume exists, podman volume exists exits with 0, otherwise the exit code will be 1."),
 				ox.Spec("VOLUME"),
 				ox.Example("\n  podman volume exists myvol"),
 			),
 			ox.Sub(
-				ox.Banner("Export volumes\n\nDescription:\n  \npodman volume export\n\nAllow content of volume to be exported into external tar."),
 				ox.Usage("export", "Export volumes"),
+				ox.Banner("Export volumes\n\nDescription:\n  \npodman volume export\n\nAllow content of volume to be exported into external tar."),
 				ox.Spec("[options] VOLUME"),
 				ox.Help(ox.Sections(
 					"Options",
@@ -3775,14 +3775,14 @@ func main() {
 					String("output", "Write to a specified file (default: stdout, which must be redirected)", ox.Default("/dev/stdout"), ox.Short("o"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Import a tarball contents into a podman volume\n\nDescription:\n  Imports contents into a podman volume from specified tarball (.tar, .tar.gz, .tgz, .bzip, .tar.xz, .txz)."),
 				ox.Usage("import", "Import a tarball contents into a podman volume"),
+				ox.Banner("Import a tarball contents into a podman volume\n\nDescription:\n  Imports contents into a podman volume from specified tarball (.tar, .tar.gz, .tgz, .bzip, .tar.xz, .txz)."),
 				ox.Spec("VOLUME [SOURCE]"),
 				ox.Example("\n  podman volume import my_vol /home/user/import.tar\n  cat ctr.tar | podman volume import my_vol -"),
 			),
 			ox.Sub(
-				ox.Banner("Display detailed information on one or more volumes\n\nDescription:\n  Display detailed information on one or more volumes.\n\n  Use a Go template to change the format from JSON."),
 				ox.Usage("inspect", "Display detailed information on one or more volumes"),
+				ox.Banner("Display detailed information on one or more volumes\n\nDescription:\n  Display detailed information on one or more volumes.\n\n  Use a Go template to change the format from JSON."),
 				ox.Spec("[options] VOLUME [VOLUME...]"),
 				ox.Example("\n  podman volume inspect myvol\n  podman volume inspect --all\n  podman volume inspect --format \"{{.Driver}} {{.Scope}}\" myvol"),
 				ox.Help(ox.Sections(
@@ -3793,8 +3793,8 @@ func main() {
 					String("format", "Format volume output using Go template", ox.Default("json"), ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List volumes\n\nDescription:\n  \npodman volume ls\n\nList all available volumes. The output of the volumes can be filtered\nand the output format can be changed to JSON or a user specified Go template."),
 				ox.Usage("ls", "List volumes"),
+				ox.Banner("List volumes\n\nDescription:\n  \npodman volume ls\n\nList all available volumes. The output of the volumes can be filtered\nand the output format can be changed to JSON or a user specified Go template."),
 				ox.Spec("[options]"),
 				ox.Aliases("list"),
 				ox.Help(ox.Sections(
@@ -3807,14 +3807,14 @@ func main() {
 					Bool("quiet", "Print volume output in quiet mode", ox.Short("q"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Mount volume\n\nDescription:\n  Mount a volume and return the mountpoint"),
 				ox.Usage("mount", "Mount volume"),
+				ox.Banner("Mount volume\n\nDescription:\n  Mount a volume and return the mountpoint"),
 				ox.Spec("NAME"),
 				ox.Example("\n  podman volume mount myvol"),
 			),
 			ox.Sub(
-				ox.Banner("Remove all unused volumes\n\nDescription:\n  Volumes that are not currently owned by a container will be removed.\n\n  The command prompts for confirmation which can be overridden with the --force flag.\n  Note all data will be destroyed."),
 				ox.Usage("prune", "Remove all unused volumes"),
+				ox.Banner("Remove all unused volumes\n\nDescription:\n  Volumes that are not currently owned by a container will be removed.\n\n  The command prompts for confirmation which can be overridden with the --force flag.\n  Note all data will be destroyed."),
 				ox.Spec("[options]"),
 				ox.Help(ox.Sections(
 					"Options",
@@ -3824,12 +3824,12 @@ func main() {
 					Bool("force", "Do not prompt for confirmation", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Reload all volumes from volume plugins\n\nDescription:\n  Check all configured volume plugins and update the libpod database with all available volumes.\n\n  Existing volumes are also removed from the database when they are no longer present in the plugin."),
 				ox.Usage("reload", "Reload all volumes from volume plugins"),
+				ox.Banner("Reload all volumes from volume plugins\n\nDescription:\n  Check all configured volume plugins and update the libpod database with all available volumes.\n\n  Existing volumes are also removed from the database when they are no longer present in the plugin."),
 			),
 			ox.Sub(
-				ox.Banner("Remove one or more volumes\n\nDescription:\n  Remove one or more existing volumes.\n\n  By default only volumes that are not being used by any containers will be removed. To remove the volumes anyways, use the --force flag."),
 				ox.Usage("rm", "Remove one or more volumes"),
+				ox.Banner("Remove one or more volumes\n\nDescription:\n  Remove one or more existing volumes.\n\n  By default only volumes that are not being used by any containers will be removed. To remove the volumes anyways, use the --force flag."),
 				ox.Spec("[options] VOLUME [VOLUME...]"),
 				ox.Aliases("remove"),
 				ox.Example("\n  podman volume rm myvol1 myvol2\n  podman volume rm --all\n  podman volume rm --force myvol"),
@@ -3842,15 +3842,15 @@ func main() {
 					Int("time", "Seconds to wait for running containers to stop before killing the container", ox.Default("10"), ox.Short("t"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Unmount volume\n\nDescription:\n  Unmount a volume"),
 				ox.Usage("unmount", "Unmount volume"),
+				ox.Banner("Unmount volume\n\nDescription:\n  Unmount a volume"),
 				ox.Spec("NAME"),
 				ox.Example("\n  podman volume unmount myvol"),
 			),
 		),
 		ox.Sub(
-			ox.Banner("Block on one or more containers\n\nDescription:\n  Block until one or more containers stop and then print their exit codes."),
 			ox.Usage("wait", "Block on one or more containers"),
+			ox.Banner("Block on one or more containers\n\nDescription:\n  Block until one or more containers stop and then print their exit codes."),
 			ox.Spec("[options] CONTAINER [CONTAINER...]"),
 			ox.Example("\n  podman wait --interval 5s ctrID\n  podman wait ctrID1 ctrID2"),
 			ox.Help(ox.Sections(

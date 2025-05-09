@@ -13,21 +13,21 @@ func main() {
 	ox.RunContext(
 		context.Background(),
 		ox.Defaults(),
-		ox.Banner("Work seamlessly with GitHub from the command line."),
 		ox.Usage("gh", ""),
+		ox.Banner("Work seamlessly with GitHub from the command line."),
 		ox.Spec("<command> <subcommand> [flags]"),
 		ox.Example("\n  $ gh issue create\n  $ gh repo clone cli/cli\n  $ gh pr checkout 321"),
 		ox.Sections("CORE COMMANDS", "GITHUB ACTIONS COMMANDS", "ALIAS COMMANDS", "ADDITIONAL COMMANDS"),
 		ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 		ox.Sub(
-			ox.Banner("Authenticate gh and git with GitHub"),
 			ox.Usage("auth", "Authenticate gh and git with GitHub"),
+			ox.Banner("Authenticate gh and git with GitHub"),
 			ox.Spec("<command> [flags]"),
 			ox.Section(0),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
-				ox.Banner("Authenticate with a GitHub host.\n\nThe default hostname is `github.com`. This can be overridden using the `--hostname`\nflag.\n\nThe default authentication mode is a web-based browser flow. After completion, an\nauthentication token will be stored securely in the system credential store.\nIf a credential store is not found or there is an issue using it gh will fallback\nto writing the token to a plain text file. See `gh auth status` for its\nstored location.\n\nAlternatively, use `--with-token` to pass in a personal access token (classic) on standard input.\nThe minimum required scopes for the token are: `repo`, `read:org`, and `gist`.\nTake care when passing a fine-grained personal access token to `--with-token`\nas the inherent scoping to certain resources may cause confusing behaviour when interacting with other\nresources. Favour setting `GH_TOKEN` for fine-grained personal access token usage.\n\nAlternatively, gh will use the authentication token found in environment variables.\nThis method is most suitable for \"headless\" use of gh such as in automation. See\n`gh help environment` for more info.\n\nTo use gh in GitHub Actions, add `GH_TOKEN: ${{ github.token }}` to `env`.\n\nThe git protocol to use for git operations on this host can be set with `--git-protocol`,\nor during the interactive prompting. Although login is for a single account on a host, setting\nthe git protocol will take effect for all users on the host.\n\nSpecifying `ssh` for the git protocol will detect existing SSH keys to upload,\nprompting to create and upload a new key if one is not found. This can be skipped with\n`--skip-ssh-key` flag.\n\nFor more information on OAuth scopes, see\n<https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps/>."),
 				ox.Usage("login", "Log in to a GitHub account"),
+				ox.Banner("Authenticate with a GitHub host.\n\nThe default hostname is `github.com`. This can be overridden using the `--hostname`\nflag.\n\nThe default authentication mode is a web-based browser flow. After completion, an\nauthentication token will be stored securely in the system credential store.\nIf a credential store is not found or there is an issue using it gh will fallback\nto writing the token to a plain text file. See `gh auth status` for its\nstored location.\n\nAlternatively, use `--with-token` to pass in a personal access token (classic) on standard input.\nThe minimum required scopes for the token are: `repo`, `read:org`, and `gist`.\nTake care when passing a fine-grained personal access token to `--with-token`\nas the inherent scoping to certain resources may cause confusing behaviour when interacting with other\nresources. Favour setting `GH_TOKEN` for fine-grained personal access token usage.\n\nAlternatively, gh will use the authentication token found in environment variables.\nThis method is most suitable for \"headless\" use of gh such as in automation. See\n`gh help environment` for more info.\n\nTo use gh in GitHub Actions, add `GH_TOKEN: ${{ github.token }}` to `env`.\n\nThe git protocol to use for git operations on this host can be set with `--git-protocol`,\nor during the interactive prompting. Although login is for a single account on a host, setting\nthe git protocol will take effect for all users on the host.\n\nSpecifying `ssh` for the git protocol will detect existing SSH keys to upload,\nprompting to create and upload a new key if one is not found. This can be skipped with\n`--skip-ssh-key` flag.\n\nFor more information on OAuth scopes, see\n<https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps/>."),
 				ox.Spec("[flags]"),
 				ox.Example("\n  # Start interactive setup\n  $ gh auth login\n  \n  # Authenticate against <github.com> by reading the token from a file\n  $ gh auth login --with-token < mytoken.txt\n  \n  # Authenticate with specific host\n  $ gh auth login --hostname enterprise.internal"),
 				ox.Help(ox.Sections(
@@ -44,8 +44,8 @@ func main() {
 					Bool("with-token", "Read token from standard input", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Remove authentication for a GitHub account.\n\nThis command removes the stored authentication configuration\nfor an account. The authentication configuration is only\nremoved locally.\n\nThis command does not revoke authentication tokens.\n\nTo revoke all authentication tokens generated by the GitHub CLI:\n\n1. Visit <https://github.com/settings/applications>\n2. Select the \"GitHub CLI\" application\n3. Select \"Revoke Access\"\n4. Select \"I understand, revoke access\"\n\nNote: this procedure will revoke all authentication tokens ever\ngenerated by the GitHub CLI across all your devices.\n\nFor more information about revoking OAuth application tokens, see:\n<https://docs.github.com/en/apps/oauth-apps/using-oauth-apps/reviewing-your-authorized-oauth-apps>"),
 				ox.Usage("logout", "Log out of a GitHub account"),
+				ox.Banner("Remove authentication for a GitHub account.\n\nThis command removes the stored authentication configuration\nfor an account. The authentication configuration is only\nremoved locally.\n\nThis command does not revoke authentication tokens.\n\nTo revoke all authentication tokens generated by the GitHub CLI:\n\n1. Visit <https://github.com/settings/applications>\n2. Select the \"GitHub CLI\" application\n3. Select \"Revoke Access\"\n4. Select \"I understand, revoke access\"\n\nNote: this procedure will revoke all authentication tokens ever\ngenerated by the GitHub CLI across all your devices.\n\nFor more information about revoking OAuth application tokens, see:\n<https://docs.github.com/en/apps/oauth-apps/using-oauth-apps/reviewing-your-authorized-oauth-apps>"),
 				ox.Spec("[flags]"),
 				ox.Example("\n  # Select what host and account to log out of via a prompt\n  $ gh auth logout\n  \n  # Log out of a specific host and specific account\n  $ gh auth logout --hostname enterprise.internal --user monalisa"),
 				ox.Help(ox.Sections(
@@ -57,8 +57,8 @@ func main() {
 					String("user", "The account to log out of", ox.Short("u"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Expand or fix the permission scopes for stored credentials for active account.\n\nThe `--scopes` flag accepts a comma separated list of scopes you want\nyour gh credentials to have. If no scopes are provided, the command\nmaintains previously added scopes.\n\nThe `--remove-scopes` flag accepts a comma separated list of scopes you\nwant to remove from your gh credentials. Scope removal is idempotent.\nThe minimum set of scopes (`repo`, `read:org`, and `gist`) cannot be removed.\n\nThe `--reset-scopes` flag resets the scopes for your gh credentials to\nthe default set of scopes for your auth flow.\n\nIf you have multiple accounts in `gh auth status` and want to refresh the credentials for an\ninactive account, you will have to use `gh auth switch` to that account first before using\nthis command, and then switch back when you are done.\n\nFor more information on OAuth scopes, see\n<https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps/>."),
 				ox.Usage("refresh", "Refresh stored authentication credentials"),
+				ox.Banner("Expand or fix the permission scopes for stored credentials for active account.\n\nThe `--scopes` flag accepts a comma separated list of scopes you want\nyour gh credentials to have. If no scopes are provided, the command\nmaintains previously added scopes.\n\nThe `--remove-scopes` flag accepts a comma separated list of scopes you\nwant to remove from your gh credentials. Scope removal is idempotent.\nThe minimum set of scopes (`repo`, `read:org`, and `gist`) cannot be removed.\n\nThe `--reset-scopes` flag resets the scopes for your gh credentials to\nthe default set of scopes for your auth flow.\n\nIf you have multiple accounts in `gh auth status` and want to refresh the credentials for an\ninactive account, you will have to use `gh auth switch` to that account first before using\nthis command, and then switch back when you are done.\n\nFor more information on OAuth scopes, see\n<https://docs.github.com/en/developers/apps/building-oauth-apps/scopes-for-oauth-apps/>."),
 				ox.Spec("[flags]"),
 				ox.Example("\n  # Open a browser to add write:org and read:public_key scopes\n  $ gh auth refresh --scopes write:org,read:public_key\n  \n  # Open a browser to ensure your authentication credentials have the correct minimum scopes\n  $ gh auth refresh\n  \n  # Open a browser to idempotently remove the delete_repo scope\n  $ gh auth refresh --remove-scopes delete_repo\n  \n  # Open a browser to re-authenticate with the default minimum scopes\n  $ gh auth refresh --reset-scopes"),
 				ox.Help(ox.Sections(
@@ -73,8 +73,8 @@ func main() {
 					Slice("scopes", "Additional authentication scopes for gh to have", ox.Short("s"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("This command configures `git` to use GitHub CLI as a credential helper.\nFor more information on git credential helpers please reference:\n<https://git-scm.com/docs/gitcredentials>.\n\nBy default, GitHub CLI will be set as the credential helper for all authenticated hosts.\nIf there is no authenticated hosts the command fails with an error.\n\nAlternatively, use the `--hostname` flag to specify a single host to be configured.\nIf the host is not authenticated with, the command fails with an error."),
 				ox.Usage("setup-git", "Setup git with GitHub CLI"),
+				ox.Banner("This command configures `git` to use GitHub CLI as a credential helper.\nFor more information on git credential helpers please reference:\n<https://git-scm.com/docs/gitcredentials>.\n\nBy default, GitHub CLI will be set as the credential helper for all authenticated hosts.\nIf there is no authenticated hosts the command fails with an error.\n\nAlternatively, use the `--hostname` flag to specify a single host to be configured.\nIf the host is not authenticated with, the command fails with an error."),
 				ox.Spec("[flags]"),
 				ox.Example("\n  # Configure git to use GitHub CLI as the credential helper for all authenticated hosts\n  $ gh auth setup-git\n  \n  # Configure git to use GitHub CLI as the credential helper for enterprise.internal host\n  $ gh auth setup-git --hostname enterprise.internal"),
 				ox.Help(ox.Sections(
@@ -86,8 +86,8 @@ func main() {
 					String("hostname", "The hostname to configure git for", ox.Short("h"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Display active account and authentication state on each known GitHub host.\n\nFor each host, the authentication state of each known account is tested and any issues are included in the output.\nEach host section will indicate the active account, which will be used when targeting that host.\nIf an account on any host (or only the one given via `--hostname`) has authentication issues,\nthe command will exit with 1 and output to stderr.\n\nTo change the active account for a host, see `gh auth switch`."),
 				ox.Usage("status", "Display active account and authentication state on each known GitHub host"),
+				ox.Banner("Display active account and authentication state on each known GitHub host.\n\nFor each host, the authentication state of each known account is tested and any issues are included in the output.\nEach host section will indicate the active account, which will be used when targeting that host.\nIf an account on any host (or only the one given via `--hostname`) has authentication issues,\nthe command will exit with 1 and output to stderr.\n\nTo change the active account for a host, see `gh auth switch`."),
 				ox.Spec("[flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -99,8 +99,8 @@ func main() {
 					Bool("show-token", "Display the auth token", ox.Short("t"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Switch the active account for a GitHub host.\n\nThis command changes the authentication configuration that will\nbe used when running commands targeting the specified GitHub host.\n\nIf the specified host has two accounts, the active account will be switched\nautomatically. If there are more than two accounts, disambiguation will be\nrequired either through the `--user` flag or an interactive prompt.\n\nFor a list of authenticated accounts you can run `gh auth status`."),
 				ox.Usage("switch", "Switch active GitHub account"),
+				ox.Banner("Switch the active account for a GitHub host.\n\nThis command changes the authentication configuration that will\nbe used when running commands targeting the specified GitHub host.\n\nIf the specified host has two accounts, the active account will be switched\nautomatically. If there are more than two accounts, disambiguation will be\nrequired either through the `--user` flag or an interactive prompt.\n\nFor a list of authenticated accounts you can run `gh auth status`."),
 				ox.Spec("[flags]"),
 				ox.Example("\n  # Select what host and account to switch to via a prompt\n  $ gh auth switch\n  \n  # Switch the active account on a specific host to a specific user\n  $ gh auth switch --hostname enterprise.internal --user monalisa"),
 				ox.Help(ox.Sections(
@@ -112,8 +112,8 @@ func main() {
 					String("user", "The account to switch to", ox.Short("u"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("This command outputs the authentication token for an account on a given GitHub host.\n\nWithout the `--hostname` flag, the default host is chosen.\n\nWithout the `--user` flag, the active account for the host is chosen."),
 				ox.Usage("token", "Print the authentication token gh uses for a hostname and account"),
+				ox.Banner("This command outputs the authentication token for an account on a given GitHub host.\n\nWithout the `--hostname` flag, the default host is chosen.\n\nWithout the `--user` flag, the active account for the host is chosen."),
 				ox.Spec("[flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -125,8 +125,8 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Transition from the terminal to the web browser to view and interact with:\n\n- Issues\n- Pull requests\n- Repository content\n- Repository home page\n- Repository settings"),
 			ox.Usage("browse", "Open repositories, issues, pull requests, and more in the browser"),
+			ox.Banner("Transition from the terminal to the web browser to view and interact with:\n\n- Issues\n- Pull requests\n- Repository content\n- Repository home page\n- Repository settings"),
 			ox.Spec("[<number> | <path> | <commit-sha>] [flags]"),
 			ox.Example("\n  # Open the home page of the current repository\n  $ gh browse\n  \n  # Open the script directory of the current repository\n  $ gh browse script/\n  \n  # Open issue or pull request 217\n  $ gh browse 217\n  \n  # Open commit page\n  $ gh browse 77507cd94ccafcf568f8560cfecde965fcfa63\n  \n  # Open repository settings\n  $ gh browse --settings\n  \n  # Open main.go at line 312\n  $ gh browse main.go:312\n  \n  # Open main.go with the repository at head of bug-fix branch\n  $ gh browse main.go --branch bug-fix\n  \n  # Open main.go with the repository at commit 775007cd\n  $ gh browse main.go --commit=77507cd94ccafcf568f8560cfecde965fcfa63"),
 			ox.Section(0),
@@ -145,15 +145,15 @@ func main() {
 				Bool("wiki", "Open repository wiki", ox.Short("w"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Connect to and manage codespaces"),
 			ox.Usage("codespace", "Connect to and manage codespaces"),
+			ox.Banner("Connect to and manage codespaces"),
 			ox.Spec("[flags]"),
 			ox.Aliases("cs"),
 			ox.Section(0),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
-				ox.Banner("Open a codespace in Visual Studio Code"),
 				ox.Usage("code", "Open a codespace in Visual Studio Code"),
+				ox.Banner("Open a codespace in Visual Studio Code"),
 				ox.Spec("[flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -167,8 +167,8 @@ func main() {
 					Bool("web", "Use the web version of Visual Studio Code", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("The `cp` command copies files between the local and remote file systems.\n\nAs with the UNIX `cp` command, the first argument specifies the source and the last\nspecifies the destination; additional sources may be specified after the first,\nif the destination is a directory.\n\nThe `--recursive` flag is required if any source is a directory.\n\nA `remote:` prefix on any file name argument indicates that it refers to\nthe file system of the remote (Codespace) machine. It is resolved relative\nto the home directory of the remote user.\n\nBy default, remote file names are interpreted literally. With the `--expand` flag,\neach such argument is treated in the manner of `scp`, as a Bash expression to\nbe evaluated on the remote machine, subject to expansion of tildes, braces, globs,\nenvironment variables, and backticks. For security, do not use this flag with arguments\nprovided by untrusted users; see <https://lwn.net/Articles/835962/> for discussion.\n\nBy default, the `cp` command will create a public/private ssh key pair to authenticate with\nthe codespace inside the `~/.ssh directory`."),
 				ox.Usage("cp", "Copy files between local and remote file systems"),
+				ox.Banner("The `cp` command copies files between the local and remote file systems.\n\nAs with the UNIX `cp` command, the first argument specifies the source and the last\nspecifies the destination; additional sources may be specified after the first,\nif the destination is a directory.\n\nThe `--recursive` flag is required if any source is a directory.\n\nA `remote:` prefix on any file name argument indicates that it refers to\nthe file system of the remote (Codespace) machine. It is resolved relative\nto the home directory of the remote user.\n\nBy default, remote file names are interpreted literally. With the `--expand` flag,\neach such argument is treated in the manner of `scp`, as a Bash expression to\nbe evaluated on the remote machine, subject to expansion of tildes, braces, globs,\nenvironment variables, and backticks. For security, do not use this flag with arguments\nprovided by untrusted users; see <https://lwn.net/Articles/835962/> for discussion.\n\nBy default, the `cp` command will create a public/private ssh key pair to authenticate with\nthe codespace inside the `~/.ssh directory`."),
 				ox.Spec("[-e] [-r] [-- [<scp flags>...]] <sources>... <dest>"),
 				ox.Example("\n  $ gh codespace cp -e README.md 'remote:/workspaces/$RepositoryName/'\n  $ gh codespace cp -e 'remote:~/*.go' ./gofiles/\n  $ gh codespace cp -e 'remote:/workspaces/myproj/go.{mod,sum}' ./gofiles/\n  $ gh codespace cp -e -- -F ~/.ssh/codespaces_config 'remote:~/*.go' ./gofiles/"),
 				ox.Help(ox.Sections(
@@ -184,8 +184,8 @@ func main() {
 					String("repo-owner", "Filter codespace selection by repository owner (username or org)", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Create a codespace"),
 				ox.Usage("create", "Create a codespace"),
+				ox.Banner("Create a codespace"),
 				ox.Spec("[flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -205,8 +205,8 @@ func main() {
 					Bool("web", "Create codespace from browser, cannot be used with --display-name, --idle-timeout, or --retention-period", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Delete codespaces based on selection criteria.\n\nAll codespaces for the authenticated user can be deleted, as well as codespaces for a\nspecific repository. Alternatively, only codespaces older than N days can be deleted.\n\nOrganization administrators may delete any codespace billed to the organization."),
 				ox.Usage("delete", "Delete codespaces"),
+				ox.Banner("Delete codespaces based on selection criteria.\n\nAll codespaces for the authenticated user can be deleted, as well as codespaces for a\nspecific repository. Alternatively, only codespaces older than N days can be deleted.\n\nOrganization administrators may delete any codespace billed to the organization."),
 				ox.Spec("[flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -223,8 +223,8 @@ func main() {
 					String("user", "The username to delete codespaces for (used with --org)", ox.Spec("username"), ox.Short("u"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Edit a codespace"),
 				ox.Usage("edit", "Edit a codespace"),
+				ox.Banner("Edit a codespace"),
 				ox.Spec("[flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -238,8 +238,8 @@ func main() {
 					String("repo-owner", "Filter codespace selection by repository owner (username or org)", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Open a codespace in JupyterLab"),
 				ox.Usage("jupyter", "Open a codespace in JupyterLab"),
+				ox.Banner("Open a codespace in JupyterLab"),
 				ox.Spec("[flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -251,8 +251,8 @@ func main() {
 					String("repo-owner", "Filter codespace selection by repository owner (username or org)", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List codespaces of the authenticated user.\n\nAlternatively, organization administrators may list all codespaces billed to the organization.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List codespaces"),
+				ox.Banner("List codespaces of the authenticated user.\n\nAlternatively, organization administrators may list all codespaces billed to the organization.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[flags]"),
 				ox.Aliases("codespace ls", "cs ls"),
 				ox.Help(ox.Sections(
@@ -270,8 +270,8 @@ func main() {
 					Bool("web", "List codespaces in the web browser, cannot be used with --user or --org", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Access codespace logs"),
 				ox.Usage("logs", "Access codespace logs"),
+				ox.Banner("Access codespace logs"),
 				ox.Spec("[flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -284,16 +284,16 @@ func main() {
 					String("repo-owner", "Filter codespace selection by repository owner (username or org)", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List ports in a codespace\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("ports", "List ports in a codespace"),
+				ox.Banner("List ports in a codespace\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
 				)),
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 				ox.Sub(
-					ox.Banner("Forward ports"),
 					ox.Usage("forward", "Forward ports"),
+					ox.Banner("Forward ports"),
 					ox.Spec("<remote-port>:<local-port>... [flags]"),
 					ox.Help(ox.Sections(
 						"INHERITED FLAGS",
@@ -305,8 +305,8 @@ func main() {
 						String("repo-owner", "Filter codespace selection by repository owner (username or org)", ox.Section(0)),
 				),
 				ox.Sub(
-					ox.Banner("Change the visibility of the forwarded port"),
 					ox.Usage("visibility", "Change the visibility of the forwarded port"),
+					ox.Banner("Change the visibility of the forwarded port"),
 					ox.Spec("<port>:{public|private|org}... [flags]"),
 					ox.Example("\n  $ gh codespace ports visibility 80:org 3000:private 8000:public"),
 					ox.Help(ox.Sections(
@@ -327,8 +327,8 @@ func main() {
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Rebuilding recreates your codespace.\n\nYour code and any current changes will be preserved. Your codespace will be rebuilt using\nyour working directory's dev container. A full rebuild also removes cached Docker images."),
 				ox.Usage("rebuild", "Rebuild a codespace"),
+				ox.Banner("Rebuilding recreates your codespace.\n\nYour code and any current changes will be preserved. Your codespace will be rebuilt using\nyour working directory's dev container. A full rebuild also removes cached Docker images."),
 				ox.Spec("[flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -341,8 +341,8 @@ func main() {
 					String("repo-owner", "Filter codespace selection by repository owner (username or org)", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("The `ssh` command is used to SSH into a codespace. In its simplest form, you can\nrun `gh cs ssh`, select a codespace interactively, and connect.\n\nThe `ssh` command will automatically create a public/private ssh key pair in the\n`~/.ssh` directory if you do not have an existing valid key pair. When selecting the\nkey pair to use, the preferred order is:\n\n1. Key specified by `-i` in `<ssh-flags>`\n2. Automatic key, if it already exists\n3. First valid key pair in ssh config (according to `ssh -G`)\n4. Automatic key, newly created\n\nThe `ssh` command also supports deeper integration with OpenSSH using a `--config`\noption that generates per-codespace ssh configuration in OpenSSH format.\nIncluding this configuration in your `~/.ssh/config` improves the user experience\nof tools that integrate with OpenSSH, such as Bash/Zsh completion of ssh hostnames,\nremote path completion for `scp/rsync/sshfs`, `git` ssh remotes, and so on.\n\nOnce that is set up (see the second example below), you can ssh to codespaces as\nif they were ordinary remote hosts (using `ssh`, not `gh cs ssh`).\n\nNote that the codespace you are connecting to must have an SSH server pre-installed.\nIf the docker image being used for the codespace does not have an SSH server,\ninstall it in your `Dockerfile` or, for codespaces that use Debian-based images,\nyou can add the following to your `devcontainer.json`:\n\n\t\"features\": {\n\t\t\"ghcr.io/devcontainers/features/sshd:1\": {\n\t\t\t\"version\": \"latest\"\n\t\t}\n\t}"),
 				ox.Usage("ssh", "SSH into a codespace"),
+				ox.Banner("The `ssh` command is used to SSH into a codespace. In its simplest form, you can\nrun `gh cs ssh`, select a codespace interactively, and connect.\n\nThe `ssh` command will automatically create a public/private ssh key pair in the\n`~/.ssh` directory if you do not have an existing valid key pair. When selecting the\nkey pair to use, the preferred order is:\n\n1. Key specified by `-i` in `<ssh-flags>`\n2. Automatic key, if it already exists\n3. First valid key pair in ssh config (according to `ssh -G`)\n4. Automatic key, newly created\n\nThe `ssh` command also supports deeper integration with OpenSSH using a `--config`\noption that generates per-codespace ssh configuration in OpenSSH format.\nIncluding this configuration in your `~/.ssh/config` improves the user experience\nof tools that integrate with OpenSSH, such as Bash/Zsh completion of ssh hostnames,\nremote path completion for `scp/rsync/sshfs`, `git` ssh remotes, and so on.\n\nOnce that is set up (see the second example below), you can ssh to codespaces as\nif they were ordinary remote hosts (using `ssh`, not `gh cs ssh`).\n\nNote that the codespace you are connecting to must have an SSH server pre-installed.\nIf the docker image being used for the codespace does not have an SSH server,\ninstall it in your `Dockerfile` or, for codespaces that use Debian-based images,\nyou can add the following to your `devcontainer.json`:\n\n\t\"features\": {\n\t\t\"ghcr.io/devcontainers/features/sshd:1\": {\n\t\t\t\"version\": \"latest\"\n\t\t}\n\t}"),
 				ox.Spec("[<flags>...] [-- <ssh-flags>...] [<command>]"),
 				ox.Example("\n  $ gh codespace ssh\n  \n  $ gh codespace ssh --config > ~/.ssh/codespaces\n  $ printf 'Match all\\nInclude ~/.ssh/codespaces\\n' >> ~/.ssh/config"),
 				ox.Help(ox.Sections(
@@ -360,8 +360,8 @@ func main() {
 					Int("server-port", "SSH server port number (0 => pick unused)", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Stop a running codespace"),
 				ox.Usage("stop", "Stop a running codespace"),
+				ox.Banner("Stop a running codespace"),
 				ox.Spec("[flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -375,8 +375,8 @@ func main() {
 					String("user", "The username to stop codespace for (used with --org)", ox.Spec("username"), ox.Short("u"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("View details about a codespace\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("view", "View details about a codespace"),
+				ox.Banner("View details about a codespace\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[flags]"),
 				ox.Example("\n  # Select a codespace from a list of all codespaces you own\n  $ gh cs view\n  \n  # View the details of a specific codespace\n  $ gh cs view -c codespace-name-12345\n  \n  # View the list of all available fields for a codespace\n  $ gh cs view --json\n  \n  # View specific fields for a codespace\n  $ gh cs view --json displayName,machineDisplayName,state"),
 				ox.Help(ox.Sections(
@@ -393,20 +393,20 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Work with GitHub gists."),
 			ox.Usage("gist", "Manage gists"),
+			ox.Banner("Work with GitHub gists."),
 			ox.Spec("<command> [flags]"),
 			ox.Section(0),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
-				ox.Banner("Clone a GitHub gist locally.\n\nA gist can be supplied as argument in either of the following formats:\n- by ID, e.g. `5b0e0062eb8e9654adad7bb1d81cc75f`\n- by URL, e.g. `https://gist.github.com/OWNER/5b0e0062eb8e9654adad7bb1d81cc75f`\n\nPass additional `git clone` flags by listing them after `--`."),
 				ox.Usage("clone", "Clone a gist locally"),
+				ox.Banner("Clone a GitHub gist locally.\n\nA gist can be supplied as argument in either of the following formats:\n- by ID, e.g. `5b0e0062eb8e9654adad7bb1d81cc75f`\n- by URL, e.g. `https://gist.github.com/OWNER/5b0e0062eb8e9654adad7bb1d81cc75f`\n\nPass additional `git clone` flags by listing them after `--`."),
 				ox.Spec("<gist> [<directory>] [-- <gitflags>...]"),
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			),
 			ox.Sub(
-				ox.Banner("Create a new GitHub gist with given contents.\n\nGists can be created from one or multiple files. Alternatively, pass `-` as\nfilename to read from standard input.\n\nBy default, gists are secret; use `--public` to make publicly listed ones."),
 				ox.Usage("create", "Create a new gist"),
+				ox.Banner("Create a new GitHub gist with given contents.\n\nGists can be created from one or multiple files. Alternatively, pass `-` as\nfilename to read from standard input.\n\nBy default, gists are secret; use `--public` to make publicly listed ones."),
 				ox.Spec("[<filename>... | <pattern>... | -] [flags]"),
 				ox.Aliases("gist new"),
 				ox.Example("\n  # Publish file 'hello.py' as a public gist\n  $ gh gist create --public hello.py\n  \n  # Create a gist with a description\n  $ gh gist create hello.py -d \"my Hello-World program in Python\"\n  \n  # Create a gist containing several files\n  $ gh gist create hello.py world.py cool.txt\n  \n  # Create a gist containing several files using patterns\n  $ gh gist create *.md *.txt artifact.*\n  \n  # Read from standard input to create a gist\n  $ gh gist create -\n  \n  # Create a gist from output piped from another command\n  $ cat cool.txt | gh gist create"),
@@ -421,8 +421,8 @@ func main() {
 					Bool("web", "Open the web browser with created gist", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Delete a GitHub gist.\n\nTo delete a gist interactively, use `gh gist delete` with no arguments.\n\nTo delete a gist non-interactively, supply the gist id or url."),
 				ox.Usage("delete", "Delete a gist"),
+				ox.Banner("Delete a GitHub gist.\n\nTo delete a gist interactively, use `gh gist delete` with no arguments.\n\nTo delete a gist non-interactively, supply the gist id or url."),
 				ox.Spec("{<id> | <url>} [flags]"),
 				ox.Example("\n  # Delete a gist interactively\n  $ gh gist delete\n  \n  # Delete a gist non-interactively\n  $ gh gist delete 1234"),
 				ox.Help(ox.Sections(
@@ -433,8 +433,8 @@ func main() {
 					Bool("yes", "Confirm deletion without prompting", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Edit one of your gists"),
 				ox.Usage("edit", "Edit one of your gists"),
+				ox.Banner("Edit one of your gists"),
 				ox.Spec("{<id> | <url>} [<filename>] [flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -447,8 +447,8 @@ func main() {
 					String("remove", "Remove a file from the gist", ox.Short("r"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List gists from your user account.\n\nYou can use a regular expression to filter the description, file names,\nor even the content of files in the gist using `--filter`.\n\nFor supported regular expression syntax, see <https://pkg.go.dev/regexp/syntax>.\n\nUse `--include-content` to include content of files, noting that\nthis will be slower and increase the rate limit used. Instead of printing a table,\ncode will be printed with highlights similar to `gh search code`:\n\n\t{{gist ID}} {{file name}}\n\t    {{description}}\n\t        {{matching lines from content}}\n\nNo highlights or other color is printed when output is redirected."),
 				ox.Usage("list", "List your gists"),
+				ox.Banner("List gists from your user account.\n\nYou can use a regular expression to filter the description, file names,\nor even the content of files in the gist using `--filter`.\n\nFor supported regular expression syntax, see <https://pkg.go.dev/regexp/syntax>.\n\nUse `--include-content` to include content of files, noting that\nthis will be slower and increase the rate limit used. Instead of printing a table,\ncode will be printed with highlights similar to `gh search code`:\n\n\t{{gist ID}} {{file name}}\n\t    {{description}}\n\t        {{matching lines from content}}\n\nNo highlights or other color is printed when output is redirected."),
 				ox.Spec("[flags]"),
 				ox.Aliases("gist ls"),
 				ox.Example("\n  # List all secret gists from your user account\n  $ gh gist list --secret\n  \n  # Find all gists from your user account mentioning \"octo\" anywhere\n  $ gh gist list --filter octo --include-content"),
@@ -464,14 +464,14 @@ func main() {
 					Bool("secret", "Show only secret gists", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Rename a file in the given gist ID / URL."),
 				ox.Usage("rename", "Rename a file in a gist"),
+				ox.Banner("Rename a file in the given gist ID / URL."),
 				ox.Spec("{<id> | <url>} <old-filename> <new-filename> [flags]"),
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			),
 			ox.Sub(
-				ox.Banner("View the given gist or select from recent gists."),
 				ox.Usage("view", "View a gist"),
+				ox.Banner("View the given gist or select from recent gists."),
 				ox.Spec("[<id> | <url>] [flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -485,8 +485,8 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Work with GitHub issues."),
 			ox.Usage("issue", "Manage issues"),
+			ox.Banner("Work with GitHub issues."),
 			ox.Spec("<command> [flags]"),
 			ox.Example("\n  $ gh issue list\n  $ gh issue create --label bug\n  $ gh issue view 123 --web"),
 			ox.Sections("GENERAL COMMANDS", "TARGETED COMMANDS"),
@@ -496,8 +496,8 @@ func main() {
 			)),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
-				ox.Banner("Create an issue on GitHub.\n\nAdding an issue to projects requires authorization with the `project` scope.\nTo authorize, run `gh auth refresh -s project`."),
 				ox.Usage("create", "Create a new issue"),
+				ox.Banner("Create an issue on GitHub.\n\nAdding an issue to projects requires authorization with the `project` scope.\nTo authorize, run `gh auth refresh -s project`."),
 				ox.Spec("[flags]"),
 				ox.Aliases("issue new"),
 				ox.Example("\n  $ gh issue create --title \"I found a bug\" --body \"Nothing works\"\n  $ gh issue create --label \"bug,help wanted\"\n  $ gh issue create --label bug --label \"help wanted\"\n  $ gh issue create --assignee monalisa,hubot\n  $ gh issue create --assignee \"@me\"\n  $ gh issue create --project \"Roadmap\"\n  $ gh issue create --template \"Bug Report\""),
@@ -522,8 +522,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("List issues in a GitHub repository. By default, this only lists open issues.\n\nThe search query syntax is documented here:\n<https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests>\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List issues in a repository"),
+				ox.Banner("List issues in a GitHub repository. By default, this only lists open issues.\n\nThe search query syntax is documented here:\n<https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests>\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[flags]"),
 				ox.Aliases("issue ls"),
 				ox.Example("\n  $ gh issue list --label \"bug\" --label \"help wanted\"\n  $ gh issue list --author monalisa\n  $ gh issue list --assignee \"@me\"\n  $ gh issue list --milestone \"The big 1.0\"\n  $ gh issue list --search \"error no:assignee sort:created-asc\"\n  $ gh issue list --state all"),
@@ -550,8 +550,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Show status of relevant issues\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("status", "Show status of relevant issues"),
+				ox.Banner("Show status of relevant issues\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[flags]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -566,8 +566,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Close issue"),
 				ox.Usage("close", "Close issue"),
+				ox.Banner("Close issue"),
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -581,8 +581,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Add a comment to a GitHub issue.\n\nWithout the body text supplied through flags, the command will interactively\nprompt for the comment text."),
 				ox.Usage("comment", "Add a comment to an issue"),
+				ox.Banner("Add a comment to a GitHub issue.\n\nWithout the body text supplied through flags, the command will interactively\nprompt for the comment text."),
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Example("\n  $ gh issue comment 12 --body \"Hi from GitHub CLI\""),
 				ox.Section(1),
@@ -601,8 +601,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Delete issue"),
 				ox.Usage("delete", "Delete issue"),
+				ox.Banner("Delete issue"),
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -615,8 +615,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Manage linked branches for an issue.\n\nWhen using the `--base` flag, the new development branch will be created from the specified\nremote branch. The new branch will be configured as the base branch for pull requests created using\n`gh pr create`."),
 				ox.Usage("develop", "Manage linked branches for an issue"),
+				ox.Banner("Manage linked branches for an issue.\n\nWhen using the `--base` flag, the new development branch will be created from the specified\nremote branch. The new branch will be configured as the base branch for pull requests created using\n`gh pr create`."),
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Example("\n  # List branches for issue 123\n  $ gh issue develop --list 123\n  \n  # List branches for issue 123 in repo cli/cli\n  $ gh issue develop --list --repo cli/cli 123\n  \n  # Create a branch for issue 123 based on the my-feature branch\n  $ gh issue develop 123 --base my-feature\n  \n  # Create a branch for issue 123 and checkout it out\n  $ gh issue develop 123 --checkout\n  \n  # Create a branch in repo monalisa/cli for issue 123 in repo cli/cli\n  $ gh issue develop 123 --repo cli/cli --branch-repo monalisa/cli"),
 				ox.Section(1),
@@ -634,8 +634,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Edit one or more issues within the same repository.\n\nEditing issues' projects requires authorization with the `project` scope.\nTo authorize, run `gh auth refresh -s project`."),
 				ox.Usage("edit", "Edit issues"),
+				ox.Banner("Edit one or more issues within the same repository.\n\nEditing issues' projects requires authorization with the `project` scope.\nTo authorize, run `gh auth refresh -s project`."),
 				ox.Spec("{<numbers> | <urls>} [flags]"),
 				ox.Example("\n  $ gh issue edit 23 --title \"I found a bug\" --body \"Nothing works\"\n  $ gh issue edit 23 --add-label \"bug,help wanted\" --remove-label \"core\"\n  $ gh issue edit 23 --add-assignee \"@me\" --remove-assignee monalisa,hubot\n  $ gh issue edit 23 --add-project \"Roadmap\" --remove-project v1,v2\n  $ gh issue edit 23 --milestone \"Version 1\"\n  $ gh issue edit 23 --remove-milestone\n  $ gh issue edit 23 --body-file body.txt\n  $ gh issue edit 23 34 --add-label \"help wanted\""),
 				ox.Section(1),
@@ -659,8 +659,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Lock issue conversation"),
 				ox.Usage("lock", "Lock issue conversation"),
+				ox.Banner("Lock issue conversation"),
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -673,8 +673,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Pin an issue to a repository.\n\nThe issue can be specified by issue number or URL."),
 				ox.Usage("pin", "Pin a issue"),
+				ox.Banner("Pin an issue to a repository.\n\nThe issue can be specified by issue number or URL."),
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Example("\n  # Pin an issue to the current repository\n  $ gh issue pin 23\n  \n  # Pin an issue by URL\n  $ gh issue pin https://github.com/owner/repo/issues/23\n  \n  # Pin an issue to specific repository\n  $ gh issue pin 23 --repo owner/repo"),
 				ox.Section(1),
@@ -686,8 +686,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Reopen issue"),
 				ox.Usage("reopen", "Reopen issue"),
+				ox.Banner("Reopen issue"),
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -700,8 +700,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Transfer issue to another repository"),
 				ox.Usage("transfer", "Transfer issue to another repository"),
+				ox.Banner("Transfer issue to another repository"),
 				ox.Spec("{<number> | <url>} <destination-repo> [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -712,8 +712,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Unlock issue conversation"),
 				ox.Usage("unlock", "Unlock issue conversation"),
+				ox.Banner("Unlock issue conversation"),
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -724,8 +724,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Unpin an issue from a repository.\n\nThe issue can be specified by issue number or URL."),
 				ox.Usage("unpin", "Unpin a issue"),
+				ox.Banner("Unpin an issue from a repository.\n\nThe issue can be specified by issue number or URL."),
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Example("\n  # Unpin issue from the current repository\n  $ gh issue unpin 23\n  \n  # Unpin issue by URL\n  $ gh issue unpin https://github.com/owner/repo/issues/23\n  \n  # Unpin an issue from specific repository\n  $ gh issue unpin 23 --repo owner/repo"),
 				ox.Section(1),
@@ -737,8 +737,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Display the title, body, and other information about an issue.\n\nWith `--web` flag, open the issue in a web browser instead.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("view", "View an issue"),
+				ox.Banner("Display the title, body, and other information about an issue.\n\nWith `--web` flag, open the issue in a web browser instead.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -758,16 +758,16 @@ func main() {
 				String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Work with GitHub organizations."),
 			ox.Usage("org", "Manage organizations"),
+			ox.Banner("Work with GitHub organizations."),
 			ox.Spec("<command> [flags]"),
 			ox.Example("\n  $ gh org list"),
 			ox.Sections("GENERAL COMMANDS"),
 			ox.Section(0),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
-				ox.Banner("List organizations for the authenticated user."),
 				ox.Usage("list", "List organizations for the authenticated user."),
+				ox.Banner("List organizations for the authenticated user."),
 				ox.Spec("[flags]"),
 				ox.Aliases("org ls"),
 				ox.Example("\n  # List the first 30 organizations\n  $ gh org list\n  \n  # List more organizations\n  $ gh org list --limit 100"),
@@ -781,8 +781,8 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Work with GitHub pull requests."),
 			ox.Usage("pr", "Manage pull requests"),
+			ox.Banner("Work with GitHub pull requests."),
 			ox.Spec("<command> [flags]"),
 			ox.Example("\n  $ gh pr checkout 353\n  $ gh pr create --fill\n  $ gh pr view --web"),
 			ox.Sections("GENERAL COMMANDS", "TARGETED COMMANDS"),
@@ -792,8 +792,8 @@ func main() {
 			)),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
-				ox.Banner("Create a pull request on GitHub.\n\nWhen the current branch isn't fully pushed to a git remote, a prompt will ask where\nto push the branch and offer an option to fork the base repository. Use `--head` to\nexplicitly skip any forking or pushing behavior.\n\n`--head` supports `<user>:<branch>` syntax to select a head repo owned by `<user>`.\nUsing an organization as the `<user>` is currently not supported.\nFor more information, see <https://github.com/cli/cli/issues/10093>\n\nA prompt will also ask for the title and the body of the pull request. Use `--title` and\n`--body` to skip this, or use `--fill` to autofill these values from git commits.\nIt's important to notice that if the `--title` and/or `--body` are also provided\nalongside `--fill`, the values specified by `--title` and/or `--body` will\ntake precedence and overwrite any autofilled content.\n\nThe base branch for the created PR can be specified using the `--base` flag. If not provided,\nthe value of `gh-merge-base` git branch config will be used. If not configured, the repository's\ndefault branch will be used. Run `git config branch.{current}.gh-merge-base {base}` to configure\nthe current branch to use the specified merge base.\n\nLink an issue to the pull request by referencing the issue in the body of the pull\nrequest. If the body text mentions `Fixes #123` or `Closes #123`, the referenced issue\nwill automatically get closed when the pull request gets merged.\n\nBy default, users with write access to the base repository can push new commits to the\nhead branch of the pull request. Disable this with `--no-maintainer-edit`.\n\nAdding a pull request to projects requires authorization with the `project` scope.\nTo authorize, run `gh auth refresh -s project`."),
 				ox.Usage("create", "Create a pull request"),
+				ox.Banner("Create a pull request on GitHub.\n\nWhen the current branch isn't fully pushed to a git remote, a prompt will ask where\nto push the branch and offer an option to fork the base repository. Use `--head` to\nexplicitly skip any forking or pushing behavior.\n\n`--head` supports `<user>:<branch>` syntax to select a head repo owned by `<user>`.\nUsing an organization as the `<user>` is currently not supported.\nFor more information, see <https://github.com/cli/cli/issues/10093>\n\nA prompt will also ask for the title and the body of the pull request. Use `--title` and\n`--body` to skip this, or use `--fill` to autofill these values from git commits.\nIt's important to notice that if the `--title` and/or `--body` are also provided\nalongside `--fill`, the values specified by `--title` and/or `--body` will\ntake precedence and overwrite any autofilled content.\n\nThe base branch for the created PR can be specified using the `--base` flag. If not provided,\nthe value of `gh-merge-base` git branch config will be used. If not configured, the repository's\ndefault branch will be used. Run `git config branch.{current}.gh-merge-base {base}` to configure\nthe current branch to use the specified merge base.\n\nLink an issue to the pull request by referencing the issue in the body of the pull\nrequest. If the body text mentions `Fixes #123` or `Closes #123`, the referenced issue\nwill automatically get closed when the pull request gets merged.\n\nBy default, users with write access to the base repository can push new commits to the\nhead branch of the pull request. Disable this with `--no-maintainer-edit`.\n\nAdding a pull request to projects requires authorization with the `project` scope.\nTo authorize, run `gh auth refresh -s project`."),
 				ox.Spec("[flags]"),
 				ox.Aliases("pr new"),
 				ox.Example("\n  $ gh pr create --title \"The bug is fixed\" --body \"Everything works again\"\n  $ gh pr create --reviewer monalisa,hubot  --reviewer myorg/team-name\n  $ gh pr create --project \"Roadmap\"\n  $ gh pr create --base develop --head monalisa:feature\n  $ gh pr create --template \"pull_request_template.md\""),
@@ -827,8 +827,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("List pull requests in a GitHub repository. By default, this only lists open PRs.\n\nThe search query syntax is documented here:\n<https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests>\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List pull requests in a repository"),
+				ox.Banner("List pull requests in a GitHub repository. By default, this only lists open PRs.\n\nThe search query syntax is documented here:\n<https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests>\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[flags]"),
 				ox.Aliases("pr ls"),
 				ox.Example("\n  # List PRs authored by you\n  $ gh pr list --author \"@me\"\n  \n  # List only PRs with all of the given labels\n  $ gh pr list --label bug --label \"priority 1\"\n  \n  # Filter PRs using search syntax\n  $ gh pr list --search \"status:success review:required\"\n  \n  # Find a PR that introduced a given commit\n  $ gh pr list --search \"<SHA>\" --state merged"),
@@ -856,8 +856,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Show status of relevant pull requests.\n\nThe status shows a summary of pull requests that includes information such as\npull request number, title, CI checks, reviews, etc.\n\nTo see more details of CI checks, run `gh pr checks`.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("status", "Show status of relevant pull requests"),
+				ox.Banner("Show status of relevant pull requests.\n\nThe status shows a summary of pull requests that includes information such as\npull request number, title, CI checks, reviews, etc.\n\nTo see more details of CI checks, run `gh pr checks`.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[flags]"),
 				ox.Section(0),
 				ox.Help(ox.Sections(
@@ -873,8 +873,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Check out a pull request in git"),
 				ox.Usage("checkout", "Check out a pull request in git"),
+				ox.Banner("Check out a pull request in git"),
 				ox.Spec("[<number> | <url> | <branch>] [flags]"),
 				ox.Example("\n  # Interactively select a PR from the 10 most recent to check out\n  $ gh pr checkout\n  \n  # Checkout a specific PR\n  $ gh pr checkout 32\n  $ gh pr checkout https://github.com/OWNER/REPO/pull/32\n  $ gh pr checkout feature"),
 				ox.Section(1),
@@ -891,8 +891,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Show CI status for a single pull request.\n\nWithout an argument, the pull request that belongs to the current branch\nis selected.\n\nWhen the `--json` flag is used, it includes a `bucket` field, which categorizes\nthe `state` field into `pass`, `fail`, `pending`, `skipping`, or `cancel`.\n\nAdditional exit codes:\n\t8: Checks pending\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("checks", "Show CI status for a single pull request"),
+				ox.Banner("Show CI status for a single pull request.\n\nWithout an argument, the pull request that belongs to the current branch\nis selected.\n\nWhen the `--json` flag is used, it includes a `bucket` field, which categorizes\nthe `state` field into `pass`, `fail`, `pending`, `skipping`, or `cancel`.\n\nAdditional exit codes:\n\t8: Checks pending\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<number> | <url> | <branch>] [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -912,8 +912,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Close a pull request"),
 				ox.Usage("close", "Close a pull request"),
+				ox.Banner("Close a pull request"),
 				ox.Spec("{<number> | <url> | <branch>} [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -927,8 +927,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Add a comment to a GitHub pull request.\n\nWithout the body text supplied through flags, the command will interactively\nprompt for the comment text."),
 				ox.Usage("comment", "Add a comment to a pull request"),
+				ox.Banner("Add a comment to a GitHub pull request.\n\nWithout the body text supplied through flags, the command will interactively\nprompt for the comment text."),
 				ox.Spec("[<number> | <url> | <branch>] [flags]"),
 				ox.Example("\n  $ gh pr comment 13 --body \"Hi from GitHub CLI\""),
 				ox.Section(1),
@@ -947,8 +947,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("View changes in a pull request.\n\nWithout an argument, the pull request that belongs to the current branch\nis selected.\n\nWith `--web` flag, open the pull request diff in a web browser instead."),
 				ox.Usage("diff", "View changes in a pull request"),
+				ox.Banner("View changes in a pull request.\n\nWithout an argument, the pull request that belongs to the current branch\nis selected.\n\nWith `--web` flag, open the pull request diff in a web browser instead."),
 				ox.Spec("[<number> | <url> | <branch>] [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -964,8 +964,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Edit a pull request.\n\nWithout an argument, the pull request that belongs to the current branch\nis selected.\n\nEditing a pull request's projects requires authorization with the `project` scope.\nTo authorize, run `gh auth refresh -s project`."),
 				ox.Usage("edit", "Edit a pull request"),
+				ox.Banner("Edit a pull request.\n\nWithout an argument, the pull request that belongs to the current branch\nis selected.\n\nEditing a pull request's projects requires authorization with the `project` scope.\nTo authorize, run `gh auth refresh -s project`."),
 				ox.Spec("[<number> | <url> | <branch>] [flags]"),
 				ox.Example("\n  $ gh pr edit 23 --title \"I found a bug\" --body \"Nothing works\"\n  $ gh pr edit 23 --add-label \"bug,help wanted\" --remove-label \"core\"\n  $ gh pr edit 23 --add-reviewer monalisa,hubot  --remove-reviewer myorg/team-name\n  $ gh pr edit 23 --add-assignee \"@me\" --remove-assignee monalisa,hubot\n  $ gh pr edit 23 --add-project \"Roadmap\" --remove-project v1,v2\n  $ gh pr edit 23 --milestone \"Version 1\"\n  $ gh pr edit 23 --remove-milestone"),
 				ox.Section(1),
@@ -992,8 +992,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Lock pull request conversation"),
 				ox.Usage("lock", "Lock pull request conversation"),
+				ox.Banner("Lock pull request conversation"),
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -1006,8 +1006,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Merge a pull request on GitHub.\n\nWithout an argument, the pull request that belongs to the current branch\nis selected.\n\nWhen targeting a branch that requires a merge queue, no merge strategy is required.\nIf required checks have not yet passed, auto-merge will be enabled.\nIf required checks have passed, the pull request will be added to the merge queue.\nTo bypass a merge queue and merge directly, pass the `--admin` flag."),
 				ox.Usage("merge", "Merge a pull request"),
+				ox.Banner("Merge a pull request on GitHub.\n\nWithout an argument, the pull request that belongs to the current branch\nis selected.\n\nWhen targeting a branch that requires a merge queue, no merge strategy is required.\nIf required checks have not yet passed, auto-merge will be enabled.\nIf required checks have passed, the pull request will be added to the merge queue.\nTo bypass a merge queue and merge directly, pass the `--admin` flag."),
 				ox.Spec("[<number> | <url> | <branch>] [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -1031,8 +1031,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Mark a pull request as ready for review.\n\nWithout an argument, the pull request that belongs to the current branch\nis marked as ready.\n\nIf supported by your plan, convert to draft with `--undo`"),
 				ox.Usage("ready", "Mark a pull request as ready for review"),
+				ox.Banner("Mark a pull request as ready for review.\n\nWithout an argument, the pull request that belongs to the current branch\nis marked as ready.\n\nIf supported by your plan, convert to draft with `--undo`"),
 				ox.Spec("[<number> | <url> | <branch>] [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -1045,8 +1045,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Reopen a pull request"),
 				ox.Usage("reopen", "Reopen a pull request"),
+				ox.Banner("Reopen a pull request"),
 				ox.Spec("{<number> | <url> | <branch>} [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -1059,8 +1059,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Add a review to a pull request.\n\nWithout an argument, the pull request that belongs to the current branch is reviewed."),
 				ox.Usage("review", "Add a review to a pull request"),
+				ox.Banner("Add a review to a pull request.\n\nWithout an argument, the pull request that belongs to the current branch is reviewed."),
 				ox.Spec("[<number> | <url> | <branch>] [flags]"),
 				ox.Example("\n  # Approve the pull request of the current branch\n  $ gh pr review --approve\n  \n  # Leave a review comment for the current branch\n  $ gh pr review --comment -b \"interesting\"\n  \n  # Add a review for a specific pull request\n  $ gh pr review 123\n  \n  # Request changes on a specific pull request\n  $ gh pr review 123 -r -b \"needs more ASCII art\""),
 				ox.Section(1),
@@ -1078,8 +1078,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Unlock pull request conversation"),
 				ox.Usage("unlock", "Unlock pull request conversation"),
+				ox.Banner("Unlock pull request conversation"),
 				ox.Spec("{<number> | <url>} [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -1090,8 +1090,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Update a pull request branch with latest changes of the base branch.\n\nWithout an argument, the pull request that belongs to the current branch is selected.\n\nThe default behavior is to update with a merge commit (i.e., merging the base branch\ninto the PR's branch). To reconcile the changes with rebasing on top of the base\nbranch, the `--rebase` option should be provided."),
 				ox.Usage("update-branch", "Update a pull request branch"),
+				ox.Banner("Update a pull request branch with latest changes of the base branch.\n\nWithout an argument, the pull request that belongs to the current branch is selected.\n\nThe default behavior is to update with a merge commit (i.e., merging the base branch\ninto the PR's branch). To reconcile the changes with rebasing on top of the base\nbranch, the `--rebase` option should be provided."),
 				ox.Spec("[<number> | <url> | <branch>] [flags]"),
 				ox.Example("\n  $ gh pr update-branch 23\n  $ gh pr update-branch 23 --rebase\n  $ gh pr update-branch 23 --repo owner/repo"),
 				ox.Section(1),
@@ -1105,8 +1105,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Display the title, body, and other information about a pull request.\n\nWithout an argument, the pull request that belongs to the current branch\nis displayed.\n\nWith `--web` flag, open the pull request in a web browser instead.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("view", "View a pull request"),
+				ox.Banner("Display the title, body, and other information about a pull request.\n\nWithout an argument, the pull request that belongs to the current branch\nis displayed.\n\nWith `--web` flag, open the pull request in a web browser instead.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<number> | <url> | <branch>] [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -1126,15 +1126,15 @@ func main() {
 				String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Work with GitHub Projects.\n\nThe minimum required scope for the token is: `project`.\nYou can verify your token scope by running `gh auth status` and\nadd the `project` scope by running `gh auth refresh -s project`."),
 			ox.Usage("project", "Work with GitHub Projects."),
+			ox.Banner("Work with GitHub Projects.\n\nThe minimum required scope for the token is: `project`.\nYou can verify your token scope by running `gh auth status` and\nadd the `project` scope by running `gh auth refresh -s project`."),
 			ox.Spec("<command> [flags]"),
 			ox.Example("\n  $ gh project create --owner monalisa --title \"Roadmap\"\n  $ gh project view 1 --owner cli --web\n  $ gh project field-list 1 --owner cli\n  $ gh project item-list 1 --owner cli"),
 			ox.Section(0),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
-				ox.Banner("Close a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("close", "Close a project"),
+				ox.Banner("Close a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # Close project \"1\" owned by monalisa\n  $ gh project close 1 --owner monalisa\n  \n  # Reopen closed project \"1\" owned by github\n  $ gh project close 1 --owner github --undo"),
 				ox.Help(ox.Sections(
@@ -1149,8 +1149,8 @@ func main() {
 					Bool("undo", "Reopen a closed project", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Copy a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("copy", "Copy a project"),
+				ox.Banner("Copy a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # Copy project \"1\" owned by monalisa to github\n  $ gh project copy 1 --source-owner monalisa --target-owner github --title \"a new project\""),
 				ox.Help(ox.Sections(
@@ -1167,8 +1167,8 @@ func main() {
 					String("title", "Title for the new project", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Create a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("create", "Create a project"),
+				ox.Banner("Create a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[flags]"),
 				ox.Example("\n  # Create a new project owned by login monalisa\n  $ gh project create --owner monalisa --title \"a new project\""),
 				ox.Help(ox.Sections(
@@ -1183,8 +1183,8 @@ func main() {
 					String("title", "Title for the project", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Delete a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("delete", "Delete a project"),
+				ox.Banner("Delete a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # Delete the current user's project \"1\"\n  $ gh project delete 1 --owner \"@me\""),
 				ox.Help(ox.Sections(
@@ -1198,8 +1198,8 @@ func main() {
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Edit a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("edit", "Edit a project"),
+				ox.Banner("Edit a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # Edit the title of monalisa's project \"1\"\n  $ gh project edit 1 --owner monalisa --title \"New title\""),
 				ox.Help(ox.Sections(
@@ -1217,8 +1217,8 @@ func main() {
 					String("visibility", "Change project visibility: {PUBLIC|PRIVATE}", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Create a field in a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("field-create", "Create a field in a project"),
+				ox.Banner("Create a field in a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # Create a field in the current user's project \"1\"\n  $ gh project field-create 1 --owner \"@me\" --name \"new field\" --data-type \"text\"\n  \n  # Create a field with three options to select from for owner monalisa\n  $ gh project field-create 1 --owner monalisa --name \"new field\" --data-type \"SINGLE_SELECT\" --single-select-options \"one,two,three\""),
 				ox.Help(ox.Sections(
@@ -1235,8 +1235,8 @@ func main() {
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Delete a field in a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("field-delete", "Delete a field in a project"),
+				ox.Banner("Delete a field in a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -1249,8 +1249,8 @@ func main() {
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List the fields in a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("field-list", "List the fields in a project"),
+				ox.Banner("List the fields in a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # List fields in the current user's project \"1\"\n  $ gh project field-list 1 --owner \"@me\""),
 				ox.Help(ox.Sections(
@@ -1265,8 +1265,8 @@ func main() {
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Add a pull request or an issue to a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("item-add", "Add a pull request or an issue to a project"),
+				ox.Banner("Add a pull request or an issue to a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # Add an item to monalisa's project \"1\"\n  $ gh project item-add 1 --owner monalisa --url https://github.com/monalisa/myproject/issues/23"),
 				ox.Help(ox.Sections(
@@ -1281,8 +1281,8 @@ func main() {
 					String("url", "URL of the issue or pull request to add to the project", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Archive an item in a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("item-archive", "Archive an item in a project"),
+				ox.Banner("Archive an item in a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # Archive an item in the current user's project \"1\"\n  $ gh project item-archive 1 --owner \"@me\" --id <item-ID>"),
 				ox.Help(ox.Sections(
@@ -1298,8 +1298,8 @@ func main() {
 					Bool("undo", "Unarchive an item", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Create a draft issue item in a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("item-create", "Create a draft issue item in a project"),
+				ox.Banner("Create a draft issue item in a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # Create a draft issue in the current user's project \"1\"\n  $ gh project item-create 1 --owner \"@me\" --title \"new item\" --body \"new item body\""),
 				ox.Help(ox.Sections(
@@ -1315,8 +1315,8 @@ func main() {
 					String("title", "Title for the draft issue", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Delete an item from a project by ID\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("item-delete", "Delete an item from a project by ID"),
+				ox.Banner("Delete an item from a project by ID\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # Delete an item in the current user's project \"1\"\n  $ gh project item-delete 1 --owner \"@me\" --id <item-id>"),
 				ox.Help(ox.Sections(
@@ -1331,8 +1331,8 @@ func main() {
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Edit either a draft issue or a project item. Both usages require the ID of the item to edit.\n\nFor non-draft issues, the ID of the project is also required, and only a single field value can be updated per invocation.\n\nRemove project item field value using `--clear` flag.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("item-edit", "Edit an item in a project"),
+				ox.Banner("Edit either a draft issue or a project item. Both usages require the ID of the item to edit.\n\nFor non-draft issues, the ID of the project is also required, and only a single field value can be updated per invocation.\n\nRemove project item field value using `--clear` flag.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[flags]"),
 				ox.Example("\n  # Edit an item's text field value\n  $ gh project item-edit --id <item-id> --field-id <field-id> --project-id <project-id> --text \"new text\"\n  \n  # Clear an item's field value\n  $ gh project item-edit --id <item-id> --field-id <field-id> --project-id <project-id> --clear"),
 				ox.Help(ox.Sections(
@@ -1356,8 +1356,8 @@ func main() {
 					String("title", "Title of the draft issue item", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List the items in a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("item-list", "List the items in a project"),
+				ox.Banner("List the items in a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # List the items in the current users's project \"1\"\n  $ gh project item-list 1 --owner \"@me\""),
 				ox.Help(ox.Sections(
@@ -1372,8 +1372,8 @@ func main() {
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Link a project to a repository or a team"),
 				ox.Usage("link", "Link a project to a repository or a team"),
+				ox.Banner("Link a project to a repository or a team"),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # Link monalisa's project 1 to her repository \"my_repo\"\n  $ gh project link 1 --owner monalisa --repo my_repo\n  \n  # Link monalisa's organization's project 1 to her team \"my_team\"\n  $ gh project link 1 --owner my_organization --team my_team\n  \n  # Link monalisa's project 1 to the repository of current directory if neither --repo nor --team is specified\n  $ gh project link 1"),
 				ox.Help(ox.Sections(
@@ -1386,8 +1386,8 @@ func main() {
 					String("team", "The team to be linked to this project", ox.Short("T"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List the projects for an owner\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List the projects for an owner"),
+				ox.Banner("List the projects for an owner\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[flags]"),
 				ox.Aliases("project ls"),
 				ox.Example("\n  # List the current user's projects\n  $ gh project list\n  \n  # List the projects for org github including closed projects\n  $ gh project list --owner github --closed"),
@@ -1405,8 +1405,8 @@ func main() {
 					Bool("web", "Open projects list in the browser", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Mark a project as a template\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("mark-template", "Mark a project as a template"),
+				ox.Banner("Mark a project as a template\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # Mark the github org's project \"1\" as a template\n  $ gh project mark-template 1 --owner \"github\"\n  \n  # Unmark the github org's project \"1\" as a template\n  $ gh project mark-template 1 --owner \"github\" --undo"),
 				ox.Help(ox.Sections(
@@ -1421,8 +1421,8 @@ func main() {
 					Bool("undo", "Unmark the project as a template.", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Unlink a project from a repository or a team"),
 				ox.Usage("unlink", "Unlink a project from a repository or a team"),
+				ox.Banner("Unlink a project from a repository or a team"),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # Unlink monalisa's project 1 from her repository \"my_repo\"\n  $ gh project unlink 1 --owner monalisa --repo my_repo\n  \n  # Unlink monalisa's organization's project 1 from her team \"my_team\"\n  $ gh project unlink 1 --owner my_organization --team my_team\n  \n  # Unlink monalisa's project 1 from the repository of current directory if neither --repo nor --team is specified\n  $ gh project unlink 1"),
 				ox.Help(ox.Sections(
@@ -1435,8 +1435,8 @@ func main() {
 					String("team", "The team to be unlinked from this project", ox.Short("T"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("View a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("view", "View a project"),
+				ox.Banner("View a project\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<number>] [flags]"),
 				ox.Example("\n  # View the current user's project \"1\"\n  $ gh project view 1\n  \n  # Open user monalisa's project \"1\" in the browser\n  $ gh project view 1 --owner monalisa --web"),
 				ox.Help(ox.Sections(
@@ -1452,8 +1452,8 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Manage releases"),
 			ox.Usage("release", "Manage releases"),
+			ox.Banner("Manage releases"),
 			ox.Spec("<command> [flags]"),
 			ox.Sections("GENERAL COMMANDS", "TARGETED COMMANDS"),
 			ox.Section(0),
@@ -1462,8 +1462,8 @@ func main() {
 			)),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
-				ox.Banner("Create a new GitHub Release for a repository.\n\nA list of asset files may be given to upload to the new release. To define a\ndisplay label for an asset, append text starting with `#` after the file name.\n\nIf a matching git tag does not yet exist, one will automatically get created\nfrom the latest state of the default branch.\nUse `--target` to point to a different branch or commit for the automatic tag creation.\nUse `--verify-tag` to abort the release if the tag doesn't already exist.\nTo fetch the new tag locally after the release, do `git fetch --tags origin`.\n\nTo create a release from an annotated git tag, first create one locally with\ngit, push the tag to GitHub, then run this command.\nUse `--notes-from-tag` to automatically generate the release notes\nfrom the annotated git tag.\n\nWhen using automatically generated release notes, a release title will also be automatically\ngenerated unless a title was explicitly passed. Additional release notes can be prepended to\nautomatically generated notes by using the `--notes` flag.\n\nBy default, the release is created even if there are no new commits since the last release.\nThis may result in the same or duplicate release which may not be desirable in some cases.\nUse `--fail-on-no-commits` to fail if no new commits are available. This flag has no\neffect if there are no existing releases or this is the very first release."),
 				ox.Usage("create", "Create a new release"),
+				ox.Banner("Create a new GitHub Release for a repository.\n\nA list of asset files may be given to upload to the new release. To define a\ndisplay label for an asset, append text starting with `#` after the file name.\n\nIf a matching git tag does not yet exist, one will automatically get created\nfrom the latest state of the default branch.\nUse `--target` to point to a different branch or commit for the automatic tag creation.\nUse `--verify-tag` to abort the release if the tag doesn't already exist.\nTo fetch the new tag locally after the release, do `git fetch --tags origin`.\n\nTo create a release from an annotated git tag, first create one locally with\ngit, push the tag to GitHub, then run this command.\nUse `--notes-from-tag` to automatically generate the release notes\nfrom the annotated git tag.\n\nWhen using automatically generated release notes, a release title will also be automatically\ngenerated unless a title was explicitly passed. Additional release notes can be prepended to\nautomatically generated notes by using the `--notes` flag.\n\nBy default, the release is created even if there are no new commits since the last release.\nThis may result in the same or duplicate release which may not be desirable in some cases.\nUse `--fail-on-no-commits` to fail if no new commits are available. This flag has no\neffect if there are no existing releases or this is the very first release."),
 				ox.Spec("[<tag>] [<filename>... | <pattern>...]"),
 				ox.Aliases("release new"),
 				ox.Example("\n  # Interactively create a release\n  $ gh release create\n  \n  # Interactively create a release from specific tag\n  $ gh release create v1.2.3\n  \n  # Non-interactively create a release\n  $ gh release create v1.2.3 --notes \"bugfix release\"\n  \n  # Use automatically generated release notes\n  $ gh release create v1.2.3 --generate-notes\n  \n  # Use release notes from a file\n  $ gh release create v1.2.3 -F release-notes.md\n  \n  # Use annotated tag notes\n  $ gh release create v1.2.3 --notes-from-tag\n  \n  # Don't mark the release as latest\n  $ gh release create v1.2.3 --latest=false\n  \n  # Upload all tarballs in a directory as release assets\n  $ gh release create v1.2.3 ./dist/*.tgz\n  \n  # Upload a release asset with a display label\n  $ gh release create v1.2.3 '/path/to/asset.zip#My display label'\n  \n  # Create a release and start a discussion\n  $ gh release create v1.2.3 --discussion-category \"General\"\n  \n  # Create a release only if there are new commits available since the last release\n  $ gh release create v1.2.3 --fail-on-no-commits"),
@@ -1490,8 +1490,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("List releases in a repository\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List releases in a repository"),
+				ox.Banner("List releases in a repository\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[flags]"),
 				ox.Aliases("release ls"),
 				ox.Section(0),
@@ -1511,8 +1511,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Delete a release"),
 				ox.Usage("delete", "Delete a release"),
+				ox.Banner("Delete a release"),
 				ox.Spec("<tag> [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -1526,8 +1526,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Delete an asset from a release"),
 				ox.Usage("delete-asset", "Delete an asset from a release"),
+				ox.Banner("Delete an asset from a release"),
 				ox.Spec("<tag> <asset-name> [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -1540,8 +1540,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Download assets from a GitHub release.\n\nWithout an explicit tag name argument, assets are downloaded from the\nlatest release in the project. In this case, `--pattern` or `--archive`\nis required."),
 				ox.Usage("download", "Download release assets"),
+				ox.Banner("Download assets from a GitHub release.\n\nWithout an explicit tag name argument, assets are downloaded from the\nlatest release in the project. In this case, `--pattern` or `--archive`\nis required."),
 				ox.Spec("[<tag>] [flags]"),
 				ox.Example("\n  # Download all assets from a specific release\n  $ gh release download v1.2.3\n  \n  # Download only Debian packages for the latest release\n  $ gh release download --pattern '*.deb'\n  \n  # Specify multiple file patterns\n  $ gh release download -p '*.deb' -p '*.rpm'\n  \n  # Download the archive of the source code for a release\n  $ gh release download v1.2.3 --archive=zip"),
 				ox.Section(1),
@@ -1560,8 +1560,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Edit a release"),
 				ox.Usage("edit", "Edit a release"),
+				ox.Banner("Edit a release"),
 				ox.Spec("<tag>"),
 				ox.Example("\n  # Publish a release that was previously a draft\n  $ gh release edit v1.0 --draft=false\n  \n  # Update the release notes from the content of a file\n  $ gh release edit v1.0 --notes-file /path/to/release_notes.md"),
 				ox.Section(1),
@@ -1584,8 +1584,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Upload asset files to a GitHub Release.\n\nTo define a display label for an asset, append text starting with `#` after the\nfile name."),
 				ox.Usage("upload", "Upload assets to a release"),
+				ox.Banner("Upload asset files to a GitHub Release.\n\nTo define a display label for an asset, append text starting with `#` after the\nfile name."),
 				ox.Spec("<tag> <files>... [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -1598,8 +1598,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("View information about a GitHub Release.\n\nWithout an explicit tag name argument, the latest release in the project\nis shown.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("view", "View information about a release"),
+				ox.Banner("View information about a GitHub Release.\n\nWithout an explicit tag name argument, the latest release in the project\nis shown.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<tag>] [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -1618,16 +1618,16 @@ func main() {
 				String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Work with GitHub repositories."),
 			ox.Usage("repo", "Manage repositories"),
+			ox.Banner("Work with GitHub repositories."),
 			ox.Spec("<command> [flags]"),
 			ox.Example("\n  $ gh repo create\n  $ gh repo clone cli/cli\n  $ gh repo view --web"),
 			ox.Sections("GENERAL COMMANDS", "TARGETED COMMANDS"),
 			ox.Section(0),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
-				ox.Banner("Create a new GitHub repository.\n\nTo create a repository interactively, use `gh repo create` with no arguments.\n\nTo create a remote repository non-interactively, supply the repository name and one of `--public`, `--private`, or `--internal`.\nPass `--clone` to clone the new repository locally.\n\nIf the `OWNER/` portion of the `OWNER/REPO` name argument is omitted, it\ndefaults to the name of the authenticating user.\n\nTo create a remote repository from an existing local repository, specify the source directory with `--source`.\nBy default, the remote repository name will be the name of the source directory.\n\nPass `--push` to push any local commits to the new repository. If the repo is bare, this will mirror all refs.\n\nFor language or platform .gitignore templates to use with `--gitignore`, <https://github.com/github/gitignore>.\n\nFor license keywords to use with `--license`, run `gh repo license list` or visit <https://choosealicense.com>.\n\nThe repo is created with the configured repository default branch, see <https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-user-account-settings/managing-the-default-branch-name-for-your-repositories>."),
 				ox.Usage("create", "Create a new repository"),
+				ox.Banner("Create a new GitHub repository.\n\nTo create a repository interactively, use `gh repo create` with no arguments.\n\nTo create a remote repository non-interactively, supply the repository name and one of `--public`, `--private`, or `--internal`.\nPass `--clone` to clone the new repository locally.\n\nIf the `OWNER/` portion of the `OWNER/REPO` name argument is omitted, it\ndefaults to the name of the authenticating user.\n\nTo create a remote repository from an existing local repository, specify the source directory with `--source`.\nBy default, the remote repository name will be the name of the source directory.\n\nPass `--push` to push any local commits to the new repository. If the repo is bare, this will mirror all refs.\n\nFor language or platform .gitignore templates to use with `--gitignore`, <https://github.com/github/gitignore>.\n\nFor license keywords to use with `--license`, run `gh repo license list` or visit <https://choosealicense.com>.\n\nThe repo is created with the configured repository default branch, see <https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-user-account-settings/managing-the-default-branch-name-for-your-repositories>."),
 				ox.Spec("[<name>] [flags]"),
 				ox.Aliases("repo new"),
 				ox.Example("\n  # Create a repository interactively\n  $ gh repo create\n  \n  # Create a new remote repository and clone it locally\n  $ gh repo create my-project --public --clone\n  \n  # Create a new remote repository in a different organization\n  $ gh repo create my-org/my-project --public\n  \n  # Create a remote repository from the current directory\n  $ gh repo create my-project --private --source=. --remote=upstream"),
@@ -1656,8 +1656,8 @@ func main() {
 					String("template", "Make the new repository based on a template repository", ox.Spec("repository"), ox.Short("p"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List repositories owned by a user or organization.\n\nNote that the list will only include repositories owned by the provided argument,\nand the `--fork` or `--source` flags will not traverse ownership boundaries. For example,\nwhen listing the forks in an organization, the output would not include those owned by individual users.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List repositories owned by user or organization"),
+				ox.Banner("List repositories owned by a user or organization.\n\nNote that the list will only include repositories owned by the provided argument,\nand the `--fork` or `--source` flags will not traverse ownership boundaries. For example,\nwhen listing the forks in an organization, the output would not include those owned by individual users.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<owner>] [flags]"),
 				ox.Aliases("repo ls"),
 				ox.Section(0),
@@ -1679,8 +1679,8 @@ func main() {
 					String("visibility", "Filter by repository visibility: {public|private|internal}", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Archive a GitHub repository.\n\nWith no argument, archives the current repository."),
 				ox.Usage("archive", "Archive a repository"),
+				ox.Banner("Archive a GitHub repository.\n\nWith no argument, archives the current repository."),
 				ox.Spec("[<repository>] [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -1691,8 +1691,8 @@ func main() {
 					Bool("yes", "Skip the confirmation prompt", ox.Short("y"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Autolinks link issues, pull requests, commit messages, and release descriptions to external third-party services.\n\nAutolinks require `admin` role to view or manage.\n\nFor more information, see <https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/configuring-autolinks-to-reference-external-resources>"),
 				ox.Usage("autolink", "Manage autolink references"),
+				ox.Banner("Autolinks link issues, pull requests, commit messages, and release descriptions to external third-party services.\n\nAutolinks require `admin` role to view or manage.\n\nFor more information, see <https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/configuring-autolinks-to-reference-external-resources>"),
 				ox.Spec("<command> [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -1700,8 +1700,8 @@ func main() {
 				)),
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 				ox.Sub(
-					ox.Banner("Create a new autolink reference for a repository.\n\nThe `keyPrefix` argument specifies the prefix that will generate a link when it is appended by certain characters.\n\nThe `urlTemplate` argument specifies the target URL that will be generated when the keyPrefix is found, which\nmust contain `<num>` variable for the reference number.\n\nBy default, autolinks are alphanumeric with `--numeric` flag used to create a numeric autolink.\n\nThe `<num>` variable behavior differs depending on whether the autolink is alphanumeric or numeric:\n\n- alphanumeric: matches `A-Z` (case insensitive), `0-9`, and `-`\n- numeric: matches `0-9`\n\nIf the template contains multiple instances of `<num>`, only the first will be replaced."),
 					ox.Usage("create", "Create a new autolink reference"),
+					ox.Banner("Create a new autolink reference for a repository.\n\nThe `keyPrefix` argument specifies the prefix that will generate a link when it is appended by certain characters.\n\nThe `urlTemplate` argument specifies the target URL that will be generated when the keyPrefix is found, which\nmust contain `<num>` variable for the reference number.\n\nBy default, autolinks are alphanumeric with `--numeric` flag used to create a numeric autolink.\n\nThe `<num>` variable behavior differs depending on whether the autolink is alphanumeric or numeric:\n\n- alphanumeric: matches `A-Z` (case insensitive), `0-9`, and `-`\n- numeric: matches `0-9`\n\nIf the template contains multiple instances of `<num>`, only the first will be replaced."),
 					ox.Spec("<keyPrefix> <urlTemplate> [flags]"),
 					ox.Aliases("repo autolink new"),
 					ox.Example("\n  # Create an alphanumeric autolink to example.com for the key prefix \"TICKET-\".\n  # Generates https://example.com/TICKET?query=123abc from \"TICKET-123abc\".\n  $ gh repo autolink create TICKET- \"https://example.com/TICKET?query=<num>\"\n  \n  # Create a numeric autolink to example.com for the key prefix \"STORY-\".\n  # Generates https://example.com/STORY?id=123 from \"STORY-123\".\n  $ gh repo autolink create STORY- \"https://example.com/STORY?id=<num>\" --numeric"),
@@ -1715,8 +1715,8 @@ func main() {
 						String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 				),
 				ox.Sub(
-					ox.Banner("Delete an autolink reference for a repository."),
 					ox.Usage("delete", "Delete an autolink reference"),
+					ox.Banner("Delete an autolink reference for a repository."),
 					ox.Spec("<id> [flags]"),
 					ox.Help(ox.Sections(
 						"FLAGS",
@@ -1728,8 +1728,8 @@ func main() {
 						String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 				),
 				ox.Sub(
-					ox.Banner("Gets all autolink references that are configured for a repository.\n\nInformation about autolinks is only available to repository administrators.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 					ox.Usage("list", "List autolink references for a GitHub repository"),
+					ox.Banner("Gets all autolink references that are configured for a repository.\n\nInformation about autolinks is only available to repository administrators.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 					ox.Spec("[flags]"),
 					ox.Aliases("repo autolink ls"),
 					ox.Help(ox.Sections(
@@ -1745,8 +1745,8 @@ func main() {
 						String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 				),
 				ox.Sub(
-					ox.Banner("View an autolink reference for a repository.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 					ox.Usage("view", "View an autolink reference"),
+					ox.Banner("View an autolink reference for a repository.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 					ox.Spec("<id> [flags]"),
 					ox.Help(ox.Sections(
 						"FLAGS",
@@ -1763,8 +1763,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Clone a GitHub repository locally. Pass additional `git clone` flags by listing\nthem after `--`.\n\nIf the `OWNER/` portion of the `OWNER/REPO` repository argument is omitted, it\ndefaults to the name of the authenticating user.\n\nWhen a protocol scheme is not provided in the repository argument, the `git_protocol` will be\nchosen from your configuration, which can be checked via `gh config get git_protocol`. If the protocol\nscheme is provided, the repository will be cloned using the specified protocol.\n\nIf the repository is a fork, its parent repository will be added as an additional\ngit remote called `upstream`. The remote name can be configured using `--upstream-remote-name`.\nThe `--upstream-remote-name` option supports an `@owner` value which will name\nthe remote after the owner of the parent repository.\n\nIf the repository is a fork, its parent repository will be set as the default remote repository."),
 				ox.Usage("clone", "Clone a repository locally"),
+				ox.Banner("Clone a GitHub repository locally. Pass additional `git clone` flags by listing\nthem after `--`.\n\nIf the `OWNER/` portion of the `OWNER/REPO` repository argument is omitted, it\ndefaults to the name of the authenticating user.\n\nWhen a protocol scheme is not provided in the repository argument, the `git_protocol` will be\nchosen from your configuration, which can be checked via `gh config get git_protocol`. If the protocol\nscheme is provided, the repository will be cloned using the specified protocol.\n\nIf the repository is a fork, its parent repository will be added as an additional\ngit remote called `upstream`. The remote name can be configured using `--upstream-remote-name`.\nThe `--upstream-remote-name` option supports an `@owner` value which will name\nthe remote after the owner of the parent repository.\n\nIf the repository is a fork, its parent repository will be set as the default remote repository."),
 				ox.Spec("<repository> [<directory>] [-- <gitflags>...]"),
 				ox.Example("\n  # Clone a repository from a specific org\n  $ gh repo clone cli/cli\n  \n  # Clone a repository from your own account\n  $ gh repo clone myrepo\n  \n  # Clone a repo, overriding git protocol configuration\n  $ gh repo clone https://github.com/cli/cli\n  $ gh repo clone git@github.com:cli/cli.git\n  \n  # Clone a repository to a custom directory\n  $ gh repo clone cli/cli workspace/cli\n  \n  # Clone a repository with additional git clone flags\n  $ gh repo clone cli/cli -- --depth=1"),
 				ox.Section(1),
@@ -1776,8 +1776,8 @@ func main() {
 					String("upstream-remote-name", "Upstream remote name when cloning a fork", ox.Default("upstream"), ox.Short("u"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Delete a GitHub repository.\n\nWith no argument, deletes the current repository. Otherwise, deletes the specified repository.\n\nDeletion requires authorization with the `delete_repo` scope.\nTo authorize, run `gh auth refresh -s delete_repo`"),
 				ox.Usage("delete", "Delete a repository"),
+				ox.Banner("Delete a GitHub repository.\n\nWith no argument, deletes the current repository. Otherwise, deletes the specified repository.\n\nDeletion requires authorization with the `delete_repo` scope.\nTo authorize, run `gh auth refresh -s delete_repo`"),
 				ox.Spec("[<repository>] [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -1788,8 +1788,8 @@ func main() {
 					Bool("yes", "Confirm deletion without prompting", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Manage deploy keys in a repository"),
 				ox.Usage("deploy-key", "Manage deploy keys in a repository"),
+				ox.Banner("Manage deploy keys in a repository"),
 				ox.Spec("<command> [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -1797,8 +1797,8 @@ func main() {
 				)),
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 				ox.Sub(
-					ox.Banner("Add a deploy key to a GitHub repository.\n\nNote that any key added by gh will be associated with the current authentication token.\nIf you de-authorize the GitHub CLI app or authentication token from your account, any\ndeploy keys added by GitHub CLI will be removed as well."),
 					ox.Usage("add", "Add a deploy key to a GitHub repository"),
+					ox.Banner("Add a deploy key to a GitHub repository.\n\nNote that any key added by gh will be associated with the current authentication token.\nIf you de-authorize the GitHub CLI app or authentication token from your account, any\ndeploy keys added by GitHub CLI will be removed as well."),
 					ox.Spec("<key-file> [flags]"),
 					ox.Example("\n  # Generate a passwordless SSH key and add it as a deploy key to a repository\n  $ ssh-keygen -t ed25519 -C \"my description\" -N \"\" -f ~/.ssh/gh-test\n  $ gh repo deploy-key add ~/.ssh/gh-test.pub"),
 					ox.Help(ox.Sections(
@@ -1812,8 +1812,8 @@ func main() {
 						String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 				),
 				ox.Sub(
-					ox.Banner("Delete a deploy key from a GitHub repository"),
 					ox.Usage("delete", "Delete a deploy key from a GitHub repository"),
+					ox.Banner("Delete a deploy key from a GitHub repository"),
 					ox.Spec("<key-id> [flags]"),
 					ox.Help(ox.Sections(
 						"INHERITED FLAGS",
@@ -1823,8 +1823,8 @@ func main() {
 						String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(0)),
 				),
 				ox.Sub(
-					ox.Banner("List deploy keys in a GitHub repository\n\nFor more information about output formatting flags, see `gh help formatting`."),
 					ox.Usage("list", "List deploy keys in a GitHub repository"),
+					ox.Banner("List deploy keys in a GitHub repository\n\nFor more information about output formatting flags, see `gh help formatting`."),
 					ox.Spec("[flags]"),
 					ox.Aliases("repo deploy-key ls"),
 					ox.Help(ox.Sections(
@@ -1842,8 +1842,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Edit repository settings.\n\nTo toggle a setting off, use the `--<flag>=false` syntax.\n\nChanging repository visibility can have unexpected consequences including but not limited to:\n\n- Losing stars and watchers, affecting repository ranking\n- Detaching public forks from the network\n- Disabling push rulesets\n- Allowing access to GitHub Actions history and logs\n\nWhen the `--visibility` flag is used, `--accept-visibility-change-consequences` flag is required.\n\nFor information on all the potential consequences, see <https://gh.io/setting-repository-visibility>."),
 				ox.Usage("edit", "Edit repository settings"),
+				ox.Banner("Edit repository settings.\n\nTo toggle a setting off, use the `--<flag>=false` syntax.\n\nChanging repository visibility can have unexpected consequences including but not limited to:\n\n- Losing stars and watchers, affecting repository ranking\n- Detaching public forks from the network\n- Disabling push rulesets\n- Allowing access to GitHub Actions history and logs\n\nWhen the `--visibility` flag is used, `--accept-visibility-change-consequences` flag is required.\n\nFor information on all the potential consequences, see <https://gh.io/setting-repository-visibility>."),
 				ox.Spec("[<repository>] [flags]"),
 				ox.Example("\n  # Enable issues and wiki\n  $ gh repo edit --enable-issues --enable-wiki\n  \n  # Disable projects\n  $ gh repo edit --enable-projects=false"),
 				ox.Section(1),
@@ -1876,8 +1876,8 @@ func main() {
 					String("visibility", "Change the visibility of the repository to {public,private,internal}", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Create a fork of a repository.\n\nWith no argument, creates a fork of the current repository. Otherwise, forks\nthe specified repository.\n\nBy default, the new fork is set to be your `origin` remote and any existing\norigin remote is renamed to `upstream`. To alter this behavior, you can set\na name for the new fork's remote with `--remote-name`.\n\nThe `upstream` remote will be set as the default remote repository.\n\nAdditional `git clone` flags can be passed after `--`."),
 				ox.Usage("fork", "Create a fork of a repository"),
+				ox.Banner("Create a fork of a repository.\n\nWith no argument, creates a fork of the current repository. Otherwise, forks\nthe specified repository.\n\nBy default, the new fork is set to be your `origin` remote and any existing\norigin remote is renamed to `upstream`. To alter this behavior, you can set\na name for the new fork's remote with `--remote-name`.\n\nThe `upstream` remote will be set as the default remote repository.\n\nAdditional `git clone` flags can be passed after `--`."),
 				ox.Spec("[<repository>] [-- <gitflags>...] [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -1893,42 +1893,42 @@ func main() {
 					String("remote-name", "Specify the name for the new remote", ox.Default("origin"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List and view available repository gitignore templates"),
 				ox.Usage("gitignore", "List and view available repository gitignore templates"),
+				ox.Banner("List and view available repository gitignore templates"),
 				ox.Spec("<command> [flags]"),
 				ox.Section(1),
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 				ox.Sub(
-					ox.Banner("List available repository gitignore templates"),
 					ox.Usage("list", "List available repository gitignore templates"),
+					ox.Banner("List available repository gitignore templates"),
 					ox.Spec("[flags]"),
 					ox.Aliases("repo gitignore ls"),
 					ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 				),
 				ox.Sub(
-					ox.Banner("View an available repository `.gitignore` template.\n\n`<template>` is a case-sensitive `.gitignore` template name.\n\nFor a list of available templates, run `gh repo gitignore list`."),
 					ox.Usage("view", "View an available repository gitignore template"),
+					ox.Banner("View an available repository `.gitignore` template.\n\n`<template>` is a case-sensitive `.gitignore` template name.\n\nFor a list of available templates, run `gh repo gitignore list`."),
 					ox.Spec("<template> [flags]"),
 					ox.Example("\n  # View the Go gitignore template\n  $ gh repo gitignore view Go\n  \n  # View the Python gitignore template\n  $ gh repo gitignore view Python\n  \n  # Create a new .gitignore file using the Go template\n  $ gh repo gitignore view Go > .gitignore\n  \n  # Create a new .gitignore file using the Python template\n  $ gh repo gitignore view Python > .gitignore"),
 					ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 				),
 			),
 			ox.Sub(
-				ox.Banner("Explore repository licenses"),
 				ox.Usage("license", "Explore repository licenses"),
+				ox.Banner("Explore repository licenses"),
 				ox.Spec("<command> [flags]"),
 				ox.Section(1),
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 				ox.Sub(
-					ox.Banner("List common repository licenses.\n\nFor even more licenses, visit <https://choosealicense.com/appendix>"),
 					ox.Usage("list", "List common repository licenses"),
+					ox.Banner("List common repository licenses.\n\nFor even more licenses, visit <https://choosealicense.com/appendix>"),
 					ox.Spec("[flags]"),
 					ox.Aliases("repo license ls"),
 					ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 				),
 				ox.Sub(
-					ox.Banner("View a specific repository license by license key or SPDX ID.\n\nRun `gh repo license list` to see available commonly used licenses. For even more licenses, visit <https://choosealicense.com/appendix>."),
 					ox.Usage("view", "View a specific repository license"),
+					ox.Banner("View a specific repository license by license key or SPDX ID.\n\nRun `gh repo license list` to see available commonly used licenses. For even more licenses, visit <https://choosealicense.com/appendix>."),
 					ox.Spec("{<license-key> | <spdx-id>} [flags]"),
 					ox.Example("\n  # View the MIT license from SPDX ID\n  $ gh repo license view MIT\n  \n  # View the MIT license from license key\n  $ gh repo license view mit\n  \n  # View the GNU AGPL-3.0 license from SPDX ID\n  $ gh repo license view AGPL-3.0\n  \n  # View the GNU AGPL-3.0 license from license key\n  $ gh repo license view agpl-3.0\n  \n  # Create a LICENSE.md with the MIT license\n  $ gh repo license view MIT > LICENSE.md"),
 					ox.Help(ox.Sections(
@@ -1940,8 +1940,8 @@ func main() {
 				),
 			),
 			ox.Sub(
-				ox.Banner("Rename a GitHub repository.\n\n`<new-name>` is the desired repository name without the owner.\n\nBy default, the current repository is renamed. Otherwise, the repository specified\nwith `--repo` is renamed.\n\nTo transfer repository ownership to another user account or organization,\nyou must follow additional steps on <github.com>.\n\nFor more information on transferring repository ownership, see:\n<https://docs.github.com/en/repositories/creating-and-managing-repositories/transferring-a-repository>"),
 				ox.Usage("rename", "Rename a repository"),
+				ox.Banner("Rename a GitHub repository.\n\n`<new-name>` is the desired repository name without the owner.\n\nBy default, the current repository is renamed. Otherwise, the repository specified\nwith `--repo` is renamed.\n\nTo transfer repository ownership to another user account or organization,\nyou must follow additional steps on <github.com>.\n\nFor more information on transferring repository ownership, see:\n<https://docs.github.com/en/repositories/creating-and-managing-repositories/transferring-a-repository>"),
 				ox.Spec("[<new-name>] [flags]"),
 				ox.Example("\n  # Rename the current repository (foo/bar -> foo/baz)\n  $ gh repo rename baz\n  \n  # Rename the specified repository (qux/quux -> qux/baz)\n  $ gh repo rename -R qux/quux baz"),
 				ox.Section(1),
@@ -1954,8 +1954,8 @@ func main() {
 					Bool("yes", "Skip the confirmation prompt", ox.Short("y"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("This command sets the default remote repository to use when querying the\nGitHub API for the locally cloned repository.\n\ngh uses the default repository for things like:\n\n - viewing and creating pull requests\n - viewing and creating issues\n - viewing and creating releases\n - working with GitHub Actions\n\n### NOTE: gh does not use the default repository for managing repository and environment secrets."),
 				ox.Usage("set-default", "Configure default repository for this directory"),
+				ox.Banner("This command sets the default remote repository to use when querying the\nGitHub API for the locally cloned repository.\n\ngh uses the default repository for things like:\n\n - viewing and creating pull requests\n - viewing and creating issues\n - viewing and creating releases\n - working with GitHub Actions\n\n### NOTE: gh does not use the default repository for managing repository and environment secrets."),
 				ox.Spec("[<repository>] [flags]"),
 				ox.Example("\n  # Interactively select a default repository\n  $ gh repo set-default\n  \n  # Set a repository explicitly\n  $ gh repo set-default owner/repo\n  \n  # View the current default repository\n  $ gh repo set-default --view\n  \n  # Show more repository options in the interactive picker\n  $ git remote add newrepo https://github.com/owner/repo\n  $ gh repo set-default"),
 				ox.Section(1),
@@ -1968,8 +1968,8 @@ func main() {
 					Bool("view", "View the current default repository", ox.Short("v"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Sync destination repository from source repository. Syncing uses the default branch\nof the source repository to update the matching branch on the destination\nrepository so they are equal. A fast forward update will be used except when the\n`--force` flag is specified, then the two branches will\nbe synced using a hard reset.\n\nWithout an argument, the local repository is selected as the destination repository.\n\nThe source repository is the parent of the destination repository by default.\nThis can be overridden with the `--source` flag."),
 				ox.Usage("sync", "Sync a repository"),
+				ox.Banner("Sync destination repository from source repository. Syncing uses the default branch\nof the source repository to update the matching branch on the destination\nrepository so they are equal. A fast forward update will be used except when the\n`--force` flag is specified, then the two branches will\nbe synced using a hard reset.\n\nWithout an argument, the local repository is selected as the destination repository.\n\nThe source repository is the parent of the destination repository by default.\nThis can be overridden with the `--source` flag."),
 				ox.Spec("[<destination-repository>] [flags]"),
 				ox.Example("\n  # Sync local repository from remote parent\n  $ gh repo sync\n  \n  # Sync local repository from remote parent on specific branch\n  $ gh repo sync --branch v1\n  \n  # Sync remote fork from its parent\n  $ gh repo sync owner/cli-fork\n  \n  # Sync remote repository from another remote repository\n  $ gh repo sync owner/repo --source owner2/repo2"),
 				ox.Section(1),
@@ -1983,8 +1983,8 @@ func main() {
 					String("source", "Source repository", ox.Short("s"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Unarchive a GitHub repository.\n\nWith no argument, unarchives the current repository."),
 				ox.Usage("unarchive", "Unarchive a repository"),
+				ox.Banner("Unarchive a GitHub repository.\n\nWith no argument, unarchives the current repository."),
 				ox.Spec("[<repository>] [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -1995,8 +1995,8 @@ func main() {
 					Bool("yes", "Skip the confirmation prompt", ox.Short("y"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Display the description and the README of a GitHub repository.\n\nWith no argument, the repository for the current directory is displayed.\n\nWith `--web`, open the repository in a web browser instead.\n\nWith `--branch`, view a specific branch of the repository.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("view", "View a repository"),
+				ox.Banner("Display the description and the README of a GitHub repository.\n\nWith no argument, the repository for the current directory is displayed.\n\nWith `--web`, open the repository in a web browser instead.\n\nWith `--branch`, view a specific branch of the repository.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<repository>] [flags]"),
 				ox.Section(1),
 				ox.Help(ox.Sections(
@@ -2012,8 +2012,8 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Work with GitHub Actions caches."),
 			ox.Usage("cache", "Manage GitHub Actions caches"),
+			ox.Banner("Work with GitHub Actions caches."),
 			ox.Spec("<command> [flags]"),
 			ox.Example("\n  $ gh cache list\n  $ gh cache delete --all"),
 			ox.Section(1),
@@ -2022,8 +2022,8 @@ func main() {
 			)),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
-				ox.Banner("Delete GitHub Actions caches.\n\nDeletion requires authorization with the `repo` scope."),
 				ox.Usage("delete", "Delete GitHub Actions caches"),
+				ox.Banner("Delete GitHub Actions caches.\n\nDeletion requires authorization with the `repo` scope."),
 				ox.Spec("[<cache-id> | <cache-key> | --all] [flags]"),
 				ox.Example("\n  # Delete a cache by id\n  $ gh cache delete 1234\n  \n  # Delete a cache by key\n  $ gh cache delete cache-key\n  \n  # Delete a cache by id in a specific repo\n  $ gh cache delete 1234 --repo cli/cli\n  \n  # Delete all caches (exit code 1 on no caches)\n  $ gh cache delete --all\n  \n  # Delete all caches (exit code 0 on no caches)\n  $ gh cache delete --all --succeed-on-no-caches"),
 				ox.Help(ox.Sections(
@@ -2037,8 +2037,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("List GitHub Actions caches\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List GitHub Actions caches"),
+				ox.Banner("List GitHub Actions caches\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[flags]"),
 				ox.Aliases("cache ls"),
 				ox.Example("\n  # List caches for current repository\n  $ gh cache list\n  \n  # List caches for specific repository\n  $ gh cache list --repo cli/cli\n  \n  # List caches sorted by least recently accessed\n  $ gh cache list --sort last_accessed_at --order asc\n  \n  # List caches that have keys matching a prefix (or that match exactly)\n  $ gh cache list --key key-prefix\n  \n  # List caches for a specific branch, replace <branch-name> with the actual branch name\n  $ gh cache list --ref refs/heads/<branch-name>\n  \n  # List caches for a specific pull request, replace <pr-number> with the actual pull request number\n  $ gh cache list --ref refs/pull/<pr-number>/merge"),
@@ -2062,8 +2062,8 @@ func main() {
 				String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("List, view, and watch recent workflow runs from GitHub Actions."),
 			ox.Usage("run", "View details about workflow runs"),
+			ox.Banner("List, view, and watch recent workflow runs from GitHub Actions."),
 			ox.Spec("<command> [flags]"),
 			ox.Section(1),
 			ox.Help(ox.Sections(
@@ -2071,8 +2071,8 @@ func main() {
 			)),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
-				ox.Banner("Cancel a workflow run"),
 				ox.Usage("cancel", "Cancel a workflow run"),
+				ox.Banner("Cancel a workflow run"),
 				ox.Spec("[<run-id>] [flags]"),
 				ox.Help(ox.Sections(
 					"INHERITED FLAGS",
@@ -2082,8 +2082,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Delete a workflow run"),
 				ox.Usage("delete", "Delete a workflow run"),
+				ox.Banner("Delete a workflow run"),
 				ox.Spec("[<run-id>] [flags]"),
 				ox.Example("\n  # Interactively select a run to delete\n  $ gh run delete\n  \n  # Delete a specific run\n  $ gh run delete 12345"),
 				ox.Help(ox.Sections(
@@ -2094,8 +2094,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Download artifacts generated by a GitHub Actions workflow run.\n\nThe contents of each artifact will be extracted under separate directories based on\nthe artifact name. If only a single artifact is specified, it will be extracted into\nthe current directory.\n\nBy default, this command downloads the latest artifact created and uploaded through\nGitHub Actions. Because workflows can delete or overwrite artifacts, `<run-id>`\nmust be used to select an artifact from a specific workflow run."),
 				ox.Usage("download", "Download artifacts generated by a workflow run"),
+				ox.Banner("Download artifacts generated by a GitHub Actions workflow run.\n\nThe contents of each artifact will be extracted under separate directories based on\nthe artifact name. If only a single artifact is specified, it will be extracted into\nthe current directory.\n\nBy default, this command downloads the latest artifact created and uploaded through\nGitHub Actions. Because workflows can delete or overwrite artifacts, `<run-id>`\nmust be used to select an artifact from a specific workflow run."),
 				ox.Spec("[<run-id>] [flags]"),
 				ox.Example("\n  # Download all artifacts generated by a workflow run\n  $ gh run download <run-id>\n  \n  # Download a specific artifact within a run\n  $ gh run download <run-id> -n <name>\n  \n  # Download specific artifacts across all runs in a repository\n  $ gh run download -n <name1> -n <name2>\n  \n  # Select artifacts to download interactively\n  $ gh run download"),
 				ox.Help(ox.Sections(
@@ -2110,8 +2110,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("List recent workflow runs.\n\nNote that providing the `workflow_name` to the `-w` flag will not fetch disabled workflows.\nAlso pass the `-a` flag to fetch disabled workflow runs using the `workflow_name` and the `-w` flag.\n\nRuns created by organization and enterprise ruleset workflows will not display a workflow name due to GitHub API limitations.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List recent workflow runs"),
+				ox.Banner("List recent workflow runs.\n\nNote that providing the `workflow_name` to the `-w` flag will not fetch disabled workflows.\nAlso pass the `-a` flag to fetch disabled workflow runs using the `workflow_name` and the `-w` flag.\n\nRuns created by organization and enterprise ruleset workflows will not display a workflow name due to GitHub API limitations.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[flags]"),
 				ox.Aliases("run ls"),
 				ox.Help(ox.Sections(
@@ -2135,8 +2135,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Rerun an entire run, only failed jobs, or a specific job from a run.\n\nNote that due to historical reasons, the `--job` flag may not take what you expect.\nSpecifically, when navigating to a job in the browser, the URL looks like this:\n`https://github.com/<owner>/<repo>/actions/runs/<run-id>/jobs/<number>`.\n\nHowever, this `<number>` should not be used with the `--job` flag and will result in the\nAPI returning `404 NOT FOUND`. Instead, you can get the correct job IDs using the following command:\n\n\tgh run view <run-id> --json jobs --jq '.jobs[] | {name, databaseId}'\n\nYou will need to use databaseId field for triggering job re-runs."),
 				ox.Usage("rerun", "Rerun a run"),
+				ox.Banner("Rerun an entire run, only failed jobs, or a specific job from a run.\n\nNote that due to historical reasons, the `--job` flag may not take what you expect.\nSpecifically, when navigating to a job in the browser, the URL looks like this:\n`https://github.com/<owner>/<repo>/actions/runs/<run-id>/jobs/<number>`.\n\nHowever, this `<number>` should not be used with the `--job` flag and will result in the\nAPI returning `404 NOT FOUND`. Instead, you can get the correct job IDs using the following command:\n\n\tgh run view <run-id> --json jobs --jq '.jobs[] | {name, databaseId}'\n\nYou will need to use databaseId field for triggering job re-runs."),
 				ox.Spec("[<run-id>] [flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -2150,8 +2150,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("View a summary of a workflow run.\n\nThis command does not support authenticating via fine grained PATs\nas it is not currently possible to create a PAT with the `checks:read` permission.\n\nDue to platform limitations, `gh` may not always be able to associate log lines with a\nparticular step in a job. In this case, the step name in the log output will be replaced with\n`UNKNOWN STEP`.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("view", "View a summary of a workflow run"),
+				ox.Banner("View a summary of a workflow run.\n\nThis command does not support authenticating via fine grained PATs\nas it is not currently possible to create a PAT with the `checks:read` permission.\n\nDue to platform limitations, `gh` may not always be able to associate log lines with a\nparticular step in a job. In this case, the step name in the log output will be replaced with\n`UNKNOWN STEP`.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<run-id>] [flags]"),
 				ox.Example("\n  # Interactively select a run to view, optionally selecting a single job\n  $ gh run view\n  \n  # View a specific run\n  $ gh run view 12345\n  \n  # View a specific run with specific attempt number\n  $ gh run view 12345 --attempt 3\n  \n  # View a specific job within a run\n  $ gh run view --job 456789\n  \n  # View the full log for a specific job\n  $ gh run view --log --job 456789\n  \n  # Exit non-zero if a run failed\n  $ gh run view 0451 --exit-status && echo \"run pending or passed\""),
 				ox.Help(ox.Sections(
@@ -2173,8 +2173,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Watch a run until it completes, showing its progress.\n\nThis command does not support authenticating via fine grained PATs\nas it is not currently possible to create a PAT with the `checks:read` permission."),
 				ox.Usage("watch", "Watch a run until it completes, showing its progress"),
+				ox.Banner("Watch a run until it completes, showing its progress.\n\nThis command does not support authenticating via fine grained PATs\nas it is not currently possible to create a PAT with the `checks:read` permission."),
 				ox.Spec("<run-id> [flags]"),
 				ox.Example("\n  # Watch a run until it's done\n  $ gh run watch\n  \n  # Run some other command when the run is finished\n  $ gh run watch && notify-send 'run is done!'"),
 				ox.Help(ox.Sections(
@@ -2191,8 +2191,8 @@ func main() {
 				String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("List, view, and run workflows in GitHub Actions."),
 			ox.Usage("workflow", "View details about GitHub Actions workflows"),
+			ox.Banner("List, view, and run workflows in GitHub Actions."),
 			ox.Spec("<command> [flags]"),
 			ox.Section(1),
 			ox.Help(ox.Sections(
@@ -2200,8 +2200,8 @@ func main() {
 			)),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
-				ox.Banner("Disable a workflow, preventing it from running or showing up when listing workflows."),
 				ox.Usage("disable", "Disable a workflow"),
+				ox.Banner("Disable a workflow, preventing it from running or showing up when listing workflows."),
 				ox.Spec("[<workflow-id> | <workflow-name>] [flags]"),
 				ox.Help(ox.Sections(
 					"INHERITED FLAGS",
@@ -2211,8 +2211,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Enable a workflow, allowing it to be run and show up when listing workflows."),
 				ox.Usage("enable", "Enable a workflow"),
+				ox.Banner("Enable a workflow, allowing it to be run and show up when listing workflows."),
 				ox.Spec("[<workflow-id> | <workflow-name>] [flags]"),
 				ox.Help(ox.Sections(
 					"INHERITED FLAGS",
@@ -2222,8 +2222,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List workflow files, hiding disabled workflows by default.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List workflows"),
+				ox.Banner("List workflow files, hiding disabled workflows by default.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[flags]"),
 				ox.Aliases("workflow ls"),
 				ox.Help(ox.Sections(
@@ -2240,8 +2240,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Create a `workflow_dispatch` event for a given workflow.\n\nThis command will trigger GitHub Actions to run a given workflow file. The given workflow file must\nsupport an `on.workflow_dispatch` trigger in order to be run in this way.\n\nIf the workflow file supports inputs, they can be specified in a few ways:\n\n- Interactively\n- Via `-f/--raw-field` or `-F/--field` flags\n- As JSON, via standard input"),
 				ox.Usage("run", "Run a workflow by creating a workflow_dispatch event"),
+				ox.Banner("Create a `workflow_dispatch` event for a given workflow.\n\nThis command will trigger GitHub Actions to run a given workflow file. The given workflow file must\nsupport an `on.workflow_dispatch` trigger in order to be run in this way.\n\nIf the workflow file supports inputs, they can be specified in a few ways:\n\n- Interactively\n- Via `-f/--raw-field` or `-F/--field` flags\n- As JSON, via standard input"),
 				ox.Spec("[<workflow-id> | <workflow-name>] [flags]"),
 				ox.Example("\n  # Have gh prompt you for what workflow you'd like to run and interactively collect inputs\n  $ gh workflow run\n  \n  # Run the workflow file 'triage.yml' at the remote's default branch\n  $ gh workflow run triage.yml\n  \n  # Run the workflow file 'triage.yml' at a specified ref\n  $ gh workflow run triage.yml --ref my-branch\n  \n  # Run the workflow file 'triage.yml' with command line inputs\n  $ gh workflow run triage.yml -f name=scully -f greeting=hello\n  \n  # Run the workflow file 'triage.yml' with JSON via standard input\n  $ echo '{\"name\":\"scully\", \"greeting\":\"hello\"}' | gh workflow run triage.yml --json"),
 				ox.Help(ox.Sections(
@@ -2257,8 +2257,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("View the summary of a workflow"),
 				ox.Usage("view", "View the summary of a workflow"),
+				ox.Banner("View the summary of a workflow"),
 				ox.Spec("[<workflow-id> | <workflow-name> | <filename>] [flags]"),
 				ox.Example("\n  # Interactively select a workflow to view\n  $ gh workflow view\n  \n  # View a specific workflow\n  $ gh workflow view 0451"),
 				ox.Help(ox.Sections(
@@ -2276,8 +2276,8 @@ func main() {
 				String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Check out a pull request in git"),
 			ox.Usage("co", "Alias for \"pr checkout\""),
+			ox.Banner("Check out a pull request in git"),
 			ox.Spec("gh pr checkout [<number> | <url> | <branch>] [flags]"),
 			ox.Example("\n  # Interactively select a PR from the 10 most recent to check out\n  $ gh pr checkout\n  \n  # Checkout a specific PR\n  $ gh pr checkout 32\n  $ gh pr checkout https://github.com/OWNER/REPO/pull/32\n  $ gh pr checkout feature"),
 			ox.Section(2),
@@ -2294,14 +2294,14 @@ func main() {
 				String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 		),
 		ox.Sub(
-			ox.Banner("Aliases can be used to make shortcuts for gh commands or to compose multiple commands.\n\nRun `gh help alias set` to learn more."),
 			ox.Usage("alias", "Create command shortcuts"),
+			ox.Banner("Aliases can be used to make shortcuts for gh commands or to compose multiple commands.\n\nRun `gh help alias set` to learn more."),
 			ox.Spec("<command> [flags]"),
 			ox.Section(3),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
-				ox.Banner("Delete set aliases"),
 				ox.Usage("delete", "Delete set aliases"),
+				ox.Banner("Delete set aliases"),
 				ox.Spec("{<alias> | --all} [flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -2311,8 +2311,8 @@ func main() {
 					Bool("all", "Delete all aliases", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Import aliases from the contents of a YAML file.\n\nAliases should be defined as a map in YAML, where the keys represent aliases and\nthe values represent the corresponding expansions. An example file should look like\nthe following:\n\n    bugs: issue list --label=bug\n    igrep: '!gh issue list --label=\"$1\" | grep \"$2\"'\n    features: |-\n        issue list\n        --label=enhancement\n\nUse `-` to read aliases (in YAML format) from standard input.\n\nThe output from `gh alias list` can be used to produce a YAML file\ncontaining your aliases, which you can use to import them from one machine to\nanother. Run `gh help alias list` to learn more."),
 				ox.Usage("import", "Import aliases from a YAML file"),
+				ox.Banner("Import aliases from the contents of a YAML file.\n\nAliases should be defined as a map in YAML, where the keys represent aliases and\nthe values represent the corresponding expansions. An example file should look like\nthe following:\n\n    bugs: issue list --label=bug\n    igrep: '!gh issue list --label=\"$1\" | grep \"$2\"'\n    features: |-\n        issue list\n        --label=enhancement\n\nUse `-` to read aliases (in YAML format) from standard input.\n\nThe output from `gh alias list` can be used to produce a YAML file\ncontaining your aliases, which you can use to import them from one machine to\nanother. Run `gh help alias list` to learn more."),
 				ox.Spec("[<filename> | -] [flags]"),
 				ox.Example("\n  # Import aliases from a file\n  $ gh alias import aliases.yml\n  \n  # Import aliases from standard input\n  $ gh alias import -"),
 				ox.Help(ox.Sections(
@@ -2323,15 +2323,15 @@ func main() {
 					Bool("clobber", "Overwrite existing aliases of the same name", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("This command prints out all of the aliases gh is configured to use."),
 				ox.Usage("list", "List your aliases"),
+				ox.Banner("This command prints out all of the aliases gh is configured to use."),
 				ox.Spec("[flags]"),
 				ox.Aliases("alias ls"),
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			),
 			ox.Sub(
-				ox.Banner("Define a word that will expand to a full gh command when invoked.\n\nThe expansion may specify additional arguments and flags. If the expansion includes\npositional placeholders such as `$1`, extra arguments that follow the alias will be\ninserted appropriately. Otherwise, extra arguments will be appended to the expanded\ncommand.\n\nUse `-` as expansion argument to read the expansion string from standard input. This\nis useful to avoid quoting issues when defining expansions.\n\nIf the expansion starts with `!` or if `--shell` was given, the expansion is a shell\nexpression that will be evaluated through the `sh` interpreter when the alias is\ninvoked. This allows for chaining multiple commands via piping and redirection."),
 				ox.Usage("set", "Create a shortcut for a gh command"),
+				ox.Banner("Define a word that will expand to a full gh command when invoked.\n\nThe expansion may specify additional arguments and flags. If the expansion includes\npositional placeholders such as `$1`, extra arguments that follow the alias will be\ninserted appropriately. Otherwise, extra arguments will be appended to the expanded\ncommand.\n\nUse `-` as expansion argument to read the expansion string from standard input. This\nis useful to avoid quoting issues when defining expansions.\n\nIf the expansion starts with `!` or if `--shell` was given, the expansion is a shell\nexpression that will be evaluated through the `sh` interpreter when the alias is\ninvoked. This allows for chaining multiple commands via piping and redirection."),
 				ox.Spec("<alias> <expansion> [flags]"),
 				ox.Example("\n  # Note: Command Prompt on Windows requires using double quotes for arguments\n  $ gh alias set pv 'pr view'\n  $ gh pv -w 123  #=> gh pr view -w 123\n  \n  $ gh alias set bugs 'issue list --label=bugs'\n  $ gh bugs\n  \n  $ gh alias set homework 'issue list --assignee @me'\n  $ gh homework\n  \n  $ gh alias set 'issue mine' 'issue list --mention @me'\n  $ gh issue mine\n  \n  $ gh alias set epicsBy 'issue list --author=\"$1\" --label=\"epic\"'\n  $ gh epicsBy vilmibm  #=> gh issue list --author=\"vilmibm\" --label=\"epic\"\n  \n  $ gh alias set --shell igrep 'gh issue list --label=\"$1\" | grep \"$2\"'\n  $ gh igrep epic foo  #=> gh issue list --label=\"epic\" | grep \"foo\""),
 				ox.Help(ox.Sections(
@@ -2344,8 +2344,8 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Makes an authenticated HTTP request to the GitHub API and prints the response.\n\nThe endpoint argument should either be a path of a GitHub API v3 endpoint, or\n`graphql` to access the GitHub API v4.\n\nPlaceholder values `{owner}`, `{repo}`, and `{branch}` in the endpoint\nargument will get replaced with values from the repository of the current\ndirectory or the repository specified in the `GH_REPO` environment variable.\nNote that in some shells, for example PowerShell, you may need to enclose\nany value that contains `{...}` in quotes to prevent the shell from\napplying special meaning to curly braces.\n\nThe default HTTP request method is `GET` normally and `POST` if any parameters\nwere added. Override the method with `--method`.\n\nPass one or more `-f/--raw-field` values in `key=value` format to add static string\nparameters to the request payload. To add non-string or placeholder-determined values, see\n`-F/--field` below. Note that adding request parameters will automatically switch the\nrequest method to `POST`. To send the parameters as a `GET` query string instead, use\n`--method GET`.\n\nThe `-F/--field` flag has magic type conversion based on the format of the value:\n\n- literal values `true`, `false`, `null`, and integer numbers get converted to\n  appropriate JSON types;\n- placeholder values `{owner}`, `{repo}`, and `{branch}` get populated with values\n  from the repository of the current directory;\n- if the value starts with `@`, the rest of the value is interpreted as a\n  filename to read the value from. Pass `-` to read from standard input.\n\nFor GraphQL requests, all fields other than `query` and `operationName` are\ninterpreted as GraphQL variables.\n\nTo pass nested parameters in the request payload, use `key[subkey]=value` syntax when\ndeclaring fields. To pass nested values as arrays, declare multiple fields with the\nsyntax `key[]=value1`, `key[]=value2`. To pass an empty array, use `key[]` without a\nvalue.\n\nTo pass pre-constructed JSON or payloads in other formats, a request body may be read\nfrom file specified by `--input`. Use `-` to read from standard input. When passing the\nrequest body this way, any parameters specified via field flags are added to the query\nstring of the endpoint URL.\n\nIn `--paginate` mode, all pages of results will sequentially be requested until\nthere are no more pages of results. For GraphQL requests, this requires that the\noriginal query accepts an `$endCursor: String` variable and that it fetches the\n`pageInfo{ hasNextPage, endCursor }` set of fields from a collection. Each page is a separate\nJSON array or object. Pass `--slurp` to wrap all pages of JSON arrays or objects\ninto an outer JSON array.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 			ox.Usage("api", "Make an authenticated GitHub API request"),
+			ox.Banner("Makes an authenticated HTTP request to the GitHub API and prints the response.\n\nThe endpoint argument should either be a path of a GitHub API v3 endpoint, or\n`graphql` to access the GitHub API v4.\n\nPlaceholder values `{owner}`, `{repo}`, and `{branch}` in the endpoint\nargument will get replaced with values from the repository of the current\ndirectory or the repository specified in the `GH_REPO` environment variable.\nNote that in some shells, for example PowerShell, you may need to enclose\nany value that contains `{...}` in quotes to prevent the shell from\napplying special meaning to curly braces.\n\nThe default HTTP request method is `GET` normally and `POST` if any parameters\nwere added. Override the method with `--method`.\n\nPass one or more `-f/--raw-field` values in `key=value` format to add static string\nparameters to the request payload. To add non-string or placeholder-determined values, see\n`-F/--field` below. Note that adding request parameters will automatically switch the\nrequest method to `POST`. To send the parameters as a `GET` query string instead, use\n`--method GET`.\n\nThe `-F/--field` flag has magic type conversion based on the format of the value:\n\n- literal values `true`, `false`, `null`, and integer numbers get converted to\n  appropriate JSON types;\n- placeholder values `{owner}`, `{repo}`, and `{branch}` get populated with values\n  from the repository of the current directory;\n- if the value starts with `@`, the rest of the value is interpreted as a\n  filename to read the value from. Pass `-` to read from standard input.\n\nFor GraphQL requests, all fields other than `query` and `operationName` are\ninterpreted as GraphQL variables.\n\nTo pass nested parameters in the request payload, use `key[subkey]=value` syntax when\ndeclaring fields. To pass nested values as arrays, declare multiple fields with the\nsyntax `key[]=value1`, `key[]=value2`. To pass an empty array, use `key[]` without a\nvalue.\n\nTo pass pre-constructed JSON or payloads in other formats, a request body may be read\nfrom file specified by `--input`. Use `-` to read from standard input. When passing the\nrequest body this way, any parameters specified via field flags are added to the query\nstring of the endpoint URL.\n\nIn `--paginate` mode, all pages of results will sequentially be requested until\nthere are no more pages of results. For GraphQL requests, this requires that the\noriginal query accepts an `$endCursor: String` variable and that it fetches the\n`pageInfo{ hasNextPage, endCursor }` set of fields from a collection. Each page is a separate\nJSON array or object. Pass `--slurp` to wrap all pages of JSON arrays or objects\ninto an outer JSON array.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 			ox.Spec("<endpoint> [flags]"),
 			ox.Example("\n  # List releases in the current repository\n  $ gh api repos/{owner}/{repo}/releases\n  \n  # Post an issue comment\n  $ gh api repos/{owner}/{repo}/issues/123/comments -f body='Hi from CLI'\n  \n  # Post nested parameter read from a file\n  $ gh api gists -F 'files[myfile.txt][content]=@myfile.txt'\n  \n  # Add parameters to a GET request\n  $ gh api -X GET search/issues -f q='repo:cli/cli is:open remote'\n  \n  # Set a custom HTTP header\n  $ gh api -H 'Accept: application/vnd.github.v3.raw+json' ...\n  \n  # Opt into GitHub API previews\n  $ gh api --preview baptiste,nebula ...\n  \n  # Print only specific fields from the response\n  $ gh api repos/{owner}/{repo}/issues --jq '.[].title'\n  \n  # Use a template for the output\n  $ gh api repos/{owner}/{repo}/issues --template \\\n    '{{range .}}{{.title}} ({{.labels | pluck \"name\" | join \", \" | color \"yellow\"}}){{\"\\n\"}}{{end}}'\n  \n  # Update allowed values of the \"environment\" custom property in a deeply nested array\n  $ gh api -X PATCH /orgs/{org}/properties/schema \\\n     -F 'properties[][property_name]=environment' \\\n     -F 'properties[][default_value]=production' \\\n     -F 'properties[][allowed_values][]=staging' \\\n     -F 'properties[][allowed_values][]=production'\n  \n  # List releases with GraphQL\n  $ gh api graphql -F owner='{owner}' -F name='{repo}' -f query='\n    query($name: String!, $owner: String!) {\n      repository(owner: $owner, name: $name) {\n        releases(last: 3) {\n          nodes { tagName }\n        }\n      }\n    }\n  '\n  \n  # List all repositories for a user\n  $ gh api graphql --paginate -f query='\n    query($endCursor: String) {\n      viewer {\n        repositories(first: 100, after: $endCursor) {\n          nodes { nameWithOwner }\n          pageInfo {\n            hasNextPage\n            endCursor\n          }\n        }\n      }\n    }\n  '\n  \n  # Get the percentage of forks for the current user\n  $ gh api graphql --paginate --slurp -f query='\n    query($endCursor: String) {\n      viewer {\n        repositories(first: 100, after: $endCursor) {\n          nodes { isFork }\n          pageInfo {\n            hasNextPage\n            endCursor\n          }\n        }\n      }\n    }\n  ' | jq 'def count(e): reduce e as $_ (0;.+1);\n  [.[].data.viewer.repositories.nodes[]] as $r | count(select($r[].isFork))/count($r[])'"),
 			ox.Section(3),
@@ -2371,15 +2371,15 @@ func main() {
 				Bool("verbose", "Include full HTTP request and response in the output", ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Download and verify artifact attestations."),
 			ox.Usage("attestation", "Work with artifact attestations"),
+			ox.Banner("Download and verify artifact attestations."),
 			ox.Spec("[subcommand] [flags]"),
 			ox.Aliases("at"),
 			ox.Section(3),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
-				ox.Banner("### NOTE: This feature is currently in public preview, and subject to change.\n\nDownload attestations associated with an artifact for offline use.\n\nThe command requires either:\n* a file path to an artifact, or\n* a container image URI (e.g. `oci://<image-uri>`)\n  * (note that if you provide an OCI URL, you must already be authenticated with\nits container registry)\n\nIn addition, the command requires either:\n* the `--repo` flag (e.g. --repo github/example).\n* the `--owner` flag (e.g. --owner github), or\n\nThe `--repo` flag value must match the name of the GitHub repository\nthat the artifact is linked with.\n\nThe `--owner` flag value must match the name of the GitHub organization\nthat the artifact's linked repository belongs to.\n\nAny associated bundle(s) will be written to a file in the\ncurrent directory named after the artifact's digest. For example, if the\ndigest is \"sha256:1234\", the file will be named \"sha256:1234.jsonl\".\n\nColons are special characters on Windows and cannot be used in\nfile names. To accommodate, a dash will be used to separate the algorithm\nfrom the digest in the attestations file name. For example, if the digest\nis \"sha256:1234\", the file will be named \"sha256-1234.jsonl\"."),
 				ox.Usage("download", "Download an artifact's attestations for offline use"),
+				ox.Banner("### NOTE: This feature is currently in public preview, and subject to change.\n\nDownload attestations associated with an artifact for offline use.\n\nThe command requires either:\n* a file path to an artifact, or\n* a container image URI (e.g. `oci://<image-uri>`)\n  * (note that if you provide an OCI URL, you must already be authenticated with\nits container registry)\n\nIn addition, the command requires either:\n* the `--repo` flag (e.g. --repo github/example).\n* the `--owner` flag (e.g. --owner github), or\n\nThe `--repo` flag value must match the name of the GitHub repository\nthat the artifact is linked with.\n\nThe `--owner` flag value must match the name of the GitHub organization\nthat the artifact's linked repository belongs to.\n\nAny associated bundle(s) will be written to a file in the\ncurrent directory named after the artifact's digest. For example, if the\ndigest is \"sha256:1234\", the file will be named \"sha256:1234.jsonl\".\n\nColons are special characters on Windows and cannot be used in\nfile names. To accommodate, a dash will be used to separate the algorithm\nfrom the digest in the attestations file name. For example, if the digest\nis \"sha256:1234\", the file will be named \"sha256-1234.jsonl\"."),
 				ox.Spec("[<file-path> | oci://<image-uri>] [--owner | --repo] [flags]"),
 				ox.Example("\n  # Download attestations for a local artifact linked with an organization\n  $ gh attestation download example.bin -o github\n  \n  # Download attestations for a local artifact linked with a repository\n  $ gh attestation download example.bin -R github/example\n  \n  # Download attestations for an OCI image linked with an organization\n  $ gh attestation download oci://example.com/foo/bar:latest -o github"),
 				ox.Help(ox.Sections(
@@ -2395,8 +2395,8 @@ func main() {
 					String("repo", "Repository name in the format <owner>/<repo>", ox.Short("R"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("### NOTE: This feature is currently in public preview, and subject to change.\n\nOutput contents for a trusted_root.jsonl file, likely for offline verification.\n\nWhen using `gh attestation verify`, if your machine is on the internet,\nthis will happen automatically. But to do offline verification, you need to\nsupply a trusted root file with `--custom-trusted-root`; this command\nwill help you fetch a `trusted_root.jsonl` file for that purpose.\n\nYou can call this command without any flags to get a trusted root file covering\nthe Sigstore Public Good Instance as well as GitHub's Sigstore instance.\n\nOtherwise you can use `--tuf-url` to specify the URL of a custom TUF\nrepository mirror, and `--tuf-root` should be the path to the\n`root.json` file that you securely obtained out-of-band.\n\nIf you just want to verify the integrity of your local TUF repository, and don't\nwant the contents of a trusted_root.jsonl file, use `--verify-only`."),
 				ox.Usage("trusted-root", "Output trusted_root.jsonl contents, likely for offline verification"),
+				ox.Banner("### NOTE: This feature is currently in public preview, and subject to change.\n\nOutput contents for a trusted_root.jsonl file, likely for offline verification.\n\nWhen using `gh attestation verify`, if your machine is on the internet,\nthis will happen automatically. But to do offline verification, you need to\nsupply a trusted root file with `--custom-trusted-root`; this command\nwill help you fetch a `trusted_root.jsonl` file for that purpose.\n\nYou can call this command without any flags to get a trusted root file covering\nthe Sigstore Public Good Instance as well as GitHub's Sigstore instance.\n\nOtherwise you can use `--tuf-url` to specify the URL of a custom TUF\nrepository mirror, and `--tuf-root` should be the path to the\n`root.json` file that you securely obtained out-of-band.\n\nIf you just want to verify the integrity of your local TUF repository, and don't\nwant the contents of a trusted_root.jsonl file, use `--verify-only`."),
 				ox.Spec("[--tuf-url <url> --tuf-root <file-path>] [--verify-only] [flags]"),
 				ox.Example("\n  # Get a trusted_root.jsonl for both Sigstore Public Good and GitHub's instance\n  $ gh attestation trusted-root"),
 				ox.Help(ox.Sections(
@@ -2410,8 +2410,8 @@ func main() {
 					Bool("verify-only", "Don't output trusted_root.jsonl contents", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Verify the integrity and provenance of an artifact using its associated\ncryptographically signed attestations.\n\n## Understanding Verification\n\nAn attestation is a claim (i.e. a provenance statement) made by an actor\n(i.e. a GitHub Actions workflow) regarding a subject (i.e. an artifact).\n\nIn order to verify an attestation, you must provide an artifact and validate:\n* the identity of the actor that produced the attestation\n* the expected attestation predicate type (the nature of the claim)\n\nBy default, this command enforces the `https://slsa.dev/provenance/v1`\npredicate type. To verify other attestation predicate types use the\n`--predicate-type` flag.\n\nThe \"actor identity\" consists of:\n* the repository or the repository owner the artifact is linked with\n* the Actions workflow that produced the attestation (a.k.a the\n  signer workflow)\n\nThis identity is then validated against the attestation's certificate's\nSourceRepository, SourceRepositoryOwner, and SubjectAlternativeName\n(SAN) fields, among others.\n\nIt is up to you to decide how precisely you want to enforce this identity.\n\nAt a minimum, this command requires either:\n* the `--owner` flag (e.g. --owner github), or\n* the `--repo` flag (e.g. --repo github/example)\n\nThe more precisely you specify the identity, the more control you will\nhave over the security guarantees offered by the verification process.\n\nIdeally, the path of the signer workflow is also validated using the\n`--signer-workflow` or `--cert-identity` flags.\n\nPlease note: if your attestation was generated via a reusable workflow then\nthat reusable workflow is the signer whose identity needs to be validated.\nIn this situation, you must use either the `--signer-workflow` or\nthe `--signer-repo` flag.\n\nFor more options, see the other available flags.\n\n## Loading Artifacts And Attestations\n\nTo specify the artifact, this command requires:\n* a file path to an artifact, or\n* a container image URI (e.g. `oci://<image-uri>`)\n  * (note that if you provide an OCI URL, you must already be authenticated with\nits container registry)\n\nBy default, this command will attempt to fetch relevant attestations via the\nGitHub API using the values provided to `--owner` or  `--repo`.\n\nTo instead fetch attestations from your artifact's OCI registry, use the\n`--bundle-from-oci` flag.\n\nFor offline verification using attestations stored on disk (c.f. the download command)\nprovide a path to the `--bundle` flag.\n\n## Additional Policy Enforcement\n\nGiven the `--format=json` flag, upon successful verification this\ncommand will output a JSON array containing one entry per verified attestation.\n\nThis output can then be used for additional policy enforcement, i.e. by being\npiped into a policy engine.\n\nEach object in the array contains two properties:\n* an `attestation` object, which contains the bundle that was verified\n* a `verificationResult` object, which is a parsed representation of the\n  contents of the bundle that was verified.\n\nWithin the `verificationResult` object you will find:\n* `signature.certificate`, which is a parsed representation of the X.509\n  certificate embedded in the attestation,\n* `verifiedTimestamps`, an array of objects denoting when the attestation\n  was witnessed by a transparency log or a timestamp authority\n* `statement`, which contains the `subject` array referencing artifacts,\n  the `predicateType` field, and the `predicate` object which contains\n  additional, often user-controllable, metadata\n\nIMPORTANT: please note that only the `signature.certificate` and the\n`verifiedTimestamps` properties contain values that cannot be\nmanipulated by the workflow that originated the attestation.\n\nWhen dealing with attestations created within GitHub Actions, the contents of\n`signature.certificate` are populated directly from the OpenID Connect\ntoken that GitHub has generated. The contents of the `verifiedTimestamps`\narray are populated from the signed timestamps originating from either a\ntransparency log or a timestamp authority – and likewise cannot be forged by users.\n\nWhen designing policy enforcement using this output, special care must be taken\nwhen examining the contents of the `statement.predicate` property:\nshould an attacker gain access to your workflow's execution context, they\ncould then falsify the contents of the `statement.predicate`.\n\nTo mitigate this attack vector, consider using a \"trusted builder\": when generating\nan artifact, have the build and attestation signing occur within a reusable workflow\nwhose execution cannot be influenced by input provided through the caller workflow.\n\nSee above re: `--signer-workflow`.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("verify", "Verify an artifact's integrity using attestations"),
+				ox.Banner("Verify the integrity and provenance of an artifact using its associated\ncryptographically signed attestations.\n\n## Understanding Verification\n\nAn attestation is a claim (i.e. a provenance statement) made by an actor\n(i.e. a GitHub Actions workflow) regarding a subject (i.e. an artifact).\n\nIn order to verify an attestation, you must provide an artifact and validate:\n* the identity of the actor that produced the attestation\n* the expected attestation predicate type (the nature of the claim)\n\nBy default, this command enforces the `https://slsa.dev/provenance/v1`\npredicate type. To verify other attestation predicate types use the\n`--predicate-type` flag.\n\nThe \"actor identity\" consists of:\n* the repository or the repository owner the artifact is linked with\n* the Actions workflow that produced the attestation (a.k.a the\n  signer workflow)\n\nThis identity is then validated against the attestation's certificate's\nSourceRepository, SourceRepositoryOwner, and SubjectAlternativeName\n(SAN) fields, among others.\n\nIt is up to you to decide how precisely you want to enforce this identity.\n\nAt a minimum, this command requires either:\n* the `--owner` flag (e.g. --owner github), or\n* the `--repo` flag (e.g. --repo github/example)\n\nThe more precisely you specify the identity, the more control you will\nhave over the security guarantees offered by the verification process.\n\nIdeally, the path of the signer workflow is also validated using the\n`--signer-workflow` or `--cert-identity` flags.\n\nPlease note: if your attestation was generated via a reusable workflow then\nthat reusable workflow is the signer whose identity needs to be validated.\nIn this situation, you must use either the `--signer-workflow` or\nthe `--signer-repo` flag.\n\nFor more options, see the other available flags.\n\n## Loading Artifacts And Attestations\n\nTo specify the artifact, this command requires:\n* a file path to an artifact, or\n* a container image URI (e.g. `oci://<image-uri>`)\n  * (note that if you provide an OCI URL, you must already be authenticated with\nits container registry)\n\nBy default, this command will attempt to fetch relevant attestations via the\nGitHub API using the values provided to `--owner` or  `--repo`.\n\nTo instead fetch attestations from your artifact's OCI registry, use the\n`--bundle-from-oci` flag.\n\nFor offline verification using attestations stored on disk (c.f. the download command)\nprovide a path to the `--bundle` flag.\n\n## Additional Policy Enforcement\n\nGiven the `--format=json` flag, upon successful verification this\ncommand will output a JSON array containing one entry per verified attestation.\n\nThis output can then be used for additional policy enforcement, i.e. by being\npiped into a policy engine.\n\nEach object in the array contains two properties:\n* an `attestation` object, which contains the bundle that was verified\n* a `verificationResult` object, which is a parsed representation of the\n  contents of the bundle that was verified.\n\nWithin the `verificationResult` object you will find:\n* `signature.certificate`, which is a parsed representation of the X.509\n  certificate embedded in the attestation,\n* `verifiedTimestamps`, an array of objects denoting when the attestation\n  was witnessed by a transparency log or a timestamp authority\n* `statement`, which contains the `subject` array referencing artifacts,\n  the `predicateType` field, and the `predicate` object which contains\n  additional, often user-controllable, metadata\n\nIMPORTANT: please note that only the `signature.certificate` and the\n`verifiedTimestamps` properties contain values that cannot be\nmanipulated by the workflow that originated the attestation.\n\nWhen dealing with attestations created within GitHub Actions, the contents of\n`signature.certificate` are populated directly from the OpenID Connect\ntoken that GitHub has generated. The contents of the `verifiedTimestamps`\narray are populated from the signed timestamps originating from either a\ntransparency log or a timestamp authority – and likewise cannot be forged by users.\n\nWhen designing policy enforcement using this output, special care must be taken\nwhen examining the contents of the `statement.predicate` property:\nshould an attacker gain access to your workflow's execution context, they\ncould then falsify the contents of the `statement.predicate`.\n\nTo mitigate this attack vector, consider using a \"trusted builder\": when generating\nan artifact, have the build and attestation signing occur within a reusable workflow\nwhose execution cannot be influenced by input provided through the caller workflow.\n\nSee above re: `--signer-workflow`.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<file-path> | oci://<image-uri>] [--owner | --repo] [flags]"),
 				ox.Example("\n  # Verify an artifact linked with a repository\n  $ gh attestation verify example.bin --repo github/example\n  \n  # Verify an artifact linked with an organization\n  $ gh attestation verify example.bin --owner github\n  \n  # Verify an artifact and output the full verification result\n  $ gh attestation verify example.bin --owner github --format json\n  \n  # Verify an OCI image using attestations stored on disk\n  $ gh attestation verify oci://<image-uri> --owner github --bundle sha256:foo.jsonl\n  \n  # Verify an artifact signed with a reusable workflow\n  $ gh attestation verify example.bin --owner github --signer-repo actions/example"),
 				ox.Help(ox.Sections(
@@ -2444,21 +2444,21 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Display or change configuration settings for gh.\n\nCurrent respected settings:\n\n- `git_protocol`: the protocol to use for git clone and push operations {https|ssh} (default https)\n- `editor`: the text editor program to use for authoring text\n- `prompt`: toggle interactive prompting in the terminal {enabled|disabled} (default enabled)\n- `prefer_editor_prompt`: toggle preference for editor-based interactive prompting in the terminal {enabled|disabled} (default disabled)\n- `pager`: the terminal pager program to send standard output to\n- `http_unix_socket`: the path to a Unix socket through which to make an HTTP connection\n- `browser`: the web browser to use for opening URLs\n- `color_labels`: whether to display labels using their RGB hex color codes in terminals that support truecolor {enabled|disabled} (default disabled)\n- `accessible_colors`: whether customizable, 4-bit accessible colors should be used {enabled|disabled} (default disabled)\n- `accessible_prompter`: whether an accessible prompter should be used {enabled|disabled} (default disabled)\n- `spinner`: whether to use a animated spinner as a progress indicator {enabled|disabled} (default enabled)"),
 			ox.Usage("config", "Manage configuration for gh"),
+			ox.Banner("Display or change configuration settings for gh.\n\nCurrent respected settings:\n\n- `git_protocol`: the protocol to use for git clone and push operations {https|ssh} (default https)\n- `editor`: the text editor program to use for authoring text\n- `prompt`: toggle interactive prompting in the terminal {enabled|disabled} (default enabled)\n- `prefer_editor_prompt`: toggle preference for editor-based interactive prompting in the terminal {enabled|disabled} (default disabled)\n- `pager`: the terminal pager program to send standard output to\n- `http_unix_socket`: the path to a Unix socket through which to make an HTTP connection\n- `browser`: the web browser to use for opening URLs\n- `color_labels`: whether to display labels using their RGB hex color codes in terminals that support truecolor {enabled|disabled} (default disabled)\n- `accessible_colors`: whether customizable, 4-bit accessible colors should be used {enabled|disabled} (default disabled)\n- `accessible_prompter`: whether an accessible prompter should be used {enabled|disabled} (default disabled)\n- `spinner`: whether to use a animated spinner as a progress indicator {enabled|disabled} (default enabled)"),
 			ox.Spec("<command> [flags]"),
 			ox.Section(3),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
-				ox.Banner("Clear the cli cache"),
 				ox.Usage("clear-cache", "Clear the cli cache"),
+				ox.Banner("Clear the cli cache"),
 				ox.Spec("[flags]"),
 				ox.Example("\n  # Clear the cli cache\n  $ gh config clear-cache"),
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			),
 			ox.Sub(
-				ox.Banner("Print the value of a given configuration key"),
 				ox.Usage("get", "Print the value of a given configuration key"),
+				ox.Banner("Print the value of a given configuration key"),
 				ox.Spec("<key> [flags]"),
 				ox.Example("\n  $ gh config get git_protocol"),
 				ox.Help(ox.Sections(
@@ -2469,8 +2469,8 @@ func main() {
 					String("host", "Get per-host setting", ox.Short("h"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Print a list of configuration keys and values"),
 				ox.Usage("list", "Print a list of configuration keys and values"),
+				ox.Banner("Print a list of configuration keys and values"),
 				ox.Spec("[flags]"),
 				ox.Aliases("config ls"),
 				ox.Help(ox.Sections(
@@ -2481,8 +2481,8 @@ func main() {
 					String("host", "Get per-host configuration", ox.Short("h"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Update configuration with a value for the given key"),
 				ox.Usage("set", "Update configuration with a value for the given key"),
+				ox.Banner("Update configuration with a value for the given key"),
 				ox.Spec("<key> <value> [flags]"),
 				ox.Example("\n  $ gh config set editor vim\n  $ gh config set editor \"code --wait\"\n  $ gh config set git_protocol ssh --host github.com\n  $ gh config set prompt disabled"),
 				ox.Help(ox.Sections(
@@ -2494,15 +2494,15 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("GitHub CLI extensions are repositories that provide additional gh commands.\n\nThe name of the extension repository must start with `gh-` and it must contain an\nexecutable of the same name. All arguments passed to the `gh <extname>` invocation\nwill be forwarded to the `gh-<extname>` executable of the extension.\n\nAn extension cannot override any of the core gh commands. If an extension name conflicts\nwith a core gh command, you can use `gh extension exec <extname>`.\n\nWhen an extension is executed, gh will check for new versions once every 24 hours and display\nan upgrade notice. See `gh help environment` for information on disabling extension notices.\n\nFor the list of available extensions, see <https://github.com/topics/gh-extension>."),
 			ox.Usage("extension", "Manage gh extensions"),
+			ox.Banner("GitHub CLI extensions are repositories that provide additional gh commands.\n\nThe name of the extension repository must start with `gh-` and it must contain an\nexecutable of the same name. All arguments passed to the `gh <extname>` invocation\nwill be forwarded to the `gh-<extname>` executable of the extension.\n\nAn extension cannot override any of the core gh commands. If an extension name conflicts\nwith a core gh command, you can use `gh extension exec <extname>`.\n\nWhen an extension is executed, gh will check for new versions once every 24 hours and display\nan upgrade notice. See `gh help environment` for information on disabling extension notices.\n\nFor the list of available extensions, see <https://github.com/topics/gh-extension>."),
 			ox.Spec("[flags]"),
 			ox.Aliases("extensions", "ext"),
 			ox.Section(3),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
-				ox.Banner("This command will take over your terminal and run a fully interactive\ninterface for browsing, adding, and removing gh extensions. A terminal\nwidth greater than 100 columns is recommended.\n\nTo learn how to control this interface, press `?` after running to see\nthe help text.\n\nPress `q` to quit.\n\nRunning this command with `--single-column` should make this command\nmore intelligible for users who rely on assistive technology like screen\nreaders or high zoom.\n\nFor a more traditional way to discover extensions, see:\n\n\tgh ext search\n\nalong with `gh ext install`, `gh ext remove`, and `gh repo view`."),
 				ox.Usage("browse", "Enter a UI for browsing, adding, and removing extensions"),
+				ox.Banner("This command will take over your terminal and run a fully interactive\ninterface for browsing, adding, and removing gh extensions. A terminal\nwidth greater than 100 columns is recommended.\n\nTo learn how to control this interface, press `?` after running to see\nthe help text.\n\nPress `q` to quit.\n\nRunning this command with `--single-column` should make this command\nmore intelligible for users who rely on assistive technology like screen\nreaders or high zoom.\n\nFor a more traditional way to discover extensions, see:\n\n\tgh ext search\n\nalong with `gh ext install`, `gh ext remove`, and `gh repo view`."),
 				ox.Spec("[flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -2513,8 +2513,8 @@ func main() {
 					Bool("single-column", "Render TUI with only one column of text", ox.Short("s"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Create a new extension"),
 				ox.Usage("create", "Create a new extension"),
+				ox.Banner("Create a new extension"),
 				ox.Spec("[<name>] [flags]"),
 				ox.Example("\n  # Use interactively\n  $ gh extension create\n  \n  # Create a script-based extension\n  $ gh extension create foobar\n  \n  # Create a Go extension\n  $ gh extension create --precompiled=go foobar\n  \n  # Create a non-Go precompiled extension\n  $ gh extension create --precompiled=other foobar"),
 				ox.Help(ox.Sections(
@@ -2525,15 +2525,15 @@ func main() {
 					String("precompiled", "Create a precompiled extension. Possible values: go, other", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Execute an extension using the short name. For example, if the extension repository is\n`owner/gh-extension`, you should pass `extension`. You can use this command when\nthe short name conflicts with a core gh command.\n\nAll arguments after the extension name will be forwarded to the executable\nof the extension."),
 				ox.Usage("exec", "Execute an installed extension"),
+				ox.Banner("Execute an extension using the short name. For example, if the extension repository is\n`owner/gh-extension`, you should pass `extension`. You can use this command when\nthe short name conflicts with a core gh command.\n\nAll arguments after the extension name will be forwarded to the executable\nof the extension."),
 				ox.Spec("<name> [args] [flags]"),
 				ox.Example("\n  # Execute a label extension instead of the core gh label command\n  $ gh extension exec label"),
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			),
 			ox.Sub(
-				ox.Banner("Install a GitHub CLI extension from a GitHub or local repository.\n\nFor GitHub repositories, the repository argument can be specified in\n`OWNER/REPO` format or as a full repository URL.\nThe URL format is useful when the repository is not hosted on <github.com>.\n\nFor remote repositories, the GitHub CLI first looks for the release artifacts assuming\nthat it's a binary extension i.e. prebuilt binaries provided as part of the release.\nIn the absence of a release, the repository itself is cloned assuming that it's a\nscript extension i.e. prebuilt executable or script exists on its root.\n\nThe `--pin` flag may be used to specify a tag or commit for binary and script\nextensions respectively, the latest version is used otherwise.\n\nFor local repositories, often used while developing extensions, use `.` as the\nvalue of the repository argument. Note the following:\n\n- After installing an extension from a locally cloned repository, the GitHub CLI will\nmanage this extension as a symbolic link (or equivalent mechanism on Windows) pointing\nto an executable file with the same name as the repository in the repository's root.\nFor example, if the repository is named `gh-foobar`, the symbolic link will point\nto `gh-foobar` in the extension repository's root.\n- When executing the extension, the GitHub CLI will run the executable file found\nby following the symbolic link. If no executable file is found, the extension\nwill fail to execute.\n- If the extension is precompiled, the executable file must be built manually and placed\nin the repository's root.\n\nFor the list of available extensions, see <https://github.com/topics/gh-extension>."),
 				ox.Usage("install", "Install a gh extension from a repository"),
+				ox.Banner("Install a GitHub CLI extension from a GitHub or local repository.\n\nFor GitHub repositories, the repository argument can be specified in\n`OWNER/REPO` format or as a full repository URL.\nThe URL format is useful when the repository is not hosted on <github.com>.\n\nFor remote repositories, the GitHub CLI first looks for the release artifacts assuming\nthat it's a binary extension i.e. prebuilt binaries provided as part of the release.\nIn the absence of a release, the repository itself is cloned assuming that it's a\nscript extension i.e. prebuilt executable or script exists on its root.\n\nThe `--pin` flag may be used to specify a tag or commit for binary and script\nextensions respectively, the latest version is used otherwise.\n\nFor local repositories, often used while developing extensions, use `.` as the\nvalue of the repository argument. Note the following:\n\n- After installing an extension from a locally cloned repository, the GitHub CLI will\nmanage this extension as a symbolic link (or equivalent mechanism on Windows) pointing\nto an executable file with the same name as the repository in the repository's root.\nFor example, if the repository is named `gh-foobar`, the symbolic link will point\nto `gh-foobar` in the extension repository's root.\n- When executing the extension, the GitHub CLI will run the executable file found\nby following the symbolic link. If no executable file is found, the extension\nwill fail to execute.\n- If the extension is precompiled, the executable file must be built manually and placed\nin the repository's root.\n\nFor the list of available extensions, see <https://github.com/topics/gh-extension>."),
 				ox.Spec("<repository> [flags]"),
 				ox.Example("\n  # Install an extension from a remote repository hosted on GitHub\n  $ gh extension install owner/gh-extension\n  \n  # Install an extension from a remote repository via full URL\n  $ gh extension install https://my.ghes.com/owner/gh-extension\n  \n  # Install an extension from a local repository in the current working directory\n  $ gh extension install ."),
 				ox.Help(ox.Sections(
@@ -2545,21 +2545,21 @@ func main() {
 					String("pin", "Pin extension to a release tag or commit ref", ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("List installed extension commands"),
 				ox.Usage("list", "List installed extension commands"),
+				ox.Banner("List installed extension commands"),
 				ox.Spec("[flags]"),
 				ox.Aliases("ext ls", "extension ls", "extensions ls"),
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			),
 			ox.Sub(
-				ox.Banner("Remove an installed extension"),
 				ox.Usage("remove", "Remove an installed extension"),
+				ox.Banner("Remove an installed extension"),
 				ox.Spec("<name> [flags]"),
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			),
 			ox.Sub(
-				ox.Banner("Search for gh extensions.\n\nWith no arguments, this command prints out the first 30 extensions\navailable to install sorted by number of stars. More extensions can\nbe fetched by specifying a higher limit with the `--limit` flag.\n\nWhen connected to a terminal, this command prints out three columns.\nThe first has a ✓ if the extension is already installed locally. The\nsecond is the full name of the extension repository in `OWNER/REPO`\nformat. The third is the extension's description.\n\nWhen not connected to a terminal, the ✓ character is rendered as the\nword \"installed\" but otherwise the order and content of the columns\nare the same.\n\nThis command behaves similarly to `gh search repos` but does not\nsupport as many search qualifiers. For a finer grained search of\nextensions, try using:\n\n\tgh search repos --topic \"gh-extension\"\n\nand adding qualifiers as needed. See `gh help search repos` to learn\nmore about repository search.\n\nFor listing just the extensions that are already installed locally,\nsee:\n\n\tgh ext list\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("search", "Search extensions to the GitHub CLI"),
+				ox.Banner("Search for gh extensions.\n\nWith no arguments, this command prints out the first 30 extensions\navailable to install sorted by number of stars. More extensions can\nbe fetched by specifying a higher limit with the `--limit` flag.\n\nWhen connected to a terminal, this command prints out three columns.\nThe first has a ✓ if the extension is already installed locally. The\nsecond is the full name of the extension repository in `OWNER/REPO`\nformat. The third is the extension's description.\n\nWhen not connected to a terminal, the ✓ character is rendered as the\nword \"installed\" but otherwise the order and content of the columns\nare the same.\n\nThis command behaves similarly to `gh search repos` but does not\nsupport as many search qualifiers. For a finer grained search of\nextensions, try using:\n\n\tgh search repos --topic \"gh-extension\"\n\nand adding qualifiers as needed. See `gh help search repos` to learn\nmore about repository search.\n\nFor listing just the extensions that are already installed locally,\nsee:\n\n\tgh ext list\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<query>] [flags]"),
 				ox.Example("\n  # List the first 30 extensions sorted by star count, descending\n  $ gh ext search\n  \n  # List more extensions\n  $ gh ext search --limit 300\n  \n  # List extensions matching the term \"branch\"\n  $ gh ext search branch\n  \n  # List extensions owned by organization \"github\"\n  $ gh ext search --owner github\n  \n  # List extensions, sorting by recently updated, ascending\n  $ gh ext search --sort updated --order asc\n  \n  # List extensions, filtering by license\n  $ gh ext search --license MIT\n  \n  # Open search results in the browser\n  $ gh ext search -w"),
 				ox.Help(ox.Sections(
@@ -2578,8 +2578,8 @@ func main() {
 					Bool("web", "Open the search query in the web browser", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Upgrade installed extensions"),
 				ox.Usage("upgrade", "Upgrade installed extensions"),
+				ox.Banner("Upgrade installed extensions"),
 				ox.Spec("{<name> | --all} [flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -2592,14 +2592,14 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Manage GPG keys registered with your GitHub account."),
 			ox.Usage("gpg-key", "Manage GPG keys"),
+			ox.Banner("Manage GPG keys registered with your GitHub account."),
 			ox.Spec("<command> [flags]"),
 			ox.Section(3),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
-				ox.Banner("Add a GPG key to your GitHub account"),
 				ox.Usage("add", "Add a GPG key to your GitHub account"),
+				ox.Banner("Add a GPG key to your GitHub account"),
 				ox.Spec("[<key-file>] [flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -2609,8 +2609,8 @@ func main() {
 					String("title", "Title for the new key", ox.Short("t"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Delete a GPG key from your GitHub account"),
 				ox.Usage("delete", "Delete a GPG key from your GitHub account"),
+				ox.Banner("Delete a GPG key from your GitHub account"),
 				ox.Spec("<key-id> [flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -2620,16 +2620,16 @@ func main() {
 					Bool("yes", "Skip the confirmation prompt", ox.Short("y"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Lists GPG keys in your GitHub account"),
 				ox.Usage("list", "Lists GPG keys in your GitHub account"),
+				ox.Banner("Lists GPG keys in your GitHub account"),
 				ox.Spec("[flags]"),
 				ox.Aliases("gpg-key ls"),
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			),
 		),
 		ox.Sub(
-			ox.Banner("Work with GitHub labels."),
 			ox.Usage("label", "Manage labels"),
+			ox.Banner("Work with GitHub labels."),
 			ox.Spec("<command> [flags]"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
@@ -2637,8 +2637,8 @@ func main() {
 			)),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
-				ox.Banner("Clones labels from a source repository to a destination repository on GitHub.\nBy default, the destination repository is the current repository.\n\nAll labels from the source repository will be copied to the destination\nrepository. Labels in the destination repository that are not in the source\nrepository will not be deleted or modified.\n\nLabels from the source repository that already exist in the destination\nrepository will be skipped. You can overwrite existing labels in the\ndestination repository using the `--force` flag."),
 				ox.Usage("clone", "Clones labels from one repository to another"),
+				ox.Banner("Clones labels from a source repository to a destination repository on GitHub.\nBy default, the destination repository is the current repository.\n\nAll labels from the source repository will be copied to the destination\nrepository. Labels in the destination repository that are not in the source\nrepository will not be deleted or modified.\n\nLabels from the source repository that already exist in the destination\nrepository will be skipped. You can overwrite existing labels in the\ndestination repository using the `--force` flag."),
 				ox.Spec("<source-repository> [flags]"),
 				ox.Example("\n  # Clone and overwrite labels from cli/cli repository into the current repository\n  $ gh label clone cli/cli --force\n  \n  # Clone labels from cli/cli repository into a octocat/cli repository\n  $ gh label clone cli/cli --repo octocat/cli"),
 				ox.Help(ox.Sections(
@@ -2651,8 +2651,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Create a new label on GitHub, or update an existing one with `--force`.\n\nMust specify name for the label. The description and color are optional.\nIf a color isn't provided, a random one will be chosen.\n\nThe label color needs to be 6 character hex value."),
 				ox.Usage("create", "Create a new label"),
+				ox.Banner("Create a new label on GitHub, or update an existing one with `--force`.\n\nMust specify name for the label. The description and color are optional.\nIf a color isn't provided, a random one will be chosen.\n\nThe label color needs to be 6 character hex value."),
 				ox.Spec("<name> [flags]"),
 				ox.Example("\n  # Create new bug label\n  $ gh label create bug --description \"Something isn't working\" --color E99695"),
 				ox.Help(ox.Sections(
@@ -2667,8 +2667,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Delete a label from a repository"),
 				ox.Usage("delete", "Delete a label from a repository"),
+				ox.Banner("Delete a label from a repository"),
 				ox.Spec("<name> [flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -2680,8 +2680,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Update a label on GitHub.\n\nA label can be renamed using the `--name` flag.\n\nThe label color needs to be 6 character hex value."),
 				ox.Usage("edit", "Edit a label"),
+				ox.Banner("Update a label on GitHub.\n\nA label can be renamed using the `--name` flag.\n\nThe label color needs to be 6 character hex value."),
 				ox.Spec("<name> [flags]"),
 				ox.Example("\n  # Update the color of the bug label\n  $ gh label edit bug --color FF0000\n  \n  # Rename and edit the description of the bug label\n  $ gh label edit bug --name big-bug --description \"Bigger than normal bug\""),
 				ox.Help(ox.Sections(
@@ -2696,8 +2696,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Display labels in a GitHub repository.\n\nWhen using the `--search` flag results are sorted by best match of the query.\nThis behavior cannot be configured with the `--order` or `--sort` flags.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List labels in a repository"),
+				ox.Banner("Display labels in a GitHub repository.\n\nWhen using the `--search` flag results are sorted by best match of the query.\nThis behavior cannot be configured with the `--order` or `--sort` flags.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[flags]"),
 				ox.Aliases("label ls"),
 				ox.Example("\n  # Sort labels by name\n  $ gh label list --sort name\n  \n  # Find labels with \"bug\" in the name or description\n  $ gh label list --search bug"),
@@ -2721,8 +2721,8 @@ func main() {
 				String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Repository rulesets are a way to define a set of rules that apply to a repository.\nThese commands allow you to view information about them."),
 			ox.Usage("ruleset", "View info about repo rulesets"),
+			ox.Banner("Repository rulesets are a way to define a set of rules that apply to a repository.\nThese commands allow you to view information about them."),
 			ox.Spec("<command> [flags]"),
 			ox.Aliases("rs"),
 			ox.Example("\n  $ gh ruleset list\n  $ gh ruleset view --repo OWNER/REPO --web\n  $ gh ruleset check branch-name"),
@@ -2732,8 +2732,8 @@ func main() {
 			)),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
-				ox.Banner("View information about GitHub rules that apply to a given branch.\n\nThe provided branch name does not need to exist; rules will be displayed that would apply\nto a branch with that name. All rules are returned regardless of where they are configured.\n\nIf no branch name is provided, then the current branch will be used.\n\nThe `--default` flag can be used to view rules that apply to the default branch of the\nrepository."),
 				ox.Usage("check", "View rules that would apply to a given branch"),
+				ox.Banner("View information about GitHub rules that apply to a given branch.\n\nThe provided branch name does not need to exist; rules will be displayed that would apply\nto a branch with that name. All rules are returned regardless of where they are configured.\n\nIf no branch name is provided, then the current branch will be used.\n\nThe `--default` flag can be used to view rules that apply to the default branch of the\nrepository."),
 				ox.Spec("[<branch>] [flags]"),
 				ox.Example("\n  # View all rules that apply to the current branch\n  $ gh ruleset check\n  \n  # View all rules that apply to a branch named \"my-branch\" in a different repository\n  $ gh ruleset check my-branch --repo owner/repo\n  \n  # View all rules that apply to the default branch in a different repository\n  $ gh ruleset check --default --repo owner/repo\n  \n  # View a ruleset configured in a different repository or any of its parents\n  $ gh ruleset view 23 --repo owner/repo\n  \n  # View an organization-level ruleset\n  $ gh ruleset view 23 --org my-org"),
 				ox.Help(ox.Sections(
@@ -2747,8 +2747,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("List GitHub rulesets for a repository or organization.\n\nIf no options are provided, the current repository's rulesets are listed. You can query a different\nrepository's rulesets by using the `--repo` flag. You can also use the `--org` flag to list rulesets\nconfigured for the provided organization.\n\nUse the `--parents` flag to control whether rulesets configured at higher levels that also apply to the provided\nrepository or organization should be returned. The default is `true`.\n\nYour access token must have the `admin:org` scope to use the `--org` flag, which can be granted by running `gh auth refresh -s admin:org`."),
 				ox.Usage("list", "List rulesets for a repository or organization"),
+				ox.Banner("List GitHub rulesets for a repository or organization.\n\nIf no options are provided, the current repository's rulesets are listed. You can query a different\nrepository's rulesets by using the `--repo` flag. You can also use the `--org` flag to list rulesets\nconfigured for the provided organization.\n\nUse the `--parents` flag to control whether rulesets configured at higher levels that also apply to the provided\nrepository or organization should be returned. The default is `true`.\n\nYour access token must have the `admin:org` scope to use the `--org` flag, which can be granted by running `gh auth refresh -s admin:org`."),
 				ox.Spec("[flags]"),
 				ox.Aliases("rs ls", "ruleset ls"),
 				ox.Example("\n  # List rulesets in the current repository\n  $ gh ruleset list\n  \n  # List rulesets in a different repository, including those configured at higher levels\n  $ gh ruleset list --repo owner/repo --parents\n  \n  # List rulesets in an organization\n  $ gh ruleset list --org org-name"),
@@ -2765,8 +2765,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("View information about a GitHub ruleset.\n\nIf no ID is provided, an interactive prompt will be used to choose\nthe ruleset to view.\n\nUse the `--parents` flag to control whether rulesets configured at higher\nlevels that also apply to the provided repository or organization should\nbe returned. The default is `true`."),
 				ox.Usage("view", "View information about a ruleset"),
+				ox.Banner("View information about a GitHub ruleset.\n\nIf no ID is provided, an interactive prompt will be used to choose\nthe ruleset to view.\n\nUse the `--parents` flag to control whether rulesets configured at higher\nlevels that also apply to the provided repository or organization should\nbe returned. The default is `true`."),
 				ox.Spec("[<ruleset-id>] [flags]"),
 				ox.Example("\n  # Interactively choose a ruleset to view from all rulesets that apply to the current repository\n  $ gh ruleset view\n  \n  # Interactively choose a ruleset to view from only rulesets configured in the current repository\n  $ gh ruleset view --no-parents\n  \n  # View a ruleset configured in the current repository or any of its parents\n  $ gh ruleset view 43\n  \n  # View a ruleset configured in a different repository or any of its parents\n  $ gh ruleset view 23 --repo owner/repo\n  \n  # View an organization-level ruleset\n  $ gh ruleset view 23 --org my-org"),
 				ox.Help(ox.Sections(
@@ -2784,14 +2784,14 @@ func main() {
 				String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Search across all of GitHub."),
 			ox.Usage("search", "Search for repositories, issues, and pull requests"),
+			ox.Banner("Search across all of GitHub."),
 			ox.Spec("<command> [flags]"),
 			ox.Section(3),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
-				ox.Banner("Search within code in GitHub repositories.\n\nThe search syntax is documented at:\n<https://docs.github.com/search-github/searching-on-github/searching-code>\n\nNote that these search results are powered by what is now a legacy GitHub code search engine.\nThe results might not match what is seen on <github.com>, and new features like regex search\nare not yet available via the GitHub API.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("code", "Search within code"),
+				ox.Banner("Search within code in GitHub repositories.\n\nThe search syntax is documented at:\n<https://docs.github.com/search-github/searching-on-github/searching-code>\n\nNote that these search results are powered by what is now a legacy GitHub code search engine.\nThe results might not match what is seen on <github.com>, and new features like regex search\nare not yet available via the GitHub API.\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("<query> [flags]"),
 				ox.Example("\n  # Search code matching \"react\" and \"lifecycle\"\n  $ gh search code react lifecycle\n  \n  # Search code matching \"error handling\"\n  $ gh search code \"error handling\"\n  \n  # Search code matching \"deque\" in Python files\n  $ gh search code deque --language=python\n  \n  # Search code matching \"cli\" in repositories owned by microsoft organization\n  $ gh search code cli --owner=microsoft\n  \n  # Search code matching \"panic\" in the GitHub CLI repository\n  $ gh search code panic --repo cli/cli\n  \n  # Search code matching keyword \"lint\" in package.json files\n  $ gh search code lint --filename package.json"),
 				ox.Help(ox.Sections(
@@ -2813,8 +2813,8 @@ func main() {
 					Bool("web", "Open the search query in the web browser", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Search for commits on GitHub.\n\nThe command supports constructing queries using the GitHub search syntax,\nusing the parameter and qualifier flags, or a combination of the two.\n\nGitHub search syntax is documented at:\n<https://docs.github.com/search-github/searching-on-github/searching-commits>\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("commits", "Search for commits"),
+				ox.Banner("Search for commits on GitHub.\n\nThe command supports constructing queries using the GitHub search syntax,\nusing the parameter and qualifier flags, or a combination of the two.\n\nGitHub search syntax is documented at:\n<https://docs.github.com/search-github/searching-on-github/searching-commits>\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<query>] [flags]"),
 				ox.Example("\n  # Search commits matching set of keywords \"readme\" and \"typo\"\n  $ gh search commits readme typo\n  \n  # Search commits matching phrase \"bug fix\"\n  $ gh search commits \"bug fix\"\n  \n  # Search commits committed by user \"monalisa\"\n  $ gh search commits --committer=monalisa\n  \n  # Search commits authored by users with name \"Jane Doe\"\n  $ gh search commits --author-name=\"Jane Doe\"\n  \n  # Search commits matching hash \"8dd03144ffdc6c0d486d6b705f9c7fba871ee7c3\"\n  $ gh search commits --hash=8dd03144ffdc6c0d486d6b705f9c7fba871ee7c3\n  \n  # Search commits authored before February 1st, 2022\n  $ gh search commits --author-date=\"<2022-02-01\""),
 				ox.Help(ox.Sections(
@@ -2846,8 +2846,8 @@ func main() {
 					Bool("web", "Open the search query in the web browser", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Search for issues on GitHub.\n\nThe command supports constructing queries using the GitHub search syntax,\nusing the parameter and qualifier flags, or a combination of the two.\n\nGitHub search syntax is documented at:\n<https://docs.github.com/search-github/searching-on-github/searching-issues-and-pull-requests>\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("issues", "Search for issues"),
+				ox.Banner("Search for issues on GitHub.\n\nThe command supports constructing queries using the GitHub search syntax,\nusing the parameter and qualifier flags, or a combination of the two.\n\nGitHub search syntax is documented at:\n<https://docs.github.com/search-github/searching-on-github/searching-issues-and-pull-requests>\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<query>] [flags]"),
 				ox.Example("\n  # Search issues matching set of keywords \"readme\" and \"typo\"\n  $ gh search issues readme typo\n  \n  # Search issues matching phrase \"broken feature\"\n  $ gh search issues \"broken feature\"\n  \n  # Search issues and pull requests in cli organization\n  $ gh search issues --include-prs --owner=cli\n  \n  # Search open issues assigned to yourself\n  $ gh search issues --assignee=@me --state=open\n  \n  # Search issues with numerous comments\n  $ gh search issues --comments=\">100\"\n  \n  # Search issues without label \"bug\"\n  $ gh search issues -- -label:bug\n  \n  # Search issues only from un-archived repositories (default is all repositories)\n  $ gh search issues --owner github --archived=false"),
 				ox.Help(ox.Sections(
@@ -2893,8 +2893,8 @@ func main() {
 					Bool("web", "Open the search query in the web browser", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Search for pull requests on GitHub.\n\nThe command supports constructing queries using the GitHub search syntax,\nusing the parameter and qualifier flags, or a combination of the two.\n\nGitHub search syntax is documented at:\n<https://docs.github.com/search-github/searching-on-github/searching-issues-and-pull-requests>\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("prs", "Search for pull requests"),
+				ox.Banner("Search for pull requests on GitHub.\n\nThe command supports constructing queries using the GitHub search syntax,\nusing the parameter and qualifier flags, or a combination of the two.\n\nGitHub search syntax is documented at:\n<https://docs.github.com/search-github/searching-on-github/searching-issues-and-pull-requests>\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<query>] [flags]"),
 				ox.Example("\n  # Search pull requests matching set of keywords \"fix\" and \"bug\"\n  $ gh search prs fix bug\n  \n  # Search draft pull requests in cli repository\n  $ gh search prs --repo=cli/cli --draft\n  \n  # Search open pull requests requesting your review\n  $ gh search prs --review-requested=@me --state=open\n  \n  # Search merged pull requests assigned to yourself\n  $ gh search prs --assignee=@me --merged\n  \n  # Search pull requests with numerous reactions\n  $ gh search prs --reactions=\">100\"\n  \n  # Search pull requests without label \"bug\"\n  $ gh search prs -- -label:bug\n  \n  # Search pull requests only from un-archived repositories (default is all repositories)\n  $ gh search prs --owner github --archived=false"),
 				ox.Help(ox.Sections(
@@ -2948,8 +2948,8 @@ func main() {
 					Bool("web", "Open the search query in the web browser", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Search for repositories on GitHub.\n\nThe command supports constructing queries using the GitHub search syntax,\nusing the parameter and qualifier flags, or a combination of the two.\n\nGitHub search syntax is documented at:\n<https://docs.github.com/search-github/searching-on-github/searching-for-repositories>\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("repos", "Search for repositories"),
+				ox.Banner("Search for repositories on GitHub.\n\nThe command supports constructing queries using the GitHub search syntax,\nusing the parameter and qualifier flags, or a combination of the two.\n\nGitHub search syntax is documented at:\n<https://docs.github.com/search-github/searching-on-github/searching-for-repositories>\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[<query>] [flags]"),
 				ox.Example("\n  # Search repositories matching set of keywords \"cli\" and \"shell\"\n  $ gh search repos cli shell\n  \n  # Search repositories matching phrase \"vim plugin\"\n  $ gh search repos \"vim plugin\"\n  \n  # Search repositories public repos in the microsoft organization\n  $ gh search repos --owner=microsoft --visibility=public\n  \n  # Search repositories with a set of topics\n  $ gh search repos --topic=unix,terminal\n  \n  # Search repositories by coding language and number of good first issues\n  $ gh search repos --language=go --good-first-issues=\">=10\"\n  \n  # Search repositories without topic \"linux\"\n  $ gh search repos -- -topic:linux\n  \n  # Search repositories excluding archived repositories\n  $ gh search repos --archived=false"),
 				ox.Help(ox.Sections(
@@ -2984,8 +2984,8 @@ func main() {
 			),
 		),
 		ox.Sub(
-			ox.Banner("Secrets can be set at the repository, or organization level for use in\nGitHub Actions or Dependabot. User, organization, and repository secrets can be set for\nuse in GitHub Codespaces. Environment secrets can be set for use in\nGitHub Actions. Run `gh help secret set` to learn how to get started."),
 			ox.Usage("secret", "Manage GitHub secrets"),
+			ox.Banner("Secrets can be set at the repository, or organization level for use in\nGitHub Actions or Dependabot. User, organization, and repository secrets can be set for\nuse in GitHub Codespaces. Environment secrets can be set for use in\nGitHub Actions. Run `gh help secret set` to learn how to get started."),
 			ox.Spec("<command> [flags]"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
@@ -2993,8 +2993,8 @@ func main() {
 			)),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
-				ox.Banner("Delete a secret on one of the following levels:\n- repository (default): available to GitHub Actions runs or Dependabot in a repository\n- environment: available to GitHub Actions runs for a deployment environment in a repository\n- organization: available to GitHub Actions runs, Dependabot, or Codespaces within an organization\n- user: available to Codespaces for your user"),
 				ox.Usage("delete", "Delete secrets"),
+				ox.Banner("Delete a secret on one of the following levels:\n- repository (default): available to GitHub Actions runs or Dependabot in a repository\n- environment: available to GitHub Actions runs for a deployment environment in a repository\n- organization: available to GitHub Actions runs, Dependabot, or Codespaces within an organization\n- user: available to Codespaces for your user"),
 				ox.Spec("<secret-name> [flags]"),
 				ox.Aliases("secret remove"),
 				ox.Help(ox.Sections(
@@ -3010,8 +3010,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("List secrets on one of the following levels:\n- repository (default): available to GitHub Actions runs or Dependabot in a repository\n- environment: available to GitHub Actions runs for a deployment environment in a repository\n- organization: available to GitHub Actions runs, Dependabot, or Codespaces within an organization\n- user: available to Codespaces for your user\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List secrets"),
+				ox.Banner("List secrets on one of the following levels:\n- repository (default): available to GitHub Actions runs or Dependabot in a repository\n- environment: available to GitHub Actions runs for a deployment environment in a repository\n- organization: available to GitHub Actions runs, Dependabot, or Codespaces within an organization\n- user: available to Codespaces for your user\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[flags]"),
 				ox.Aliases("secret ls"),
 				ox.Help(ox.Sections(
@@ -3030,8 +3030,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Set a value for a secret on one of the following levels:\n- repository (default): available to GitHub Actions runs or Dependabot in a repository\n- environment: available to GitHub Actions runs for a deployment environment in a repository\n- organization: available to GitHub Actions runs, Dependabot, or Codespaces within an organization\n- user: available to Codespaces for your user\n\nOrganization and user secrets can optionally be restricted to only be available to\nspecific repositories.\n\nSecret values are locally encrypted before being sent to GitHub."),
 				ox.Usage("set", "Create or update secrets"),
+				ox.Banner("Set a value for a secret on one of the following levels:\n- repository (default): available to GitHub Actions runs or Dependabot in a repository\n- environment: available to GitHub Actions runs for a deployment environment in a repository\n- organization: available to GitHub Actions runs, Dependabot, or Codespaces within an organization\n- user: available to Codespaces for your user\n\nOrganization and user secrets can optionally be restricted to only be available to\nspecific repositories.\n\nSecret values are locally encrypted before being sent to GitHub."),
 				ox.Spec("<secret-name> [flags]"),
 				ox.Example("\n  # Paste secret value for the current repository in an interactive prompt\n  $ gh secret set MYSECRET\n  \n  # Read secret value from an environment variable\n  $ gh secret set MYSECRET --body \"$ENV_VALUE\"\n  \n  # Set secret for a specific remote repository\n  $ gh secret set MYSECRET --repo origin/repo --body \"$ENV_VALUE\"\n  \n  # Read secret value from a file\n  $ gh secret set MYSECRET < myfile.txt\n  \n  # Set secret for a deployment environment in the current repository\n  $ gh secret set MYSECRET --env myenvironment\n  \n  # Set organization-level secret visible to both public and private repositories\n  $ gh secret set MYSECRET --org myOrg --visibility all\n  \n  # Set organization-level secret visible to specific repositories\n  $ gh secret set MYSECRET --org myOrg --repos repo1,repo2,repo3\n  \n  # Set user-level secret for Codespaces\n  $ gh secret set MYSECRET --user\n  \n  # Set repository-level secret for Dependabot\n  $ gh secret set MYSECRET --app dependabot\n  \n  # Set multiple secrets imported from the \".env\" file\n  $ gh secret set -f .env\n  \n  # Set multiple secrets from stdin\n  $ gh secret set -f - < myfile.txt"),
 				ox.Help(ox.Sections(
@@ -3055,14 +3055,14 @@ func main() {
 				String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Manage SSH keys registered with your GitHub account."),
 			ox.Usage("ssh-key", "Manage SSH keys"),
+			ox.Banner("Manage SSH keys registered with your GitHub account."),
 			ox.Spec("<command> [flags]"),
 			ox.Section(3),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
-				ox.Banner("Add an SSH key to your GitHub account"),
 				ox.Usage("add", "Add an SSH key to your GitHub account"),
+				ox.Banner("Add an SSH key to your GitHub account"),
 				ox.Spec("[<key-file>] [flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -3073,8 +3073,8 @@ func main() {
 					String("type", "Type of the ssh key: {authentication|signing}", ox.Default("authentication"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Delete an SSH key from your GitHub account"),
 				ox.Usage("delete", "Delete an SSH key from your GitHub account"),
+				ox.Banner("Delete an SSH key from your GitHub account"),
 				ox.Spec("<id> [flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -3084,16 +3084,16 @@ func main() {
 					Bool("yes", "Skip the confirmation prompt", ox.Short("y"), ox.Section(0)),
 			),
 			ox.Sub(
-				ox.Banner("Lists SSH keys in your GitHub account"),
 				ox.Usage("list", "Lists SSH keys in your GitHub account"),
+				ox.Banner("Lists SSH keys in your GitHub account"),
 				ox.Spec("[flags]"),
 				ox.Aliases("ssh-key ls"),
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			),
 		),
 		ox.Sub(
-			ox.Banner("The status command prints information about your work on GitHub across all the repositories you're subscribed to, including:\n\n- Assigned Issues\n- Assigned Pull Requests\n- Review Requests\n- Mentions\n- Repository Activity (new issues/pull requests, comments)"),
 			ox.Usage("status", "Print information about relevant issues, pull requests, and notifications across repositories"),
+			ox.Banner("The status command prints information about your work on GitHub across all the repositories you're subscribed to, including:\n\n- Assigned Issues\n- Assigned Pull Requests\n- Review Requests\n- Mentions\n- Repository Activity (new issues/pull requests, comments)"),
 			ox.Spec("[flags]"),
 			ox.Example("\n  $ gh status -e cli/cli -e cli/go-gh # Exclude multiple repositories\n  $ gh status -o cli # Limit results to a single organization"),
 			ox.Section(3),
@@ -3106,8 +3106,8 @@ func main() {
 				String("org", "Report status within an organization", ox.Short("o"), ox.Section(0)),
 		),
 		ox.Sub(
-			ox.Banner("Variables can be set at the repository, environment or organization level for use in\nGitHub Actions or Dependabot. Run `gh help variable set` to learn how to get started."),
 			ox.Usage("variable", "Manage GitHub Actions variables"),
+			ox.Banner("Variables can be set at the repository, environment or organization level for use in\nGitHub Actions or Dependabot. Run `gh help variable set` to learn how to get started."),
 			ox.Spec("<command> [flags]"),
 			ox.Section(3),
 			ox.Help(ox.Sections(
@@ -3115,8 +3115,8 @@ func main() {
 			)),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Sub(
-				ox.Banner("Delete a variable on one of the following levels:\n- repository (default): available to GitHub Actions runs or Dependabot in a repository\n- environment: available to GitHub Actions runs for a deployment environment in a repository\n- organization: available to GitHub Actions runs or Dependabot within an organization"),
 				ox.Usage("delete", "Delete variables"),
+				ox.Banner("Delete a variable on one of the following levels:\n- repository (default): available to GitHub Actions runs or Dependabot in a repository\n- environment: available to GitHub Actions runs for a deployment environment in a repository\n- organization: available to GitHub Actions runs or Dependabot within an organization"),
 				ox.Spec("<variable-name> [flags]"),
 				ox.Aliases("variable remove"),
 				ox.Help(ox.Sections(
@@ -3130,8 +3130,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Get a variable on one of the following levels:\n- repository (default): available to GitHub Actions runs or Dependabot in a repository\n- environment: available to GitHub Actions runs for a deployment environment in a repository\n- organization: available to GitHub Actions runs or Dependabot within an organization\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("get", "Get variables"),
+				ox.Banner("Get a variable on one of the following levels:\n- repository (default): available to GitHub Actions runs or Dependabot in a repository\n- environment: available to GitHub Actions runs for a deployment environment in a repository\n- organization: available to GitHub Actions runs or Dependabot within an organization\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("<variable-name> [flags]"),
 				ox.Help(ox.Sections(
 					"FLAGS",
@@ -3147,8 +3147,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("List variables on one of the following levels:\n- repository (default): available to GitHub Actions runs or Dependabot in a repository\n- environment: available to GitHub Actions runs for a deployment environment in a repository\n- organization: available to GitHub Actions runs or Dependabot within an organization\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Usage("list", "List variables"),
+				ox.Banner("List variables on one of the following levels:\n- repository (default): available to GitHub Actions runs or Dependabot in a repository\n- environment: available to GitHub Actions runs for a deployment environment in a repository\n- organization: available to GitHub Actions runs or Dependabot within an organization\n\nFor more information about output formatting flags, see `gh help formatting`."),
 				ox.Spec("[flags]"),
 				ox.Aliases("variable ls"),
 				ox.Help(ox.Sections(
@@ -3165,8 +3165,8 @@ func main() {
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
-				ox.Banner("Set a value for a variable on one of the following levels:\n- repository (default): available to GitHub Actions runs or Dependabot in a repository\n- environment: available to GitHub Actions runs for a deployment environment in a repository\n- organization: available to GitHub Actions runs or Dependabot within an organization\n\nOrganization variable can optionally be restricted to only be available to\nspecific repositories."),
 				ox.Usage("set", "Create or update variables"),
+				ox.Banner("Set a value for a variable on one of the following levels:\n- repository (default): available to GitHub Actions runs or Dependabot in a repository\n- environment: available to GitHub Actions runs for a deployment environment in a repository\n- organization: available to GitHub Actions runs or Dependabot within an organization\n\nOrganization variable can optionally be restricted to only be available to\nspecific repositories."),
 				ox.Spec("<variable-name> [flags]"),
 				ox.Example("\n  # Add variable value for the current repository in an interactive prompt\n  $ gh variable set MYVARIABLE\n  \n  # Read variable value from an environment variable\n  $ gh variable set MYVARIABLE --body \"$ENV_VALUE\"\n  \n  # Read variable value from a file\n  $ gh variable set MYVARIABLE < myfile.txt\n  \n  # Set variable for a deployment environment in the current repository\n  $ gh variable set MYVARIABLE --env myenvironment\n  \n  # Set organization-level variable visible to both public and private repositories\n  $ gh variable set MYVARIABLE --org myOrg --visibility all\n  \n  # Set organization-level variable visible to specific repositories\n  $ gh variable set MYVARIABLE --org myOrg --repos repo1,repo2,repo3\n  \n  # Set multiple variables imported from the \".env\" file\n  $ gh variable set -f .env"),
 				ox.Help(ox.Sections(
