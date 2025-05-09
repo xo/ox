@@ -206,7 +206,7 @@ func Help(opts ...Option) CommandFlagOption {
 				return err
 			}
 			// add help sub command
-			if len(cmd.Commands) != 0 {
+			if len(cmd.Commands) != 0 && cmd.Parent == nil {
 				if err := NewHelp(cmd); err != nil {
 					return err
 				}
