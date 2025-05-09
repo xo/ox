@@ -200,6 +200,16 @@ func (cmd *Command) FlagSpecial(special string) *Flag {
 	return nil
 }
 
+// SubSpecial returns the sub command with a special value.
+func (cmd *Command) SubSpecial(special string) *Command {
+	for _, c := range cmd.Commands {
+		if c.Special == special {
+			return c
+		}
+	}
+	return nil
+}
+
 // Validate validates the passed args.
 func (cmd *Command) Validate(args []string) error {
 	// validate args

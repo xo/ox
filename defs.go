@@ -43,12 +43,15 @@ func AddHelpFlag(cmd *Command) error {
 
 // NewVersion adds a `version` sub command to the command.
 func NewVersion(cmd *Command, opts ...Option) error {
-	name := cmd.RootName()
+	const special = `version`
+	if cmd.SubSpecial(special) != nil {
+		return nil
+	}
 	return cmd.Sub(prepend(
 		opts,
-		Usage(text.VersionCommandName, fmt.Sprintf(text.VersionCommandUsage, name)),
-		Banner(fmt.Sprintf(text.VersionCommandBanner, name)),
-		Special(`version`),
+		Usage(text.VersionCommandName, fmt.Sprintf(text.VersionCommandUsage, cmd.Name)),
+		Banner(fmt.Sprintf(text.VersionCommandBanner, cmd.Name)),
+		Special(special),
 		Exec(func(ctx context.Context) error {
 			c, _ := Ctx(ctx)
 			_ = DefaultVersion(c)
@@ -79,11 +82,15 @@ func NewVersionFlag(cmd *Command, opts ...Option) error {
 
 // NewHelp adds a `help` sub command to the command.
 func NewHelp(cmd *Command, opts ...Option) error {
+	const special = `help`
+	if cmd.SubSpecial(special) != nil {
+		return nil
+	}
 	return cmd.Sub(prepend(
 		opts,
 		Usage(text.HelpCommandName, text.HelpCommandUsage),
 		Banner(fmt.Sprintf(text.HelpCommandBanner, cmd.RootName())),
-		Special(`help`),
+		Special(special),
 		Exec(func(ctx context.Context, args []string) error {
 			c, _ := Ctx(ctx)
 			_, _ = cmd.Lookup(args...).HelpContext(c).WriteTo(c.Stdout)
@@ -130,6 +137,10 @@ func NewHelpFlag(cmd *Command, opts ...Option) error {
 
 // NewComp adds a `completion` sub command to the command.
 func NewComp(cmd *Command, opts ...Option) error {
+	const special = `comp`
+	if cmd.SubSpecial(special) != nil {
+		return nil
+	}
 	var noDescriptions bool
 	// base command
 	comp, err := NewCommand(prepend(
@@ -137,7 +148,7 @@ func NewComp(cmd *Command, opts ...Option) error {
 		Parent(cmd),
 		Usage(text.CompCommandName, fmt.Sprintf(text.CompCommandUsage, text.CompCommandAnyShellDesc)),
 		Banner(fmt.Sprintf(text.CompCommandBanner, text.CompCommandAnyShellDesc)),
-		Special(`comp`),
+		Special(special),
 	)...)
 	if err != nil {
 		return err
@@ -168,14 +179,14 @@ func NewComp(cmd *Command, opts ...Option) error {
 				Bool(
 					text.CompCommandFlagNoDescriptionsName,
 					text.CompCommandFlagNoDescriptionsUsage,
-					Special(`comp:no-desc`),
+					Special(special+`:no-desc`),
 					Bind(&noDescriptions),
 				),
 			Exec(func(ctx context.Context) error {
 				c, _ := Ctx(ctx)
 				return DefaultCompWrite(c, cmd, noDescriptions, shell, templ)
 			}),
-			Special(`comp:`+shell),
+			Special(special+`:`+shell),
 		)
 		if err != nil {
 			return err
@@ -198,6 +209,7 @@ func NewComp(cmd *Command, opts ...Option) error {
 // NewCompFlags adds `--completion-script-<type>` flags to a command, or
 // hooking any existing flags with `Special == "hook:comp:<type>"`.
 func NewCompFlags(cmd *Command, _ ...Option) error {
+	const special = `comp`
 	// load shells from templates
 	txt, tpl, err := loadTemplates(DefaultCompTemplates)
 	if err != nil {
@@ -210,7 +222,7 @@ func NewCompFlags(cmd *Command, _ ...Option) error {
 			text.CompCommandFlagNoDescriptionsName,
 			text.CompCommandFlagNoDescriptionsUsage,
 			Hidden(true),
-			Special(`comp:no-desc`),
+			Special(special+`:no-desc`),
 			Bind(&noDescriptions),
 		)
 	}

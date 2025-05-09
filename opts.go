@@ -633,14 +633,14 @@ func Banner(banner string) HelpOption {
 			}
 			return nil
 		},
-		help: func(help *CommandHelp) error {
-			help.Banner, help.NoBanner = banner, banner == ""
-			return nil
-		},
 		flag: func(g *Flag) error {
 			if strings.HasPrefix(g.Special, `hook:`) {
 				return ErrAppliedToInvalidType
 			}
+			return nil
+		},
+		help: func(help *CommandHelp) error {
+			help.Banner, help.NoBanner = banner, banner == ""
 			return nil
 		},
 	}
@@ -689,6 +689,12 @@ func Footer(footer string) HelpOption {
 			}
 			return nil
 		},
+		flag: func(g *Flag) error {
+			if strings.HasPrefix(g.Special, `hook:`) {
+				return ErrAppliedToInvalidType
+			}
+			return nil
+		},
 		help: func(help *CommandHelp) error {
 			help.Footer, help.NoSpec = footer, footer == ""
 			return nil
@@ -709,6 +715,12 @@ func Example(example string) HelpOption {
 			}
 			if help, ok := cmd.Help.(*CommandHelp); ok {
 				help.Example, help.NoExample = example, example == ""
+			}
+			return nil
+		},
+		flag: func(g *Flag) error {
+			if strings.HasPrefix(g.Special, `hook:`) {
+				return ErrAppliedToInvalidType
 			}
 			return nil
 		},
