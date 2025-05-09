@@ -33,7 +33,7 @@ func main() {
 				String("configDir", "config dir", ox.Default("config")).
 				String("contentDir", "filesystem path to content directory", ox.Short("c")).
 				String("destination", "filesystem path to write files to", ox.Short("d")).
-				Slice("disableKinds", "disable different kind of pages (home, RSS etc.)", ox.Elem(ox.StringT)).
+				Slice("disableKinds", "disable different kind of pages (home, RSS etc.)").
 				Bool("enableGitInfo", "add Git revision, date, author, and CODEOWNERS info to the pages").
 				String("environment", "build environment", ox.Short("e")).
 				Bool("forceSyncStatic", "copy all files when static is changed.").
@@ -53,12 +53,12 @@ func main() {
 				Bool("printPathWarnings", "print warnings on duplicate target paths etc.").
 				Bool("printUnusedTemplates", "print warnings on unused templates.").
 				Bool("quiet", "build in quiet mode").
-				Slice("renderSegments", "named segments to render (configured in the segments config)", ox.Elem(ox.StringT)).
+				Slice("renderSegments", "named segments to render (configured in the segments config)").
 				Bool("renderToMemory", "render to memory (mostly useful when running the server)", ox.Short("M")).
 				String("source", "filesystem path to read files relative from", ox.Short("s")).
 				Bool("templateMetrics", "display metrics about template executions").
 				Bool("templateMetricsHints", "calculate some improvement hints when combined with --templateMetrics").
-				Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Elem(ox.StringT), ox.Short("t")).
+				Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Short("t")).
 				String("themesDir", "filesystem path to themes directory").
 				String("trace", "write trace to file (not useful in general)", ox.Spec("file")).
 				Bool("watch", "watch filesystem for changes and recreate as needed", ox.Short("w")),
@@ -82,8 +82,8 @@ func main() {
 					String("baseURL", "hostname (and path) to the root, e.g. https://spf13.com/", ox.Short("b")).
 					String("cacheDir", "filesystem path to cache directory").
 					String("contentDir", "filesystem path to content directory", ox.Short("c")).
-					Slice("renderSegments", "named segments to render (configured in the segments config)", ox.Elem(ox.StringT)).
-					Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Elem(ox.StringT), ox.Short("t")).
+					Slice("renderSegments", "named segments to render (configured in the segments config)").
+					Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Short("t")).
 					String("clock", "set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00", ox.Section(0)).
 					String("config", "config file", ox.Default("is $APPNAME.yaml|json|toml"), ox.Section(0)).
 					String("configDir", "config dir", ox.Default("config"), ox.Section(0)).
@@ -102,8 +102,8 @@ func main() {
 				String("contentDir", "filesystem path to content directory", ox.Short("c")).
 				String("format", "preferred file format (toml, yaml or json)", ox.Default("toml")).
 				String("lang", "the language to display config for. Defaults to the first language defined.").
-				Slice("renderSegments", "named segments to render (configured in the segments config)", ox.Elem(ox.StringT)).
-				Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Elem(ox.StringT), ox.Short("t")).
+				Slice("renderSegments", "named segments to render (configured in the segments config)").
+				Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Short("t")).
 				String("clock", "set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00", ox.Section(0)).
 				String("config", "config file", ox.Default("is $APPNAME.yaml|json|toml"), ox.Section(0)).
 				String("configDir", "config dir", ox.Default("config"), ox.Section(0)).
@@ -496,8 +496,8 @@ func main() {
 					String("cacheDir", "filesystem path to cache directory").
 					String("contentDir", "filesystem path to content directory", ox.Short("c")).
 					String("pattern", "pattern matching module paths to clean (all if not set), e.g. \"**hugo*\"").
-					Slice("renderSegments", "named segments to render (configured in the segments config)", ox.Elem(ox.StringT)).
-					Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Elem(ox.StringT), ox.Short("t")).
+					Slice("renderSegments", "named segments to render (configured in the segments config)").
+					Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Short("t")).
 					String("clock", "set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00", ox.Section(0)).
 					String("config", "config file", ox.Default("is $APPNAME.yaml|json|toml"), ox.Section(0)).
 					String("configDir", "config dir", ox.Default("config"), ox.Section(0)).
@@ -542,8 +542,8 @@ func main() {
 					String("cacheDir", "filesystem path to cache directory").
 					Bool("clean", "delete module cache for dependencies that fail verification").
 					String("contentDir", "filesystem path to content directory", ox.Short("c")).
-					Slice("renderSegments", "named segments to render (configured in the segments config)", ox.Elem(ox.StringT)).
-					Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Elem(ox.StringT), ox.Short("t")).
+					Slice("renderSegments", "named segments to render (configured in the segments config)").
+					Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Short("t")).
 					String("clock", "set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00", ox.Section(0)).
 					String("config", "config file", ox.Default("is $APPNAME.yaml|json|toml"), ox.Section(0)).
 					String("configDir", "config dir", ox.Default("config"), ox.Section(0)).
@@ -567,8 +567,8 @@ func main() {
 					String("baseURL", "hostname (and path) to the root, e.g. https://spf13.com/", ox.Short("b")).
 					String("cacheDir", "filesystem path to cache directory").
 					String("contentDir", "filesystem path to content directory", ox.Short("c")).
-					Slice("renderSegments", "named segments to render (configured in the segments config)", ox.Elem(ox.StringT)).
-					Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Elem(ox.StringT), ox.Short("t")).
+					Slice("renderSegments", "named segments to render (configured in the segments config)").
+					Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Short("t")).
 					String("clock", "set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00", ox.Section(0)).
 					String("config", "config file", ox.Default("is $APPNAME.yaml|json|toml"), ox.Section(0)).
 					String("configDir", "config dir", ox.Default("config"), ox.Section(0)).
@@ -600,8 +600,8 @@ func main() {
 						String("baseURL", "hostname (and path) to the root, e.g. https://spf13.com/", ox.Short("b")).
 						String("cacheDir", "filesystem path to cache directory").
 						String("contentDir", "filesystem path to content directory", ox.Short("c")).
-						Slice("renderSegments", "named segments to render (configured in the segments config)", ox.Elem(ox.StringT)).
-						Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Elem(ox.StringT), ox.Short("t")).
+						Slice("renderSegments", "named segments to render (configured in the segments config)").
+						Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Short("t")).
 						String("clock", "set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00", ox.Section(0)).
 						String("config", "config file", ox.Default("is $APPNAME.yaml|json|toml"), ox.Section(0)).
 						String("configDir", "config dir", ox.Default("config"), ox.Section(0)).
@@ -638,8 +638,8 @@ func main() {
 					String("baseURL", "hostname (and path) to the root, e.g. https://spf13.com/", ox.Short("b")).
 					String("cacheDir", "filesystem path to cache directory").
 					String("contentDir", "filesystem path to content directory", ox.Short("c")).
-					Slice("renderSegments", "named segments to render (configured in the segments config)", ox.Elem(ox.StringT)).
-					Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Elem(ox.StringT), ox.Short("t")).
+					Slice("renderSegments", "named segments to render (configured in the segments config)").
+					Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Short("t")).
 					String("clock", "set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00", ox.Section(0)).
 					String("config", "config file", ox.Default("is $APPNAME.yaml|json|toml"), ox.Section(0)).
 					String("configDir", "config dir", ox.Default("config"), ox.Section(0)).
@@ -663,8 +663,8 @@ func main() {
 					String("baseURL", "hostname (and path) to the root, e.g. https://spf13.com/", ox.Short("b")).
 					String("cacheDir", "filesystem path to cache directory").
 					String("contentDir", "filesystem path to content directory", ox.Short("c")).
-					Slice("renderSegments", "named segments to render (configured in the segments config)", ox.Elem(ox.StringT)).
-					Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Elem(ox.StringT), ox.Short("t")).
+					Slice("renderSegments", "named segments to render (configured in the segments config)").
+					Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Short("t")).
 					String("clock", "set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00", ox.Section(0)).
 					String("config", "config file", ox.Default("is $APPNAME.yaml|json|toml"), ox.Section(0)).
 					String("configDir", "config dir", ox.Default("config"), ox.Section(0)).
@@ -689,8 +689,8 @@ func main() {
 					String("cacheDir", "filesystem path to cache directory").
 					Bool("clean", "delete module cache for dependencies that fail verification").
 					String("contentDir", "filesystem path to content directory", ox.Short("c")).
-					Slice("renderSegments", "named segments to render (configured in the segments config)", ox.Elem(ox.StringT)).
-					Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Elem(ox.StringT), ox.Short("t")).
+					Slice("renderSegments", "named segments to render (configured in the segments config)").
+					Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Short("t")).
 					String("clock", "set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00", ox.Section(0)).
 					String("config", "config file", ox.Default("is $APPNAME.yaml|json|toml"), ox.Section(0)).
 					String("configDir", "config dir", ox.Default("config"), ox.Section(0)).
@@ -738,8 +738,8 @@ func main() {
 					String("editor", "edit new content with this editor, if provided").
 					Bool("force", "overwrite file if it already exists", ox.Short("f")).
 					String("kind", "content type to create", ox.Short("k")).
-					Slice("renderSegments", "named segments to render (configured in the segments config)", ox.Elem(ox.StringT)).
-					Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Elem(ox.StringT), ox.Short("t")).
+					Slice("renderSegments", "named segments to render (configured in the segments config)").
+					Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Short("t")).
 					String("clock", "set the clock used by Hugo, e.g. --clock 2021-11-06T22:30:00.00+09:00", ox.Section(0)).
 					String("config", "config file", ox.Default("is $APPNAME.yaml|json|toml"), ox.Section(0)).
 					String("configDir", "config dir", ox.Default("config"), ox.Section(0)).
@@ -849,7 +849,7 @@ func main() {
 				String("contentDir", "filesystem path to content directory", ox.Short("c")).
 				Bool("disableBrowserError", "do not show build errors in the browser").
 				Bool("disableFastRender", "enables full re-renders on changes").
-				Slice("disableKinds", "disable different kind of pages (home, RSS etc.)", ox.Elem(ox.StringT)).
+				Slice("disableKinds", "disable different kind of pages (home, RSS etc.)").
 				Bool("disableLiveReload", "watch without enabling live browser reload on rebuild").
 				Bool("enableGitInfo", "add Git revision, date, author, and CODEOWNERS info to the pages").
 				Bool("forceSyncStatic", "copy all files when static is changed.").
@@ -872,11 +872,11 @@ func main() {
 				Bool("printMemoryUsage", "print memory usage to screen at intervals").
 				Bool("printPathWarnings", "print warnings on duplicate target paths etc.").
 				Bool("printUnusedTemplates", "print warnings on unused templates.").
-				Slice("renderSegments", "named segments to render (configured in the segments config)", ox.Elem(ox.StringT)).
+				Slice("renderSegments", "named segments to render (configured in the segments config)").
 				Bool("renderStaticToDisk", "serve static files from disk and dynamic files from memory").
 				Bool("templateMetrics", "display metrics about template executions").
 				Bool("templateMetricsHints", "calculate some improvement hints when combined with --templateMetrics").
-				Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Elem(ox.StringT), ox.Short("t")).
+				Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Short("t")).
 				Bool("tlsAuto", "generate and use locally-trusted certificates.").
 				String("tlsCertFile", "path to TLS certificate file").
 				String("tlsKeyFile", "path to TLS key file").
@@ -906,7 +906,7 @@ func main() {
 			String("configDir", "config dir", ox.Default("config")).
 			String("contentDir", "filesystem path to content directory", ox.Short("c")).
 			String("destination", "filesystem path to write files to", ox.Short("d")).
-			Slice("disableKinds", "disable different kind of pages (home, RSS etc.)", ox.Elem(ox.StringT)).
+			Slice("disableKinds", "disable different kind of pages (home, RSS etc.)").
 			Bool("enableGitInfo", "add Git revision, date, author, and CODEOWNERS info to the pages").
 			String("environment", "build environment", ox.Short("e")).
 			Bool("forceSyncStatic", "copy all files when static is changed.").
@@ -926,12 +926,12 @@ func main() {
 			Bool("printPathWarnings", "print warnings on duplicate target paths etc.").
 			Bool("printUnusedTemplates", "print warnings on unused templates.").
 			Bool("quiet", "build in quiet mode").
-			Slice("renderSegments", "named segments to render (configured in the segments config)", ox.Elem(ox.StringT)).
+			Slice("renderSegments", "named segments to render (configured in the segments config)").
 			Bool("renderToMemory", "render to memory (mostly useful when running the server)", ox.Short("M")).
 			String("source", "filesystem path to read files relative from", ox.Short("s")).
 			Bool("templateMetrics", "display metrics about template executions").
 			Bool("templateMetricsHints", "calculate some improvement hints when combined with --templateMetrics").
-			Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Elem(ox.StringT), ox.Short("t")).
+			Slice("theme", "themes to use (located in /themes/THEMENAME/)", ox.Short("t")).
 			String("themesDir", "filesystem path to themes directory").
 			String("trace", "write trace to file (not useful in general)", ox.Spec("file")).
 			Bool("watch", "watch filesystem for changes and recreate as needed", ox.Short("w")),

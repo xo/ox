@@ -29,7 +29,7 @@ func main() {
 				Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 				Bool("debug", "enable verbose output", ox.Section(0)).
 				String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 				String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 				String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 				String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -73,7 +73,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -100,7 +100,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -136,7 +136,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -154,7 +154,7 @@ func main() {
 				Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 				Bool("debug", "enable verbose output", ox.Section(0)).
 				String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 				String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 				String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 				String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -179,7 +179,7 @@ func main() {
 				Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 				Bool("debug", "enable verbose output", ox.Section(0)).
 				String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 				String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 				String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 				String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -214,7 +214,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -240,7 +240,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -266,7 +266,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -293,7 +293,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -319,7 +319,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -347,7 +347,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -365,7 +365,7 @@ func main() {
 				Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 				Bool("debug", "enable verbose output", ox.Section(0)).
 				String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 				String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 				String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 				String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -393,7 +393,7 @@ func main() {
 				Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 				Bool("debug", "enable verbose output", ox.Section(0)).
 				String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 				String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 				String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 				String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -423,7 +423,7 @@ func main() {
 				String("description", "add a custom description").
 				Bool("devel", "use development versions, too. Equivalent to version '>0.0.0-0'. If --version is set, this is ignored").
 				Bool("disable-openapi-validation", "if set, the installation process will not validate rendered templates against the Kubernetes OpenAPI Schema").
-				Map("dry-run", "simulate an install. If --dry-run is set with no option being specified or as '--dry-run=client', it will not attempt cluster connections. Setting '--dry-run=server' allows attempting cluster connections.", ox.Spec("string[=\"client\"]"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT)).
+				Map("dry-run", "simulate an install. If --dry-run is set with no option being specified or as '--dry-run=client', it will not attempt cluster connections. Setting '--dry-run=server' allows attempting cluster connections.", ox.Spec("string[=\"client\"]")).
 				Bool("enable-dns", "enable DNS lookups when rendering templates").
 				Bool("force", "force resource updates through a replacement strategy").
 				Bool("generate-name", "generate the name (and omit the NAME parameter)", ox.Short("g")).
@@ -432,7 +432,7 @@ func main() {
 				Bool("insecure-skip-tls-verify", "skip tls certificate checks for the chart download").
 				String("key-file", "identify HTTPS client using this SSL key file").
 				String("keyring", "location of public keys used for verification", ox.Default("$HOME/.gnupg/pubring.gpg")).
-				Map("labels", "Labels that would be added to release metadata. Should be divided by comma.", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("[]"), ox.Short("l")).
+				Map("labels", "Labels that would be added to release metadata. Should be divided by comma.", ox.Default("[]"), ox.Short("l")).
 				String("name-template", "specify template used to name the release").
 				Bool("no-hooks", "prevent hooks from running during install").
 				String("output", "prints the output in the specified format. Allowed values: table, json, yaml", ox.Spec("format"), ox.Default("table"), ox.Short("o")).
@@ -444,23 +444,23 @@ func main() {
 				Bool("render-subchart-notes", "if set, render subchart notes along with the parent").
 				Bool("replace", "reuse the given name, only if that name is a deleted release which remains in the history. This is unsafe in production").
 				String("repo", "chart repository url where to locate the requested chart").
-				Array("set", "set values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)", ox.Elem(ox.StringT)).
-				Array("set-file", "set values from respective files specified via the command line (can specify multiple or separate values with commas: key1=path1,key2=path2)", ox.Elem(ox.StringT)).
-				Array("set-json", "set JSON values on the command line (can specify multiple or separate values with commas: key1=jsonval1,key2=jsonval2)", ox.Elem(ox.StringT)).
-				Array("set-literal", "set a literal STRING value on the command line", ox.Elem(ox.StringT)).
-				Array("set-string", "set STRING values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)", ox.Elem(ox.StringT)).
+				Array("set", "set values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)").
+				Array("set-file", "set values from respective files specified via the command line (can specify multiple or separate values with commas: key1=path1,key2=path2)").
+				Array("set-json", "set JSON values on the command line (can specify multiple or separate values with commas: key1=jsonval1,key2=jsonval2)").
+				Array("set-literal", "set a literal STRING value on the command line").
+				Array("set-string", "set STRING values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)").
 				Bool("skip-crds", "if set, no CRDs will be installed. By default, CRDs are installed if not already present").
 				Bool("skip-schema-validation", "if set, disables JSON schema validation").
 				Duration("timeout", "time to wait for any individual Kubernetes operation (like Jobs for hooks)", ox.Default("5m0s")).
 				String("username", "chart repository username where to locate the requested chart").
-				Slice("values", "specify values in a YAML file or a URL (can specify multiple)", ox.Elem(ox.StringT), ox.Short("f")).
+				Slice("values", "specify values in a YAML file or a URL (can specify multiple)", ox.Short("f")).
 				Bool("verify", "verify the package before using it").
 				Bool("wait", "if set, will wait until all Pods, PVCs, Services, and minimum number of Pods of a Deployment, StatefulSet, or ReplicaSet are in a ready state before marking the release as successful. It will wait for as long as --timeout").
 				Bool("wait-for-jobs", "if set and --wait enabled, will wait until all Jobs have been completed before marking the release as successful. It will wait for as long as --timeout").
 				Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 				Bool("debug", "enable verbose output", ox.Section(0)).
 				String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 				String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 				String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 				String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -484,19 +484,19 @@ func main() {
 			ox.Flags().
 				String("kube-version", "Kubernetes version used for capabilities and deprecation checks").
 				Bool("quiet", "print only warnings and errors").
-				Array("set", "set values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)", ox.Elem(ox.StringT)).
-				Array("set-file", "set values from respective files specified via the command line (can specify multiple or separate values with commas: key1=path1,key2=path2)", ox.Elem(ox.StringT)).
-				Array("set-json", "set JSON values on the command line (can specify multiple or separate values with commas: key1=jsonval1,key2=jsonval2)", ox.Elem(ox.StringT)).
-				Array("set-literal", "set a literal STRING value on the command line", ox.Elem(ox.StringT)).
-				Array("set-string", "set STRING values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)", ox.Elem(ox.StringT)).
+				Array("set", "set values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)").
+				Array("set-file", "set values from respective files specified via the command line (can specify multiple or separate values with commas: key1=path1,key2=path2)").
+				Array("set-json", "set JSON values on the command line (can specify multiple or separate values with commas: key1=jsonval1,key2=jsonval2)").
+				Array("set-literal", "set a literal STRING value on the command line").
+				Array("set-string", "set STRING values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)").
 				Bool("skip-schema-validation", "if set, disables JSON schema validation").
 				Bool("strict", "fail on lint warnings").
-				Slice("values", "specify values in a YAML file or a URL (can specify multiple)", ox.Elem(ox.StringT), ox.Short("f")).
+				Slice("values", "specify values in a YAML file or a URL (can specify multiple)", ox.Short("f")).
 				Bool("with-subcharts", "lint dependent charts").
 				Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 				Bool("debug", "enable verbose output", ox.Section(0)).
 				String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 				String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 				String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 				String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -540,7 +540,7 @@ func main() {
 				Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 				Bool("debug", "enable verbose output", ox.Section(0)).
 				String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 				String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 				String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 				String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -579,7 +579,7 @@ func main() {
 				Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 				Bool("debug", "enable verbose output", ox.Section(0)).
 				String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 				String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 				String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 				String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -613,7 +613,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -639,7 +639,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -665,7 +665,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -691,7 +691,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -709,7 +709,7 @@ func main() {
 				Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 				Bool("debug", "enable verbose output", ox.Section(0)).
 				String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 				String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 				String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 				String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -751,7 +751,7 @@ func main() {
 				Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 				Bool("debug", "enable verbose output", ox.Section(0)).
 				String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 				String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 				String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 				String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -783,7 +783,7 @@ func main() {
 				Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 				Bool("debug", "enable verbose output", ox.Section(0)).
 				String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 				String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 				String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 				String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -823,7 +823,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -848,7 +848,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -866,7 +866,7 @@ func main() {
 				Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 				Bool("debug", "enable verbose output", ox.Section(0)).
 				String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 				String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 				String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 				String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -910,7 +910,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -938,7 +938,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -965,7 +965,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -991,7 +991,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -1018,7 +1018,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -1036,7 +1036,7 @@ func main() {
 				Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 				Bool("debug", "enable verbose output", ox.Section(0)).
 				String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 				String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 				String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 				String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -1070,7 +1070,7 @@ func main() {
 				Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 				Bool("debug", "enable verbose output", ox.Section(0)).
 				String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 				String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 				String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 				String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -1108,7 +1108,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -1139,7 +1139,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -1157,7 +1157,7 @@ func main() {
 				Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 				Bool("debug", "enable verbose output", ox.Section(0)).
 				String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 				String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 				String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 				String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -1203,7 +1203,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -1240,7 +1240,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -1277,7 +1277,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -1314,7 +1314,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -1352,7 +1352,7 @@ func main() {
 					Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 					Bool("debug", "enable verbose output", ox.Section(0)).
 					String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 					String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 					String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 					String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -1370,7 +1370,7 @@ func main() {
 				Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 				Bool("debug", "enable verbose output", ox.Section(0)).
 				String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 				String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 				String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 				String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -1397,7 +1397,7 @@ func main() {
 				Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 				Bool("debug", "enable verbose output", ox.Section(0)).
 				String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 				String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 				String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 				String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -1419,7 +1419,7 @@ func main() {
 				"Global Flags",
 			)),
 			ox.Flags().
-				Slice("api-versions", "Kubernetes api versions used for Capabilities.APIVersions", ox.Elem(ox.StringT), ox.Short("a")).
+				Slice("api-versions", "Kubernetes api versions used for Capabilities.APIVersions", ox.Short("a")).
 				Bool("atomic", "if set, the installation process deletes the installation on failure. The --wait flag will be set automatically if --atomic is used").
 				String("ca-file", "verify certificates of HTTPS-enabled servers using this CA bundle").
 				String("cert-file", "identify HTTPS client using this SSL certificate file").
@@ -1428,7 +1428,7 @@ func main() {
 				String("description", "add a custom description").
 				Bool("devel", "use development versions, too. Equivalent to version '>0.0.0-0'. If --version is set, this is ignored").
 				Bool("disable-openapi-validation", "if set, the installation process will not validate rendered templates against the Kubernetes OpenAPI Schema").
-				Map("dry-run", "simulate an install. If --dry-run is set with no option being specified or as '--dry-run=client', it will not attempt cluster connections. Setting '--dry-run=server' allows attempting cluster connections.", ox.Spec("string[=\"client\"]"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT)).
+				Map("dry-run", "simulate an install. If --dry-run is set with no option being specified or as '--dry-run=client', it will not attempt cluster connections. Setting '--dry-run=server' allows attempting cluster connections.", ox.Spec("string[=\"client\"]")).
 				Bool("enable-dns", "enable DNS lookups when rendering templates").
 				Bool("force", "force resource updates through a replacement strategy").
 				Bool("generate-name", "generate the name (and omit the NAME parameter)", ox.Short("g")).
@@ -1439,7 +1439,7 @@ func main() {
 				String("key-file", "identify HTTPS client using this SSL key file").
 				String("keyring", "location of public keys used for verification", ox.Default("$HOME/.gnupg/pubring.gpg")).
 				String("kube-version", "Kubernetes version used for Capabilities.KubeVersion").
-				Map("labels", "Labels that would be added to release metadata. Should be divided by comma.", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("[]"), ox.Short("l")).
+				Map("labels", "Labels that would be added to release metadata. Should be divided by comma.", ox.Default("[]"), ox.Short("l")).
 				String("name-template", "specify template used to name the release").
 				Bool("no-hooks", "prevent hooks from running during install").
 				String("output-dir", "writes the executed templates to files in output-dir instead of stdout").
@@ -1452,26 +1452,26 @@ func main() {
 				Bool("render-subchart-notes", "if set, render subchart notes along with the parent").
 				Bool("replace", "reuse the given name, only if that name is a deleted release which remains in the history. This is unsafe in production").
 				String("repo", "chart repository url where to locate the requested chart").
-				Array("set", "set values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)", ox.Elem(ox.StringT)).
-				Array("set-file", "set values from respective files specified via the command line (can specify multiple or separate values with commas: key1=path1,key2=path2)", ox.Elem(ox.StringT)).
-				Array("set-json", "set JSON values on the command line (can specify multiple or separate values with commas: key1=jsonval1,key2=jsonval2)", ox.Elem(ox.StringT)).
-				Array("set-literal", "set a literal STRING value on the command line", ox.Elem(ox.StringT)).
-				Array("set-string", "set STRING values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)", ox.Elem(ox.StringT)).
-				Array("show-only", "only show manifests rendered from the given templates", ox.Elem(ox.StringT), ox.Short("s")).
+				Array("set", "set values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)").
+				Array("set-file", "set values from respective files specified via the command line (can specify multiple or separate values with commas: key1=path1,key2=path2)").
+				Array("set-json", "set JSON values on the command line (can specify multiple or separate values with commas: key1=jsonval1,key2=jsonval2)").
+				Array("set-literal", "set a literal STRING value on the command line").
+				Array("set-string", "set STRING values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)").
+				Array("show-only", "only show manifests rendered from the given templates", ox.Short("s")).
 				Bool("skip-crds", "if set, no CRDs will be installed. By default, CRDs are installed if not already present").
 				Bool("skip-schema-validation", "if set, disables JSON schema validation").
 				Bool("skip-tests", "skip tests from templated output").
 				Duration("timeout", "time to wait for any individual Kubernetes operation (like Jobs for hooks)", ox.Default("5m0s")).
 				String("username", "chart repository username where to locate the requested chart").
 				Bool("validate", "validate your manifests against the Kubernetes cluster you are currently pointing at. This is the same validation performed on an install").
-				Slice("values", "specify values in a YAML file or a URL (can specify multiple)", ox.Elem(ox.StringT), ox.Short("f")).
+				Slice("values", "specify values in a YAML file or a URL (can specify multiple)", ox.Short("f")).
 				Bool("verify", "verify the package before using it").
 				Bool("wait", "if set, will wait until all Pods, PVCs, Services, and minimum number of Pods of a Deployment, StatefulSet, or ReplicaSet are in a ready state before marking the release as successful. It will wait for as long as --timeout").
 				Bool("wait-for-jobs", "if set and --wait enabled, will wait until all Jobs have been completed before marking the release as successful. It will wait for as long as --timeout").
 				Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 				Bool("debug", "enable verbose output", ox.Section(0)).
 				String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 				String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 				String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 				String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -1493,14 +1493,14 @@ func main() {
 				"Global Flags",
 			)),
 			ox.Flags().
-				Slice("filter", "specify tests by attribute (currently \"name\") using attribute=value syntax or '!attribute=value' to exclude a test (can specify multiple or separate values with commas: name=test1,name=test2)", ox.Elem(ox.StringT)).
+				Slice("filter", "specify tests by attribute (currently \"name\") using attribute=value syntax or '!attribute=value' to exclude a test (can specify multiple or separate values with commas: name=test1,name=test2)").
 				Bool("hide-notes", "if set, do not show notes in test output. Does not affect presence in chart metadata").
 				Bool("logs", "dump the logs from test pods (this runs after all tests are complete, but before any cleanup)").
 				Duration("timeout", "time to wait for any individual Kubernetes operation (like Jobs for hooks)", ox.Default("5m0s")).
 				Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 				Bool("debug", "enable verbose output", ox.Section(0)).
 				String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 				String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 				String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 				String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -1534,7 +1534,7 @@ func main() {
 				Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 				Bool("debug", "enable verbose output", ox.Section(0)).
 				String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 				String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 				String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 				String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -1565,7 +1565,7 @@ func main() {
 				String("description", "add a custom description").
 				Bool("devel", "use development versions, too. Equivalent to version '>0.0.0-0'. If --version is set, this is ignored").
 				Bool("disable-openapi-validation", "if set, the upgrade process will not validate rendered templates against the Kubernetes OpenAPI Schema").
-				Map("dry-run", "simulate an install. If --dry-run is set with no option being specified or as '--dry-run=client', it will not attempt cluster connections. Setting '--dry-run=server' allows attempting cluster connections.", ox.Spec("string[=\"client\"]"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT)).
+				Map("dry-run", "simulate an install. If --dry-run is set with no option being specified or as '--dry-run=client', it will not attempt cluster connections. Setting '--dry-run=server' allows attempting cluster connections.", ox.Spec("string[=\"client\"]")).
 				Bool("enable-dns", "enable DNS lookups when rendering templates").
 				Bool("force", "force resource updates through a replacement strategy").
 				Bool("hide-notes", "if set, do not show notes in upgrade output. Does not affect presence in chart metadata").
@@ -1575,7 +1575,7 @@ func main() {
 				Bool("install", "if a release by this name doesn't already exist, run an install", ox.Short("i")).
 				String("key-file", "identify HTTPS client using this SSL key file").
 				String("keyring", "location of public keys used for verification", ox.Default("$HOME/.gnupg/pubring.gpg")).
-				Map("labels", "Labels that would be added to release metadata. Should be separated by comma. Original release labels will be merged with upgrade labels. You can unset label using null.", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("[]"), ox.Short("l")).
+				Map("labels", "Labels that would be added to release metadata. Should be separated by comma. Original release labels will be merged with upgrade labels. You can unset label using null.", ox.Default("[]"), ox.Short("l")).
 				Bool("no-hooks", "disable pre/post upgrade hooks").
 				String("output", "prints the output in the specified format. Allowed values: table, json, yaml", ox.Spec("format"), ox.Default("table"), ox.Short("o")).
 				Bool("pass-credentials", "pass credentials to all domains").
@@ -1588,23 +1588,23 @@ func main() {
 				Bool("reset-then-reuse-values", "when upgrading, reset the values to the ones built into the chart, apply the last release's values and merge in any overrides from the command line via --set and -f. If '--reset-values' or '--reuse-values' is specified, this is ignored").
 				Bool("reset-values", "when upgrading, reset the values to the ones built into the chart").
 				Bool("reuse-values", "when upgrading, reuse the last release's values and merge in any overrides from the command line via --set and -f. If '--reset-values' is specified, this is ignored").
-				Array("set", "set values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)", ox.Elem(ox.StringT)).
-				Array("set-file", "set values from respective files specified via the command line (can specify multiple or separate values with commas: key1=path1,key2=path2)", ox.Elem(ox.StringT)).
-				Array("set-json", "set JSON values on the command line (can specify multiple or separate values with commas: key1=jsonval1,key2=jsonval2)", ox.Elem(ox.StringT)).
-				Array("set-literal", "set a literal STRING value on the command line", ox.Elem(ox.StringT)).
-				Array("set-string", "set STRING values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)", ox.Elem(ox.StringT)).
+				Array("set", "set values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)").
+				Array("set-file", "set values from respective files specified via the command line (can specify multiple or separate values with commas: key1=path1,key2=path2)").
+				Array("set-json", "set JSON values on the command line (can specify multiple or separate values with commas: key1=jsonval1,key2=jsonval2)").
+				Array("set-literal", "set a literal STRING value on the command line").
+				Array("set-string", "set STRING values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)").
 				Bool("skip-crds", "if set, no CRDs will be installed when an upgrade is performed with install flag enabled. By default, CRDs are installed if not already present, when an upgrade is performed with install flag enabled").
 				Bool("skip-schema-validation", "if set, disables JSON schema validation").
 				Duration("timeout", "time to wait for any individual Kubernetes operation (like Jobs for hooks)", ox.Default("5m0s")).
 				String("username", "chart repository username where to locate the requested chart").
-				Slice("values", "specify values in a YAML file or a URL (can specify multiple)", ox.Elem(ox.StringT), ox.Short("f")).
+				Slice("values", "specify values in a YAML file or a URL (can specify multiple)", ox.Short("f")).
 				Bool("verify", "verify the package before using it").
 				Bool("wait", "if set, will wait until all Pods, PVCs, Services, and minimum number of Pods of a Deployment, StatefulSet, or ReplicaSet are in a ready state before marking the release as successful. It will wait for as long as --timeout").
 				Bool("wait-for-jobs", "if set and --wait enabled, will wait until all Jobs have been completed before marking the release as successful. It will wait for as long as --timeout").
 				Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 				Bool("debug", "enable verbose output", ox.Section(0)).
 				String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 				String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 				String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 				String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -1630,7 +1630,7 @@ func main() {
 				Int("burst-limit", "client-side default throttling limit", ox.Default("100"), ox.Section(0)).
 				Bool("debug", "enable verbose output", ox.Section(0)).
 				String("kube-apiserver", "the address and the port for the Kubernetes API server", ox.Section(0)).
-				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Section(0)).
 				String("kube-as-user", "username to impersonate for the operation", ox.Section(0)).
 				String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection", ox.Section(0)).
 				String("kube-context", "name of the kubeconfig context to use", ox.Section(0)).
@@ -1648,7 +1648,7 @@ func main() {
 			Int("burst-limit", "client-side default throttling limit", ox.Default("100")).
 			Bool("debug", "enable verbose output").
 			String("kube-apiserver", "the address and the port for the Kubernetes API server").
-			Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.", ox.Elem(ox.StringT)).
+			Array("kube-as-group", "group to impersonate for the operation, this flag can be repeated to specify multiple groups.").
 			String("kube-as-user", "username to impersonate for the operation").
 			String("kube-ca-file", "the certificate authority file for the Kubernetes API server connection").
 			String("kube-context", "name of the kubeconfig context to use").

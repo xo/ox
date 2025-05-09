@@ -38,7 +38,7 @@ func main() {
 					String("git-protocol", "The protocol to use for git operations on this host: {ssh|https}", ox.Short("p"), ox.Section(0)).
 					String("hostname", "The hostname of the GitHub instance to authenticate with", ox.Short("h"), ox.Section(0)).
 					Bool("insecure-storage", "Save authentication credentials in plain text instead of credential store", ox.Section(0)).
-					Slice("scopes", "Additional authentication scopes to request", ox.Elem(ox.StringT), ox.Short("s"), ox.Section(0)).
+					Slice("scopes", "Additional authentication scopes to request", ox.Short("s"), ox.Section(0)).
 					Bool("skip-ssh-key", "Skip generate/upload SSH key prompt", ox.Section(0)).
 					Bool("web", "Open a browser to authenticate", ox.Short("w"), ox.Section(0)).
 					Bool("with-token", "Read token from standard input", ox.Section(0)),
@@ -68,9 +68,9 @@ func main() {
 				ox.Flags().
 					String("hostname", "The GitHub host to use for authentication", ox.Short("h"), ox.Section(0)).
 					Bool("insecure-storage", "Save authentication credentials in plain text instead of credential store", ox.Section(0)).
-					Slice("remove-scopes", "Authentication scopes to remove from gh", ox.Elem(ox.StringT), ox.Short("r"), ox.Section(0)).
+					Slice("remove-scopes", "Authentication scopes to remove from gh", ox.Short("r"), ox.Section(0)).
 					Bool("reset-scopes", "Reset authentication scopes to the default minimum set of scopes", ox.Section(0)).
-					Slice("scopes", "Additional authentication scopes for gh to have", ox.Elem(ox.StringT), ox.Short("s"), ox.Section(0)),
+					Slice("scopes", "Additional authentication scopes for gh to have", ox.Short("s"), ox.Section(0)),
 			),
 			ox.Sub(
 				ox.Banner("This command configures `git` to use GitHub CLI as a credential helper.\nFor more information on git credential helpers please reference:\n<https://git-scm.com/docs/gitcredentials>.\n\nBy default, GitHub CLI will be set as the credential helper for all authenticated hosts.\nIf there is no authenticated hosts the command fails with an error.\n\nAlternatively, use the `--hostname` flag to specify a single host to be configured.\nIf the host is not authenticated with, the command fails with an error."),
@@ -136,7 +136,7 @@ func main() {
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Flags().
 				String("branch", "Select another branch by passing in the branch name", ox.Short("b"), ox.Section(0)).
-				Map("commit", "Select another commit by passing in the commit SHA, default is the last commit", ox.Spec("string[=\"last\"]"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Short("c"), ox.Section(0)).
+				Map("commit", "Select another commit by passing in the commit SHA, default is the last commit", ox.Spec("string[=\"last\"]"), ox.Short("c"), ox.Section(0)).
 				Bool("no-browser", "Print destination URL instead of opening the browser", ox.Short("n"), ox.Section(0)).
 				Bool("projects", "Open repository projects", ox.Short("p"), ox.Section(0)).
 				Bool("releases", "Open repository releases", ox.Short("r"), ox.Section(0)).
@@ -261,7 +261,7 @@ func main() {
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 				ox.Flags().
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 					Int("limit", "Maximum number of codespaces to list", ox.Default("30"), ox.Short("L"), ox.Section(0)).
 					String("org", "The login handle of the organization to list codespaces for (admin-only)", ox.Spec("login"), ox.Short("o"), ox.Section(0)).
 					String("repo", "Repository name with owner: user/repo", ox.Short("R"), ox.Section(0)).
@@ -321,7 +321,7 @@ func main() {
 				ox.Flags().
 					String("codespace", "Name of the codespace", ox.Short("c"), ox.Section(0)).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 					String("repo", "Filter codespace selection by repository name (user/repo)", ox.Short("R"), ox.Section(0)).
 					String("repo-owner", "Filter codespace selection by repository owner (username or org)", ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)),
@@ -386,7 +386,7 @@ func main() {
 				ox.Flags().
 					String("codespace", "Name of the codespace", ox.Short("c"), ox.Section(0)).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 					String("repo", "Filter codespace selection by repository name (user/repo)", ox.Short("R"), ox.Section(0)).
 					String("repo-owner", "Filter codespace selection by repository owner (username or org)", ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)),
@@ -538,8 +538,8 @@ func main() {
 					String("assignee", "Filter by assignee", ox.Short("a"), ox.Section(0)).
 					String("author", "Filter by author", ox.Short("A"), ox.Section(0)).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("label", "Filter by label", ox.Elem(ox.StringT), ox.Short("l"), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
+					Slice("label", "Filter by label", ox.Short("l"), ox.Section(0)).
 					Int("limit", "Maximum number of issues to fetch", ox.Default("30"), ox.Short("L"), ox.Section(0)).
 					String("mention", "Filter by mention", ox.Section(0)).
 					String("milestone", "Filter by milestone number or title", ox.Short("m"), ox.Section(0)).
@@ -561,7 +561,7 @@ func main() {
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 				ox.Flags().
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
@@ -749,7 +749,7 @@ func main() {
 				ox.Flags().
 					Bool("comments", "View issue comments", ox.Short("c"), ox.Section(0)).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
 					Bool("web", "Open an issue in the browser", ox.Short("w"), ox.Section(0)).
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
@@ -846,8 +846,8 @@ func main() {
 					Bool("draft", "Filter by draft state", ox.Short("d"), ox.Section(0)).
 					String("head", "Filter by head branch", ox.Short("H"), ox.Section(0)).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("label", "Filter by label", ox.Elem(ox.StringT), ox.Short("l"), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
+					Slice("label", "Filter by label", ox.Short("l"), ox.Section(0)).
 					Int("limit", "Maximum number of items to fetch", ox.Default("30"), ox.Short("L"), ox.Section(0)).
 					String("search", "Search pull requests with query", ox.Spec("query"), ox.Short("S"), ox.Section(0)).
 					String("state", "Filter by state: {open|closed|merged|all}", ox.Default("open"), ox.Short("s"), ox.Section(0)).
@@ -868,7 +868,7 @@ func main() {
 				ox.Flags().
 					Bool("conflict-status", "Display the merge conflict status of each pull request", ox.Short("c"), ox.Section(0)).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
@@ -904,7 +904,7 @@ func main() {
 					Bool("fail-fast", "Exit watch mode on first check failure", ox.Section(0)).
 					String("interval", "Refresh interval in seconds when using --watch flag", ox.Spec("--watch"), ox.Default("10"), ox.Short("i"), ox.Section(0)).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 					Bool("required", "Only show checks that are required", ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
 					Bool("watch", "Watch checks until they finish", ox.Section(0)).
@@ -1117,7 +1117,7 @@ func main() {
 				ox.Flags().
 					Bool("comments", "View pull request comments", ox.Short("c"), ox.Section(0)).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
 					Bool("web", "Open a pull request in the browser", ox.Short("w"), ox.Section(0)).
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
@@ -1231,7 +1231,7 @@ func main() {
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
 					String("name", "Name of the new field", ox.Section(0)).
 					String("owner", "Login of the owner. Use \"@me\" for the current user.", ox.Section(0)).
-					Slice("single-select-options", "Options for SINGLE_SELECT data type", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("single-select-options", "Options for SINGLE_SELECT data type", ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)),
 			),
 			ox.Sub(
@@ -1504,7 +1504,7 @@ func main() {
 					Bool("exclude-drafts", "Exclude draft releases", ox.Section(0)).
 					Bool("exclude-pre-releases", "Exclude pre-releases", ox.Section(0)).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 					Int("limit", "Maximum number of items to fetch", ox.Default("30"), ox.Short("L"), ox.Section(0)).
 					String("order", "Order of releases returned: {asc|desc}", ox.Default("desc"), ox.Short("O"), ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
@@ -1555,7 +1555,7 @@ func main() {
 					Bool("clobber", "Overwrite existing files of the same name", ox.Section(0)).
 					String("dir", "The directory to download files into", ox.Spec("directory"), ox.Default("."), ox.Short("D"), ox.Section(0)).
 					String("output", "The file to write a single asset to (use \"-\" to write to standard output)", ox.Spec("file"), ox.Short("O"), ox.Section(0)).
-					Array("pattern", "Download only assets that match a glob pattern", ox.Elem(ox.StringT), ox.Short("p"), ox.Section(0)).
+					Array("pattern", "Download only assets that match a glob pattern", ox.Short("p"), ox.Section(0)).
 					Bool("skip-existing", "Skip downloading when files of the same name exist", ox.Section(0)).
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
@@ -1609,7 +1609,7 @@ func main() {
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 				ox.Flags().
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
 					Bool("web", "Open the release in the browser", ox.Short("w"), ox.Section(0)).
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
@@ -1669,13 +1669,13 @@ func main() {
 					Bool("archived", "Show only archived repositories", ox.Section(0)).
 					Bool("fork", "Show only forks", ox.Section(0)).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 					String("language", "Filter by primary coding language", ox.Short("l"), ox.Section(0)).
 					Int("limit", "Maximum number of repositories to list", ox.Default("30"), ox.Short("L"), ox.Section(0)).
 					Bool("no-archived", "Omit archived repositories", ox.Section(0)).
 					Bool("source", "Show only non-forks", ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
-					Slice("topic", "Filter by topic", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("topic", "Filter by topic", ox.Section(0)).
 					String("visibility", "Filter by repository visibility: {public|private|internal}", ox.Section(0)),
 			),
 			ox.Sub(
@@ -1739,7 +1739,7 @@ func main() {
 					ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 					ox.Flags().
 						String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-						Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+						Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 						String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
 						Bool("web", "List autolink references in the web browser", ox.Short("w"), ox.Section(0)).
 						String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
@@ -1755,7 +1755,7 @@ func main() {
 					ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 					ox.Flags().
 						String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-						Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+						Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 						String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
 						String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 				),
@@ -1834,7 +1834,7 @@ func main() {
 					ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 					ox.Flags().
 						String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-						Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+						Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 						String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
 						String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 				),
@@ -1853,7 +1853,7 @@ func main() {
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 				ox.Flags().
 					Bool("accept-visibility-change-consequences", "Accept the consequences of changing the repository visibility", ox.Section(0)).
-					Slice("add-topic", "Add repository topic", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("add-topic", "Add repository topic", ox.Section(0)).
 					Bool("allow-forking", "Allow forking of an organization repository", ox.Section(0)).
 					Bool("allow-update-branch", "Allow a pull request head branch that is behind its base branch to be updated", ox.Section(0)).
 					String("default-branch", "Set the default branch name for the repository", ox.Spec("name"), ox.Section(0)).
@@ -1871,7 +1871,7 @@ func main() {
 					Bool("enable-squash-merge", "Enable merging pull requests via squashed commit", ox.Section(0)).
 					Bool("enable-wiki", "Enable wiki in the repository", ox.Section(0)).
 					URL("homepage", "Repository home page URL", ox.Short("h"), ox.Section(0)).
-					Slice("remove-topic", "Remove repository topic", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("remove-topic", "Remove repository topic", ox.Section(0)).
 					Bool("template", "Make the repository available as a template repository", ox.Section(0)).
 					String("visibility", "Change the visibility of the repository to {public,private,internal}", ox.Section(0)),
 			),
@@ -2006,7 +2006,7 @@ func main() {
 				ox.Flags().
 					String("branch", "View a specific branch of the repository", ox.Short("b"), ox.Section(0)).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
 					Bool("web", "Open a repository in the browser", ox.Short("w"), ox.Section(0)),
 			),
@@ -2049,7 +2049,7 @@ func main() {
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 				ox.Flags().
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 					String("key", "Filter by cache key prefix", ox.Short("k"), ox.Section(0)).
 					Int("limit", "Maximum number of caches to fetch", ox.Default("30"), ox.Short("L"), ox.Section(0)).
 					String("order", "Order of caches returned: {asc|desc}", ox.Default("desc"), ox.Short("O"), ox.Section(0)).
@@ -2105,8 +2105,8 @@ func main() {
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 				ox.Flags().
 					String("dir", "The directory to download artifacts into", ox.Default("."), ox.Short("D"), ox.Section(0)).
-					Array("name", "Download artifacts that match any of the given names", ox.Elem(ox.StringT), ox.Short("n"), ox.Section(0)).
-					Array("pattern", "Download artifacts that match a glob pattern", ox.Elem(ox.StringT), ox.Short("p"), ox.Section(0)).
+					Array("name", "Download artifacts that match any of the given names", ox.Short("n"), ox.Section(0)).
+					Array("pattern", "Download artifacts that match a glob pattern", ox.Short("p"), ox.Section(0)).
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
@@ -2126,7 +2126,7 @@ func main() {
 					Date("created", "Filter runs by the date it was created", ox.Section(0)).
 					String("event", "Filter runs by which event triggered the run", ox.Spec("event"), ox.Short("e"), ox.Section(0)).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 					Int("limit", "Maximum number of runs to fetch", ox.Default("20"), ox.Short("L"), ox.Section(0)).
 					String("status", "Filter runs by status: {queued|completed|in_progress|requested|waiting|pending|action_required|cancelled|failure|neutral|skipped|stale|startup_failure|success|timed_out}", ox.Short("s"), ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
@@ -2164,7 +2164,7 @@ func main() {
 					Bool("exit-status", "Exit with non-zero status if run failed", ox.Section(0)).
 					String("job", "View a specific job ID from a run", ox.Short("j"), ox.Section(0)).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 					Bool("log", "View full log for either a run or specific job", ox.Section(0)).
 					Bool("log-failed", "View the log for any failed steps in a run or specific job", ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
@@ -2234,7 +2234,7 @@ func main() {
 				ox.Flags().
 					Bool("all", "Include disabled workflows", ox.Short("a"), ox.Section(0)).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 					Int("limit", "Maximum number of workflows to fetch", ox.Default("50"), ox.Short("L"), ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
@@ -2250,9 +2250,9 @@ func main() {
 				)),
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 				ox.Flags().
-					Map("field", "Add a string parameter in key=value format, respecting @ syntax (see \"gh help api\").", ox.Spec("key=value"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Short("F"), ox.Section(0)).
+					Map("field", "Add a string parameter in key=value format, respecting @ syntax (see \"gh help api\").", ox.Spec("key=value"), ox.Short("F"), ox.Section(0)).
 					Bool("json", "Read workflow inputs as JSON via STDIN", ox.Section(0)).
-					Map("raw-field", "Add a string parameter in key=value format", ox.Spec("key=value"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Map("raw-field", "Add a string parameter in key=value format", ox.Spec("key=value"), ox.Short("f"), ox.Section(0)).
 					String("ref", "Branch or tag name which contains the version of the workflow file you'd like to run", ox.Short("r"), ox.Section(0)).
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
 			),
@@ -2355,7 +2355,7 @@ func main() {
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Flags().
 				Duration("cache", "Cache the response, e.g. \"3600s\", \"60m\", \"1h\"", ox.Section(0)).
-				Map("field", "Add a typed parameter in key=value format", ox.Spec("key=value"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Short("F"), ox.Section(0)).
+				Map("field", "Add a typed parameter in key=value format", ox.Spec("key=value"), ox.Short("F"), ox.Section(0)).
 				String("header", "Add a HTTP request header in key:value format", ox.Spec("key:value"), ox.Short("H"), ox.Section(0)).
 				String("hostname", "The GitHub hostname for the request", ox.Default("github.com"), ox.Section(0)).
 				Bool("include", "Include HTTP response status line and headers in the output", ox.Short("i"), ox.Section(0)).
@@ -2363,8 +2363,8 @@ func main() {
 				String("jq", "Query to select values from the response using jq syntax", ox.Short("q"), ox.Section(0)).
 				String("method", "The HTTP method for the request", ox.Default("GET"), ox.Short("X"), ox.Section(0)).
 				Bool("paginate", "Make additional HTTP requests to fetch all pages of results", ox.Section(0)).
-				Slice("preview", "GitHub API preview names to request (without the \"-preview\" suffix)", ox.Elem(ox.StringT), ox.Short("p"), ox.Section(0)).
-				Map("raw-field", "Add a string parameter in key=value format", ox.Spec("key=value"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Slice("preview", "GitHub API preview names to request (without the \"-preview\" suffix)", ox.Short("p"), ox.Section(0)).
+				Map("raw-field", "Add a string parameter in key=value format", ox.Spec("key=value"), ox.Short("f"), ox.Section(0)).
 				Bool("silent", "Do not print the response body", ox.Section(0)).
 				Bool("slurp", "Use with \"--paginate\" to return an array of all pages of either JSON arrays or objects", ox.Section(0)).
 				String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
@@ -2568,11 +2568,11 @@ func main() {
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 				ox.Flags().
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("license", "Filter based on license type", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
+					Slice("license", "Filter based on license type", ox.Section(0)).
 					Int("limit", "Maximum number of extensions to fetch", ox.Default("30"), ox.Short("L"), ox.Section(0)).
 					String("order", "Order of repositories returned, ignored unless '--sort' flag is specified: {asc|desc}", ox.Default("desc"), ox.Section(0)).
-					Slice("owner", "Filter on owner", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("owner", "Filter on owner", ox.Section(0)).
 					String("sort", "Sort fetched repositories: {forks|help-wanted-issues|stars|updated}", ox.Default("best-match"), ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
 					Bool("web", "Open the search query in the web browser", ox.Short("w"), ox.Section(0)),
@@ -2708,7 +2708,7 @@ func main() {
 				ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 				ox.Flags().
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 					Int("limit", "Maximum number of labels to fetch", ox.Default("30"), ox.Short("L"), ox.Section(0)).
 					String("order", "Order of labels returned: {asc|desc}", ox.Default("asc"), ox.Section(0)).
 					String("search", "Search label names and descriptions", ox.Short("S"), ox.Section(0)).
@@ -2802,12 +2802,12 @@ func main() {
 					String("extension", "Filter on file extension", ox.Section(0)).
 					String("filename", "Filter on filename", ox.Section(0)).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 					String("language", "Filter results by language", ox.Section(0)).
 					Int("limit", "Maximum number of code results to fetch", ox.Default("30"), ox.Short("L"), ox.Section(0)).
-					Slice("match", "Restrict search to file contents or file path: {file|path}", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("owner", "Filter on owner", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("repo", "Filter on repository", ox.Elem(ox.StringT), ox.Short("R"), ox.Section(0)).
+					Slice("match", "Restrict search to file contents or file path: {file|path}", ox.Section(0)).
+					Slice("owner", "Filter on owner", ox.Section(0)).
+					Slice("repo", "Filter on repository", ox.Short("R"), ox.Section(0)).
 					String("size", "Filter on size range, in kilobytes", ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
 					Bool("web", "Open the search query in the web browser", ox.Short("w"), ox.Section(0)),
@@ -2832,17 +2832,17 @@ func main() {
 					String("committer-name", "Filter on committer name", ox.Section(0)).
 					String("hash", "Filter by commit hash", ox.Section(0)).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 					Int("limit", "Maximum number of commits to fetch", ox.Default("30"), ox.Short("L"), ox.Section(0)).
 					Bool("merge", "Filter on merge commits", ox.Section(0)).
 					String("order", "Order of commits returned, ignored unless '--sort' flag is specified: {asc|desc}", ox.Default("desc"), ox.Section(0)).
-					Slice("owner", "Filter on repository owner", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("owner", "Filter on repository owner", ox.Section(0)).
 					String("parent", "Filter by parent hash", ox.Section(0)).
-					Slice("repo", "Filter on repository", ox.Elem(ox.StringT), ox.Short("R"), ox.Section(0)).
+					Slice("repo", "Filter on repository", ox.Short("R"), ox.Section(0)).
 					String("sort", "Sort fetched commits: {author-date|committer-date}", ox.Default("best-match"), ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
 					String("tree", "Filter by tree hash", ox.Section(0)).
-					Slice("visibility", "Filter based on repository visibility: {public|private|internal}", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("visibility", "Filter based on repository visibility: {public|private|internal}", ox.Section(0)).
 					Bool("web", "Open the search query in the web browser", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
@@ -2867,12 +2867,12 @@ func main() {
 					Int("interactions", "Filter on number of reactions and comments", ox.Spec("number"), ox.Section(0)).
 					String("involves", "Filter based on involvement of user", ox.Spec("user"), ox.Section(0)).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("label", "Filter on label", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
+					Slice("label", "Filter on label", ox.Section(0)).
 					String("language", "Filter based on the coding language", ox.Section(0)).
 					Int("limit", "Maximum number of results to fetch", ox.Default("30"), ox.Short("L"), ox.Section(0)).
 					Bool("locked", "Filter on locked conversation status", ox.Section(0)).
-					Slice("match", "Restrict search to specific field of issue: {title|body|comments}", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("match", "Restrict search to specific field of issue: {title|body|comments}", ox.Section(0)).
 					String("mentions", "Filter based on user mentions", ox.Spec("user"), ox.Section(0)).
 					String("milestone", "Filter by milestone title", ox.Spec("title"), ox.Section(0)).
 					Bool("no-assignee", "Filter on missing assignee", ox.Section(0)).
@@ -2880,16 +2880,16 @@ func main() {
 					Bool("no-milestone", "Filter on missing milestone", ox.Section(0)).
 					Bool("no-project", "Filter on missing project", ox.Section(0)).
 					String("order", "Order of results returned, ignored unless '--sort' flag is specified: {asc|desc}", ox.Default("desc"), ox.Section(0)).
-					Slice("owner", "Filter on repository owner", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("owner", "Filter on repository owner", ox.Section(0)).
 					String("project", "Filter on project board owner/number", ox.Spec("owner/number"), ox.Section(0)).
 					Int("reactions", "Filter on number of reactions", ox.Spec("number"), ox.Section(0)).
-					Slice("repo", "Filter on repository", ox.Elem(ox.StringT), ox.Short("R"), ox.Section(0)).
+					Slice("repo", "Filter on repository", ox.Short("R"), ox.Section(0)).
 					String("sort", "Sort fetched results: {comments|created|interactions|reactions|reactions-+1|reactions--1|reactions-heart|reactions-smile|reactions-tada|reactions-thinking_face|updated}", ox.Default("best-match"), ox.Section(0)).
 					String("state", "Filter based on state: {open|closed}", ox.Section(0)).
 					String("team-mentions", "Filter based on team mentions", ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
 					Date("updated", "Filter on last updated at date", ox.Section(0)).
-					Slice("visibility", "Filter based on repository visibility: {public|private|internal}", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("visibility", "Filter based on repository visibility: {public|private|internal}", ox.Section(0)).
 					Bool("web", "Open the search query in the web browser", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
@@ -2917,12 +2917,12 @@ func main() {
 					Int("interactions", "Filter on number of reactions and comments", ox.Spec("number"), ox.Section(0)).
 					String("involves", "Filter based on involvement of user", ox.Spec("user"), ox.Section(0)).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("label", "Filter on label", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
+					Slice("label", "Filter on label", ox.Section(0)).
 					String("language", "Filter based on the coding language", ox.Section(0)).
 					Int("limit", "Maximum number of results to fetch", ox.Default("30"), ox.Short("L"), ox.Section(0)).
 					Bool("locked", "Filter on locked conversation status", ox.Section(0)).
-					Slice("match", "Restrict search to specific field of issue: {title|body|comments}", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("match", "Restrict search to specific field of issue: {title|body|comments}", ox.Section(0)).
 					String("mentions", "Filter based on user mentions", ox.Spec("user"), ox.Section(0)).
 					Bool("merged", "Filter based on merged state", ox.Section(0)).
 					Date("merged-at", "Filter on merged at date", ox.Section(0)).
@@ -2932,10 +2932,10 @@ func main() {
 					Bool("no-milestone", "Filter on missing milestone", ox.Section(0)).
 					Bool("no-project", "Filter on missing project", ox.Section(0)).
 					String("order", "Order of results returned, ignored unless '--sort' flag is specified: {asc|desc}", ox.Default("desc"), ox.Section(0)).
-					Slice("owner", "Filter on repository owner", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("owner", "Filter on repository owner", ox.Section(0)).
 					String("project", "Filter on project board owner/number", ox.Spec("owner/number"), ox.Section(0)).
 					Int("reactions", "Filter on number of reactions", ox.Spec("number"), ox.Section(0)).
-					Slice("repo", "Filter on repository", ox.Elem(ox.StringT), ox.Short("R"), ox.Section(0)).
+					Slice("repo", "Filter on repository", ox.Short("R"), ox.Section(0)).
 					String("review", "Filter based on review status: {none|required|approved|changes_requested}", ox.Section(0)).
 					String("review-requested", "Filter on user or team requested to review", ox.Spec("user"), ox.Section(0)).
 					String("reviewed-by", "Filter on user who reviewed", ox.Spec("user"), ox.Section(0)).
@@ -2944,7 +2944,7 @@ func main() {
 					String("team-mentions", "Filter based on team mentions", ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
 					Date("updated", "Filter on last updated at date", ox.Section(0)).
-					Slice("visibility", "Filter based on repository visibility: {public|private|internal}", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("visibility", "Filter based on repository visibility: {public|private|internal}", ox.Section(0)).
 					Bool("web", "Open the search query in the web browser", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
@@ -2965,21 +2965,21 @@ func main() {
 					Int("help-wanted-issues", "Filter on number of issues with the 'help wanted' label", ox.Spec("number"), ox.Section(0)).
 					String("include-forks", "Include forks in fetched repositories: {false|true|only}", ox.Section(0)).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 					String("language", "Filter based on the coding language", ox.Section(0)).
-					Slice("license", "Filter based on license type", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("license", "Filter based on license type", ox.Section(0)).
 					Int("limit", "Maximum number of repositories to fetch", ox.Default("30"), ox.Short("L"), ox.Section(0)).
-					Slice("match", "Restrict search to specific field of repository: {name|description|readme}", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("match", "Restrict search to specific field of repository: {name|description|readme}", ox.Section(0)).
 					Int("number-topics", "Filter on number of topics", ox.Spec("number"), ox.Section(0)).
 					String("order", "Order of repositories returned, ignored unless '--sort' flag is specified: {asc|desc}", ox.Default("desc"), ox.Section(0)).
-					Slice("owner", "Filter on owner", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("owner", "Filter on owner", ox.Section(0)).
 					String("size", "Filter on a size range, in kilobytes", ox.Section(0)).
 					String("sort", "Sort fetched repositories: {forks|help-wanted-issues|stars|updated}", ox.Default("best-match"), ox.Section(0)).
 					Int("stars", "Filter on number of stars", ox.Spec("number"), ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
-					Slice("topic", "Filter on topic", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("topic", "Filter on topic", ox.Section(0)).
 					Date("updated", "Filter on last updated at date", ox.Section(0)).
-					Slice("visibility", "Filter based on visibility: {public|private|internal}", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("visibility", "Filter based on visibility: {public|private|internal}", ox.Section(0)).
 					Bool("web", "Open the search query in the web browser", ox.Short("w"), ox.Section(0)),
 			),
 		),
@@ -3023,7 +3023,7 @@ func main() {
 					String("app", "List secrets for a specific application: {actions|codespaces|dependabot}", ox.Short("a"), ox.Section(0)).
 					String("env", "List secrets for an environment", ox.Short("e"), ox.Section(0)).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 					String("org", "List secrets for an organization", ox.Short("o"), ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
 					Bool("user", "List a secret for your user", ox.Short("u"), ox.Section(0)).
@@ -3102,7 +3102,7 @@ func main() {
 			)),
 			ox.Footer("Use `gh <command> <subcommand> --help` for more information about a command.\n  Read the manual at https://cli.github.com/manual\n  Learn about exit codes using `gh help exit-codes`\n  Learn about accessibility experiences using `gh help accessibility`"),
 			ox.Flags().
-				Slice("exclude", "Comma separated list of repos to exclude in owner/name format", ox.Elem(ox.StringT), ox.Short("e"), ox.Section(0)).
+				Slice("exclude", "Comma separated list of repos to exclude in owner/name format", ox.Short("e"), ox.Section(0)).
 				String("org", "Report status within an organization", ox.Short("o"), ox.Section(0)),
 		),
 		ox.Sub(
@@ -3141,7 +3141,7 @@ func main() {
 				ox.Flags().
 					String("env", "Get a variable for an environment", ox.Short("e"), ox.Section(0)).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 					String("org", "Get a variable for an organization", ox.Short("o"), ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),
@@ -3159,7 +3159,7 @@ func main() {
 				ox.Flags().
 					String("env", "List variables for an environment", ox.Short("e"), ox.Section(0)).
 					String("jq", "Filter JSON output using a jq expression", ox.Spec("expression"), ox.Short("q"), ox.Section(0)).
-					Slice("json", "Output JSON with the specified fields", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("json", "Output JSON with the specified fields", ox.Section(0)).
 					String("org", "List variables for an organization", ox.Short("o"), ox.Section(0)).
 					String("template", "Format JSON output using a Go template; see \"gh help formatting\"", ox.Short("t"), ox.Section(0)).
 					String("repo", "Select another repository using the [HOST/]OWNER/REPO format", ox.Spec("[HOST/]OWNER/REPO"), ox.Short("R"), ox.Section(1)),

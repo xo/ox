@@ -194,10 +194,14 @@ func (args *Args) writeFlag(w io.Writer, g flag, indent int) error {
 		v = append(v, fmt.Sprintf("ox.Spec(%q)", g.spec))
 	}
 	if g.key != "" {
-		v = append(v, fmt.Sprintf("ox.MapKey(ox.%sT)", oxType(g.key)))
+		if typ := oxType(g.key); typ != "String" {
+			v = append(v, fmt.Sprintf("ox.MapKey(ox.%sT)", typ))
+		}
 	}
 	if g.elem != "" {
-		v = append(v, fmt.Sprintf("ox.Elem(ox.%sT)", oxType(g.elem)))
+		if typ := oxType(g.elem); typ != "String" {
+			v = append(v, fmt.Sprintf("ox.Elem(ox.%sT)", typ))
+		}
 	}
 	if g.dflt != "" {
 		v = append(v, fmt.Sprintf("ox.Default(%q)", g.dflt))

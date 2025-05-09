@@ -31,13 +31,13 @@ func main() {
 				"Options",
 			)),
 			ox.Flags().
-				Slice("add-host", "Add a custom host-to-IP mapping", ox.Elem(ox.StringT), ox.Section(0)).
-				Map("annotation", "Add an annotation to the", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Elem(ox.StringT), ox.Short("a"), ox.Section(0)).
+				Slice("add-host", "Add a custom host-to-IP mapping", ox.Section(0)).
+				Map("annotation", "Add an annotation to the", ox.Section(0)).
+				Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Short("a"), ox.Section(0)).
 				Uint16("blkio-weight", "Block IO (relative weight),", ox.Section(0)).
-				Slice("blkio-weight-device", "Block IO weight (relative device", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("cap-add", "Add Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("cap-drop", "Drop Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("blkio-weight-device", "Block IO weight (relative device", ox.Section(0)).
+				Slice("cap-add", "Add Linux capabilities", ox.Section(0)).
+				Slice("cap-drop", "Drop Linux capabilities", ox.Section(0)).
 				String("cgroup-parent", "Optional parent cgroup for the", ox.Section(0)).
 				String("cgroupns", "Cgroup namespace to use", ox.Section(0)).
 				String("cidfile", "Write the container ID to the file", ox.Section(0)).
@@ -53,23 +53,23 @@ func main() {
 				String("cpuset-mems", "MEMs in which to allow execution", ox.Section(0)).
 				Bool("detach", "Run container in background and", ox.Short("d"), ox.Section(0)).
 				String("detach-keys", "Override the key sequence for", ox.Section(0)).
-				Slice("device", "Add a host device to the container", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("device-cgroup-rule", "Add a rule to the cgroup allowed", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("device-read-bps", "Limit read rate (bytes per", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("device-read-iops", "Limit read rate (IO per second)", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("device-write-bps", "Limit write rate (bytes per", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("device-write-iops", "Limit write rate (IO per second)", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("device", "Add a host device to the container", ox.Section(0)).
+				Slice("device-cgroup-rule", "Add a rule to the cgroup allowed", ox.Section(0)).
+				Slice("device-read-bps", "Limit read rate (bytes per", ox.Section(0)).
+				Slice("device-read-iops", "Limit read rate (IO per second)", ox.Section(0)).
+				Slice("device-write-bps", "Limit write rate (bytes per", ox.Section(0)).
+				Slice("device-write-iops", "Limit write rate (IO per second)", ox.Section(0)).
 				Bool("disable-content-trust", "Skip image verification (default", ox.Section(0)).
-				Slice("dns", "Set custom DNS servers", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("dns-option", "Set DNS options", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("dns-search", "Set custom DNS search domains", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("dns", "Set custom DNS servers", ox.Section(0)).
+				Slice("dns-option", "Set DNS options", ox.Section(0)).
+				Slice("dns-search", "Set custom DNS search domains", ox.Section(0)).
 				String("domainname", "Container NIS domain name", ox.Section(0)).
 				String("entrypoint", "Overwrite the default ENTRYPOINT", ox.Section(0)).
-				Slice("env", "Set environment variables", ox.Elem(ox.StringT), ox.Short("e"), ox.Section(0)).
-				Slice("env-file", "Read in a file of environment", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("expose", "Expose a port or a range of ports", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("env", "Set environment variables", ox.Short("e"), ox.Section(0)).
+				Slice("env-file", "Read in a file of environment", ox.Section(0)).
+				Slice("expose", "Expose a port or a range of ports", ox.Section(0)).
 				String("gpus", "GPU devices to add to the", ox.Spec("gpu-request"), ox.Section(0)).
-				Slice("group-add", "Add additional groups to join", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("group-add", "Add additional groups to join", ox.Section(0)).
 				String("health-cmd", "Command to run to check health", ox.Section(0)).
 				Duration("health-interval", "Time between running the check", ox.Section(0)).
 				Int("health-retries", "Consecutive failures needed to", ox.Section(0)).
@@ -86,12 +86,12 @@ func main() {
 				String("ipc", "IPC mode to use", ox.Section(0)).
 				String("isolation", "Container isolation technology", ox.Section(0)).
 				Slice("kernel-memory", "Kernel memory limit", ox.Elem(ox.UintT), ox.Section(0)).
-				Slice("label", "Set meta data on a container", ox.Elem(ox.StringT), ox.Short("l"), ox.Section(0)).
-				Slice("label-file", "Read in a line delimited file of", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("link", "Add link to another container", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("link-local-ip", "Container IPv4/IPv6 link-local", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("label", "Set meta data on a container", ox.Short("l"), ox.Section(0)).
+				Slice("label-file", "Read in a line delimited file of", ox.Section(0)).
+				Slice("link", "Add link to another container", ox.Section(0)).
+				Slice("link-local-ip", "Container IPv4/IPv6 link-local", ox.Section(0)).
 				String("log-driver", "Logging driver for the container", ox.Section(0)).
-				Slice("log-opt", "Log driver options", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("log-opt", "Log driver options", ox.Section(0)).
 				String("mac-address", "Container MAC address (e.g.,", ox.Section(0)).
 				Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m"), ox.Section(0)).
 				Slice("memory-reservation", "Memory soft limit", ox.Elem(ox.UintT), ox.Section(0)).
@@ -100,7 +100,7 @@ func main() {
 				String("mount", "Attach a filesystem mount to the", ox.Spec("mount"), ox.Section(0)).
 				String("name", "Assign a name to the container", ox.Section(0)).
 				String("network", "Connect a container to a network", ox.Spec("network"), ox.Section(0)).
-				Slice("network-alias", "Add network-scoped alias for the", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("network-alias", "Add network-scoped alias for the", ox.Section(0)).
 				Bool("no-healthcheck", "Disable any container-specified", ox.Section(0)).
 				Bool("oom-kill-disable", "Disable OOM Killer", ox.Section(0)).
 				Int("oom-score-adj", "Tune host's OOM preferences", ox.Section(0)).
@@ -108,7 +108,7 @@ func main() {
 				Int("pids-limit", "Tune container pids limit (set", ox.Section(0)).
 				String("platform", "Set platform if server is", ox.Section(0)).
 				Bool("privileged", "Give extended privileges to this", ox.Section(0)).
-				Slice("publish", "Publish a container's port(s) to", ox.Elem(ox.StringT), ox.Short("p"), ox.Section(0)).
+				Slice("publish", "Publish a container's port(s) to", ox.Short("p"), ox.Section(0)).
 				Bool("publish-all", "Publish all exposed ports to", ox.Short("P"), ox.Section(0)).
 				String("pull", "Pull image before running", ox.Section(0)).
 				Bool("quiet", "Suppress the pull output", ox.Short("q"), ox.Section(0)).
@@ -116,23 +116,23 @@ func main() {
 				String("restart", "Restart policy to apply when a", ox.Section(0)).
 				Bool("rm", "Automatically remove the", ox.Section(0)).
 				String("runtime", "Runtime to use for this container", ox.Section(0)).
-				Slice("security-opt", "Security Options", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("security-opt", "Security Options", ox.Section(0)).
 				Slice("shm-size", "Size of /dev/shm", ox.Elem(ox.UintT), ox.Section(0)).
 				Bool("sig-proxy", "Proxy received signals to the", ox.Section(0)).
 				String("stop-signal", "Signal to stop the container", ox.Section(0)).
 				Int("stop-timeout", "Timeout (in seconds) to stop a", ox.Section(0)).
-				Slice("storage-opt", "Storage driver options for the", ox.Elem(ox.StringT), ox.Section(0)).
-				Map("sysctl", "Sysctl options", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]"), ox.Section(0)).
-				Slice("tmpfs", "Mount a tmpfs directory", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("storage-opt", "Storage driver options for the", ox.Section(0)).
+				Map("sysctl", "Sysctl options", ox.Default("map[]"), ox.Section(0)).
+				Slice("tmpfs", "Mount a tmpfs directory", ox.Section(0)).
 				Bool("tty", "Allocate a pseudo-TTY", ox.Short("t"), ox.Section(0)).
 				String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]"), ox.Section(0)).
 				Bool("use-api-socket", "Bind mount Docker API socket and", ox.Section(0)).
 				String("user", "Username or UID (format:", ox.Short("u"), ox.Section(0)).
 				String("userns", "User namespace to use", ox.Section(0)).
 				String("uts", "UTS namespace to use", ox.Section(0)).
-				Slice("volume", "Bind mount a volume", ox.Elem(ox.StringT), ox.Short("v"), ox.Section(0)).
+				Slice("volume", "Bind mount a volume", ox.Short("v"), ox.Section(0)).
 				String("volume-driver", "Optional volume driver for the", ox.Section(0)).
-				Slice("volumes-from", "Mount volumes from the specified", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("volumes-from", "Mount volumes from the specified", ox.Section(0)).
 				String("workdir", "Working directory inside the", ox.Short("w"), ox.Section(0)),
 		),
 		ox.Sub(
@@ -147,8 +147,8 @@ func main() {
 			ox.Flags().
 				Bool("detach", "Detached mode: run command in the background", ox.Short("d"), ox.Section(0)).
 				String("detach-keys", "Override the key sequence for detaching a", ox.Section(0)).
-				Slice("env", "Set environment variables", ox.Elem(ox.StringT), ox.Short("e"), ox.Section(0)).
-				Slice("env-file", "Read in a file of environment variables", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("env", "Set environment variables", ox.Short("e"), ox.Section(0)).
+				Slice("env-file", "Read in a file of environment variables", ox.Section(0)).
 				Bool("interactive", "Keep STDIN open even if not attached", ox.Short("i"), ox.Section(0)).
 				Bool("privileged", "Give extended privileges to the command", ox.Section(0)).
 				Bool("tty", "Allocate a pseudo-TTY", ox.Short("t"), ox.Section(0)).
@@ -184,9 +184,9 @@ func main() {
 				"Options",
 			)),
 			ox.Flags().
-				Slice("add-host", "Add a custom host-to-IP mapping (\"host:ip\")", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("build-arg", "Set build-time variables", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("cache-from", "Images to consider as cache sources", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("add-host", "Add a custom host-to-IP mapping (\"host:ip\")", ox.Section(0)).
+				Slice("build-arg", "Set build-time variables", ox.Section(0)).
+				Slice("cache-from", "Images to consider as cache sources", ox.Section(0)).
 				String("cgroup-parent", "Set the parent cgroup for the \"RUN\"", ox.Section(0)).
 				Bool("compress", "Compress the build context using gzip", ox.Section(0)).
 				Int("cpu-period", "Limit the CPU CFS (Completely Fair", ox.Section(0)).
@@ -199,7 +199,7 @@ func main() {
 				Bool("force-rm", "Always remove intermediate containers", ox.Section(0)).
 				String("iidfile", "Write the image ID to the file", ox.Section(0)).
 				String("isolation", "Container isolation technology", ox.Section(0)).
-				Slice("label", "Set metadata for an image", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("label", "Set metadata for an image", ox.Section(0)).
 				Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m"), ox.Section(0)).
 				Slice("memory-swap", "Swap limit equal to memory plus swap: -1", ox.Elem(ox.UintT), ox.Section(0)).
 				String("network", "Set the networking mode for the RUN", ox.Section(0)).
@@ -208,10 +208,10 @@ func main() {
 				Bool("pull", "Always attempt to pull a newer version of", ox.Section(0)).
 				Bool("quiet", "Suppress the build output and print image", ox.Short("q"), ox.Section(0)).
 				Bool("rm", "Remove intermediate containers after a", ox.Section(0)).
-				Slice("security-opt", "Security options", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("security-opt", "Security options", ox.Section(0)).
 				Slice("shm-size", "Size of \"/dev/shm\"", ox.Elem(ox.UintT), ox.Section(0)).
 				Bool("squash", "Squash newly built layers into a single", ox.Section(0)).
-				Slice("tag", "Name and optionally a tag in the", ox.Elem(ox.StringT), ox.Short("t"), ox.Section(0)).
+				Slice("tag", "Name and optionally a tag in the", ox.Short("t"), ox.Section(0)).
 				String("target", "Set the target build stage to build.", ox.Section(0)).
 				String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]"), ox.Section(0)),
 		),
@@ -325,9 +325,9 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Slice("add-host", "Add a custom host-to-IP mapping (\"host:ip\")", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("build-arg", "Set build-time variables", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("cache-from", "Images to consider as cache sources", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("add-host", "Add a custom host-to-IP mapping (\"host:ip\")", ox.Section(0)).
+					Slice("build-arg", "Set build-time variables", ox.Section(0)).
+					Slice("cache-from", "Images to consider as cache sources", ox.Section(0)).
 					String("cgroup-parent", "Set the parent cgroup for the \"RUN\"", ox.Section(0)).
 					Bool("compress", "Compress the build context using gzip", ox.Section(0)).
 					Int("cpu-period", "Limit the CPU CFS (Completely Fair", ox.Section(0)).
@@ -340,7 +340,7 @@ func main() {
 					Bool("force-rm", "Always remove intermediate containers", ox.Section(0)).
 					String("iidfile", "Write the image ID to the file", ox.Section(0)).
 					String("isolation", "Container isolation technology", ox.Section(0)).
-					Slice("label", "Set metadata for an image", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("label", "Set metadata for an image", ox.Section(0)).
 					Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m"), ox.Section(0)).
 					Slice("memory-swap", "Swap limit equal to memory plus swap: -1", ox.Elem(ox.UintT), ox.Section(0)).
 					String("network", "Set the networking mode for the RUN", ox.Section(0)).
@@ -349,10 +349,10 @@ func main() {
 					Bool("pull", "Always attempt to pull a newer version of", ox.Section(0)).
 					Bool("quiet", "Suppress the build output and print image", ox.Short("q"), ox.Section(0)).
 					Bool("rm", "Remove intermediate containers after a", ox.Section(0)).
-					Slice("security-opt", "Security options", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("security-opt", "Security options", ox.Section(0)).
 					Slice("shm-size", "Size of \"/dev/shm\"", ox.Elem(ox.UintT), ox.Section(0)).
 					Bool("squash", "Squash newly built layers into a single", ox.Section(0)).
-					Slice("tag", "Name and optionally a tag in the", ox.Elem(ox.StringT), ox.Short("t"), ox.Section(0)).
+					Slice("tag", "Name and optionally a tag in the", ox.Short("t"), ox.Section(0)).
 					String("target", "Set the target build stage to build.", ox.Section(0)).
 					String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]"), ox.Section(0)),
 			),
@@ -446,7 +446,7 @@ func main() {
 				)),
 				ox.Flags().
 					String("author", "Author (e.g., \"John Hannibal Smith", ox.Short("a"), ox.Section(0)).
-					Slice("change", "Apply Dockerfile instruction to the created image", ox.Elem(ox.StringT), ox.Short("c"), ox.Section(0)).
+					Slice("change", "Apply Dockerfile instruction to the created image", ox.Short("c"), ox.Section(0)).
 					String("message", "Commit message", ox.Short("m"), ox.Section(0)).
 					Bool("pause", "Pause container during commit", ox.Default("true"), ox.Short("p"), ox.Section(0)),
 			),
@@ -474,13 +474,13 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Slice("add-host", "Add a custom host-to-IP mapping", ox.Elem(ox.StringT), ox.Section(0)).
-					Map("annotation", "Add an annotation to the", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Elem(ox.StringT), ox.Short("a"), ox.Section(0)).
+					Slice("add-host", "Add a custom host-to-IP mapping", ox.Section(0)).
+					Map("annotation", "Add an annotation to the", ox.Section(0)).
+					Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Short("a"), ox.Section(0)).
 					Uint16("blkio-weight", "Block IO (relative weight),", ox.Section(0)).
-					Slice("blkio-weight-device", "Block IO weight (relative device", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("cap-add", "Add Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("cap-drop", "Drop Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("blkio-weight-device", "Block IO weight (relative device", ox.Section(0)).
+					Slice("cap-add", "Add Linux capabilities", ox.Section(0)).
+					Slice("cap-drop", "Drop Linux capabilities", ox.Section(0)).
 					String("cgroup-parent", "Optional parent cgroup for the", ox.Section(0)).
 					String("cgroupns", "Cgroup namespace to use", ox.Section(0)).
 					String("cidfile", "Write the container ID to the file", ox.Section(0)).
@@ -494,23 +494,23 @@ func main() {
 					Float32("cpus", "Number of CPUs", ox.Spec("decimal"), ox.Section(0)).
 					String("cpuset-cpus", "CPUs in which to allow execution", ox.Section(0)).
 					String("cpuset-mems", "MEMs in which to allow execution", ox.Section(0)).
-					Slice("device", "Add a host device to the container", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("device-cgroup-rule", "Add a rule to the cgroup allowed", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("device-read-bps", "Limit read rate (bytes per", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("device-read-iops", "Limit read rate (IO per second)", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("device-write-bps", "Limit write rate (bytes per", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("device-write-iops", "Limit write rate (IO per second)", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("device", "Add a host device to the container", ox.Section(0)).
+					Slice("device-cgroup-rule", "Add a rule to the cgroup allowed", ox.Section(0)).
+					Slice("device-read-bps", "Limit read rate (bytes per", ox.Section(0)).
+					Slice("device-read-iops", "Limit read rate (IO per second)", ox.Section(0)).
+					Slice("device-write-bps", "Limit write rate (bytes per", ox.Section(0)).
+					Slice("device-write-iops", "Limit write rate (IO per second)", ox.Section(0)).
 					Bool("disable-content-trust", "Skip image verification (default", ox.Section(0)).
-					Slice("dns", "Set custom DNS servers", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("dns-option", "Set DNS options", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("dns-search", "Set custom DNS search domains", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("dns", "Set custom DNS servers", ox.Section(0)).
+					Slice("dns-option", "Set DNS options", ox.Section(0)).
+					Slice("dns-search", "Set custom DNS search domains", ox.Section(0)).
 					String("domainname", "Container NIS domain name", ox.Section(0)).
 					String("entrypoint", "Overwrite the default ENTRYPOINT", ox.Section(0)).
-					Slice("env", "Set environment variables", ox.Elem(ox.StringT), ox.Short("e"), ox.Section(0)).
-					Slice("env-file", "Read in a file of environment", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("expose", "Expose a port or a range of ports", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("env", "Set environment variables", ox.Short("e"), ox.Section(0)).
+					Slice("env-file", "Read in a file of environment", ox.Section(0)).
+					Slice("expose", "Expose a port or a range of ports", ox.Section(0)).
 					String("gpus", "GPU devices to add to the", ox.Spec("gpu-request"), ox.Section(0)).
-					Slice("group-add", "Add additional groups to join", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("group-add", "Add additional groups to join", ox.Section(0)).
 					String("health-cmd", "Command to run to check health", ox.Section(0)).
 					Duration("health-interval", "Time between running the check", ox.Section(0)).
 					Int("health-retries", "Consecutive failures needed to", ox.Section(0)).
@@ -527,12 +527,12 @@ func main() {
 					String("ipc", "IPC mode to use", ox.Section(0)).
 					String("isolation", "Container isolation technology", ox.Section(0)).
 					Slice("kernel-memory", "Kernel memory limit", ox.Elem(ox.UintT), ox.Section(0)).
-					Slice("label", "Set meta data on a container", ox.Elem(ox.StringT), ox.Short("l"), ox.Section(0)).
-					Slice("label-file", "Read in a line delimited file of", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("link", "Add link to another container", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("link-local-ip", "Container IPv4/IPv6 link-local", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("label", "Set meta data on a container", ox.Short("l"), ox.Section(0)).
+					Slice("label-file", "Read in a line delimited file of", ox.Section(0)).
+					Slice("link", "Add link to another container", ox.Section(0)).
+					Slice("link-local-ip", "Container IPv4/IPv6 link-local", ox.Section(0)).
 					String("log-driver", "Logging driver for the container", ox.Section(0)).
-					Slice("log-opt", "Log driver options", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("log-opt", "Log driver options", ox.Section(0)).
 					String("mac-address", "Container MAC address (e.g.,", ox.Section(0)).
 					Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m"), ox.Section(0)).
 					Slice("memory-reservation", "Memory soft limit", ox.Elem(ox.UintT), ox.Section(0)).
@@ -541,7 +541,7 @@ func main() {
 					String("mount", "Attach a filesystem mount to the", ox.Spec("mount"), ox.Section(0)).
 					String("name", "Assign a name to the container", ox.Section(0)).
 					String("network", "Connect a container to a network", ox.Spec("network"), ox.Section(0)).
-					Slice("network-alias", "Add network-scoped alias for the", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("network-alias", "Add network-scoped alias for the", ox.Section(0)).
 					Bool("no-healthcheck", "Disable any container-specified", ox.Section(0)).
 					Bool("oom-kill-disable", "Disable OOM Killer", ox.Section(0)).
 					Int("oom-score-adj", "Tune host's OOM preferences", ox.Section(0)).
@@ -549,7 +549,7 @@ func main() {
 					Int("pids-limit", "Tune container pids limit (set", ox.Section(0)).
 					String("platform", "Set platform if server is", ox.Section(0)).
 					Bool("privileged", "Give extended privileges to this", ox.Section(0)).
-					Slice("publish", "Publish a container's port(s) to", ox.Elem(ox.StringT), ox.Short("p"), ox.Section(0)).
+					Slice("publish", "Publish a container's port(s) to", ox.Short("p"), ox.Section(0)).
 					Bool("publish-all", "Publish all exposed ports to", ox.Short("P"), ox.Section(0)).
 					String("pull", "Pull image before creating", ox.Section(0)).
 					Bool("quiet", "Suppress the pull output", ox.Short("q"), ox.Section(0)).
@@ -557,22 +557,22 @@ func main() {
 					String("restart", "Restart policy to apply when a", ox.Section(0)).
 					Bool("rm", "Automatically remove the", ox.Section(0)).
 					String("runtime", "Runtime to use for this container", ox.Section(0)).
-					Slice("security-opt", "Security Options", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("security-opt", "Security Options", ox.Section(0)).
 					Slice("shm-size", "Size of /dev/shm", ox.Elem(ox.UintT), ox.Section(0)).
 					String("stop-signal", "Signal to stop the container", ox.Section(0)).
 					Int("stop-timeout", "Timeout (in seconds) to stop a", ox.Section(0)).
-					Slice("storage-opt", "Storage driver options for the", ox.Elem(ox.StringT), ox.Section(0)).
-					Map("sysctl", "Sysctl options", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]"), ox.Section(0)).
-					Slice("tmpfs", "Mount a tmpfs directory", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("storage-opt", "Storage driver options for the", ox.Section(0)).
+					Map("sysctl", "Sysctl options", ox.Default("map[]"), ox.Section(0)).
+					Slice("tmpfs", "Mount a tmpfs directory", ox.Section(0)).
 					Bool("tty", "Allocate a pseudo-TTY", ox.Short("t"), ox.Section(0)).
 					String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]"), ox.Section(0)).
 					Bool("use-api-socket", "Bind mount Docker API socket and", ox.Section(0)).
 					String("user", "Username or UID (format:", ox.Short("u"), ox.Section(0)).
 					String("userns", "User namespace to use", ox.Section(0)).
 					String("uts", "UTS namespace to use", ox.Section(0)).
-					Slice("volume", "Bind mount a volume", ox.Elem(ox.StringT), ox.Short("v"), ox.Section(0)).
+					Slice("volume", "Bind mount a volume", ox.Short("v"), ox.Section(0)).
 					String("volume-driver", "Optional volume driver for the", ox.Section(0)).
-					Slice("volumes-from", "Mount volumes from the specified", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("volumes-from", "Mount volumes from the specified", ox.Section(0)).
 					String("workdir", "Working directory inside the", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
@@ -594,8 +594,8 @@ func main() {
 				ox.Flags().
 					Bool("detach", "Detached mode: run command in the background", ox.Short("d"), ox.Section(0)).
 					String("detach-keys", "Override the key sequence for detaching a", ox.Section(0)).
-					Slice("env", "Set environment variables", ox.Elem(ox.StringT), ox.Short("e"), ox.Section(0)).
-					Slice("env-file", "Read in a file of environment variables", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("env", "Set environment variables", ox.Short("e"), ox.Section(0)).
+					Slice("env-file", "Read in a file of environment variables", ox.Section(0)).
 					Bool("interactive", "Keep STDIN open even if not attached", ox.Short("i"), ox.Section(0)).
 					Bool("privileged", "Give extended privileges to the command", ox.Section(0)).
 					Bool("tty", "Allocate a pseudo-TTY", ox.Short("t"), ox.Section(0)).
@@ -744,13 +744,13 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Slice("add-host", "Add a custom host-to-IP mapping", ox.Elem(ox.StringT), ox.Section(0)).
-					Map("annotation", "Add an annotation to the", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Elem(ox.StringT), ox.Short("a"), ox.Section(0)).
+					Slice("add-host", "Add a custom host-to-IP mapping", ox.Section(0)).
+					Map("annotation", "Add an annotation to the", ox.Section(0)).
+					Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Short("a"), ox.Section(0)).
 					Uint16("blkio-weight", "Block IO (relative weight),", ox.Section(0)).
-					Slice("blkio-weight-device", "Block IO weight (relative device", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("cap-add", "Add Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("cap-drop", "Drop Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("blkio-weight-device", "Block IO weight (relative device", ox.Section(0)).
+					Slice("cap-add", "Add Linux capabilities", ox.Section(0)).
+					Slice("cap-drop", "Drop Linux capabilities", ox.Section(0)).
 					String("cgroup-parent", "Optional parent cgroup for the", ox.Section(0)).
 					String("cgroupns", "Cgroup namespace to use", ox.Section(0)).
 					String("cidfile", "Write the container ID to the file", ox.Section(0)).
@@ -766,23 +766,23 @@ func main() {
 					String("cpuset-mems", "MEMs in which to allow execution", ox.Section(0)).
 					Bool("detach", "Run container in background and", ox.Short("d"), ox.Section(0)).
 					String("detach-keys", "Override the key sequence for", ox.Section(0)).
-					Slice("device", "Add a host device to the container", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("device-cgroup-rule", "Add a rule to the cgroup allowed", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("device-read-bps", "Limit read rate (bytes per", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("device-read-iops", "Limit read rate (IO per second)", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("device-write-bps", "Limit write rate (bytes per", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("device-write-iops", "Limit write rate (IO per second)", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("device", "Add a host device to the container", ox.Section(0)).
+					Slice("device-cgroup-rule", "Add a rule to the cgroup allowed", ox.Section(0)).
+					Slice("device-read-bps", "Limit read rate (bytes per", ox.Section(0)).
+					Slice("device-read-iops", "Limit read rate (IO per second)", ox.Section(0)).
+					Slice("device-write-bps", "Limit write rate (bytes per", ox.Section(0)).
+					Slice("device-write-iops", "Limit write rate (IO per second)", ox.Section(0)).
 					Bool("disable-content-trust", "Skip image verification (default", ox.Section(0)).
-					Slice("dns", "Set custom DNS servers", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("dns-option", "Set DNS options", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("dns-search", "Set custom DNS search domains", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("dns", "Set custom DNS servers", ox.Section(0)).
+					Slice("dns-option", "Set DNS options", ox.Section(0)).
+					Slice("dns-search", "Set custom DNS search domains", ox.Section(0)).
 					String("domainname", "Container NIS domain name", ox.Section(0)).
 					String("entrypoint", "Overwrite the default ENTRYPOINT", ox.Section(0)).
-					Slice("env", "Set environment variables", ox.Elem(ox.StringT), ox.Short("e"), ox.Section(0)).
-					Slice("env-file", "Read in a file of environment", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("expose", "Expose a port or a range of ports", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("env", "Set environment variables", ox.Short("e"), ox.Section(0)).
+					Slice("env-file", "Read in a file of environment", ox.Section(0)).
+					Slice("expose", "Expose a port or a range of ports", ox.Section(0)).
 					String("gpus", "GPU devices to add to the", ox.Spec("gpu-request"), ox.Section(0)).
-					Slice("group-add", "Add additional groups to join", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("group-add", "Add additional groups to join", ox.Section(0)).
 					String("health-cmd", "Command to run to check health", ox.Section(0)).
 					Duration("health-interval", "Time between running the check", ox.Section(0)).
 					Int("health-retries", "Consecutive failures needed to", ox.Section(0)).
@@ -799,12 +799,12 @@ func main() {
 					String("ipc", "IPC mode to use", ox.Section(0)).
 					String("isolation", "Container isolation technology", ox.Section(0)).
 					Slice("kernel-memory", "Kernel memory limit", ox.Elem(ox.UintT), ox.Section(0)).
-					Slice("label", "Set meta data on a container", ox.Elem(ox.StringT), ox.Short("l"), ox.Section(0)).
-					Slice("label-file", "Read in a line delimited file of", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("link", "Add link to another container", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("link-local-ip", "Container IPv4/IPv6 link-local", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("label", "Set meta data on a container", ox.Short("l"), ox.Section(0)).
+					Slice("label-file", "Read in a line delimited file of", ox.Section(0)).
+					Slice("link", "Add link to another container", ox.Section(0)).
+					Slice("link-local-ip", "Container IPv4/IPv6 link-local", ox.Section(0)).
 					String("log-driver", "Logging driver for the container", ox.Section(0)).
-					Slice("log-opt", "Log driver options", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("log-opt", "Log driver options", ox.Section(0)).
 					String("mac-address", "Container MAC address (e.g.,", ox.Section(0)).
 					Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m"), ox.Section(0)).
 					Slice("memory-reservation", "Memory soft limit", ox.Elem(ox.UintT), ox.Section(0)).
@@ -813,7 +813,7 @@ func main() {
 					String("mount", "Attach a filesystem mount to the", ox.Spec("mount"), ox.Section(0)).
 					String("name", "Assign a name to the container", ox.Section(0)).
 					String("network", "Connect a container to a network", ox.Spec("network"), ox.Section(0)).
-					Slice("network-alias", "Add network-scoped alias for the", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("network-alias", "Add network-scoped alias for the", ox.Section(0)).
 					Bool("no-healthcheck", "Disable any container-specified", ox.Section(0)).
 					Bool("oom-kill-disable", "Disable OOM Killer", ox.Section(0)).
 					Int("oom-score-adj", "Tune host's OOM preferences", ox.Section(0)).
@@ -821,7 +821,7 @@ func main() {
 					Int("pids-limit", "Tune container pids limit (set", ox.Section(0)).
 					String("platform", "Set platform if server is", ox.Section(0)).
 					Bool("privileged", "Give extended privileges to this", ox.Section(0)).
-					Slice("publish", "Publish a container's port(s) to", ox.Elem(ox.StringT), ox.Short("p"), ox.Section(0)).
+					Slice("publish", "Publish a container's port(s) to", ox.Short("p"), ox.Section(0)).
 					Bool("publish-all", "Publish all exposed ports to", ox.Short("P"), ox.Section(0)).
 					String("pull", "Pull image before running", ox.Section(0)).
 					Bool("quiet", "Suppress the pull output", ox.Short("q"), ox.Section(0)).
@@ -829,23 +829,23 @@ func main() {
 					String("restart", "Restart policy to apply when a", ox.Section(0)).
 					Bool("rm", "Automatically remove the", ox.Section(0)).
 					String("runtime", "Runtime to use for this container", ox.Section(0)).
-					Slice("security-opt", "Security Options", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("security-opt", "Security Options", ox.Section(0)).
 					Slice("shm-size", "Size of /dev/shm", ox.Elem(ox.UintT), ox.Section(0)).
 					Bool("sig-proxy", "Proxy received signals to the", ox.Section(0)).
 					String("stop-signal", "Signal to stop the container", ox.Section(0)).
 					Int("stop-timeout", "Timeout (in seconds) to stop a", ox.Section(0)).
-					Slice("storage-opt", "Storage driver options for the", ox.Elem(ox.StringT), ox.Section(0)).
-					Map("sysctl", "Sysctl options", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]"), ox.Section(0)).
-					Slice("tmpfs", "Mount a tmpfs directory", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("storage-opt", "Storage driver options for the", ox.Section(0)).
+					Map("sysctl", "Sysctl options", ox.Default("map[]"), ox.Section(0)).
+					Slice("tmpfs", "Mount a tmpfs directory", ox.Section(0)).
 					Bool("tty", "Allocate a pseudo-TTY", ox.Short("t"), ox.Section(0)).
 					String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]"), ox.Section(0)).
 					Bool("use-api-socket", "Bind mount Docker API socket and", ox.Section(0)).
 					String("user", "Username or UID (format:", ox.Short("u"), ox.Section(0)).
 					String("userns", "User namespace to use", ox.Section(0)).
 					String("uts", "UTS namespace to use", ox.Section(0)).
-					Slice("volume", "Bind mount a volume", ox.Elem(ox.StringT), ox.Short("v"), ox.Section(0)).
+					Slice("volume", "Bind mount a volume", ox.Short("v"), ox.Section(0)).
 					String("volume-driver", "Optional volume driver for the", ox.Section(0)).
-					Slice("volumes-from", "Mount volumes from the specified", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("volumes-from", "Mount volumes from the specified", ox.Section(0)).
 					String("workdir", "Working directory inside the", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
@@ -1010,7 +1010,7 @@ func main() {
 				)),
 				ox.Flags().
 					String("description", "Description of the context", ox.Section(0)).
-					Map("docker", "set the docker endpoint", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)),
+					Map("docker", "set the docker endpoint", ox.Default("[]"), ox.Section(0)),
 			),
 			ox.Sub(
 				ox.Usage("use", "Set the current docker context"),
@@ -1036,9 +1036,9 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Slice("add-host", "Add a custom host-to-IP mapping (\"host:ip\")", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("build-arg", "Set build-time variables", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("cache-from", "Images to consider as cache sources", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("add-host", "Add a custom host-to-IP mapping (\"host:ip\")", ox.Section(0)).
+					Slice("build-arg", "Set build-time variables", ox.Section(0)).
+					Slice("cache-from", "Images to consider as cache sources", ox.Section(0)).
 					String("cgroup-parent", "Set the parent cgroup for the \"RUN\"", ox.Section(0)).
 					Bool("compress", "Compress the build context using gzip", ox.Section(0)).
 					Int("cpu-period", "Limit the CPU CFS (Completely Fair", ox.Section(0)).
@@ -1051,7 +1051,7 @@ func main() {
 					Bool("force-rm", "Always remove intermediate containers", ox.Section(0)).
 					String("iidfile", "Write the image ID to the file", ox.Section(0)).
 					String("isolation", "Container isolation technology", ox.Section(0)).
-					Slice("label", "Set metadata for an image", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("label", "Set metadata for an image", ox.Section(0)).
 					Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m"), ox.Section(0)).
 					Slice("memory-swap", "Swap limit equal to memory plus swap: -1", ox.Elem(ox.UintT), ox.Section(0)).
 					String("network", "Set the networking mode for the RUN", ox.Section(0)).
@@ -1060,10 +1060,10 @@ func main() {
 					Bool("pull", "Always attempt to pull a newer version of", ox.Section(0)).
 					Bool("quiet", "Suppress the build output and print image", ox.Short("q"), ox.Section(0)).
 					Bool("rm", "Remove intermediate containers after a", ox.Section(0)).
-					Slice("security-opt", "Security options", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("security-opt", "Security options", ox.Section(0)).
 					Slice("shm-size", "Size of \"/dev/shm\"", ox.Elem(ox.UintT), ox.Section(0)).
 					Bool("squash", "Squash newly built layers into a single", ox.Section(0)).
-					Slice("tag", "Name and optionally a tag in the", ox.Elem(ox.StringT), ox.Short("t"), ox.Section(0)).
+					Slice("tag", "Name and optionally a tag in the", ox.Short("t"), ox.Section(0)).
 					String("target", "Set the target build stage to build.", ox.Section(0)).
 					String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]"), ox.Section(0)),
 			),
@@ -1093,7 +1093,7 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Slice("change", "Apply Dockerfile instruction to the created image", ox.Elem(ox.StringT), ox.Short("c"), ox.Section(0)).
+					Slice("change", "Apply Dockerfile instruction to the created image", ox.Short("c"), ox.Section(0)).
 					String("message", "Set commit message for imported image", ox.Short("m"), ox.Section(0)).
 					String("platform", "Set platform if server is multi-platform capable", ox.Section(0)),
 			),
@@ -1236,7 +1236,7 @@ func main() {
 				ox.Flags().
 					String("arch", "Set architecture", ox.Section(0)).
 					String("os", "Set operating system", ox.Section(0)).
-					Slice("os-features", "Set operating system feature", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("os-features", "Set operating system feature", ox.Section(0)).
 					String("os-version", "Set operating system version", ox.Section(0)).
 					String("variant", "Set architecture variant", ox.Section(0)),
 			),
@@ -1299,13 +1299,13 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Slice("alias", "Add network-scoped alias for the container", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("driver-opt", "driver options for the network", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("alias", "Add network-scoped alias for the container", ox.Section(0)).
+					Slice("driver-opt", "driver options for the network", ox.Section(0)).
 					Int("gw-priority", "Highest gw-priority provides the default", ox.Section(0)).
 					String("ip", "IPv4 address (e.g., \"172.30.100.104\")", ox.Section(0)).
 					String("ip6", "IPv6 address (e.g., \"2001:db8::33\")", ox.Section(0)).
-					Slice("link", "Add link to another container", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("link-local-ip", "Add a link-local address for the container", ox.Elem(ox.StringT), ox.Section(0)),
+					Slice("link", "Add link to another container", ox.Section(0)).
+					Slice("link-local-ip", "Add a link-local address for the container", ox.Section(0)),
 			),
 			ox.Sub(
 				ox.Banner("Create a network"),
@@ -1317,22 +1317,22 @@ func main() {
 				)),
 				ox.Flags().
 					Bool("attachable", "Enable manual container attachment", ox.Section(0)).
-					Map("aux-address", "Auxiliary IPv4 or IPv6 addresses used by", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Section(0)).
+					Map("aux-address", "Auxiliary IPv4 or IPv6 addresses used by", ox.Section(0)).
 					String("config-from", "The network from which to copy the configuration", ox.Section(0)).
 					Bool("config-only", "Create a configuration only network", ox.Section(0)).
 					String("driver", "Driver to manage the Network", ox.Default("bridge"), ox.Short("d"), ox.Section(0)).
-					Slice("gateway", "IPv4 or IPv6 Gateway for the master subnet", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("gateway", "IPv4 or IPv6 Gateway for the master subnet", ox.Section(0)).
 					Bool("ingress", "Create swarm routing-mesh network", ox.Section(0)).
 					Bool("internal", "Restrict external access to the network", ox.Section(0)).
-					Slice("ip-range", "Allocate container ip from a sub-range", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("ip-range", "Allocate container ip from a sub-range", ox.Section(0)).
 					String("ipam-driver", "IP Address Management Driver", ox.Default("default"), ox.Section(0)).
-					Map("ipam-opt", "Set IPAM driver specific options", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]"), ox.Section(0)).
+					Map("ipam-opt", "Set IPAM driver specific options", ox.Default("map[]"), ox.Section(0)).
 					Bool("ipv4", "Enable or disable IPv4 address assignment", ox.Section(0)).
 					Bool("ipv6", "Enable or disable IPv6 address assignment", ox.Section(0)).
-					Slice("label", "Set metadata on a network", ox.Elem(ox.StringT), ox.Section(0)).
-					Map("opt", "Set driver specific options", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]"), ox.Short("o"), ox.Section(0)).
+					Slice("label", "Set metadata on a network", ox.Section(0)).
+					Map("opt", "Set driver specific options", ox.Default("map[]"), ox.Short("o"), ox.Section(0)).
 					String("scope", "Control the network's scope", ox.Section(0)).
-					Slice("subnet", "Subnet in CIDR format that represents a", ox.Elem(ox.StringT), ox.Section(0)),
+					Slice("subnet", "Subnet in CIDR format that represents a", ox.Section(0)),
 			),
 			ox.Sub(
 				ox.Banner("Disconnect a container from a network"),
@@ -1634,7 +1634,7 @@ func main() {
 						"Options",
 					)),
 					ox.Flags().
-						Slice("key", "Path to the signer's public key file", ox.Elem(ox.StringT), ox.Section(0)),
+						Slice("key", "Path to the signer's public key file", ox.Section(0)),
 				),
 				ox.Sub(
 					ox.Banner("Remove a signer"),
@@ -1701,15 +1701,15 @@ func main() {
 					String("availability", "Cluster Volume availability (\"active\",", ox.Section(0)).
 					String("driver", "Specify volume driver name", ox.Default("local"), ox.Short("d"), ox.Section(0)).
 					String("group", "Cluster Volume group (cluster volumes)", ox.Section(0)).
-					Slice("label", "Set metadata for a volume", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("label", "Set metadata for a volume", ox.Section(0)).
 					Slice("limit-bytes", "Minimum size of the Cluster Volume in bytes", ox.Elem(ox.UintT), ox.Section(0)).
-					Map("opt", "Set driver specific options", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]"), ox.Short("o"), ox.Section(0)).
+					Map("opt", "Set driver specific options", ox.Default("map[]"), ox.Short("o"), ox.Section(0)).
 					Slice("required-bytes", "Maximum size of the Cluster Volume in bytes", ox.Elem(ox.UintT), ox.Section(0)).
 					String("scope", "Cluster Volume access scope (\"single\",", ox.Section(0)).
-					Map("secret", "Cluster Volume secrets", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]"), ox.Section(0)).
+					Map("secret", "Cluster Volume secrets", ox.Default("map[]"), ox.Section(0)).
 					String("sharing", "Cluster Volume access sharing (\"none\",", ox.Section(0)).
-					Slice("topology-preferred", "A topology that the Cluster Volume", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("topology-required", "A topology that the Cluster Volume must", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("topology-preferred", "A topology that the Cluster Volume", ox.Section(0)).
+					Slice("topology-required", "A topology that the Cluster Volume must", ox.Section(0)).
 					String("type", "Cluster Volume access type (\"mount\",", ox.Section(0)),
 			),
 			ox.Sub(
@@ -1791,7 +1791,7 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Slice("label", "Config labels", ox.Elem(ox.StringT), ox.Short("l"), ox.Section(0)).
+					Slice("label", "Config labels", ox.Short("l"), ox.Section(0)).
 					String("template-driver", "Template driver", ox.Section(0)),
 			),
 			ox.Sub(
@@ -1910,8 +1910,8 @@ func main() {
 				)),
 				ox.Flags().
 					String("availability", "Availability of the node (\"active\",", ox.Section(0)).
-					Slice("label-add", "Add or update a node label (\"key=value\")", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("label-rm", "Remove a node label if exists", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("label-add", "Add or update a node label (\"key=value\")", ox.Section(0)).
+					Slice("label-rm", "Remove a node label if exists", ox.Section(0)).
 					String("role", "Role of the node (\"worker\", \"manager\")", ox.Section(0)),
 			),
 		),
@@ -1932,7 +1932,7 @@ func main() {
 				)),
 				ox.Flags().
 					String("driver", "Secret driver", ox.Short("d"), ox.Section(0)).
-					Slice("label", "Secret labels", ox.Elem(ox.StringT), ox.Short("l"), ox.Section(0)).
+					Slice("label", "Secret labels", ox.Short("l"), ox.Section(0)).
 					String("template-driver", "Template driver", ox.Section(0)),
 			),
 			ox.Sub(
@@ -1985,38 +1985,38 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Slice("cap-add", "Add Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("cap-drop", "Drop Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("cap-add", "Add Linux capabilities", ox.Section(0)).
+					Slice("cap-drop", "Drop Linux capabilities", ox.Section(0)).
 					String("config", "Specify configurations to", ox.Spec("config"), ox.Section(0)).
-					Slice("constraint", "Placement constraints", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("container-label", "Container labels", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("constraint", "Placement constraints", ox.Section(0)).
+					Slice("container-label", "Container labels", ox.Section(0)).
 					String("credential-spec", "Credential spec for managed", ox.Spec("credential-spec"), ox.Section(0)).
 					Bool("detach", "Exit immediately instead of", ox.Short("d"), ox.Section(0)).
-					Slice("dns", "Set custom DNS servers", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("dns-option", "Set DNS options", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("dns-search", "Set custom DNS search domains", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("dns", "Set custom DNS servers", ox.Section(0)).
+					Slice("dns-option", "Set DNS options", ox.Section(0)).
+					Slice("dns-search", "Set custom DNS search domains", ox.Section(0)).
 					String("endpoint-mode", "Endpoint mode (vip or dnsrr)", ox.Section(0)).
 					String("entrypoint", "Overwrite the default", ox.Spec("command"), ox.Section(0)).
-					Slice("env", "Set environment variables", ox.Elem(ox.StringT), ox.Short("e"), ox.Section(0)).
-					Slice("env-file", "Read in a file of environment", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("generic-resource", "User defined resources", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("group", "Set one or more supplementary", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("env", "Set environment variables", ox.Short("e"), ox.Section(0)).
+					Slice("env-file", "Read in a file of environment", ox.Section(0)).
+					Slice("generic-resource", "User defined resources", ox.Section(0)).
+					Slice("group", "Set one or more supplementary", ox.Section(0)).
 					String("health-cmd", "Command to run to check health", ox.Section(0)).
 					Duration("health-interval", "Time between running the check", ox.Section(0)).
 					Int("health-retries", "Consecutive failures needed to", ox.Section(0)).
 					Duration("health-start-interval", "Time between running the check", ox.Section(0)).
 					Duration("health-start-period", "Start period for the container", ox.Section(0)).
 					Duration("health-timeout", "Maximum time to allow one", ox.Section(0)).
-					Slice("host", "Set one or more custom", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("host", "Set one or more custom", ox.Section(0)).
 					String("hostname", "Container hostname", ox.Section(0)).
 					Bool("init", "Use an init inside each", ox.Section(0)).
 					String("isolation", "Service container isolation mode", ox.Section(0)).
-					Slice("label", "Service labels", ox.Elem(ox.StringT), ox.Short("l"), ox.Section(0)).
+					Slice("label", "Service labels", ox.Short("l"), ox.Section(0)).
 					Float32("limit-cpu", "Limit CPUs", ox.Spec("decimal"), ox.Section(0)).
 					Slice("limit-memory", "Limit Memory", ox.Elem(ox.UintT), ox.Section(0)).
 					Int("limit-pids", "Limit maximum number of", ox.Section(0)).
 					String("log-driver", "Logging driver for service", ox.Section(0)).
-					Slice("log-opt", "Logging driver options", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("log-opt", "Logging driver options", ox.Section(0)).
 					Uint("max-concurrent", "Number of job tasks to run", ox.Section(0)).
 					String("mode", "Service mode (\"replicated\",", ox.Section(0)).
 					String("mount", "Attach a filesystem mount to", ox.Spec("mount"), ox.Section(0)).
@@ -2046,7 +2046,7 @@ func main() {
 					String("secret", "Specify secrets to expose to", ox.Spec("secret"), ox.Section(0)).
 					Duration("stop-grace-period", "Time to wait before force", ox.Section(0)).
 					String("stop-signal", "Signal to stop the container", ox.Section(0)).
-					Slice("sysctl", "Sysctl options", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("sysctl", "Sysctl options", ox.Section(0)).
 					Bool("tty", "Allocate a pseudo-TTY", ox.Short("t"), ox.Section(0)).
 					String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]"), ox.Section(0)).
 					Duration("update-delay", "Delay between updates", ox.Section(0)).
@@ -2159,55 +2159,55 @@ func main() {
 				)),
 				ox.Flags().
 					String("args", "Service command args", ox.Spec("command"), ox.Section(0)).
-					Slice("cap-add", "Add Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("cap-drop", "Drop Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("cap-add", "Add Linux capabilities", ox.Section(0)).
+					Slice("cap-drop", "Drop Linux capabilities", ox.Section(0)).
 					String("config-add", "Add or update a config file on", ox.Spec("config"), ox.Section(0)).
-					Slice("config-rm", "Remove a configuration file", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("constraint-add", "Add or update a placement", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("constraint-rm", "Remove a constraint", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("container-label-add", "Add or update a container label", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("container-label-rm", "Remove a container label by its key", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("config-rm", "Remove a configuration file", ox.Section(0)).
+					Slice("constraint-add", "Add or update a placement", ox.Section(0)).
+					Slice("constraint-rm", "Remove a constraint", ox.Section(0)).
+					Slice("container-label-add", "Add or update a container label", ox.Section(0)).
+					Slice("container-label-rm", "Remove a container label by its key", ox.Section(0)).
 					String("credential-spec", "Credential spec for managed", ox.Spec("credential-spec"), ox.Section(0)).
 					Bool("detach", "Exit immediately instead of", ox.Short("d"), ox.Section(0)).
-					Slice("dns-add", "Add or update a custom DNS server", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("dns-option-add", "Add or update a DNS option", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("dns-option-rm", "Remove a DNS option", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("dns-rm", "Remove a custom DNS server", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("dns-search-add", "Add or update a custom DNS", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("dns-search-rm", "Remove a DNS search domain", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("dns-add", "Add or update a custom DNS server", ox.Section(0)).
+					Slice("dns-option-add", "Add or update a DNS option", ox.Section(0)).
+					Slice("dns-option-rm", "Remove a DNS option", ox.Section(0)).
+					Slice("dns-rm", "Remove a custom DNS server", ox.Section(0)).
+					Slice("dns-search-add", "Add or update a custom DNS", ox.Section(0)).
+					Slice("dns-search-rm", "Remove a DNS search domain", ox.Section(0)).
 					String("endpoint-mode", "Endpoint mode (vip or dnsrr)", ox.Section(0)).
 					String("entrypoint", "Overwrite the default", ox.Spec("command"), ox.Section(0)).
-					Slice("env-add", "Add or update an environment", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("env-rm", "Remove an environment variable", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("env-add", "Add or update an environment", ox.Section(0)).
+					Slice("env-rm", "Remove an environment variable", ox.Section(0)).
 					Bool("force", "Force update even if no", ox.Section(0)).
-					Slice("generic-resource-add", "Add a Generic resource", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("generic-resource-rm", "Remove a Generic resource", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("group-add", "Add an additional", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("group-rm", "Remove a previously added", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("generic-resource-add", "Add a Generic resource", ox.Section(0)).
+					Slice("generic-resource-rm", "Remove a Generic resource", ox.Section(0)).
+					Slice("group-add", "Add an additional", ox.Section(0)).
+					Slice("group-rm", "Remove a previously added", ox.Section(0)).
 					String("health-cmd", "Command to run to check health", ox.Section(0)).
 					Duration("health-interval", "Time between running the check", ox.Section(0)).
 					Int("health-retries", "Consecutive failures needed to", ox.Section(0)).
 					Duration("health-start-interval", "Time between running the check", ox.Section(0)).
 					Duration("health-start-period", "Start period for the container", ox.Section(0)).
 					Duration("health-timeout", "Maximum time to allow one", ox.Section(0)).
-					Slice("host-add", "Add a custom host-to-IP", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("host-rm", "Remove a custom host-to-IP", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("host-add", "Add a custom host-to-IP", ox.Section(0)).
+					Slice("host-rm", "Remove a custom host-to-IP", ox.Section(0)).
 					String("hostname", "Container hostname", ox.Section(0)).
 					String("image", "Service image tag", ox.Section(0)).
 					Bool("init", "Use an init inside each", ox.Section(0)).
 					String("isolation", "Service container isolation mode", ox.Section(0)).
-					Slice("label-add", "Add or update a service label", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("label-rm", "Remove a label by its key", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("label-add", "Add or update a service label", ox.Section(0)).
+					Slice("label-rm", "Remove a label by its key", ox.Section(0)).
 					Float32("limit-cpu", "Limit CPUs", ox.Spec("decimal"), ox.Section(0)).
 					Slice("limit-memory", "Limit Memory", ox.Elem(ox.UintT), ox.Section(0)).
 					Int("limit-pids", "Limit maximum number of", ox.Section(0)).
 					String("log-driver", "Logging driver for service", ox.Section(0)).
-					Slice("log-opt", "Logging driver options", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("log-opt", "Logging driver options", ox.Section(0)).
 					Uint("max-concurrent", "Number of job tasks to run", ox.Section(0)).
 					String("mount-add", "Add or update a mount on a service", ox.Spec("mount"), ox.Section(0)).
-					Slice("mount-rm", "Remove a mount by its target path", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("mount-rm", "Remove a mount by its target path", ox.Section(0)).
 					String("network-add", "Add a network", ox.Spec("network"), ox.Section(0)).
-					Slice("network-rm", "Remove a network", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("network-rm", "Remove a network", ox.Section(0)).
 					Bool("no-healthcheck", "Disable any", ox.Section(0)).
 					Bool("no-resolve-image", "Do not query the registry to", ox.Section(0)).
 					Int("oom-score-adj", "Tune host's OOM preferences", ox.Section(0)).
@@ -2233,14 +2233,14 @@ func main() {
 					String("rollback-order", "Rollback order (\"start-first\",", ox.Section(0)).
 					Uint("rollback-parallelism", "Maximum number of tasks rolled", ox.Section(0)).
 					String("secret-add", "Add or update a secret on a service", ox.Spec("secret"), ox.Section(0)).
-					Slice("secret-rm", "Remove a secret", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("secret-rm", "Remove a secret", ox.Section(0)).
 					Duration("stop-grace-period", "Time to wait before force", ox.Section(0)).
 					String("stop-signal", "Signal to stop the container", ox.Section(0)).
-					Slice("sysctl-add", "Add or update a Sysctl option", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("sysctl-rm", "Remove a Sysctl option", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("sysctl-add", "Add or update a Sysctl option", ox.Section(0)).
+					Slice("sysctl-rm", "Remove a Sysctl option", ox.Section(0)).
 					Bool("tty", "Allocate a pseudo-TTY", ox.Short("t"), ox.Section(0)).
 					String("ulimit-add", "Add or update a ulimit option", ox.Spec("ulimit"), ox.Section(0)).
-					Slice("ulimit-rm", "Remove a ulimit option", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("ulimit-rm", "Remove a ulimit option", ox.Section(0)).
 					Duration("update-delay", "Delay between updates", ox.Section(0)).
 					String("update-failure-action", "Action on update failure", ox.Section(0)).
 					Float32("update-max-failure-ratio", "Failure rate to tolerate", ox.Spec("float"), ox.Section(0)).
@@ -2268,7 +2268,7 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Slice("compose-file", "Path to a Compose file, or \"-\" to read", ox.Elem(ox.StringT), ox.Short("c"), ox.Section(0)).
+					Slice("compose-file", "Path to a Compose file, or \"-\" to read", ox.Short("c"), ox.Section(0)).
 					Bool("skip-interpolation", "Skip interpolation and output only merged", ox.Section(0)),
 			),
 			ox.Sub(
@@ -2281,7 +2281,7 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Slice("compose-file", "Path to a Compose file, or \"-\" to read", ox.Elem(ox.StringT), ox.Short("c"), ox.Section(0)).
+					Slice("compose-file", "Path to a Compose file, or \"-\" to read", ox.Short("c"), ox.Section(0)).
 					Bool("detach", "Exit immediately instead of waiting for", ox.Short("d"), ox.Section(0)).
 					Bool("prune", "Prune services that are no longer referenced", ox.Section(0)).
 					Bool("quiet", "Suppress progress output", ox.Short("q"), ox.Section(0)).
@@ -2488,7 +2488,7 @@ func main() {
 			)),
 			ox.Flags().
 				String("author", "Author (e.g., \"John Hannibal Smith", ox.Short("a"), ox.Section(0)).
-				Slice("change", "Apply Dockerfile instruction to the created image", ox.Elem(ox.StringT), ox.Short("c"), ox.Section(0)).
+				Slice("change", "Apply Dockerfile instruction to the created image", ox.Short("c"), ox.Section(0)).
 				String("message", "Commit message", ox.Short("m"), ox.Section(0)).
 				Bool("pause", "Pause container during commit", ox.Default("true"), ox.Short("p"), ox.Section(0)),
 		),
@@ -2516,13 +2516,13 @@ func main() {
 				"Options",
 			)),
 			ox.Flags().
-				Slice("add-host", "Add a custom host-to-IP mapping", ox.Elem(ox.StringT), ox.Section(0)).
-				Map("annotation", "Add an annotation to the", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Elem(ox.StringT), ox.Short("a"), ox.Section(0)).
+				Slice("add-host", "Add a custom host-to-IP mapping", ox.Section(0)).
+				Map("annotation", "Add an annotation to the", ox.Section(0)).
+				Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Short("a"), ox.Section(0)).
 				Uint16("blkio-weight", "Block IO (relative weight),", ox.Section(0)).
-				Slice("blkio-weight-device", "Block IO weight (relative device", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("cap-add", "Add Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("cap-drop", "Drop Linux capabilities", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("blkio-weight-device", "Block IO weight (relative device", ox.Section(0)).
+				Slice("cap-add", "Add Linux capabilities", ox.Section(0)).
+				Slice("cap-drop", "Drop Linux capabilities", ox.Section(0)).
 				String("cgroup-parent", "Optional parent cgroup for the", ox.Section(0)).
 				String("cgroupns", "Cgroup namespace to use", ox.Section(0)).
 				String("cidfile", "Write the container ID to the file", ox.Section(0)).
@@ -2536,23 +2536,23 @@ func main() {
 				Float32("cpus", "Number of CPUs", ox.Spec("decimal"), ox.Section(0)).
 				String("cpuset-cpus", "CPUs in which to allow execution", ox.Section(0)).
 				String("cpuset-mems", "MEMs in which to allow execution", ox.Section(0)).
-				Slice("device", "Add a host device to the container", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("device-cgroup-rule", "Add a rule to the cgroup allowed", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("device-read-bps", "Limit read rate (bytes per", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("device-read-iops", "Limit read rate (IO per second)", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("device-write-bps", "Limit write rate (bytes per", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("device-write-iops", "Limit write rate (IO per second)", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("device", "Add a host device to the container", ox.Section(0)).
+				Slice("device-cgroup-rule", "Add a rule to the cgroup allowed", ox.Section(0)).
+				Slice("device-read-bps", "Limit read rate (bytes per", ox.Section(0)).
+				Slice("device-read-iops", "Limit read rate (IO per second)", ox.Section(0)).
+				Slice("device-write-bps", "Limit write rate (bytes per", ox.Section(0)).
+				Slice("device-write-iops", "Limit write rate (IO per second)", ox.Section(0)).
 				Bool("disable-content-trust", "Skip image verification (default", ox.Section(0)).
-				Slice("dns", "Set custom DNS servers", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("dns-option", "Set DNS options", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("dns-search", "Set custom DNS search domains", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("dns", "Set custom DNS servers", ox.Section(0)).
+				Slice("dns-option", "Set DNS options", ox.Section(0)).
+				Slice("dns-search", "Set custom DNS search domains", ox.Section(0)).
 				String("domainname", "Container NIS domain name", ox.Section(0)).
 				String("entrypoint", "Overwrite the default ENTRYPOINT", ox.Section(0)).
-				Slice("env", "Set environment variables", ox.Elem(ox.StringT), ox.Short("e"), ox.Section(0)).
-				Slice("env-file", "Read in a file of environment", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("expose", "Expose a port or a range of ports", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("env", "Set environment variables", ox.Short("e"), ox.Section(0)).
+				Slice("env-file", "Read in a file of environment", ox.Section(0)).
+				Slice("expose", "Expose a port or a range of ports", ox.Section(0)).
 				String("gpus", "GPU devices to add to the", ox.Spec("gpu-request"), ox.Section(0)).
-				Slice("group-add", "Add additional groups to join", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("group-add", "Add additional groups to join", ox.Section(0)).
 				String("health-cmd", "Command to run to check health", ox.Section(0)).
 				Duration("health-interval", "Time between running the check", ox.Section(0)).
 				Int("health-retries", "Consecutive failures needed to", ox.Section(0)).
@@ -2569,12 +2569,12 @@ func main() {
 				String("ipc", "IPC mode to use", ox.Section(0)).
 				String("isolation", "Container isolation technology", ox.Section(0)).
 				Slice("kernel-memory", "Kernel memory limit", ox.Elem(ox.UintT), ox.Section(0)).
-				Slice("label", "Set meta data on a container", ox.Elem(ox.StringT), ox.Short("l"), ox.Section(0)).
-				Slice("label-file", "Read in a line delimited file of", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("link", "Add link to another container", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("link-local-ip", "Container IPv4/IPv6 link-local", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("label", "Set meta data on a container", ox.Short("l"), ox.Section(0)).
+				Slice("label-file", "Read in a line delimited file of", ox.Section(0)).
+				Slice("link", "Add link to another container", ox.Section(0)).
+				Slice("link-local-ip", "Container IPv4/IPv6 link-local", ox.Section(0)).
 				String("log-driver", "Logging driver for the container", ox.Section(0)).
-				Slice("log-opt", "Log driver options", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("log-opt", "Log driver options", ox.Section(0)).
 				String("mac-address", "Container MAC address (e.g.,", ox.Section(0)).
 				Slice("memory", "Memory limit", ox.Elem(ox.UintT), ox.Short("m"), ox.Section(0)).
 				Slice("memory-reservation", "Memory soft limit", ox.Elem(ox.UintT), ox.Section(0)).
@@ -2583,7 +2583,7 @@ func main() {
 				String("mount", "Attach a filesystem mount to the", ox.Spec("mount"), ox.Section(0)).
 				String("name", "Assign a name to the container", ox.Section(0)).
 				String("network", "Connect a container to a network", ox.Spec("network"), ox.Section(0)).
-				Slice("network-alias", "Add network-scoped alias for the", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("network-alias", "Add network-scoped alias for the", ox.Section(0)).
 				Bool("no-healthcheck", "Disable any container-specified", ox.Section(0)).
 				Bool("oom-kill-disable", "Disable OOM Killer", ox.Section(0)).
 				Int("oom-score-adj", "Tune host's OOM preferences", ox.Section(0)).
@@ -2591,7 +2591,7 @@ func main() {
 				Int("pids-limit", "Tune container pids limit (set", ox.Section(0)).
 				String("platform", "Set platform if server is", ox.Section(0)).
 				Bool("privileged", "Give extended privileges to this", ox.Section(0)).
-				Slice("publish", "Publish a container's port(s) to", ox.Elem(ox.StringT), ox.Short("p"), ox.Section(0)).
+				Slice("publish", "Publish a container's port(s) to", ox.Short("p"), ox.Section(0)).
 				Bool("publish-all", "Publish all exposed ports to", ox.Short("P"), ox.Section(0)).
 				String("pull", "Pull image before creating", ox.Section(0)).
 				Bool("quiet", "Suppress the pull output", ox.Short("q"), ox.Section(0)).
@@ -2599,22 +2599,22 @@ func main() {
 				String("restart", "Restart policy to apply when a", ox.Section(0)).
 				Bool("rm", "Automatically remove the", ox.Section(0)).
 				String("runtime", "Runtime to use for this container", ox.Section(0)).
-				Slice("security-opt", "Security Options", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("security-opt", "Security Options", ox.Section(0)).
 				Slice("shm-size", "Size of /dev/shm", ox.Elem(ox.UintT), ox.Section(0)).
 				String("stop-signal", "Signal to stop the container", ox.Section(0)).
 				Int("stop-timeout", "Timeout (in seconds) to stop a", ox.Section(0)).
-				Slice("storage-opt", "Storage driver options for the", ox.Elem(ox.StringT), ox.Section(0)).
-				Map("sysctl", "Sysctl options", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("map[]"), ox.Section(0)).
-				Slice("tmpfs", "Mount a tmpfs directory", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("storage-opt", "Storage driver options for the", ox.Section(0)).
+				Map("sysctl", "Sysctl options", ox.Default("map[]"), ox.Section(0)).
+				Slice("tmpfs", "Mount a tmpfs directory", ox.Section(0)).
 				Bool("tty", "Allocate a pseudo-TTY", ox.Short("t"), ox.Section(0)).
 				String("ulimit", "Ulimit options", ox.Spec("ulimit"), ox.Default("[]"), ox.Section(0)).
 				Bool("use-api-socket", "Bind mount Docker API socket and", ox.Section(0)).
 				String("user", "Username or UID (format:", ox.Short("u"), ox.Section(0)).
 				String("userns", "User namespace to use", ox.Section(0)).
 				String("uts", "UTS namespace to use", ox.Section(0)).
-				Slice("volume", "Bind mount a volume", ox.Elem(ox.StringT), ox.Short("v"), ox.Section(0)).
+				Slice("volume", "Bind mount a volume", ox.Short("v"), ox.Section(0)).
 				String("volume-driver", "Optional volume driver for the", ox.Section(0)).
-				Slice("volumes-from", "Mount volumes from the specified", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("volumes-from", "Mount volumes from the specified", ox.Section(0)).
 				String("workdir", "Working directory inside the", ox.Short("w"), ox.Section(0)),
 		),
 		ox.Sub(
@@ -2677,7 +2677,7 @@ func main() {
 				"Options",
 			)),
 			ox.Flags().
-				Slice("change", "Apply Dockerfile instruction to the created image", ox.Elem(ox.StringT), ox.Short("c"), ox.Section(0)).
+				Slice("change", "Apply Dockerfile instruction to the created image", ox.Short("c"), ox.Section(0)).
 				String("message", "Set commit message for imported image", ox.Short("m"), ox.Section(0)).
 				String("platform", "Set platform if server is multi-platform capable", ox.Section(0)),
 		),
@@ -2912,7 +2912,7 @@ func main() {
 			String("config", "Location of client config files (default", ox.Section(0)).
 			String("context", "Name of the context to use to connect to the", ox.Short("c"), ox.Section(0)).
 			Bool("debug", "Enable debug mode", ox.Short("D"), ox.Section(0)).
-			Slice("host", "Daemon socket to connect to", ox.Elem(ox.StringT), ox.Short("H"), ox.Section(0)).
+			Slice("host", "Daemon socket to connect to", ox.Short("H"), ox.Section(0)).
 			String("log-level", "Set the logging level (\"debug\", \"info\",", ox.Short("l"), ox.Section(0)).
 			Bool("tls", "Use TLS; implied by --tlsverify", ox.Section(0)).
 			String("tlscacert", "Trust certs signed only by this CA (default", ox.Section(0)).

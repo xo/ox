@@ -52,7 +52,7 @@ func main() {
 			Bool("csv", "CSV (Comma-Separated Values) table output mode", ox.Section(2)).
 			String("field-separator", "field separator for unaligned output (default: \"|\")", ox.Spec("STRING"), ox.Short("F"), ox.Section(2)).
 			Bool("html", "HTML table output mode", ox.Short("H"), ox.Section(2)).
-			Map("pset", "set printing option VAR to ARG (see \\pset command)", ox.Spec("VAR[=ARG]"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Short("P"), ox.Section(2)).
+			Map("pset", "set printing option VAR to ARG (see \\pset command)", ox.Spec("VAR[=ARG]"), ox.Short("P"), ox.Section(2)).
 			String("record-separator", "record separator for unaligned output (default: newline)", ox.Spec("STRING"), ox.Short("R"), ox.Section(2)).
 			Bool("tuples-only", "print rows only", ox.Short("t"), ox.Section(2)).
 			String("table-attr", "set HTML table tag attributes (e.g., width, border)", ox.Spec("TEXT"), ox.Short("T"), ox.Section(2)).

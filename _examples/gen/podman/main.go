@@ -66,8 +66,8 @@ func main() {
 				ox.Flags().
 					String("authfile", "Path of the authentication file. Use REGISTRY_AUTH_FILE environment variable to override", ox.Section(0)).
 					String("cert-dir", "Pathname of a directory containing TLS certificates and keys", ox.Spec("Pathname"), ox.Section(0)).
-					Slice("creds", "Credentials (USERNAME:PASSWORD) to use for authenticating to a registry", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("decryption-key", "Key needed to decrypt the image (e.g. /path/to/key.pem)", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("creds", "Credentials (USERNAME:PASSWORD) to use for authenticating to a registry", ox.Section(0)).
+					Array("decryption-key", "Key needed to decrypt the image (e.g. /path/to/key.pem)", ox.Section(0)).
 					Bool("quiet", "Suppress output information when pulling images", ox.Short("q"), ox.Section(0)).
 					Uint("retry", "number of times to retry in case of failure when performing pull", ox.Default("3"), ox.Section(0)).
 					String("retry-delay", "delay between retries in case of pull failures", ox.Section(0)).
@@ -84,7 +84,7 @@ func main() {
 				ox.Flags().
 					String("authfile", "Path of the authentication file. Use REGISTRY_AUTH_FILE environment variable to override", ox.Section(0)).
 					String("cert-dir", "Path to a directory containing TLS certificates and keys", ox.Section(0)).
-					Slice("creds", "Credentials (USERNAME:PASSWORD) to use for authenticating to a registry", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("creds", "Credentials (USERNAME:PASSWORD) to use for authenticating to a registry", ox.Section(0)).
 					String("digestfile", "Write the digest of the pushed image to the specified file", ox.Section(0)).
 					Bool("quiet", "Suppress output information when pushing images", ox.Short("q"), ox.Section(0)).
 					Uint("retry", "number of times to retry in case of failure when performing push", ox.Default("3"), ox.Section(0)).
@@ -143,44 +143,44 @@ func main() {
 			ox.Flags().
 				String("add-host", "add a custom host-to-IP mapping (host:ip)", ox.Spec("host:ip"), ox.Default("[]"), ox.Section(0)).
 				Bool("all-platforms", "attempt to build for all base image platforms", ox.Section(0)).
-				Array("annotation", "set metadata for an image", ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
+				Array("annotation", "set metadata for an image", ox.Default("[]"), ox.Section(0)).
 				String("arch", "set the ARCH of the image to the provided value instead of the architecture of the host", ox.Default("amd64"), ox.Section(0)).
 				String("authfile", "path of the authentication file.", ox.Section(0)).
-				Map("build-arg", "argument=value to supply to the builder", ox.Spec("argument=value"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Section(0)).
+				Map("build-arg", "argument=value to supply to the builder", ox.Spec("argument=value"), ox.Section(0)).
 				String("build-arg-file", "argfile.conf containing lines of argument=value to supply to the builder", ox.Spec("argfile.conf"), ox.Section(0)).
-				Map("build-context", "argument=value to supply additional build context to the builder", ox.Spec("argument=value"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Section(0)).
-				Array("cache-from", "remote repository list to utilise as potential cache source.", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("cache-to", "remote repository list to utilise as potential cache destination.", ox.Elem(ox.StringT), ox.Section(0)).
+				Map("build-context", "argument=value to supply additional build context to the builder", ox.Spec("argument=value"), ox.Section(0)).
+				Array("cache-from", "remote repository list to utilise as potential cache source.", ox.Section(0)).
+				Array("cache-to", "remote repository list to utilise as potential cache destination.", ox.Section(0)).
 				String("cache-ttl", "only consider cache images under specified duration.", ox.Section(0)).
-				Slice("cap-add", "add the specified capability when running", ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
-				Slice("cap-drop", "drop the specified capability when running", ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
+				Slice("cap-add", "add the specified capability when running", ox.Default("[]"), ox.Section(0)).
+				Slice("cap-drop", "drop the specified capability when running", ox.Default("[]"), ox.Section(0)).
 				String("cert-dir", "use certificates at the specified path to access the registry", ox.Section(0)).
 				String("cgroup-parent", "optional parent cgroup for the container", ox.Section(0)).
 				String("cgroupns", "'private', or 'host'", ox.Section(0)).
 				Bool("compat-volumes", "preserve the contents of VOLUMEs during RUN instructions", ox.Section(0)).
 				Bool("compress", "this is a legacy option, which has no effect on the image", ox.Section(0)).
-				Array("cpp-flag", "set additional flag to pass to C preprocessor (cpp)", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("cpp-flag", "set additional flag to pass to C preprocessor (cpp)", ox.Section(0)).
 				Uint("cpu-period", "limit the CPU CFS (Completely Fair Scheduler) period", ox.Section(0)).
 				Int("cpu-quota", "limit the CPU CFS (Completely Fair Scheduler) quota", ox.Section(0)).
 				Uint("cpu-shares", "CPU shares (relative weight)", ox.Short("c"), ox.Section(0)).
 				String("cpuset-cpus", "CPUs in which to allow execution (0-3, 0,1)", ox.Section(0)).
 				String("cpuset-mems", "memory nodes (MEMs) in which to allow execution (0-3, 0,1). Only effective on NUMA systems.", ox.Section(0)).
 				String("creds", "use [username[:password]] for accessing the registry", ox.Spec("[username[:password]]"), ox.Section(0)).
-				Slice("cw", "confidential workload options", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("decryption-key", "key needed to decrypt the image", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("device", "additional devices to provide", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("cw", "confidential workload options", ox.Section(0)).
+				Slice("decryption-key", "key needed to decrypt the image", ox.Section(0)).
+				Array("device", "additional devices to provide", ox.Section(0)).
 				Bool("disable-compression", "don't compress layers by default", ox.Default("true"), ox.Short("D"), ox.Section(0)).
 				Bool("disable-content-trust", "this is a Docker specific option and is a NOOP", ox.Section(0)).
 				String("dns", "set custom DNS servers or disable it completely by setting it to 'none', which prevents the automatic creation of /etc/resolv.conf.", ox.Spec("path"), ox.Default("/etc/resolv.conf"), ox.Section(0)).
-				Slice("dns-option", "set custom DNS options", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("dns-search", "set custom DNS search domains", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("env", "set environment variable for the image", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("dns-option", "set custom DNS options", ox.Section(0)).
+				Slice("dns-search", "set custom DNS search domains", ox.Section(0)).
+				Array("env", "set environment variable for the image", ox.Section(0)).
 				String("file", "or URL                         pathname or URL of a Dockerfile", ox.Spec("pathname"), ox.Short("f"), ox.Section(0)).
 				Bool("force-rm", "always remove intermediate containers after a build, even if the build is unsuccessful.", ox.Default("true"), ox.Section(0)).
 				String("format", "format of the built image's manifest and metadata. Use BUILDAH_FORMAT environment variable to override.", ox.Spec("format"), ox.Default("oci"), ox.Section(0)).
 				String("from", "image name used to replace the value in the first FROM instruction in the Containerfile", ox.Section(0)).
-				Slice("group-add", "add additional groups to the primary container process. 'keep-groups' allows container processes to use supplementary groups.", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("hooks-dir", "set the OCI hooks directory path (may be set multiple times)", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("group-add", "add additional groups to the primary container process. 'keep-groups' allows container processes to use supplementary groups.", ox.Section(0)).
+				Array("hooks-dir", "set the OCI hooks directory path (may be set multiple times)", ox.Section(0)).
 				Bool("http-proxy", "pass through HTTP Proxy environment variables", ox.Default("true"), ox.Section(0)).
 				Bool("identity-label", "add default identity label", ox.Default("true"), ox.Section(0)).
 				String("ignorefile", "path to an alternate .dockerignore file", ox.Section(0)).
@@ -188,8 +188,8 @@ func main() {
 				String("ipc", "'private', path of IPC namespace to join, or 'host'", ox.Spec("path"), ox.Section(0)).
 				String("isolation", "type of process isolation to use. Use BUILDAH_ISOLATION environment variable to override.", ox.Spec("type"), ox.Default("rootless"), ox.Section(0)).
 				Int("jobs", "how many stages to run in parallel", ox.Default("1"), ox.Section(0)).
-				Array("label", "set metadata for an image", ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
-				Array("layer-label", "set metadata for an intermediate image", ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
+				Array("label", "set metadata for an image", ox.Default("[]"), ox.Section(0)).
+				Array("layer-label", "set metadata for an intermediate image", ox.Default("[]"), ox.Section(0)).
 				Bool("layers", "use intermediate layers during build. Use BUILDAH_LAYERS environment variable to override.", ox.Default("true"), ox.Section(0)).
 				String("logfile", "log to file instead of stdout/stderr", ox.Spec("file"), ox.Section(0)).
 				Bool("logsplit", "split logfile to different files for each platform", ox.Section(0)).
@@ -207,12 +207,12 @@ func main() {
 				String("output", "output destination (format: type=local,dest=path)", ox.Short("o"), ox.Section(0)).
 				String("pid", "private, path of PID namespace to join, or 'host'", ox.Spec("path"), ox.Section(0)).
 				String("platform", "set the OS/ARCH[/VARIANT] of the image to the provided value instead of the current operating system and architecture of the host (for example \"linux/arm\")", ox.Spec("OS/ARCH[/VARIANT]"), ox.Default("[linux/amd64]"), ox.Section(0)).
-				Map("pull", "Pull image policy (\"always\"|\"missing\"|\"never\"|\"newer\")", ox.Spec("string[=\"missing\"]"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("missing"), ox.Section(0)).
+				Map("pull", "Pull image policy (\"always\"|\"missing\"|\"never\"|\"newer\")", ox.Spec("string[=\"missing\"]"), ox.Default("missing"), ox.Section(0)).
 				Bool("quiet", "refrain from announcing build instructions and image read/write progress", ox.Short("q"), ox.Section(0)).
 				Int("retry", "number of times to retry in case of failure when performing push/pull", ox.Default("3"), ox.Section(0)).
 				String("retry-delay", "delay between retries in case of push/pull failures", ox.Section(0)).
 				Bool("rm", "remove intermediate containers after a successful build", ox.Default("true"), ox.Section(0)).
-				Slice("runtime-flag", "add global flags for the container runtime", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("runtime-flag", "add global flags for the container runtime", ox.Section(0)).
 				String("sbom", "scan working container using preset configuration", ox.Spec("preset"), ox.Section(0)).
 				String("sbom-image-output", "add scan results to image as path", ox.Spec("path"), ox.Section(0)).
 				String("sbom-image-purl-output", "add scan results to image as path", ox.Spec("path"), ox.Section(0)).
@@ -221,22 +221,22 @@ func main() {
 				String("sbom-purl-output", "save scan results to file`", ox.Spec("file"), ox.Section(0)).
 				String("sbom-scanner-command", "scan working container using command in scanner image", ox.Spec("command"), ox.Section(0)).
 				String("sbom-scanner-image", "scan working container using scanner command from image", ox.Spec("image"), ox.Section(0)).
-				Array("secret", "secret file to expose to the build", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("security-opt", "security options", ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
+				Array("secret", "secret file to expose to the build", ox.Section(0)).
+				Array("security-opt", "security options", ox.Default("[]"), ox.Section(0)).
 				String("shm-size", "size of '/dev/shm'. The format is <number><unit>.", ox.Spec("<number><unit>"), ox.Default("65536k"), ox.Section(0)).
 				String("sign-by", "sign the image using a GPG key with the specified FINGERPRINT", ox.Spec("FINGERPRINT"), ox.Section(0)).
 				Bool("skip-unused-stages", "skips stages in multi-stage builds which do not affect the final target", ox.Default("true"), ox.Section(0)).
 				Bool("squash", "squash all image layers into a single layer", ox.Section(0)).
 				Bool("squash-all", "Squash all layers into a single layer", ox.Section(0)).
-				Array("ssh", "SSH agent socket or keys to expose to the build. (format: default|<id>[=<socket>|<key>[,<key>]])", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("ssh", "SSH agent socket or keys to expose to the build. (format: default|<id>[=<socket>|<key>[,<key>]])", ox.Section(0)).
 				Bool("stdin", "pass stdin into containers", ox.Section(0)).
 				String("tag", "tagged name to apply to the built image", ox.Spec("name"), ox.Short("t"), ox.Section(0)).
 				String("target", "set the target build stage to build", ox.Section(0)).
 				Int("timestamp", "set created timestamp to the specified epoch seconds to allow for deterministic builds, defaults to current time", ox.Section(0)).
 				Bool("tls-verify", "require HTTPS and verify certificates when accessing the registry", ox.Default("true"), ox.Section(0)).
-				Slice("ulimit", "ulimit options", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("unsetenv", "unset environment variable from final image", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("unsetlabel", "unset label when inheriting labels from base image", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("ulimit", "ulimit options", ox.Section(0)).
+				Slice("unsetenv", "unset environment variable from final image", ox.Section(0)).
+				Slice("unsetlabel", "unset label when inheriting labels from base image", ox.Section(0)).
 				String("userns", "'container', path of user namespace to join, or 'host'", ox.Spec("path"), ox.Section(0)).
 				String("userns-gid-map", "containerGID:hostGID:length GID mapping to use in user namespace", ox.Spec("containerGID:hostGID:length"), ox.Section(0)).
 				String("userns-gid-map-group", "name of entries from /etc/subgid to use to set user namespace GID mapping", ox.Spec("name"), ox.Section(0)).
@@ -244,7 +244,7 @@ func main() {
 				String("userns-uid-map-user", "name of entries from /etc/subuid to use to set user namespace UID mapping", ox.Spec("name"), ox.Section(0)).
 				String("uts", "private, :path of UTS namespace to join, or 'host'", ox.Spec("path"), ox.Section(0)).
 				String("variant", "override the variant of the specified image", ox.Spec("variant"), ox.Section(0)).
-				Array("volume", "bind mount a volume into the container", ox.Elem(ox.StringT), ox.Short("v"), ox.Section(0)),
+				Array("volume", "bind mount a volume into the container", ox.Short("v"), ox.Section(0)),
 		),
 		ox.Sub(
 			ox.Banner("Create new image based on the changed container\n\nDescription:\n  Create an image from a container's changes. Optionally tag the image created, set the author with the --author flag, set the commit message with the --message flag, and make changes to the instructions with the --change flag."),
@@ -256,7 +256,7 @@ func main() {
 			)),
 			ox.Flags().
 				String("author", "Set the author for the image committed", ox.Short("a"), ox.Section(0)).
-				Array("change", "Apply the following possible instructions to the created image (default []): CMD | ENTRYPOINT | ENV | EXPOSE | LABEL | ONBUILD | STOPSIGNAL | USER | VOLUME | WORKDIR", ox.Elem(ox.StringT), ox.Short("c"), ox.Section(0)).
+				Array("change", "Apply the following possible instructions to the created image (default []): CMD | ENTRYPOINT | ENV | EXPOSE | LABEL | ONBUILD | STOPSIGNAL | USER | VOLUME | WORKDIR", ox.Short("c"), ox.Section(0)).
 				String("config", "file containing a container configuration to merge into the image", ox.Spec("file"), ox.Section(0)).
 				String("format", "Format of the image manifest and metadata", ox.Spec("Format"), ox.Default("oci"), ox.Short("f"), ox.Section(0)).
 				String("iidfile", "file to write the image ID to", ox.Spec("file"), ox.Section(0)).
@@ -349,8 +349,8 @@ func main() {
 					String("cpuset-cpus", "CPUs in which to allow execution (0-3, 0,1)", ox.Section(0)).
 					String("cpuset-mems", "Memory nodes (MEMs) in which to allow execution (0-3, 0,1). Only effective on NUMA systems.", ox.Section(0)).
 					Bool("destroy", "destroy the original container", ox.Section(0)).
-					Array("device-read-bps", "Limit read rate (bytes per second) from a device (e.g. --device-read-bps=/dev/sda:1mb)", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("device-write-bps", "Limit write rate (bytes per second) to a device (e.g. --device-write-bps=/dev/sda:1mb)", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("device-read-bps", "Limit read rate (bytes per second) from a device (e.g. --device-read-bps=/dev/sda:1mb)", ox.Section(0)).
+					Array("device-write-bps", "Limit write rate (bytes per second) to a device (e.g. --device-write-bps=/dev/sda:1mb)", ox.Section(0)).
 					Bool("force", "force the existing container to be destroyed", ox.Short("f"), ox.Section(0)).
 					String("memory", "Memory limit (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Short("m"), ox.Section(0)).
 					String("memory-reservation", "Memory soft limit (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Section(0)).
@@ -370,7 +370,7 @@ func main() {
 				)),
 				ox.Flags().
 					String("author", "Set the author for the image committed", ox.Short("a"), ox.Section(0)).
-					Array("change", "Apply the following possible instructions to the created image (default []): CMD | ENTRYPOINT | ENV | EXPOSE | LABEL | ONBUILD | STOPSIGNAL | USER | VOLUME | WORKDIR", ox.Elem(ox.StringT), ox.Short("c"), ox.Section(0)).
+					Array("change", "Apply the following possible instructions to the created image (default []): CMD | ENTRYPOINT | ENV | EXPOSE | LABEL | ONBUILD | STOPSIGNAL | USER | VOLUME | WORKDIR", ox.Short("c"), ox.Section(0)).
 					String("config", "file containing a container configuration to merge into the image", ox.Spec("file"), ox.Section(0)).
 					String("format", "Format of the image manifest and metadata", ox.Spec("Format"), ox.Default("oci"), ox.Short("f"), ox.Section(0)).
 					String("iidfile", "file to write the image ID to", ox.Spec("file"), ox.Section(0)).
@@ -401,20 +401,20 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Slice("add-host", "Add a custom host-to-IP mapping (host:ip)", ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
-					Array("annotation", "Add annotations to container (key=value)", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("add-host", "Add a custom host-to-IP mapping (host:ip)", ox.Default("[]"), ox.Section(0)).
+					Array("annotation", "Add annotations to container (key=value)", ox.Section(0)).
 					String("arch", "use ARCH instead of the architecture of the machine for choosing images", ox.Spec("ARCH"), ox.Section(0)).
-					Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Elem(ox.StringT), ox.Short("a"), ox.Section(0)).
+					Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Short("a"), ox.Section(0)).
 					String("authfile", "Path of the authentication file. Use REGISTRY_AUTH_FILE environment variable to override", ox.Section(0)).
 					String("blkio-weight", "Block IO weight (relative weight) accepts a weight value between 10 and 1000.", ox.Section(0)).
 					String("blkio-weight-device", "Block IO weight (relative device weight, format: DEVICE_NAME:WEIGHT)", ox.Spec("DEVICE_NAME:WEIGHT"), ox.Section(0)).
-					Slice("cap-add", "Add capabilities to the container", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("cap-drop", "Drop capabilities from the container", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("cgroup-conf", "Configure cgroup v2 (key=value)", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("cap-add", "Add capabilities to the container", ox.Section(0)).
+					Slice("cap-drop", "Drop capabilities from the container", ox.Section(0)).
+					Slice("cgroup-conf", "Configure cgroup v2 (key=value)", ox.Section(0)).
 					String("cgroup-parent", "Optional parent cgroup for the container", ox.Section(0)).
 					String("cgroupns", "cgroup namespace to use", ox.Section(0)).
 					String("cgroups", "control container cgroup configuration (\"enabled\"|\"disabled\"|\"no-conmon\"|\"split\")", ox.Default("enabled"), ox.Section(0)).
-					Array("chrootdirs", "Chroot directories inside the container", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("chrootdirs", "Chroot directories inside the container", ox.Section(0)).
 					String("cidfile", "Write the container ID to the file", ox.Section(0)).
 					String("conmon-pidfile", "Path to the file that will receive the PID of conmon", ox.Section(0)).
 					Uint("cpu-period", "Limit the CPU CFS (Completely Fair Scheduler) period", ox.Section(0)).
@@ -425,26 +425,26 @@ func main() {
 					Float32("cpus", "Number of CPUs. The default is 0.000 which means no limit", ox.Spec("float"), ox.Section(0)).
 					String("cpuset-cpus", "CPUs in which to allow execution (0-3, 0,1)", ox.Section(0)).
 					String("cpuset-mems", "Memory nodes (MEMs) in which to allow execution (0-3, 0,1). Only effective on NUMA systems.", ox.Section(0)).
-					Array("decryption-key", "Key needed to decrypt the image (e.g. /path/to/key.pem)", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("device", "Add a host device to the container", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("device-cgroup-rule", "Add a rule to the cgroup allowed devices list", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("device-read-bps", "Limit read rate (bytes per second) from a device (e.g. --device-read-bps=/dev/sda:1mb)", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("device-read-iops", "Limit read rate (IO per second) from a device (e.g. --device-read-iops=/dev/sda:1000)", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("device-write-bps", "Limit write rate (bytes per second) to a device (e.g. --device-write-bps=/dev/sda:1mb)", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("device-write-iops", "Limit write rate (IO per second) to a device (e.g. --device-write-iops=/dev/sda:1000)", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("decryption-key", "Key needed to decrypt the image (e.g. /path/to/key.pem)", ox.Section(0)).
+					Array("device", "Add a host device to the container", ox.Section(0)).
+					Slice("device-cgroup-rule", "Add a rule to the cgroup allowed devices list", ox.Section(0)).
+					Array("device-read-bps", "Limit read rate (bytes per second) from a device (e.g. --device-read-bps=/dev/sda:1mb)", ox.Section(0)).
+					Array("device-read-iops", "Limit read rate (IO per second) from a device (e.g. --device-read-iops=/dev/sda:1000)", ox.Section(0)).
+					Array("device-write-bps", "Limit write rate (bytes per second) to a device (e.g. --device-write-bps=/dev/sda:1mb)", ox.Section(0)).
+					Array("device-write-iops", "Limit write rate (IO per second) to a device (e.g. --device-write-iops=/dev/sda:1000)", ox.Section(0)).
 					Bool("disable-content-trust", "This is a Docker specific option and is a NOOP", ox.Section(0)).
-					Slice("dns", "Set custom DNS servers", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("dns-option", "Set custom DNS options", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("dns-search", "Set custom DNS search domains", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("dns", "Set custom DNS servers", ox.Section(0)).
+					Slice("dns-option", "Set custom DNS options", ox.Section(0)).
+					Slice("dns-search", "Set custom DNS search domains", ox.Section(0)).
 					String("entrypoint", "Overwrite the default ENTRYPOINT of the image", ox.Section(0)).
-					Array("env", "Set environment variables in container", ox.Elem(ox.StringT), ox.Default("[PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin]"), ox.Short("e"), ox.Section(0)).
-					Array("env-file", "Read in a file of environment variables", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("env", "Set environment variables in container", ox.Default("[PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin]"), ox.Short("e"), ox.Section(0)).
+					Array("env-file", "Read in a file of environment variables", ox.Section(0)).
 					Bool("env-host", "Use all current host environment variables in container", ox.Section(0)).
-					Array("env-merge", "Preprocess environment variables from image before injecting them into the container", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("expose", "Expose a port or a range of ports", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("gidmap", "GID map to use for the user namespace", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("gpus", "GPU devices to add to the container ('all' to pass all GPUs)", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("group-add", "Add additional groups to the primary container process. 'keep-groups' allows container processes to use supplementary groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("env-merge", "Preprocess environment variables from image before injecting them into the container", ox.Section(0)).
+					Slice("expose", "Expose a port or a range of ports", ox.Section(0)).
+					Slice("gidmap", "GID map to use for the user namespace", ox.Section(0)).
+					Slice("gpus", "GPU devices to add to the container ('all' to pass all GPUs)", ox.Section(0)).
+					Slice("group-add", "Add additional groups to the primary container process. 'keep-groups' allows container processes to use supplementary groups.", ox.Section(0)).
 					String("group-entry", "Entry to write to /etc/group", ox.Section(0)).
 					String("health-cmd", "set a healthcheck command for the container ('none' disables the existing healthcheck)", ox.Section(0)).
 					String("health-interval", "set an interval for the healthcheck. (a value of disable results in no automatic timer setup)", ox.Default("30s"), ox.Section(0)).
@@ -461,7 +461,7 @@ func main() {
 					String("health-startup-timeout", "Set the maximum amount of time that the startup healthcheck may take before it is considered failed", ox.Default("30s"), ox.Section(0)).
 					String("health-timeout", "the maximum time allowed to complete the healthcheck before an interval is considered failed", ox.Default("30s"), ox.Section(0)).
 					String("hosts-file", "Base file to create the /etc/hosts file inside the container, or one of the special values. (\"image\"|\"none\")", ox.Section(0)).
-					Slice("hostuser", "Host user account to add to /etc/passwd within container", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("hostuser", "Host user account to add to /etc/passwd within container", ox.Section(0)).
 					Bool("http-proxy", "Set proxy environment variables in the container based on the host proxy vars", ox.Default("true"), ox.Section(0)).
 					String("image-volume", "Tells podman how to handle the builtin image volumes (\"bind\"|\"tmpfs\"|\"ignore\")", ox.Default("anonymous"), ox.Section(0)).
 					Bool("init", "Run an init binary inside the container that forwards signals and reaps processes", ox.Section(0)).
@@ -471,19 +471,19 @@ func main() {
 					String("ip", "Specify a static IPv4 address for the container", ox.Section(0)).
 					String("ip6", "Specify a static IPv6 address for the container", ox.Section(0)).
 					String("ipc", "IPC namespace to use", ox.Section(0)).
-					Array("label", "Set metadata on container", ox.Elem(ox.StringT), ox.Short("l"), ox.Section(0)).
-					Array("label-file", "Read in a line delimited file of labels", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("label", "Set metadata on container", ox.Short("l"), ox.Section(0)).
+					Array("label-file", "Read in a line delimited file of labels", ox.Section(0)).
 					String("log-driver", "Logging driver for the container", ox.Default("journald"), ox.Section(0)).
-					Array("log-opt", "Logging driver options", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("log-opt", "Logging driver options", ox.Section(0)).
 					String("mac-address", "Container MAC address (e.g. 92:d0:c6:0a:29:33)", ox.Section(0)).
 					String("memory", "Memory limit (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Short("m"), ox.Section(0)).
 					String("memory-reservation", "Memory soft limit (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Section(0)).
 					String("memory-swap", "Swap limit equal to memory plus swap: '-1' to enable unlimited swap", ox.Section(0)).
 					Int("memory-swappiness", "Tune container memory swappiness (0 to 100, or -1 for system default)", ox.Default("-1"), ox.Section(0)).
-					Array("mount", "Attach a filesystem mount to the container", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("mount", "Attach a filesystem mount to the container", ox.Section(0)).
 					String("name", "Assign a name to the container", ox.Section(0)).
-					Array("network", "Connect a container to a network", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("network-alias", "Add network-scoped alias for the container", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("network", "Connect a container to a network", ox.Section(0)).
+					Slice("network-alias", "Add network-scoped alias for the container", ox.Section(0)).
 					Bool("no-healthcheck", "Disable healthchecks on container", ox.Section(0)).
 					Bool("no-hostname", "Do not create /etc/hostname within the container, instead use the version from the image", ox.Section(0)).
 					Bool("no-hosts", "Do not create /etc/hosts within the container, instead use the version from the image", ox.Section(0)).
@@ -499,7 +499,7 @@ func main() {
 					String("pod", "Run container in an existing pod", ox.Section(0)).
 					String("pod-id-file", "Read the pod ID from the file", ox.Section(0)).
 					Bool("privileged", "Give extended privileges to container", ox.Section(0)).
-					Slice("publish", "Publish a container's port, or a range of ports, to the host", ox.Elem(ox.StringT), ox.Default("[]"), ox.Short("p"), ox.Section(0)).
+					Slice("publish", "Publish a container's port, or a range of ports, to the host", ox.Default("[]"), ox.Short("p"), ox.Section(0)).
 					Bool("publish-all", "Publish all exposed ports to random ports on the host interface", ox.Short("P"), ox.Section(0)).
 					String("pull", "Pull image policy (\"always\"|\"missing\"|\"never\"|\"newer\")", ox.Default("missing"), ox.Section(0)).
 					Bool("quiet", "Suppress output information when pulling images", ox.Short("q"), ox.Section(0)).
@@ -507,7 +507,7 @@ func main() {
 					Bool("read-only", "Make containers root filesystem read-only", ox.Section(0)).
 					Bool("read-only-tmpfs", "When running --read-only containers mount read-write tmpfs on /dev, /dev/shm, /run, /tmp and /var/tmp", ox.Default("true"), ox.Section(0)).
 					Bool("replace", "If a container with the same name exists, replace it", ox.Section(0)).
-					Slice("requires", "Add one or more requirement containers that must be started before this container will start", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("requires", "Add one or more requirement containers that must be started before this container will start", ox.Section(0)).
 					String("restart", "Restart policy to apply when a container exits (\"always\"|\"no\"|\"never\"|\"on-failure\"|\"unless-stopped\")", ox.Section(0)).
 					Uint("retry", "number of times to retry in case of failure when performing pull", ox.Default("3"), ox.Section(0)).
 					String("retry-delay", "delay between retries in case of pull failures", ox.Section(0)).
@@ -515,32 +515,32 @@ func main() {
 					Bool("rootfs", "The first argument is not an image but the rootfs to the exploded container", ox.Section(0)).
 					String("sdnotify", "control sd-notify behavior (\"container\"|\"conmon\"|\"healthy\"|\"ignore\")", ox.Default("container"), ox.Section(0)).
 					String("seccomp-policy", "Policy for selecting a seccomp profile (experimental)", ox.Default("default"), ox.Section(0)).
-					Array("secret", "Add secret to container", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("security-opt", "Security Options", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("secret", "Add secret to container", ox.Section(0)).
+					Array("security-opt", "Security Options", ox.Section(0)).
 					String("shm-size", "Size of /dev/shm (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Default("65536k"), ox.Section(0)).
 					String("shm-size-systemd", "Size of systemd specific tmpfs mounts (/run, /run/lock) (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Section(0)).
 					String("stop-signal", "Signal to stop a container. Default is SIGTERM", ox.Section(0)).
 					Uint("stop-timeout", "Timeout (in seconds) that containers stopped by user command have to exit. If exceeded, the container will be forcibly stopped via SIGKILL.", ox.Default("10"), ox.Section(0)).
 					String("subgidname", "Name of range listed in /etc/subgid for use in user namespace", ox.Section(0)).
 					String("subuidname", "Name of range listed in /etc/subuid for use in user namespace", ox.Section(0)).
-					Slice("sysctl", "Sysctl options", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("sysctl", "Sysctl options", ox.Section(0)).
 					String("systemd", "Run container in systemd mode (\"true\"|\"false\"|\"always\")", ox.Default("true"), ox.Section(0)).
 					Uint("timeout", "Maximum length of time a container is allowed to run. The container will be killed automatically after the time expires.", ox.Section(0)).
 					Bool("tls-verify", "Require HTTPS and verify certificates when contacting registries for pulling images", ox.Section(0)).
 					String("tmpfs", "Mount a temporary filesystem (tmpfs) into a container", ox.Spec("tmpfs"), ox.Section(0)).
 					Bool("tty", "Allocate a pseudo-TTY for container", ox.Short("t"), ox.Section(0)).
 					String("tz", "Set timezone in container", ox.Section(0)).
-					Slice("uidmap", "UID map to use for the user namespace", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("ulimit", "Ulimit options", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("uidmap", "UID map to use for the user namespace", ox.Section(0)).
+					Slice("ulimit", "Ulimit options", ox.Section(0)).
 					String("umask", "Set umask in container", ox.Default("0022"), ox.Section(0)).
-					Array("unsetenv", "Unset environment default variables in container", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("unsetenv", "Unset environment default variables in container", ox.Section(0)).
 					Bool("unsetenv-all", "Unset all default environment variables in container", ox.Section(0)).
 					String("user", "Username or UID (format: <name|uid>[:<group|gid>])", ox.Short("u"), ox.Section(0)).
 					String("userns", "User namespace to use", ox.Section(0)).
 					String("uts", "UTS namespace to use", ox.Section(0)).
 					String("variant", "Use VARIANT instead of the running architecture variant for choosing images", ox.Spec("VARIANT"), ox.Section(0)).
-					Array("volume", "Bind mount a volume into the container", ox.Elem(ox.StringT), ox.Short("v"), ox.Section(0)).
-					Array("volumes-from", "Mount volumes from the specified container(s)", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("volume", "Bind mount a volume into the container", ox.Short("v"), ox.Section(0)).
+					Array("volumes-from", "Mount volumes from the specified container(s)", ox.Section(0)).
 					String("workdir", "Working directory inside the container", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
@@ -566,8 +566,8 @@ func main() {
 				ox.Flags().
 					Bool("detach", "Run the exec session in detached mode (backgrounded)", ox.Short("d"), ox.Section(0)).
 					String("detach-keys", "Select the key sequence for detaching a container. Format is a single character [a-Z] or ctrl-<value> where <value> is one of: a-z, @, ^, [, , or _", ox.Default("ctrl-p,ctrl-q"), ox.Section(0)).
-					Array("env", "Set environment variables", ox.Elem(ox.StringT), ox.Short("e"), ox.Section(0)).
-					Array("env-file", "Read in a file of environment variables", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("env", "Set environment variables", ox.Short("e"), ox.Section(0)).
+					Array("env-file", "Read in a file of environment variables", ox.Section(0)).
 					Bool("interactive", "Make STDIN available to the contained process", ox.Short("i"), ox.Section(0)).
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)).
 					Slice("preserve-fd", "Pass a list of additional file descriptors to the container", ox.Elem(ox.UintT), ox.Default("[]"), ox.Section(0)).
@@ -634,7 +634,7 @@ func main() {
 				)),
 				ox.Flags().
 					Bool("all", "Signal all running containers", ox.Short("a"), ox.Section(0)).
-					Array("cidfile", "Read the container ID from the file", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("cidfile", "Read the container ID from the file", ox.Section(0)).
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)).
 					String("signal", "Signal to send to the container", ox.Default("KILL"), ox.Short("s"), ox.Section(0)),
 			),
@@ -650,7 +650,7 @@ func main() {
 				ox.Flags().
 					Bool("all", "Show all the containers, default is only running containers", ox.Short("a"), ox.Section(0)).
 					Bool("external", "Show containers in storage not controlled by Podman", ox.Section(0)).
-					Array("filter", "Filter output based on conditions given", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Array("filter", "Filter output based on conditions given", ox.Short("f"), ox.Section(0)).
 					String("format", "Pretty-print containers to JSON or using a Go template", ox.Section(0)).
 					Int("last", "Print the n last created containers (all states)", ox.Default("-1"), ox.Short("n"), ox.Section(0)).
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)).
@@ -705,8 +705,8 @@ func main() {
 				)),
 				ox.Flags().
 					Bool("all", "Pause all running containers", ox.Short("a"), ox.Section(0)).
-					Array("cidfile", "Read the container ID from the file", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("filter", "Filter output based on conditions given", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Array("cidfile", "Read the container ID from the file", ox.Section(0)).
+					Array("filter", "Filter output based on conditions given", ox.Short("f"), ox.Section(0)).
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
 			),
 			ox.Sub(
@@ -730,7 +730,7 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Array("filter", "Provide filter values (e.g. 'label=<key>=<value>')", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("filter", "Provide filter values (e.g. 'label=<key>=<value>')", ox.Section(0)).
 					Bool("force", "Do not prompt for confirmation.  The default is false", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
@@ -744,7 +744,7 @@ func main() {
 				ox.Flags().
 					Bool("all", "Show all the containers, default is only running containers", ox.Short("a"), ox.Section(0)).
 					Bool("external", "Show containers in storage not controlled by Podman", ox.Section(0)).
-					Array("filter", "Filter output based on conditions given", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Array("filter", "Filter output based on conditions given", ox.Short("f"), ox.Section(0)).
 					String("format", "Pretty-print containers to JSON or using a Go template", ox.Section(0)).
 					Int("last", "Print the n last created containers (all states)", ox.Default("-1"), ox.Short("n"), ox.Section(0)).
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)).
@@ -774,8 +774,8 @@ func main() {
 				)),
 				ox.Flags().
 					Bool("all", "Restart all non-running containers", ox.Short("a"), ox.Section(0)).
-					Array("cidfile", "Read the container ID from the file", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("filter", "Filter output based on conditions given", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Array("cidfile", "Read the container ID from the file", ox.Section(0)).
+					Array("filter", "Filter output based on conditions given", ox.Short("f"), ox.Section(0)).
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)).
 					Bool("running", "Restart only running containers", ox.Section(0)).
 					Int("time", "Seconds to wait for stop before killing the container", ox.Default("10"), ox.Short("t"), ox.Section(0)),
@@ -802,7 +802,7 @@ func main() {
 					String("name", "Specify new name for container restored from exported checkpoint (only works with image or --import)", ox.Short("n"), ox.Section(0)).
 					String("pod", "Restore container into existing Pod (only works with image or --import)", ox.Section(0)).
 					Bool("print-stats", "Display restore statistics", ox.Section(0)).
-					Slice("publish", "Publish a container's port, or a range of ports, to the host", ox.Elem(ox.StringT), ox.Default("[]"), ox.Short("p"), ox.Section(0)).
+					Slice("publish", "Publish a container's port, or a range of ports, to the host", ox.Default("[]"), ox.Short("p"), ox.Section(0)).
 					Bool("tcp-established", "Restore a container with established TCP connections", ox.Section(0)),
 			),
 			ox.Sub(
@@ -815,9 +815,9 @@ func main() {
 				)),
 				ox.Flags().
 					Bool("all", "Remove all containers", ox.Short("a"), ox.Section(0)).
-					Array("cidfile", "Read the container ID from the file", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("cidfile", "Read the container ID from the file", ox.Section(0)).
 					Bool("depend", "Remove container and all containers that depend on the selected container", ox.Section(0)).
-					Array("filter", "Filter output based on conditions given", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("filter", "Filter output based on conditions given", ox.Section(0)).
 					Bool("force", "Force removal of a running or unusable container", ox.Short("f"), ox.Section(0)).
 					Bool("ignore", "Ignore errors when a specified container is missing", ox.Short("i"), ox.Section(0)).
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)).
@@ -833,20 +833,20 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Slice("add-host", "Add a custom host-to-IP mapping (host:ip)", ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
-					Array("annotation", "Add annotations to container (key=value)", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("add-host", "Add a custom host-to-IP mapping (host:ip)", ox.Default("[]"), ox.Section(0)).
+					Array("annotation", "Add annotations to container (key=value)", ox.Section(0)).
 					String("arch", "use ARCH instead of the architecture of the machine for choosing images", ox.Spec("ARCH"), ox.Section(0)).
-					Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Elem(ox.StringT), ox.Short("a"), ox.Section(0)).
+					Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Short("a"), ox.Section(0)).
 					String("authfile", "Path of the authentication file. Use REGISTRY_AUTH_FILE environment variable to override", ox.Section(0)).
 					String("blkio-weight", "Block IO weight (relative weight) accepts a weight value between 10 and 1000.", ox.Section(0)).
 					String("blkio-weight-device", "Block IO weight (relative device weight, format: DEVICE_NAME:WEIGHT)", ox.Spec("DEVICE_NAME:WEIGHT"), ox.Section(0)).
-					Slice("cap-add", "Add capabilities to the container", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("cap-drop", "Drop capabilities from the container", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("cgroup-conf", "Configure cgroup v2 (key=value)", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("cap-add", "Add capabilities to the container", ox.Section(0)).
+					Slice("cap-drop", "Drop capabilities from the container", ox.Section(0)).
+					Slice("cgroup-conf", "Configure cgroup v2 (key=value)", ox.Section(0)).
 					String("cgroup-parent", "Optional parent cgroup for the container", ox.Section(0)).
 					String("cgroupns", "cgroup namespace to use", ox.Section(0)).
 					String("cgroups", "control container cgroup configuration (\"enabled\"|\"disabled\"|\"no-conmon\"|\"split\")", ox.Default("enabled"), ox.Section(0)).
-					Array("chrootdirs", "Chroot directories inside the container", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("chrootdirs", "Chroot directories inside the container", ox.Section(0)).
 					String("cidfile", "Write the container ID to the file", ox.Section(0)).
 					String("conmon-pidfile", "Path to the file that will receive the PID of conmon", ox.Section(0)).
 					Uint("cpu-period", "Limit the CPU CFS (Completely Fair Scheduler) period", ox.Section(0)).
@@ -857,28 +857,28 @@ func main() {
 					Float32("cpus", "Number of CPUs. The default is 0.000 which means no limit", ox.Spec("float"), ox.Section(0)).
 					String("cpuset-cpus", "CPUs in which to allow execution (0-3, 0,1)", ox.Section(0)).
 					String("cpuset-mems", "Memory nodes (MEMs) in which to allow execution (0-3, 0,1). Only effective on NUMA systems.", ox.Section(0)).
-					Array("decryption-key", "Key needed to decrypt the image (e.g. /path/to/key.pem)", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("decryption-key", "Key needed to decrypt the image (e.g. /path/to/key.pem)", ox.Section(0)).
 					Bool("detach", "Run container in background and print container ID", ox.Short("d"), ox.Section(0)).
 					String("detach-keys", "Override the key sequence for detaching a container. Format is a single character [a-Z] or a comma separated sequence of `ctrl-<value>`, where `<value>` is one of: `a-cf`, `@`, `^`, `[`, `\\`, `]`, `^` or `_`", ox.Spec("glob"), ox.Default("ctrl-p,ctrl-q"), ox.Section(0)).
-					Array("device", "Add a host device to the container", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("device-cgroup-rule", "Add a rule to the cgroup allowed devices list", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("device-read-bps", "Limit read rate (bytes per second) from a device (e.g. --device-read-bps=/dev/sda:1mb)", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("device-read-iops", "Limit read rate (IO per second) from a device (e.g. --device-read-iops=/dev/sda:1000)", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("device-write-bps", "Limit write rate (bytes per second) to a device (e.g. --device-write-bps=/dev/sda:1mb)", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("device-write-iops", "Limit write rate (IO per second) to a device (e.g. --device-write-iops=/dev/sda:1000)", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("device", "Add a host device to the container", ox.Section(0)).
+					Slice("device-cgroup-rule", "Add a rule to the cgroup allowed devices list", ox.Section(0)).
+					Array("device-read-bps", "Limit read rate (bytes per second) from a device (e.g. --device-read-bps=/dev/sda:1mb)", ox.Section(0)).
+					Array("device-read-iops", "Limit read rate (IO per second) from a device (e.g. --device-read-iops=/dev/sda:1000)", ox.Section(0)).
+					Array("device-write-bps", "Limit write rate (bytes per second) to a device (e.g. --device-write-bps=/dev/sda:1mb)", ox.Section(0)).
+					Array("device-write-iops", "Limit write rate (IO per second) to a device (e.g. --device-write-iops=/dev/sda:1000)", ox.Section(0)).
 					Bool("disable-content-trust", "This is a Docker specific option and is a NOOP", ox.Section(0)).
-					Slice("dns", "Set custom DNS servers", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("dns-option", "Set custom DNS options", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("dns-search", "Set custom DNS search domains", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("dns", "Set custom DNS servers", ox.Section(0)).
+					Slice("dns-option", "Set custom DNS options", ox.Section(0)).
+					Slice("dns-search", "Set custom DNS search domains", ox.Section(0)).
 					String("entrypoint", "Overwrite the default ENTRYPOINT of the image", ox.Section(0)).
-					Array("env", "Set environment variables in container", ox.Elem(ox.StringT), ox.Default("[PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin]"), ox.Short("e"), ox.Section(0)).
-					Array("env-file", "Read in a file of environment variables", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("env", "Set environment variables in container", ox.Default("[PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin]"), ox.Short("e"), ox.Section(0)).
+					Array("env-file", "Read in a file of environment variables", ox.Section(0)).
 					Bool("env-host", "Use all current host environment variables in container", ox.Section(0)).
-					Array("env-merge", "Preprocess environment variables from image before injecting them into the container", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("expose", "Expose a port or a range of ports", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("gidmap", "GID map to use for the user namespace", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("gpus", "GPU devices to add to the container ('all' to pass all GPUs)", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("group-add", "Add additional groups to the primary container process. 'keep-groups' allows container processes to use supplementary groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("env-merge", "Preprocess environment variables from image before injecting them into the container", ox.Section(0)).
+					Slice("expose", "Expose a port or a range of ports", ox.Section(0)).
+					Slice("gidmap", "GID map to use for the user namespace", ox.Section(0)).
+					Slice("gpus", "GPU devices to add to the container ('all' to pass all GPUs)", ox.Section(0)).
+					Slice("group-add", "Add additional groups to the primary container process. 'keep-groups' allows container processes to use supplementary groups.", ox.Section(0)).
 					String("group-entry", "Entry to write to /etc/group", ox.Section(0)).
 					String("health-cmd", "set a healthcheck command for the container ('none' disables the existing healthcheck)", ox.Section(0)).
 					String("health-interval", "set an interval for the healthcheck. (a value of disable results in no automatic timer setup)", ox.Default("30s"), ox.Section(0)).
@@ -895,7 +895,7 @@ func main() {
 					String("health-startup-timeout", "Set the maximum amount of time that the startup healthcheck may take before it is considered failed", ox.Default("30s"), ox.Section(0)).
 					String("health-timeout", "the maximum time allowed to complete the healthcheck before an interval is considered failed", ox.Default("30s"), ox.Section(0)).
 					String("hosts-file", "Base file to create the /etc/hosts file inside the container, or one of the special values. (\"image\"|\"none\")", ox.Section(0)).
-					Slice("hostuser", "Host user account to add to /etc/passwd within container", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("hostuser", "Host user account to add to /etc/passwd within container", ox.Section(0)).
 					Bool("http-proxy", "Set proxy environment variables in the container based on the host proxy vars", ox.Default("true"), ox.Section(0)).
 					String("image-volume", "Tells podman how to handle the builtin image volumes (\"bind\"|\"tmpfs\"|\"ignore\")", ox.Default("anonymous"), ox.Section(0)).
 					Bool("init", "Run an init binary inside the container that forwards signals and reaps processes", ox.Section(0)).
@@ -904,19 +904,19 @@ func main() {
 					String("ip", "Specify a static IPv4 address for the container", ox.Section(0)).
 					String("ip6", "Specify a static IPv6 address for the container", ox.Section(0)).
 					String("ipc", "IPC namespace to use", ox.Section(0)).
-					Array("label", "Set metadata on container", ox.Elem(ox.StringT), ox.Short("l"), ox.Section(0)).
-					Array("label-file", "Read in a line delimited file of labels", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("label", "Set metadata on container", ox.Short("l"), ox.Section(0)).
+					Array("label-file", "Read in a line delimited file of labels", ox.Section(0)).
 					String("log-driver", "Logging driver for the container", ox.Default("journald"), ox.Section(0)).
-					Array("log-opt", "Logging driver options", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("log-opt", "Logging driver options", ox.Section(0)).
 					String("mac-address", "Container MAC address (e.g. 92:d0:c6:0a:29:33)", ox.Section(0)).
 					String("memory", "Memory limit (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Short("m"), ox.Section(0)).
 					String("memory-reservation", "Memory soft limit (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Section(0)).
 					String("memory-swap", "Swap limit equal to memory plus swap: '-1' to enable unlimited swap", ox.Section(0)).
 					Int("memory-swappiness", "Tune container memory swappiness (0 to 100, or -1 for system default)", ox.Default("-1"), ox.Section(0)).
-					Array("mount", "Attach a filesystem mount to the container", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("mount", "Attach a filesystem mount to the container", ox.Section(0)).
 					String("name", "Assign a name to the container", ox.Section(0)).
-					Array("network", "Connect a container to a network", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("network-alias", "Add network-scoped alias for the container", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("network", "Connect a container to a network", ox.Section(0)).
+					Slice("network-alias", "Add network-scoped alias for the container", ox.Section(0)).
 					Bool("no-healthcheck", "Disable healthchecks on container", ox.Section(0)).
 					Bool("no-hostname", "Do not create /etc/hostname within the container, instead use the version from the image", ox.Section(0)).
 					Bool("no-hosts", "Do not create /etc/hosts within the container, instead use the version from the image", ox.Section(0)).
@@ -935,7 +935,7 @@ func main() {
 					Slice("preserve-fd", "Pass a file descriptor into the container", ox.Elem(ox.UintT), ox.Default("[]"), ox.Section(0)).
 					Uint("preserve-fds", "Pass a number of additional file descriptors into the container", ox.Section(0)).
 					Bool("privileged", "Give extended privileges to container", ox.Section(0)).
-					Slice("publish", "Publish a container's port, or a range of ports, to the host", ox.Elem(ox.StringT), ox.Default("[]"), ox.Short("p"), ox.Section(0)).
+					Slice("publish", "Publish a container's port, or a range of ports, to the host", ox.Default("[]"), ox.Short("p"), ox.Section(0)).
 					Bool("publish-all", "Publish all exposed ports to random ports on the host interface", ox.Short("P"), ox.Section(0)).
 					String("pull", "Pull image policy (\"always\"|\"missing\"|\"never\"|\"newer\")", ox.Default("missing"), ox.Section(0)).
 					Bool("quiet", "Suppress output information when pulling images", ox.Short("q"), ox.Section(0)).
@@ -943,7 +943,7 @@ func main() {
 					Bool("read-only", "Make containers root filesystem read-only", ox.Section(0)).
 					Bool("read-only-tmpfs", "When running --read-only containers mount read-write tmpfs on /dev, /dev/shm, /run, /tmp and /var/tmp", ox.Default("true"), ox.Section(0)).
 					Bool("replace", "If a container with the same name exists, replace it", ox.Section(0)).
-					Slice("requires", "Add one or more requirement containers that must be started before this container will start", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("requires", "Add one or more requirement containers that must be started before this container will start", ox.Section(0)).
 					String("restart", "Restart policy to apply when a container exits (\"always\"|\"no\"|\"never\"|\"on-failure\"|\"unless-stopped\")", ox.Section(0)).
 					Uint("retry", "number of times to retry in case of failure when performing pull", ox.Default("3"), ox.Section(0)).
 					String("retry-delay", "delay between retries in case of pull failures", ox.Section(0)).
@@ -952,8 +952,8 @@ func main() {
 					Bool("rootfs", "The first argument is not an image but the rootfs to the exploded container", ox.Section(0)).
 					String("sdnotify", "control sd-notify behavior (\"container\"|\"conmon\"|\"healthy\"|\"ignore\")", ox.Default("container"), ox.Section(0)).
 					String("seccomp-policy", "Policy for selecting a seccomp profile (experimental)", ox.Default("default"), ox.Section(0)).
-					Array("secret", "Add secret to container", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("security-opt", "Security Options", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("secret", "Add secret to container", ox.Section(0)).
+					Array("security-opt", "Security Options", ox.Section(0)).
 					String("shm-size", "Size of /dev/shm (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Default("65536k"), ox.Section(0)).
 					String("shm-size-systemd", "Size of systemd specific tmpfs mounts (/run, /run/lock) (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Section(0)).
 					Bool("sig-proxy", "Proxy received signals to the process", ox.Default("true"), ox.Section(0)).
@@ -961,24 +961,24 @@ func main() {
 					Uint("stop-timeout", "Timeout (in seconds) that containers stopped by user command have to exit. If exceeded, the container will be forcibly stopped via SIGKILL.", ox.Default("10"), ox.Section(0)).
 					String("subgidname", "Name of range listed in /etc/subgid for use in user namespace", ox.Section(0)).
 					String("subuidname", "Name of range listed in /etc/subuid for use in user namespace", ox.Section(0)).
-					Slice("sysctl", "Sysctl options", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("sysctl", "Sysctl options", ox.Section(0)).
 					String("systemd", "Run container in systemd mode (\"true\"|\"false\"|\"always\")", ox.Default("true"), ox.Section(0)).
 					Uint("timeout", "Maximum length of time a container is allowed to run. The container will be killed automatically after the time expires.", ox.Section(0)).
 					Bool("tls-verify", "Require HTTPS and verify certificates when contacting registries for pulling images", ox.Section(0)).
 					String("tmpfs", "Mount a temporary filesystem (tmpfs) into a container", ox.Spec("tmpfs"), ox.Section(0)).
 					Bool("tty", "Allocate a pseudo-TTY for container", ox.Short("t"), ox.Section(0)).
 					String("tz", "Set timezone in container", ox.Section(0)).
-					Slice("uidmap", "UID map to use for the user namespace", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("ulimit", "Ulimit options", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("uidmap", "UID map to use for the user namespace", ox.Section(0)).
+					Slice("ulimit", "Ulimit options", ox.Section(0)).
 					String("umask", "Set umask in container", ox.Default("0022"), ox.Section(0)).
-					Array("unsetenv", "Unset environment default variables in container", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("unsetenv", "Unset environment default variables in container", ox.Section(0)).
 					Bool("unsetenv-all", "Unset all default environment variables in container", ox.Section(0)).
 					String("user", "Username or UID (format: <name|uid>[:<group|gid>])", ox.Short("u"), ox.Section(0)).
 					String("userns", "User namespace to use", ox.Section(0)).
 					String("uts", "UTS namespace to use", ox.Section(0)).
 					String("variant", "Use VARIANT instead of the running architecture variant for choosing images", ox.Spec("VARIANT"), ox.Section(0)).
-					Array("volume", "Bind mount a volume into the container", ox.Elem(ox.StringT), ox.Short("v"), ox.Section(0)).
-					Array("volumes-from", "Mount volumes from the specified container(s)", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("volume", "Bind mount a volume into the container", ox.Short("v"), ox.Section(0)).
+					Array("volumes-from", "Mount volumes from the specified container(s)", ox.Section(0)).
 					String("workdir", "Working directory inside the container", ox.Short("w"), ox.Section(0)),
 			),
 			ox.Sub(
@@ -992,7 +992,7 @@ func main() {
 				ox.Flags().
 					String("authfile", "Path of the authentication file. Use REGISTRY_AUTH_FILE environment variable to override", ox.Section(0)).
 					String("cert-dir", "Pathname of a directory containing TLS certificates and keys", ox.Spec("Pathname"), ox.Section(0)).
-					Slice("creds", "Credentials (USERNAME:PASSWORD) to use for authenticating to a registry", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("creds", "Credentials (USERNAME:PASSWORD) to use for authenticating to a registry", ox.Section(0)).
 					Bool("display", "Preview the command that the label would run", ox.Section(0)).
 					String("name", "Assign a name to the container", ox.Short("n"), ox.Section(0)).
 					Bool("quiet", "Suppress output information when installing images", ox.Short("q"), ox.Section(0)).
@@ -1011,7 +1011,7 @@ func main() {
 					Bool("all", "Start all containers regardless of their state or configuration", ox.Section(0)).
 					Bool("attach", "Attach container's STDOUT and STDERR", ox.Short("a"), ox.Section(0)).
 					String("detach-keys", "Select the key sequence for detaching a container. Format is a single character [a-Z] or a comma separated sequence of `ctrl-<value>`, where `<value>` is one of: `a-z`, `@`, `^`, `[`, `\\`, `]`, `^` or `_`", ox.Spec("glob"), ox.Default("ctrl-p,ctrl-q"), ox.Section(0)).
-					Array("filter", "Filter output based on conditions given", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Array("filter", "Filter output based on conditions given", ox.Short("f"), ox.Section(0)).
 					Bool("interactive", "Make STDIN available to the contained process", ox.Short("i"), ox.Section(0)).
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)).
 					Bool("sig-proxy", "Proxy received signals to the process", ox.Default("true if attaching, false otherwise"), ox.Section(0)),
@@ -1043,8 +1043,8 @@ func main() {
 				)),
 				ox.Flags().
 					Bool("all", "Stop all running containers", ox.Short("a"), ox.Section(0)).
-					Array("cidfile", "Read the container ID from the file", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("filter", "Filter output based on conditions given", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Array("cidfile", "Read the container ID from the file", ox.Section(0)).
+					Array("filter", "Filter output based on conditions given", ox.Short("f"), ox.Section(0)).
 					Bool("ignore", "Ignore errors when a specified container is missing", ox.Short("i"), ox.Section(0)).
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)).
 					Int("time", "Seconds to wait for stop before killing the container", ox.Default("10"), ox.Short("t"), ox.Section(0)),
@@ -1084,8 +1084,8 @@ func main() {
 				)),
 				ox.Flags().
 					Bool("all", "Unpause all paused containers", ox.Short("a"), ox.Section(0)).
-					Array("cidfile", "Read the container ID from the file", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("filter", "Filter output based on conditions given", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Array("cidfile", "Read the container ID from the file", ox.Section(0)).
+					Array("filter", "Filter output based on conditions given", ox.Short("f"), ox.Section(0)).
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
 			),
 			ox.Sub(
@@ -1107,10 +1107,10 @@ func main() {
 					Float32("cpus", "Number of CPUs. The default is 0.000 which means no limit", ox.Spec("float"), ox.Section(0)).
 					String("cpuset-cpus", "CPUs in which to allow execution (0-3, 0,1)", ox.Section(0)).
 					String("cpuset-mems", "Memory nodes (MEMs) in which to allow execution (0-3, 0,1). Only effective on NUMA systems.", ox.Section(0)).
-					Array("device-read-bps", "Limit read rate (bytes per second) from a device (e.g. --device-read-bps=/dev/sda:1mb)", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("device-read-iops", "Limit read rate (IO per second) from a device (e.g. --device-read-iops=/dev/sda:1000)", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("device-write-bps", "Limit write rate (bytes per second) to a device (e.g. --device-write-bps=/dev/sda:1mb)", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("device-write-iops", "Limit write rate (IO per second) to a device (e.g. --device-write-iops=/dev/sda:1000)", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("device-read-bps", "Limit read rate (bytes per second) from a device (e.g. --device-read-bps=/dev/sda:1mb)", ox.Section(0)).
+					Array("device-read-iops", "Limit read rate (IO per second) from a device (e.g. --device-read-iops=/dev/sda:1000)", ox.Section(0)).
+					Array("device-write-bps", "Limit write rate (bytes per second) to a device (e.g. --device-write-bps=/dev/sda:1mb)", ox.Section(0)).
+					Array("device-write-iops", "Limit write rate (IO per second) to a device (e.g. --device-write-iops=/dev/sda:1000)", ox.Section(0)).
 					String("health-cmd", "set a healthcheck command for the container ('none' disables the existing healthcheck)", ox.Section(0)).
 					String("health-interval", "set an interval for the healthcheck. (a value of disable results in no automatic timer setup) Changing this setting resets timer.", ox.Default("30s"), ox.Section(0)).
 					String("health-log-destination", "set the destination of the HealthCheck log. Directory path, local or events_logger (local use container state file) Warning: Changing this setting may cause the loss of previous logs!", ox.Default("local"), ox.Section(0)).
@@ -1142,7 +1142,7 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Slice("condition", "Condition to wait on", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("condition", "Condition to wait on", ox.Section(0)).
 					Bool("ignore", "Ignore if a container does not exist", ox.Section(0)).
 					String("interval", "Time Interval to wait before polling for completion", ox.Default("250ms"), ox.Short("i"), ox.Section(0)).
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
@@ -1169,20 +1169,20 @@ func main() {
 				"Options",
 			)),
 			ox.Flags().
-				Slice("add-host", "Add a custom host-to-IP mapping (host:ip)", ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
-				Array("annotation", "Add annotations to container (key=value)", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("add-host", "Add a custom host-to-IP mapping (host:ip)", ox.Default("[]"), ox.Section(0)).
+				Array("annotation", "Add annotations to container (key=value)", ox.Section(0)).
 				String("arch", "use ARCH instead of the architecture of the machine for choosing images", ox.Spec("ARCH"), ox.Section(0)).
-				Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Elem(ox.StringT), ox.Short("a"), ox.Section(0)).
+				Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Short("a"), ox.Section(0)).
 				String("authfile", "Path of the authentication file. Use REGISTRY_AUTH_FILE environment variable to override", ox.Section(0)).
 				String("blkio-weight", "Block IO weight (relative weight) accepts a weight value between 10 and 1000.", ox.Section(0)).
 				String("blkio-weight-device", "Block IO weight (relative device weight, format: DEVICE_NAME:WEIGHT)", ox.Spec("DEVICE_NAME:WEIGHT"), ox.Section(0)).
-				Slice("cap-add", "Add capabilities to the container", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("cap-drop", "Drop capabilities from the container", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("cgroup-conf", "Configure cgroup v2 (key=value)", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("cap-add", "Add capabilities to the container", ox.Section(0)).
+				Slice("cap-drop", "Drop capabilities from the container", ox.Section(0)).
+				Slice("cgroup-conf", "Configure cgroup v2 (key=value)", ox.Section(0)).
 				String("cgroup-parent", "Optional parent cgroup for the container", ox.Section(0)).
 				String("cgroupns", "cgroup namespace to use", ox.Section(0)).
 				String("cgroups", "control container cgroup configuration (\"enabled\"|\"disabled\"|\"no-conmon\"|\"split\")", ox.Default("enabled"), ox.Section(0)).
-				Array("chrootdirs", "Chroot directories inside the container", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("chrootdirs", "Chroot directories inside the container", ox.Section(0)).
 				String("cidfile", "Write the container ID to the file", ox.Section(0)).
 				String("conmon-pidfile", "Path to the file that will receive the PID of conmon", ox.Section(0)).
 				Uint("cpu-period", "Limit the CPU CFS (Completely Fair Scheduler) period", ox.Section(0)).
@@ -1193,26 +1193,26 @@ func main() {
 				Float32("cpus", "Number of CPUs. The default is 0.000 which means no limit", ox.Spec("float"), ox.Section(0)).
 				String("cpuset-cpus", "CPUs in which to allow execution (0-3, 0,1)", ox.Section(0)).
 				String("cpuset-mems", "Memory nodes (MEMs) in which to allow execution (0-3, 0,1). Only effective on NUMA systems.", ox.Section(0)).
-				Array("decryption-key", "Key needed to decrypt the image (e.g. /path/to/key.pem)", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("device", "Add a host device to the container", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("device-cgroup-rule", "Add a rule to the cgroup allowed devices list", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("device-read-bps", "Limit read rate (bytes per second) from a device (e.g. --device-read-bps=/dev/sda:1mb)", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("device-read-iops", "Limit read rate (IO per second) from a device (e.g. --device-read-iops=/dev/sda:1000)", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("device-write-bps", "Limit write rate (bytes per second) to a device (e.g. --device-write-bps=/dev/sda:1mb)", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("device-write-iops", "Limit write rate (IO per second) to a device (e.g. --device-write-iops=/dev/sda:1000)", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("decryption-key", "Key needed to decrypt the image (e.g. /path/to/key.pem)", ox.Section(0)).
+				Array("device", "Add a host device to the container", ox.Section(0)).
+				Slice("device-cgroup-rule", "Add a rule to the cgroup allowed devices list", ox.Section(0)).
+				Array("device-read-bps", "Limit read rate (bytes per second) from a device (e.g. --device-read-bps=/dev/sda:1mb)", ox.Section(0)).
+				Array("device-read-iops", "Limit read rate (IO per second) from a device (e.g. --device-read-iops=/dev/sda:1000)", ox.Section(0)).
+				Array("device-write-bps", "Limit write rate (bytes per second) to a device (e.g. --device-write-bps=/dev/sda:1mb)", ox.Section(0)).
+				Array("device-write-iops", "Limit write rate (IO per second) to a device (e.g. --device-write-iops=/dev/sda:1000)", ox.Section(0)).
 				Bool("disable-content-trust", "This is a Docker specific option and is a NOOP", ox.Section(0)).
-				Slice("dns", "Set custom DNS servers", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("dns-option", "Set custom DNS options", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("dns-search", "Set custom DNS search domains", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("dns", "Set custom DNS servers", ox.Section(0)).
+				Slice("dns-option", "Set custom DNS options", ox.Section(0)).
+				Slice("dns-search", "Set custom DNS search domains", ox.Section(0)).
 				String("entrypoint", "Overwrite the default ENTRYPOINT of the image", ox.Section(0)).
-				Array("env", "Set environment variables in container", ox.Elem(ox.StringT), ox.Default("[PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin]"), ox.Short("e"), ox.Section(0)).
-				Array("env-file", "Read in a file of environment variables", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("env", "Set environment variables in container", ox.Default("[PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin]"), ox.Short("e"), ox.Section(0)).
+				Array("env-file", "Read in a file of environment variables", ox.Section(0)).
 				Bool("env-host", "Use all current host environment variables in container", ox.Section(0)).
-				Array("env-merge", "Preprocess environment variables from image before injecting them into the container", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("expose", "Expose a port or a range of ports", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("gidmap", "GID map to use for the user namespace", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("gpus", "GPU devices to add to the container ('all' to pass all GPUs)", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("group-add", "Add additional groups to the primary container process. 'keep-groups' allows container processes to use supplementary groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("env-merge", "Preprocess environment variables from image before injecting them into the container", ox.Section(0)).
+				Slice("expose", "Expose a port or a range of ports", ox.Section(0)).
+				Slice("gidmap", "GID map to use for the user namespace", ox.Section(0)).
+				Slice("gpus", "GPU devices to add to the container ('all' to pass all GPUs)", ox.Section(0)).
+				Slice("group-add", "Add additional groups to the primary container process. 'keep-groups' allows container processes to use supplementary groups.", ox.Section(0)).
 				String("group-entry", "Entry to write to /etc/group", ox.Section(0)).
 				String("health-cmd", "set a healthcheck command for the container ('none' disables the existing healthcheck)", ox.Section(0)).
 				String("health-interval", "set an interval for the healthcheck. (a value of disable results in no automatic timer setup)", ox.Default("30s"), ox.Section(0)).
@@ -1229,7 +1229,7 @@ func main() {
 				String("health-startup-timeout", "Set the maximum amount of time that the startup healthcheck may take before it is considered failed", ox.Default("30s"), ox.Section(0)).
 				String("health-timeout", "the maximum time allowed to complete the healthcheck before an interval is considered failed", ox.Default("30s"), ox.Section(0)).
 				String("hosts-file", "Base file to create the /etc/hosts file inside the container, or one of the special values. (\"image\"|\"none\")", ox.Section(0)).
-				Slice("hostuser", "Host user account to add to /etc/passwd within container", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("hostuser", "Host user account to add to /etc/passwd within container", ox.Section(0)).
 				Bool("http-proxy", "Set proxy environment variables in the container based on the host proxy vars", ox.Default("true"), ox.Section(0)).
 				String("image-volume", "Tells podman how to handle the builtin image volumes (\"bind\"|\"tmpfs\"|\"ignore\")", ox.Default("anonymous"), ox.Section(0)).
 				Bool("init", "Run an init binary inside the container that forwards signals and reaps processes", ox.Section(0)).
@@ -1239,19 +1239,19 @@ func main() {
 				String("ip", "Specify a static IPv4 address for the container", ox.Section(0)).
 				String("ip6", "Specify a static IPv6 address for the container", ox.Section(0)).
 				String("ipc", "IPC namespace to use", ox.Section(0)).
-				Array("label", "Set metadata on container", ox.Elem(ox.StringT), ox.Short("l"), ox.Section(0)).
-				Array("label-file", "Read in a line delimited file of labels", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("label", "Set metadata on container", ox.Short("l"), ox.Section(0)).
+				Array("label-file", "Read in a line delimited file of labels", ox.Section(0)).
 				String("log-driver", "Logging driver for the container", ox.Default("journald"), ox.Section(0)).
-				Array("log-opt", "Logging driver options", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("log-opt", "Logging driver options", ox.Section(0)).
 				String("mac-address", "Container MAC address (e.g. 92:d0:c6:0a:29:33)", ox.Section(0)).
 				String("memory", "Memory limit (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Short("m"), ox.Section(0)).
 				String("memory-reservation", "Memory soft limit (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Section(0)).
 				String("memory-swap", "Swap limit equal to memory plus swap: '-1' to enable unlimited swap", ox.Section(0)).
 				Int("memory-swappiness", "Tune container memory swappiness (0 to 100, or -1 for system default)", ox.Default("-1"), ox.Section(0)).
-				Array("mount", "Attach a filesystem mount to the container", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("mount", "Attach a filesystem mount to the container", ox.Section(0)).
 				String("name", "Assign a name to the container", ox.Section(0)).
-				Array("network", "Connect a container to a network", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("network-alias", "Add network-scoped alias for the container", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("network", "Connect a container to a network", ox.Section(0)).
+				Slice("network-alias", "Add network-scoped alias for the container", ox.Section(0)).
 				Bool("no-healthcheck", "Disable healthchecks on container", ox.Section(0)).
 				Bool("no-hostname", "Do not create /etc/hostname within the container, instead use the version from the image", ox.Section(0)).
 				Bool("no-hosts", "Do not create /etc/hosts within the container, instead use the version from the image", ox.Section(0)).
@@ -1267,7 +1267,7 @@ func main() {
 				String("pod", "Run container in an existing pod", ox.Section(0)).
 				String("pod-id-file", "Read the pod ID from the file", ox.Section(0)).
 				Bool("privileged", "Give extended privileges to container", ox.Section(0)).
-				Slice("publish", "Publish a container's port, or a range of ports, to the host", ox.Elem(ox.StringT), ox.Default("[]"), ox.Short("p"), ox.Section(0)).
+				Slice("publish", "Publish a container's port, or a range of ports, to the host", ox.Default("[]"), ox.Short("p"), ox.Section(0)).
 				Bool("publish-all", "Publish all exposed ports to random ports on the host interface", ox.Short("P"), ox.Section(0)).
 				String("pull", "Pull image policy (\"always\"|\"missing\"|\"never\"|\"newer\")", ox.Default("missing"), ox.Section(0)).
 				Bool("quiet", "Suppress output information when pulling images", ox.Short("q"), ox.Section(0)).
@@ -1275,7 +1275,7 @@ func main() {
 				Bool("read-only", "Make containers root filesystem read-only", ox.Section(0)).
 				Bool("read-only-tmpfs", "When running --read-only containers mount read-write tmpfs on /dev, /dev/shm, /run, /tmp and /var/tmp", ox.Default("true"), ox.Section(0)).
 				Bool("replace", "If a container with the same name exists, replace it", ox.Section(0)).
-				Slice("requires", "Add one or more requirement containers that must be started before this container will start", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("requires", "Add one or more requirement containers that must be started before this container will start", ox.Section(0)).
 				String("restart", "Restart policy to apply when a container exits (\"always\"|\"no\"|\"never\"|\"on-failure\"|\"unless-stopped\")", ox.Section(0)).
 				Uint("retry", "number of times to retry in case of failure when performing pull", ox.Default("3"), ox.Section(0)).
 				String("retry-delay", "delay between retries in case of pull failures", ox.Section(0)).
@@ -1283,32 +1283,32 @@ func main() {
 				Bool("rootfs", "The first argument is not an image but the rootfs to the exploded container", ox.Section(0)).
 				String("sdnotify", "control sd-notify behavior (\"container\"|\"conmon\"|\"healthy\"|\"ignore\")", ox.Default("container"), ox.Section(0)).
 				String("seccomp-policy", "Policy for selecting a seccomp profile (experimental)", ox.Default("default"), ox.Section(0)).
-				Array("secret", "Add secret to container", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("security-opt", "Security Options", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("secret", "Add secret to container", ox.Section(0)).
+				Array("security-opt", "Security Options", ox.Section(0)).
 				String("shm-size", "Size of /dev/shm (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Default("65536k"), ox.Section(0)).
 				String("shm-size-systemd", "Size of systemd specific tmpfs mounts (/run, /run/lock) (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Section(0)).
 				String("stop-signal", "Signal to stop a container. Default is SIGTERM", ox.Section(0)).
 				Uint("stop-timeout", "Timeout (in seconds) that containers stopped by user command have to exit. If exceeded, the container will be forcibly stopped via SIGKILL.", ox.Default("10"), ox.Section(0)).
 				String("subgidname", "Name of range listed in /etc/subgid for use in user namespace", ox.Section(0)).
 				String("subuidname", "Name of range listed in /etc/subuid for use in user namespace", ox.Section(0)).
-				Slice("sysctl", "Sysctl options", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("sysctl", "Sysctl options", ox.Section(0)).
 				String("systemd", "Run container in systemd mode (\"true\"|\"false\"|\"always\")", ox.Default("true"), ox.Section(0)).
 				Uint("timeout", "Maximum length of time a container is allowed to run. The container will be killed automatically after the time expires.", ox.Section(0)).
 				Bool("tls-verify", "Require HTTPS and verify certificates when contacting registries for pulling images", ox.Section(0)).
 				String("tmpfs", "Mount a temporary filesystem (tmpfs) into a container", ox.Spec("tmpfs"), ox.Section(0)).
 				Bool("tty", "Allocate a pseudo-TTY for container", ox.Short("t"), ox.Section(0)).
 				String("tz", "Set timezone in container", ox.Section(0)).
-				Slice("uidmap", "UID map to use for the user namespace", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("ulimit", "Ulimit options", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("uidmap", "UID map to use for the user namespace", ox.Section(0)).
+				Slice("ulimit", "Ulimit options", ox.Section(0)).
 				String("umask", "Set umask in container", ox.Default("0022"), ox.Section(0)).
-				Array("unsetenv", "Unset environment default variables in container", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("unsetenv", "Unset environment default variables in container", ox.Section(0)).
 				Bool("unsetenv-all", "Unset all default environment variables in container", ox.Section(0)).
 				String("user", "Username or UID (format: <name|uid>[:<group|gid>])", ox.Short("u"), ox.Section(0)).
 				String("userns", "User namespace to use", ox.Section(0)).
 				String("uts", "UTS namespace to use", ox.Section(0)).
 				String("variant", "Use VARIANT instead of the running architecture variant for choosing images", ox.Spec("VARIANT"), ox.Section(0)).
-				Array("volume", "Bind mount a volume into the container", ox.Elem(ox.StringT), ox.Short("v"), ox.Section(0)).
-				Array("volumes-from", "Mount volumes from the specified container(s)", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("volume", "Bind mount a volume into the container", ox.Short("v"), ox.Section(0)).
+				Array("volumes-from", "Mount volumes from the specified container(s)", ox.Section(0)).
 				String("workdir", "Working directory inside the container", ox.Short("w"), ox.Section(0)),
 		),
 		ox.Sub(
@@ -1332,7 +1332,7 @@ func main() {
 				"Options",
 			)),
 			ox.Flags().
-				Array("filter", "filter output", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Array("filter", "filter output", ox.Short("f"), ox.Section(0)).
 				String("format", "format the output using a Go template", ox.Section(0)).
 				Bool("no-trunc", "do not truncate the output", ox.Default("true"), ox.Section(0)).
 				String("since", "show all events created since timestamp", ox.Section(0)).
@@ -1350,8 +1350,8 @@ func main() {
 			ox.Flags().
 				Bool("detach", "Run the exec session in detached mode (backgrounded)", ox.Short("d"), ox.Section(0)).
 				String("detach-keys", "Select the key sequence for detaching a container. Format is a single character [a-Z] or ctrl-<value> where <value> is one of: a-z, @, ^, [, , or _", ox.Default("ctrl-p,ctrl-q"), ox.Section(0)).
-				Array("env", "Set environment variables", ox.Elem(ox.StringT), ox.Short("e"), ox.Section(0)).
-				Array("env-file", "Read in a file of environment variables", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("env", "Set environment variables", ox.Short("e"), ox.Section(0)).
+				Array("env-file", "Read in a file of environment variables", ox.Section(0)).
 				Bool("interactive", "Make STDIN available to the contained process", ox.Short("i"), ox.Section(0)).
 				Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)).
 				Slice("preserve-fd", "Pass a list of additional file descriptors to the container", ox.Elem(ox.UintT), ox.Default("[]"), ox.Section(0)).
@@ -1386,42 +1386,42 @@ func main() {
 				)),
 				ox.Flags().
 					String("add-host", "add a custom host-to-IP mapping (host:ip)", ox.Spec("host:ip"), ox.Default("[]"), ox.Section(0)).
-					Array("annotation", "set metadata for an image", ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
+					Array("annotation", "set metadata for an image", ox.Default("[]"), ox.Section(0)).
 					String("authfile", "path of the authentication file.", ox.Section(0)).
-					Map("build-arg", "argument=value to supply to the builder", ox.Spec("argument=value"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Section(0)).
+					Map("build-arg", "argument=value to supply to the builder", ox.Spec("argument=value"), ox.Section(0)).
 					String("build-arg-file", "argfile.conf containing lines of argument=value to supply to the builder", ox.Spec("argfile.conf"), ox.Section(0)).
-					Map("build-context", "argument=value to supply additional build context to the builder", ox.Spec("argument=value"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Section(0)).
-					Array("cache-from", "remote repository list to utilise as potential cache source.", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("cache-to", "remote repository list to utilise as potential cache destination.", ox.Elem(ox.StringT), ox.Section(0)).
+					Map("build-context", "argument=value to supply additional build context to the builder", ox.Spec("argument=value"), ox.Section(0)).
+					Array("cache-from", "remote repository list to utilise as potential cache source.", ox.Section(0)).
+					Array("cache-to", "remote repository list to utilise as potential cache destination.", ox.Section(0)).
 					String("cache-ttl", "only consider cache images under specified duration.", ox.Section(0)).
-					Slice("cap-add", "add the specified capability when running", ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
-					Slice("cap-drop", "drop the specified capability when running", ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
+					Slice("cap-add", "add the specified capability when running", ox.Default("[]"), ox.Section(0)).
+					Slice("cap-drop", "drop the specified capability when running", ox.Default("[]"), ox.Section(0)).
 					String("cert-dir", "use certificates at the specified path to access the registry", ox.Section(0)).
 					String("cgroup-parent", "optional parent cgroup for the container", ox.Section(0)).
 					String("cgroupns", "'private', or 'host'", ox.Section(0)).
 					Bool("cleanup", "Remove built images from farm nodes on success", ox.Section(0)).
 					Bool("compat-volumes", "preserve the contents of VOLUMEs during RUN instructions", ox.Section(0)).
-					Array("cpp-flag", "set additional flag to pass to C preprocessor (cpp)", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("cpp-flag", "set additional flag to pass to C preprocessor (cpp)", ox.Section(0)).
 					Uint("cpu-period", "limit the CPU CFS (Completely Fair Scheduler) period", ox.Section(0)).
 					Int("cpu-quota", "limit the CPU CFS (Completely Fair Scheduler) quota", ox.Section(0)).
 					Uint("cpu-shares", "CPU shares (relative weight)", ox.Short("c"), ox.Section(0)).
 					String("cpuset-cpus", "CPUs in which to allow execution (0-3, 0,1)", ox.Section(0)).
 					String("cpuset-mems", "memory nodes (MEMs) in which to allow execution (0-3, 0,1). Only effective on NUMA systems.", ox.Section(0)).
 					String("creds", "use [username[:password]] for accessing the registry", ox.Spec("[username[:password]]"), ox.Section(0)).
-					Slice("decryption-key", "key needed to decrypt the image", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("device", "additional devices to provide", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("decryption-key", "key needed to decrypt the image", ox.Section(0)).
+					Array("device", "additional devices to provide", ox.Section(0)).
 					Bool("disable-compression", "don't compress layers by default", ox.Default("true"), ox.Short("D"), ox.Section(0)).
 					String("dns", "set custom DNS servers or disable it completely by setting it to 'none', which prevents the automatic creation of /etc/resolv.conf.", ox.Spec("path"), ox.Default("/etc/resolv.conf"), ox.Section(0)).
-					Slice("dns-option", "set custom DNS options", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("dns-search", "set custom DNS search domains", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("env", "set environment variable for the image", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("dns-option", "set custom DNS options", ox.Section(0)).
+					Slice("dns-search", "set custom DNS search domains", ox.Section(0)).
+					Array("env", "set environment variable for the image", ox.Section(0)).
 					String("farm", "Farm to use for builds", ox.Section(0)).
 					String("file", "or URL                         pathname or URL of a Dockerfile", ox.Spec("pathname"), ox.Short("f"), ox.Section(0)).
 					Bool("force-rm", "always remove intermediate containers after a build, even if the build is unsuccessful.", ox.Default("true"), ox.Section(0)).
 					String("format", "format of the built image's manifest and metadata. Use BUILDAH_FORMAT environment variable to override.", ox.Spec("format"), ox.Default("oci"), ox.Section(0)).
 					String("from", "image name used to replace the value in the first FROM instruction in the Containerfile", ox.Section(0)).
-					Slice("group-add", "add additional groups to the primary container process. 'keep-groups' allows container processes to use supplementary groups.", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("hooks-dir", "set the OCI hooks directory path (may be set multiple times)", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("group-add", "add additional groups to the primary container process. 'keep-groups' allows container processes to use supplementary groups.", ox.Section(0)).
+					Array("hooks-dir", "set the OCI hooks directory path (may be set multiple times)", ox.Section(0)).
 					Bool("http-proxy", "pass through HTTP Proxy environment variables", ox.Default("true"), ox.Section(0)).
 					Bool("identity-label", "add default identity label", ox.Default("true"), ox.Section(0)).
 					String("ignorefile", "path to an alternate .dockerignore file", ox.Section(0)).
@@ -1429,8 +1429,8 @@ func main() {
 					String("ipc", "'private', path of IPC namespace to join, or 'host'", ox.Spec("path"), ox.Section(0)).
 					String("isolation", "type of process isolation to use. Use BUILDAH_ISOLATION environment variable to override.", ox.Spec("type"), ox.Default("rootless"), ox.Section(0)).
 					Int("jobs", "how many stages to run in parallel", ox.Default("1"), ox.Section(0)).
-					Array("label", "set metadata for an image", ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
-					Array("layer-label", "set metadata for an intermediate image", ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
+					Array("label", "set metadata for an image", ox.Default("[]"), ox.Section(0)).
+					Array("layer-label", "set metadata for an intermediate image", ox.Default("[]"), ox.Section(0)).
 					Bool("layers", "use intermediate layers during build. Use BUILDAH_LAYERS environment variable to override.", ox.Default("true"), ox.Section(0)).
 					Bool("local", "Build image on local machine as well as on farm nodes", ox.Default("true"), ox.Short("l"), ox.Section(0)).
 					String("logfile", "log to file instead of stdout/stderr", ox.Spec("file"), ox.Section(0)).
@@ -1444,13 +1444,13 @@ func main() {
 					String("os-feature", "set required OS feature for the target image in addition to values from the base image", ox.Spec("feature"), ox.Section(0)).
 					String("os-version", "set required OS version for the target image instead of the value from the base image", ox.Spec("version"), ox.Section(0)).
 					String("pid", "private, path of PID namespace to join, or 'host'", ox.Spec("path"), ox.Section(0)).
-					Slice("platforms", "Build only on farm nodes that match the given platforms", ox.Elem(ox.StringT), ox.Section(0)).
-					Map("pull", "Pull image policy (\"always\"|\"missing\"|\"never\"|\"newer\")", ox.Spec("string[=\"missing\"]"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("missing"), ox.Section(0)).
+					Slice("platforms", "Build only on farm nodes that match the given platforms", ox.Section(0)).
+					Map("pull", "Pull image policy (\"always\"|\"missing\"|\"never\"|\"newer\")", ox.Spec("string[=\"missing\"]"), ox.Default("missing"), ox.Section(0)).
 					Bool("quiet", "refrain from announcing build instructions and image read/write progress", ox.Short("q"), ox.Section(0)).
 					Int("retry", "number of times to retry in case of failure when performing push/pull", ox.Default("3"), ox.Section(0)).
 					String("retry-delay", "delay between retries in case of push/pull failures", ox.Section(0)).
 					Bool("rm", "remove intermediate containers after a successful build", ox.Default("true"), ox.Section(0)).
-					Slice("runtime-flag", "add global flags for the container runtime", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("runtime-flag", "add global flags for the container runtime", ox.Section(0)).
 					String("sbom", "scan working container using preset configuration", ox.Spec("preset"), ox.Section(0)).
 					String("sbom-image-output", "add scan results to image as path", ox.Spec("path"), ox.Section(0)).
 					String("sbom-image-purl-output", "add scan results to image as path", ox.Spec("path"), ox.Section(0)).
@@ -1459,27 +1459,27 @@ func main() {
 					String("sbom-purl-output", "save scan results to file`", ox.Spec("file"), ox.Section(0)).
 					String("sbom-scanner-command", "scan working container using command in scanner image", ox.Spec("command"), ox.Section(0)).
 					String("sbom-scanner-image", "scan working container using scanner command from image", ox.Spec("image"), ox.Section(0)).
-					Array("secret", "secret file to expose to the build", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("security-opt", "security options", ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
+					Array("secret", "secret file to expose to the build", ox.Section(0)).
+					Array("security-opt", "security options", ox.Default("[]"), ox.Section(0)).
 					String("shm-size", "size of '/dev/shm'. The format is <number><unit>.", ox.Spec("<number><unit>"), ox.Default("65536k"), ox.Section(0)).
 					Bool("skip-unused-stages", "skips stages in multi-stage builds which do not affect the final target", ox.Default("true"), ox.Section(0)).
 					Bool("squash", "squash all image layers into a single layer", ox.Section(0)).
 					Bool("squash-all", "Squash all layers into a single layer", ox.Section(0)).
-					Array("ssh", "SSH agent socket or keys to expose to the build. (format: default|<id>[=<socket>|<key>[,<key>]])", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("ssh", "SSH agent socket or keys to expose to the build. (format: default|<id>[=<socket>|<key>[,<key>]])", ox.Section(0)).
 					String("tag", "tagged name to apply to the built image", ox.Spec("name"), ox.Short("t"), ox.Section(0)).
 					String("target", "set the target build stage to build", ox.Section(0)).
 					Int("timestamp", "set created timestamp to the specified epoch seconds to allow for deterministic builds, defaults to current time", ox.Section(0)).
 					Bool("tls-verify", "require HTTPS and verify certificates when accessing the registry", ox.Default("true"), ox.Section(0)).
-					Slice("ulimit", "ulimit options", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("unsetenv", "unset environment variable from final image", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("unsetlabel", "unset label when inheriting labels from base image", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("ulimit", "ulimit options", ox.Section(0)).
+					Slice("unsetenv", "unset environment variable from final image", ox.Section(0)).
+					Slice("unsetlabel", "unset label when inheriting labels from base image", ox.Section(0)).
 					String("userns", "'container', path of user namespace to join, or 'host'", ox.Spec("path"), ox.Section(0)).
 					String("userns-gid-map", "containerGID:hostGID:length GID mapping to use in user namespace", ox.Spec("containerGID:hostGID:length"), ox.Section(0)).
 					String("userns-gid-map-group", "name of entries from /etc/subgid to use to set user namespace GID mapping", ox.Spec("name"), ox.Section(0)).
 					String("userns-uid-map", "containerUID:hostUID:length UID mapping to use in user namespace", ox.Spec("containerUID:hostUID:length"), ox.Section(0)).
 					String("userns-uid-map-user", "name of entries from /etc/subuid to use to set user namespace UID mapping", ox.Spec("name"), ox.Section(0)).
 					String("uts", "private, :path of UTS namespace to join, or 'host'", ox.Spec("path"), ox.Section(0)).
-					Array("volume", "bind mount a volume into the container", ox.Elem(ox.StringT), ox.Short("v"), ox.Section(0)),
+					Array("volume", "bind mount a volume into the container", ox.Short("v"), ox.Section(0)),
 			),
 			ox.Sub(
 				ox.Banner("Create a new farm\n\nDescription:\n  Create a new farm with connections added via podman system connection add.\n\n\tThe \"podman system connection add --farm\" command can be used to add a new connection to a new or existing farm."),
@@ -1519,9 +1519,9 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Slice("add", "add system connection(s) to farm", ox.Elem(ox.StringT), ox.Short("a"), ox.Section(0)).
+					Slice("add", "add system connection(s) to farm", ox.Short("a"), ox.Section(0)).
 					Bool("default", "set the given farm as the default farm", ox.Short("d"), ox.Section(0)).
-					Slice("remove", "remove system connection(s) from farm", ox.Elem(ox.StringT), ox.Short("r"), ox.Section(0)),
+					Slice("remove", "remove system connection(s) from farm", ox.Short("r"), ox.Section(0)),
 			),
 		),
 		ox.Sub(
@@ -1565,23 +1565,23 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Array("after", "Add dependencies order to the generated unit file", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("after", "Add dependencies order to the generated unit file", ox.Section(0)).
 					String("container-prefix", "Systemd unit name prefix for containers", ox.Default("container"), ox.Section(0)).
-					Array("env", "Set environment variables to the systemd unit files", ox.Elem(ox.StringT), ox.Short("e"), ox.Section(0)).
+					Array("env", "Set environment variables to the systemd unit files", ox.Short("e"), ox.Section(0)).
 					Bool("files", "Generate .service files instead of printing to stdout", ox.Short("f"), ox.Section(0)).
 					String("format", "Print the created units in specified format (json)", ox.Section(0)).
 					Bool("name", "Use container/pod names instead of IDs", ox.Short("n"), ox.Section(0)).
 					Bool("new", "Create a new container or pod instead of starting an existing one", ox.Section(0)).
 					Bool("no-header", "Skip header generation", ox.Section(0)).
 					String("pod-prefix", "Systemd unit name prefix for pods", ox.Default("pod"), ox.Section(0)).
-					Array("requires", "Similar to wants, but declares stronger requirement dependencies", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("requires", "Similar to wants, but declares stronger requirement dependencies", ox.Section(0)).
 					String("restart-policy", "Systemd restart-policy", ox.Default("on-failure"), ox.Section(0)).
 					Uint("restart-sec", "Systemd restart-sec", ox.Section(0)).
 					String("separator", "Systemd unit name separator between name/id and prefix", ox.Default("-"), ox.Section(0)).
 					Uint("start-timeout", "Start timeout override", ox.Section(0)).
 					Uint("stop-timeout", "Stop timeout override", ox.Default("10"), ox.Section(0)).
 					Bool("template", "Make it a template file and use %i and %I specifiers. Working only for containers", ox.Section(0)).
-					Array("wants", "Add (weak) requirement dependencies to the generated unit file", ox.Elem(ox.StringT), ox.Section(0)),
+					Array("wants", "Add (weak) requirement dependencies to the generated unit file", ox.Section(0)),
 			),
 		),
 		ox.Sub(
@@ -1624,44 +1624,44 @@ func main() {
 				ox.Flags().
 					String("add-host", "add a custom host-to-IP mapping (host:ip)", ox.Spec("host:ip"), ox.Default("[]"), ox.Section(0)).
 					Bool("all-platforms", "attempt to build for all base image platforms", ox.Section(0)).
-					Array("annotation", "set metadata for an image", ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
+					Array("annotation", "set metadata for an image", ox.Default("[]"), ox.Section(0)).
 					String("arch", "set the ARCH of the image to the provided value instead of the architecture of the host", ox.Default("amd64"), ox.Section(0)).
 					String("authfile", "path of the authentication file.", ox.Section(0)).
-					Map("build-arg", "argument=value to supply to the builder", ox.Spec("argument=value"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Section(0)).
+					Map("build-arg", "argument=value to supply to the builder", ox.Spec("argument=value"), ox.Section(0)).
 					String("build-arg-file", "argfile.conf containing lines of argument=value to supply to the builder", ox.Spec("argfile.conf"), ox.Section(0)).
-					Map("build-context", "argument=value to supply additional build context to the builder", ox.Spec("argument=value"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Section(0)).
-					Array("cache-from", "remote repository list to utilise as potential cache source.", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("cache-to", "remote repository list to utilise as potential cache destination.", ox.Elem(ox.StringT), ox.Section(0)).
+					Map("build-context", "argument=value to supply additional build context to the builder", ox.Spec("argument=value"), ox.Section(0)).
+					Array("cache-from", "remote repository list to utilise as potential cache source.", ox.Section(0)).
+					Array("cache-to", "remote repository list to utilise as potential cache destination.", ox.Section(0)).
 					String("cache-ttl", "only consider cache images under specified duration.", ox.Section(0)).
-					Slice("cap-add", "add the specified capability when running", ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
-					Slice("cap-drop", "drop the specified capability when running", ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
+					Slice("cap-add", "add the specified capability when running", ox.Default("[]"), ox.Section(0)).
+					Slice("cap-drop", "drop the specified capability when running", ox.Default("[]"), ox.Section(0)).
 					String("cert-dir", "use certificates at the specified path to access the registry", ox.Section(0)).
 					String("cgroup-parent", "optional parent cgroup for the container", ox.Section(0)).
 					String("cgroupns", "'private', or 'host'", ox.Section(0)).
 					Bool("compat-volumes", "preserve the contents of VOLUMEs during RUN instructions", ox.Section(0)).
 					Bool("compress", "this is a legacy option, which has no effect on the image", ox.Section(0)).
-					Array("cpp-flag", "set additional flag to pass to C preprocessor (cpp)", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("cpp-flag", "set additional flag to pass to C preprocessor (cpp)", ox.Section(0)).
 					Uint("cpu-period", "limit the CPU CFS (Completely Fair Scheduler) period", ox.Section(0)).
 					Int("cpu-quota", "limit the CPU CFS (Completely Fair Scheduler) quota", ox.Section(0)).
 					Uint("cpu-shares", "CPU shares (relative weight)", ox.Short("c"), ox.Section(0)).
 					String("cpuset-cpus", "CPUs in which to allow execution (0-3, 0,1)", ox.Section(0)).
 					String("cpuset-mems", "memory nodes (MEMs) in which to allow execution (0-3, 0,1). Only effective on NUMA systems.", ox.Section(0)).
 					String("creds", "use [username[:password]] for accessing the registry", ox.Spec("[username[:password]]"), ox.Section(0)).
-					Slice("cw", "confidential workload options", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("decryption-key", "key needed to decrypt the image", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("device", "additional devices to provide", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("cw", "confidential workload options", ox.Section(0)).
+					Slice("decryption-key", "key needed to decrypt the image", ox.Section(0)).
+					Array("device", "additional devices to provide", ox.Section(0)).
 					Bool("disable-compression", "don't compress layers by default", ox.Default("true"), ox.Short("D"), ox.Section(0)).
 					Bool("disable-content-trust", "this is a Docker specific option and is a NOOP", ox.Section(0)).
 					String("dns", "set custom DNS servers or disable it completely by setting it to 'none', which prevents the automatic creation of /etc/resolv.conf.", ox.Spec("path"), ox.Default("/etc/resolv.conf"), ox.Section(0)).
-					Slice("dns-option", "set custom DNS options", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("dns-search", "set custom DNS search domains", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("env", "set environment variable for the image", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("dns-option", "set custom DNS options", ox.Section(0)).
+					Slice("dns-search", "set custom DNS search domains", ox.Section(0)).
+					Array("env", "set environment variable for the image", ox.Section(0)).
 					String("file", "or URL                         pathname or URL of a Dockerfile", ox.Spec("pathname"), ox.Short("f"), ox.Section(0)).
 					Bool("force-rm", "always remove intermediate containers after a build, even if the build is unsuccessful.", ox.Default("true"), ox.Section(0)).
 					String("format", "format of the built image's manifest and metadata. Use BUILDAH_FORMAT environment variable to override.", ox.Spec("format"), ox.Default("oci"), ox.Section(0)).
 					String("from", "image name used to replace the value in the first FROM instruction in the Containerfile", ox.Section(0)).
-					Slice("group-add", "add additional groups to the primary container process. 'keep-groups' allows container processes to use supplementary groups.", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("hooks-dir", "set the OCI hooks directory path (may be set multiple times)", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("group-add", "add additional groups to the primary container process. 'keep-groups' allows container processes to use supplementary groups.", ox.Section(0)).
+					Array("hooks-dir", "set the OCI hooks directory path (may be set multiple times)", ox.Section(0)).
 					Bool("http-proxy", "pass through HTTP Proxy environment variables", ox.Default("true"), ox.Section(0)).
 					Bool("identity-label", "add default identity label", ox.Default("true"), ox.Section(0)).
 					String("ignorefile", "path to an alternate .dockerignore file", ox.Section(0)).
@@ -1669,8 +1669,8 @@ func main() {
 					String("ipc", "'private', path of IPC namespace to join, or 'host'", ox.Spec("path"), ox.Section(0)).
 					String("isolation", "type of process isolation to use. Use BUILDAH_ISOLATION environment variable to override.", ox.Spec("type"), ox.Default("rootless"), ox.Section(0)).
 					Int("jobs", "how many stages to run in parallel", ox.Default("1"), ox.Section(0)).
-					Array("label", "set metadata for an image", ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
-					Array("layer-label", "set metadata for an intermediate image", ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
+					Array("label", "set metadata for an image", ox.Default("[]"), ox.Section(0)).
+					Array("layer-label", "set metadata for an intermediate image", ox.Default("[]"), ox.Section(0)).
 					Bool("layers", "use intermediate layers during build. Use BUILDAH_LAYERS environment variable to override.", ox.Default("true"), ox.Section(0)).
 					String("logfile", "log to file instead of stdout/stderr", ox.Spec("file"), ox.Section(0)).
 					Bool("logsplit", "split logfile to different files for each platform", ox.Section(0)).
@@ -1688,12 +1688,12 @@ func main() {
 					String("output", "output destination (format: type=local,dest=path)", ox.Short("o"), ox.Section(0)).
 					String("pid", "private, path of PID namespace to join, or 'host'", ox.Spec("path"), ox.Section(0)).
 					String("platform", "set the OS/ARCH[/VARIANT] of the image to the provided value instead of the current operating system and architecture of the host (for example \"linux/arm\")", ox.Spec("OS/ARCH[/VARIANT]"), ox.Default("[linux/amd64]"), ox.Section(0)).
-					Map("pull", "Pull image policy (\"always\"|\"missing\"|\"never\"|\"newer\")", ox.Spec("string[=\"missing\"]"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("missing"), ox.Section(0)).
+					Map("pull", "Pull image policy (\"always\"|\"missing\"|\"never\"|\"newer\")", ox.Spec("string[=\"missing\"]"), ox.Default("missing"), ox.Section(0)).
 					Bool("quiet", "refrain from announcing build instructions and image read/write progress", ox.Short("q"), ox.Section(0)).
 					Int("retry", "number of times to retry in case of failure when performing push/pull", ox.Default("3"), ox.Section(0)).
 					String("retry-delay", "delay between retries in case of push/pull failures", ox.Section(0)).
 					Bool("rm", "remove intermediate containers after a successful build", ox.Default("true"), ox.Section(0)).
-					Slice("runtime-flag", "add global flags for the container runtime", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("runtime-flag", "add global flags for the container runtime", ox.Section(0)).
 					String("sbom", "scan working container using preset configuration", ox.Spec("preset"), ox.Section(0)).
 					String("sbom-image-output", "add scan results to image as path", ox.Spec("path"), ox.Section(0)).
 					String("sbom-image-purl-output", "add scan results to image as path", ox.Spec("path"), ox.Section(0)).
@@ -1702,22 +1702,22 @@ func main() {
 					String("sbom-purl-output", "save scan results to file`", ox.Spec("file"), ox.Section(0)).
 					String("sbom-scanner-command", "scan working container using command in scanner image", ox.Spec("command"), ox.Section(0)).
 					String("sbom-scanner-image", "scan working container using scanner command from image", ox.Spec("image"), ox.Section(0)).
-					Array("secret", "secret file to expose to the build", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("security-opt", "security options", ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
+					Array("secret", "secret file to expose to the build", ox.Section(0)).
+					Array("security-opt", "security options", ox.Default("[]"), ox.Section(0)).
 					String("shm-size", "size of '/dev/shm'. The format is <number><unit>.", ox.Spec("<number><unit>"), ox.Default("65536k"), ox.Section(0)).
 					String("sign-by", "sign the image using a GPG key with the specified FINGERPRINT", ox.Spec("FINGERPRINT"), ox.Section(0)).
 					Bool("skip-unused-stages", "skips stages in multi-stage builds which do not affect the final target", ox.Default("true"), ox.Section(0)).
 					Bool("squash", "squash all image layers into a single layer", ox.Section(0)).
 					Bool("squash-all", "Squash all layers into a single layer", ox.Section(0)).
-					Array("ssh", "SSH agent socket or keys to expose to the build. (format: default|<id>[=<socket>|<key>[,<key>]])", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("ssh", "SSH agent socket or keys to expose to the build. (format: default|<id>[=<socket>|<key>[,<key>]])", ox.Section(0)).
 					Bool("stdin", "pass stdin into containers", ox.Section(0)).
 					String("tag", "tagged name to apply to the built image", ox.Spec("name"), ox.Short("t"), ox.Section(0)).
 					String("target", "set the target build stage to build", ox.Section(0)).
 					Int("timestamp", "set created timestamp to the specified epoch seconds to allow for deterministic builds, defaults to current time", ox.Section(0)).
 					Bool("tls-verify", "require HTTPS and verify certificates when accessing the registry", ox.Default("true"), ox.Section(0)).
-					Slice("ulimit", "ulimit options", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("unsetenv", "unset environment variable from final image", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("unsetlabel", "unset label when inheriting labels from base image", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("ulimit", "ulimit options", ox.Section(0)).
+					Slice("unsetenv", "unset environment variable from final image", ox.Section(0)).
+					Slice("unsetlabel", "unset label when inheriting labels from base image", ox.Section(0)).
 					String("userns", "'container', path of user namespace to join, or 'host'", ox.Spec("path"), ox.Section(0)).
 					String("userns-gid-map", "containerGID:hostGID:length GID mapping to use in user namespace", ox.Spec("containerGID:hostGID:length"), ox.Section(0)).
 					String("userns-gid-map-group", "name of entries from /etc/subgid to use to set user namespace GID mapping", ox.Spec("name"), ox.Section(0)).
@@ -1725,7 +1725,7 @@ func main() {
 					String("userns-uid-map-user", "name of entries from /etc/subuid to use to set user namespace UID mapping", ox.Spec("name"), ox.Section(0)).
 					String("uts", "private, :path of UTS namespace to join, or 'host'", ox.Spec("path"), ox.Section(0)).
 					String("variant", "override the variant of the specified image", ox.Spec("variant"), ox.Section(0)).
-					Array("volume", "bind mount a volume into the container", ox.Elem(ox.StringT), ox.Short("v"), ox.Section(0)),
+					Array("volume", "bind mount a volume into the container", ox.Short("v"), ox.Section(0)),
 			),
 			ox.Sub(
 				ox.Banner("Inspect changes to the image's file systems\n\nDescription:\n  Displays changes to the image's filesystem.  The image will be compared to its parent layer or the second argument when given."),
@@ -1768,7 +1768,7 @@ func main() {
 				)),
 				ox.Flags().
 					String("arch", "Set the architecture of the imported image", ox.Section(0)).
-					Array("change", "Apply the following possible instructions to the created image (default []): CMD | ENTRYPOINT | ENV | EXPOSE | LABEL | ONBUILD | STOPSIGNAL | USER | VOLUME | WORKDIR", ox.Elem(ox.StringT), ox.Short("c"), ox.Section(0)).
+					Array("change", "Apply the following possible instructions to the created image (default []): CMD | ENTRYPOINT | ENV | EXPOSE | LABEL | ONBUILD | STOPSIGNAL | USER | VOLUME | WORKDIR", ox.Short("c"), ox.Section(0)).
 					String("message", "Set commit message for imported image", ox.Short("m"), ox.Section(0)).
 					String("os", "Set the OS of the imported image", ox.Section(0)).
 					Bool("quiet", "Suppress output", ox.Short("q"), ox.Section(0)).
@@ -1797,13 +1797,13 @@ func main() {
 				ox.Flags().
 					Bool("all", "Show all images", ox.Default("hides intermediate images"), ox.Short("a"), ox.Section(0)).
 					Bool("digests", "Show digests", ox.Section(0)).
-					Array("filter", "Filter output based on conditions provided", ox.Elem(ox.StringT), ox.Default("[]"), ox.Short("f"), ox.Section(0)).
+					Array("filter", "Filter output based on conditions provided", ox.Default("[]"), ox.Short("f"), ox.Section(0)).
 					String("format", "Change the output format to JSON or a Go template", ox.Section(0)).
 					Bool("history", "Display the image name history", ox.Section(0)).
 					Bool("no-trunc", "Do not truncate output", ox.Section(0)).
 					Bool("noheading", "Do not print column headings", ox.Short("n"), ox.Section(0)).
 					Bool("quiet", "Display only image IDs", ox.Short("q"), ox.Section(0)).
-					String("sort", "Sort by created, id, repository, size, tag", ox.Default("created"), ox.Section(0)),
+					String("sort", "Sort by tag, created, id, repository, size", ox.Default("created"), ox.Section(0)),
 			),
 			ox.Sub(
 				ox.Banner("Load image(s) from a tar archive\n\nDescription:\n  Loads an image from a locally stored archive (tar file) into container storage."),
@@ -1840,7 +1840,7 @@ func main() {
 					Bool("all", "Remove all images not in use by containers, not just dangling ones", ox.Short("a"), ox.Section(0)).
 					Bool("build-cache", "Remove persistent build cache created by --mount=type=cache", ox.Section(0)).
 					Bool("external", "Remove images even when they are used by external containers (e.g., by build containers)", ox.Section(0)).
-					Array("filter", "Provide filter values (e.g. 'label=<key>=<value>')", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("filter", "Provide filter values (e.g. 'label=<key>=<value>')", ox.Section(0)).
 					Bool("force", "Do not prompt for confirmation", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
@@ -1856,8 +1856,8 @@ func main() {
 					String("arch", "Use ARCH instead of the architecture of the machine for choosing images", ox.Spec("ARCH"), ox.Section(0)).
 					String("authfile", "Path of the authentication file. Use REGISTRY_AUTH_FILE environment variable to override", ox.Section(0)).
 					String("cert-dir", "Pathname of a directory containing TLS certificates and keys", ox.Spec("Pathname"), ox.Section(0)).
-					Slice("creds", "Credentials (USERNAME:PASSWORD) to use for authenticating to a registry", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("decryption-key", "Key needed to decrypt the image (e.g. /path/to/key.pem)", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("creds", "Credentials (USERNAME:PASSWORD) to use for authenticating to a registry", ox.Section(0)).
+					Array("decryption-key", "Key needed to decrypt the image (e.g. /path/to/key.pem)", ox.Section(0)).
 					Bool("disable-content-trust", "This is a Docker specific option and is a NOOP", ox.Section(0)).
 					String("os", "Use OS instead of the running OS for choosing images", ox.Spec("OS"), ox.Section(0)).
 					String("platform", "Specify the platform for selecting the image.  (Conflicts with arch and os)", ox.Section(0)).
@@ -1881,11 +1881,11 @@ func main() {
 					Bool("compress", "Compress tarball image layers when pushing to a directory using the 'dir' transport.", ox.Default("is same compression type as source"), ox.Section(0)).
 					String("compression-format", "compression format to use", ox.Default("gzip"), ox.Section(0)).
 					Int("compression-level", "compression level to use", ox.Section(0)).
-					Slice("creds", "Credentials (USERNAME:PASSWORD) to use for authenticating to a registry", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("creds", "Credentials (USERNAME:PASSWORD) to use for authenticating to a registry", ox.Section(0)).
 					String("digestfile", "Write the digest of the pushed image to the specified file", ox.Section(0)).
 					Bool("disable-content-trust", "This is a Docker specific option and is a NOOP", ox.Section(0)).
 					Slice("encrypt-layer", "Layers to encrypt, 0-indexed layer indices with support for negative indexing (e.g. 0 is the first layer, -1 is the last layer). If not defined, will encrypt all layers if encryption-key flag is specified", ox.Elem(ox.IntT), ox.Section(0)).
-					Array("encryption-key", "Key with the encryption protocol to use to encrypt the image (e.g. jwe:/path/to/key.pem)", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("encryption-key", "Key with the encryption protocol to use to encrypt the image (e.g. jwe:/path/to/key.pem)", ox.Section(0)).
 					Bool("force-compression", "Use the specified compression algorithm even if the destination contains a differently-compressed variant already", ox.Section(0)).
 					String("format", "Manifest type (oci, v2s2, or v2s1) to use in the destination", ox.Default("is manifest type of source, with fallbacks"), ox.Short("f"), ox.Section(0)).
 					Bool("quiet", "Suppress output information when pushing images", ox.Short("q"), ox.Section(0)).
@@ -1951,8 +1951,8 @@ func main() {
 					String("authfile", "Path of the authentication file. Use REGISTRY_AUTH_FILE environment variable to override", ox.Section(0)).
 					String("cert-dir", "Pathname of a directory containing TLS certificates and keys", ox.Spec("Pathname"), ox.Section(0)).
 					Bool("compatible", "List stars, official and automated columns (Docker compatibility)", ox.Section(0)).
-					Slice("creds", "Credentials (USERNAME:PASSWORD) to use for authenticating to a registry", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("filter", "Filter output based on conditions provided", ox.Elem(ox.StringT), ox.Default("[]"), ox.Short("f"), ox.Section(0)).
+					Slice("creds", "Credentials (USERNAME:PASSWORD) to use for authenticating to a registry", ox.Section(0)).
+					Array("filter", "Filter output based on conditions provided", ox.Default("[]"), ox.Short("f"), ox.Section(0)).
 					String("format", "Change the output format to JSON or a Go template", ox.Section(0)).
 					Int("limit", "Limit the number of results", ox.Section(0)).
 					Bool("list-tags", "List the tags of the input registry", ox.Section(0)).
@@ -2003,7 +2003,7 @@ func main() {
 						"Options",
 					)),
 					ox.Flags().
-						Array("pubkeysfile", "Path of installed public key(s) to trust for TARGET.", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+						Array("pubkeysfile", "Path of installed public key(s) to trust for TARGET.", ox.Short("f"), ox.Section(0)).
 						String("type", "Trust type, accept values: signedBy(default), accept, reject", ox.Default("signedBy"), ox.Short("t"), ox.Section(0)),
 				),
 				ox.Sub(
@@ -2050,7 +2050,7 @@ func main() {
 			ox.Flags().
 				Bool("all", "Show all images", ox.Default("hides intermediate images"), ox.Short("a"), ox.Section(0)).
 				Bool("digests", "Show digests", ox.Section(0)).
-				Array("filter", "Filter output based on conditions provided", ox.Elem(ox.StringT), ox.Default("[]"), ox.Short("f"), ox.Section(0)).
+				Array("filter", "Filter output based on conditions provided", ox.Default("[]"), ox.Short("f"), ox.Section(0)).
 				String("format", "Change the output format to JSON or a Go template", ox.Section(0)).
 				Bool("history", "Display the image name history", ox.Section(0)).
 				Bool("no-trunc", "Do not truncate output", ox.Section(0)).
@@ -2068,7 +2068,7 @@ func main() {
 			)),
 			ox.Flags().
 				String("arch", "Set the architecture of the imported image", ox.Section(0)).
-				Array("change", "Apply the following possible instructions to the created image (default []): CMD | ENTRYPOINT | ENV | EXPOSE | LABEL | ONBUILD | STOPSIGNAL | USER | VOLUME | WORKDIR", ox.Elem(ox.StringT), ox.Short("c"), ox.Section(0)).
+				Array("change", "Apply the following possible instructions to the created image (default []): CMD | ENTRYPOINT | ENV | EXPOSE | LABEL | ONBUILD | STOPSIGNAL | USER | VOLUME | WORKDIR", ox.Short("c"), ox.Section(0)).
 				String("message", "Set commit message for imported image", ox.Short("m"), ox.Section(0)).
 				String("os", "Set the OS of the imported image", ox.Section(0)).
 				Bool("quiet", "Suppress output", ox.Short("q"), ox.Section(0)).
@@ -2121,7 +2121,7 @@ func main() {
 			)),
 			ox.Flags().
 				Bool("all", "Signal all running containers", ox.Short("a"), ox.Section(0)).
-				Array("cidfile", "Read the container ID from the file", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("cidfile", "Read the container ID from the file", ox.Section(0)).
 				Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)).
 				String("signal", "Signal to send to the container", ox.Default("KILL"), ox.Short("s"), ox.Section(0)),
 		),
@@ -2179,22 +2179,22 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Array("annotation", "Add annotations to pods (key=value)", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("annotation", "Add annotations to pods (key=value)", ox.Section(0)).
 					String("authfile", "Path of the authentication file. Use REGISTRY_AUTH_FILE environment variable to override", ox.Section(0)).
 					Bool("build", "Build all images in a YAML (given Containerfiles exist)", ox.Section(0)).
 					String("cert-dir", "Pathname of a directory containing TLS certificates and keys", ox.Spec("Pathname"), ox.Section(0)).
 					String("configmap", "Pathname of a YAML file containing a kubernetes configmap", ox.Spec("Pathname"), ox.Section(0)).
 					String("context-dir", "Path to top level of context directory", ox.Section(0)).
-					Slice("creds", "Credentials (USERNAME:PASSWORD) to use for authenticating to a registry", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("creds", "Credentials (USERNAME:PASSWORD) to use for authenticating to a registry", ox.Section(0)).
 					Bool("force", "Remove volumes as part of --down", ox.Section(0)).
 					Slice("ip", "Static IP addresses to assign to the pods", ox.Elem(ox.AddrT), ox.Default("[]"), ox.Section(0)).
 					String("log-driver", "Logging driver for the container", ox.Default("journald"), ox.Section(0)).
-					Array("log-opt", "Logging driver options", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("mac-address", "Static MAC addresses to assign to the pods", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("network", "Connect pod to network(s) or network mode", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("log-opt", "Logging driver options", ox.Section(0)).
+					Slice("mac-address", "Static MAC addresses to assign to the pods", ox.Section(0)).
+					Array("network", "Connect pod to network(s) or network mode", ox.Section(0)).
 					Bool("no-hostname", "Do not create /etc/hostname within the container, instead use the version from the image", ox.Section(0)).
 					Bool("no-hosts", "Do not create /etc/hosts within the pod's containers, instead use the version from the image", ox.Section(0)).
-					Slice("publish", "Publish a container's port, or a range of ports, to the host", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("publish", "Publish a container's port, or a range of ports, to the host", ox.Section(0)).
 					Bool("publish-all", "Whether to publish all ports defined in the K8S YAML file (containerPort, hostPort), if false only hostPort will be published", ox.Section(0)).
 					Bool("quiet", "Suppress output information when pulling images", ox.Short("q"), ox.Section(0)).
 					Bool("replace", "Delete and recreate pods defined in the YAML file", ox.Section(0)).
@@ -2300,10 +2300,10 @@ func main() {
 					String("playbook", "Run an Ansible playbook after first boot", ox.Section(0)).
 					Bool("rootful", "Whether this machine should prefer rootful container execution", ox.Section(0)).
 					String("timezone", "Set timezone", ox.Default("local"), ox.Section(0)).
-					Array("usb", "USB Host passthrough: bus=$1,devnum=$2 or vendor=$1,product=$2", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("usb", "USB Host passthrough: bus=$1,devnum=$2 or vendor=$1,product=$2", ox.Section(0)).
 					Bool("user-mode-networking", "Whether this machine should use user-mode networking, routing traffic through a host user-space process", ox.Section(0)).
 					String("username", "Username used in image", ox.Default("core"), ox.Section(0)).
-					Array("volume", "Volumes to mount, source:target", ox.Elem(ox.StringT), ox.Default("[$HOME:$HOME]"), ox.Short("v"), ox.Section(0)),
+					Array("volume", "Volumes to mount, source:target", ox.Default("[$HOME:$HOME]"), ox.Short("v"), ox.Section(0)),
 			),
 			ox.Sub(
 				ox.Banner("Inspect an existing machine\n\nDescription:\n  Provide details on a managed virtual machine"),
@@ -2384,7 +2384,7 @@ func main() {
 					Uint("disk-size", "Disk size in GiB", ox.Section(0)).
 					Uint("memory", "Memory in MiB", ox.Short("m"), ox.Section(0)).
 					Bool("rootful", "Whether this machine should prefer rootful container execution", ox.Section(0)).
-					Array("usb", "USBs bus=$1,devnum=$2 or vendor=$1,product=$2", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("usb", "USBs bus=$1,devnum=$2 or vendor=$1,product=$2", ox.Section(0)).
 					Bool("user-mode-networking", "Whether this machine should use user-mode networking, routing traffic through a host user-space process", ox.Section(0)),
 			),
 			ox.Sub(
@@ -2444,7 +2444,7 @@ func main() {
 					String("authfile", "path of the authentication file. Use REGISTRY_AUTH_FILE environment variable to override", ox.Section(0)).
 					String("cert-dir", "use certificates at the specified path to access the registry", ox.Section(0)).
 					String("creds", "use [username[:password]] for accessing the registry", ox.Spec("[username[:password]]"), ox.Section(0)).
-					Slice("features", "override the features of the specified image", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("features", "override the features of the specified image", ox.Section(0)).
 					String("os", "override the OS of the specified image", ox.Spec("OS"), ox.Section(0)).
 					String("os-version", "override the OS version of the specified image", ox.Spec("version"), ox.Section(0)).
 					Bool("tls-verify", "require HTTPS and verify certificates when accessing the registry", ox.Default("true"), ox.Section(0)).
@@ -2461,10 +2461,10 @@ func main() {
 				ox.Flags().
 					String("annotation", "set an annotation for the specified image or artifact", ox.Spec("annotation"), ox.Section(0)).
 					String("arch", "override the architecture of the specified image or artifact", ox.Spec("architecture"), ox.Section(0)).
-					Slice("features", "override the features of the specified image or artifact", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("features", "override the features of the specified image or artifact", ox.Section(0)).
 					Bool("index", "apply --annotation values to the image index itself", ox.Section(0)).
 					String("os", "override the OS of the specified image or artifact", ox.Spec("OS"), ox.Section(0)).
-					Slice("os-features", "override the OS features of the specified image or artifact", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("os-features", "override the OS features of the specified image or artifact", ox.Section(0)).
 					String("os-version", "override the OS version of the specified image or artifact", ox.Spec("version"), ox.Section(0)).
 					String("subject", "set the subject to which the image index refers", ox.Spec("subject"), ox.Section(0)).
 					String("variant", "override the Variant of the specified image or artifact", ox.Spec("Variant"), ox.Section(0)),
@@ -2480,7 +2480,7 @@ func main() {
 				ox.Flags().
 					Bool("all", "add all of the lists' images if the images to add are lists", ox.Section(0)).
 					Bool("amend", "modify an existing list if one with the desired name already exists", ox.Short("a"), ox.Section(0)).
-					Array("annotation", "set annotations on the new list", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("annotation", "set annotations on the new list", ox.Section(0)).
 					Bool("tls-verify", "require HTTPS and verify certificates when accessing the registry", ox.Default("true"), ox.Section(0)),
 			),
 			ox.Sub(
@@ -2510,7 +2510,7 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Slice("add-compression", "add instances with selected compression while pushing", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("add-compression", "add instances with selected compression while pushing", ox.Section(0)).
 					Bool("all", "also push the images in the list", ox.Default("true"), ox.Section(0)).
 					String("authfile", "path of the authentication file. Use REGISTRY_AUTH_FILE environment variable to override", ox.Section(0)).
 					String("cert-dir", "use certificates at the specified path to access the registry", ox.Section(0)).
@@ -2573,7 +2573,7 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Slice("alias", "network scoped alias for container", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("alias", "network scoped alias for container", ox.Section(0)).
 					Addr("ip", "set a static ipv4 address for this container network", ox.Section(0)).
 					Addr("ip6", "set a static ipv6 address for this container network", ox.Section(0)).
 					String("mac-address", "set a static mac address for this container network", ox.Section(0)),
@@ -2588,19 +2588,19 @@ func main() {
 				)),
 				ox.Flags().
 					Bool("disable-dns", "disable dns plugin", ox.Section(0)).
-					Slice("dns", "DNS servers this network will use", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("dns", "DNS servers this network will use", ox.Section(0)).
 					String("driver", "driver to manage the network", ox.Default("bridge"), ox.Short("d"), ox.Section(0)).
 					Slice("gateway", "IPv4 or IPv6 gateway for the subnet", ox.Elem(ox.AddrT), ox.Default("[]"), ox.Section(0)).
 					Bool("ignore", "Don't fail if network already exists", ox.Section(0)).
 					String("interface-name", "interface name which is used by the driver", ox.Section(0)).
 					Bool("internal", "restrict external access from this network", ox.Section(0)).
-					Array("ip-range", "allocate container IP from range", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("ip-range", "allocate container IP from range", ox.Section(0)).
 					String("ipam-driver", "IP Address Management Driver", ox.Section(0)).
 					Bool("ipv6", "enable IPv6 networking", ox.Section(0)).
-					Array("label", "set metadata on a network", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("opt", "Set driver specific options", ox.Elem(ox.StringT), ox.Default("[]"), ox.Short("o"), ox.Section(0)).
-					Array("route", "static routes", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("subnet", "subnets in CIDR format", ox.Elem(ox.StringT), ox.Section(0)),
+					Array("label", "set metadata on a network", ox.Section(0)).
+					Array("opt", "Set driver specific options", ox.Default("[]"), ox.Short("o"), ox.Section(0)).
+					Array("route", "static routes", ox.Section(0)).
+					Array("subnet", "subnets in CIDR format", ox.Section(0)),
 			),
 			ox.Sub(
 				ox.Banner("Disconnect a container from a network\n\nDescription:\n  Remove container from a network"),
@@ -2640,7 +2640,7 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Array("filter", "Provide filter values (e.g. 'name=podman')", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Array("filter", "Provide filter values (e.g. 'name=podman')", ox.Short("f"), ox.Section(0)).
 					String("format", "Pretty-print networks to JSON or using a Go template", ox.Section(0)).
 					Bool("no-trunc", "Do not truncate the network ID", ox.Section(0)).
 					Bool("noheading", "Do not print headers", ox.Short("n"), ox.Section(0)).
@@ -2655,7 +2655,7 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Array("filter", "Provide filter values (e.g. 'label=<key>=<value>')", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("filter", "Provide filter values (e.g. 'label=<key>=<value>')", ox.Section(0)).
 					Bool("force", "do not prompt for confirmation", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
@@ -2692,8 +2692,8 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Slice("dns-add", "add network level nameservers", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("dns-drop", "remove network level nameservers", ox.Elem(ox.StringT), ox.Section(0)),
+					Slice("dns-add", "add network level nameservers", ox.Section(0)).
+					Slice("dns-drop", "remove network level nameservers", ox.Section(0)),
 			),
 		),
 		ox.Sub(
@@ -2706,8 +2706,8 @@ func main() {
 			)),
 			ox.Flags().
 				Bool("all", "Pause all running containers", ox.Short("a"), ox.Section(0)).
-				Array("cidfile", "Read the container ID from the file", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("filter", "Filter output based on conditions given", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Array("cidfile", "Read the container ID from the file", ox.Section(0)).
+				Array("filter", "Filter output based on conditions given", ox.Short("f"), ox.Section(0)).
 				Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
 		),
 		ox.Sub(
@@ -2731,33 +2731,33 @@ func main() {
 					String("cpuset-cpus", "CPUs in which to allow execution (0-3, 0,1)", ox.Section(0)).
 					String("cpuset-mems", "Memory nodes (MEMs) in which to allow execution (0-3, 0,1). Only effective on NUMA systems.", ox.Section(0)).
 					Bool("destroy", "destroy the original pod", ox.Section(0)).
-					Array("device", "Add a host device to the container", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("device-read-bps", "Limit read rate (bytes per second) from a device (e.g. --device-read-bps=/dev/sda:1mb)", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("device-write-bps", "Limit write rate (bytes per second) to a device (e.g. --device-write-bps=/dev/sda:1mb)", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("gidmap", "GID map to use for the user namespace", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("gpus", "GPU devices to add to the container ('all' to pass all GPUs)", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("device", "Add a host device to the container", ox.Section(0)).
+					Array("device-read-bps", "Limit read rate (bytes per second) from a device (e.g. --device-read-bps=/dev/sda:1mb)", ox.Section(0)).
+					Array("device-write-bps", "Limit write rate (bytes per second) to a device (e.g. --device-write-bps=/dev/sda:1mb)", ox.Section(0)).
+					Slice("gidmap", "GID map to use for the user namespace", ox.Section(0)).
+					Slice("gpus", "GPU devices to add to the container ('all' to pass all GPUs)", ox.Section(0)).
 					String("infra-command", "Overwrite the default ENTRYPOINT of the image", ox.Section(0)).
 					String("infra-conmon-pidfile", "Path to the file that will receive the PID of conmon", ox.Section(0)).
 					String("infra-name", "Assign a name to the container", ox.Section(0)).
-					Array("label", "Set metadata on container", ox.Elem(ox.StringT), ox.Short("l"), ox.Section(0)).
-					Array("label-file", "Read in a line delimited file of labels", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("label", "Set metadata on container", ox.Short("l"), ox.Section(0)).
+					Array("label-file", "Read in a line delimited file of labels", ox.Section(0)).
 					String("memory", "Memory limit (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Short("m"), ox.Section(0)).
 					String("memory-swap", "Swap limit equal to memory plus swap: '-1' to enable unlimited swap", ox.Section(0)).
 					String("name", "name the new pod", ox.Short("n"), ox.Section(0)).
 					String("pid", "PID namespace to use", ox.Section(0)).
 					String("restart", "Restart policy to apply when a container exits (\"always\"|\"no\"|\"never\"|\"on-failure\"|\"unless-stopped\")", ox.Section(0)).
-					Array("security-opt", "Security Options", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("security-opt", "Security Options", ox.Section(0)).
 					String("shm-size", "Size of /dev/shm (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Default("65536k"), ox.Section(0)).
 					String("shm-size-systemd", "Size of systemd specific tmpfs mounts (/run, /run/lock) (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Section(0)).
 					Bool("start", "start the new pod", ox.Section(0)).
 					String("subgidname", "Name of range listed in /etc/subgid for use in user namespace", ox.Section(0)).
 					String("subuidname", "Name of range listed in /etc/subuid for use in user namespace", ox.Section(0)).
-					Slice("sysctl", "Sysctl options", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("uidmap", "UID map to use for the user namespace", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("sysctl", "Sysctl options", ox.Section(0)).
+					Slice("uidmap", "UID map to use for the user namespace", ox.Section(0)).
 					String("userns", "User namespace to use", ox.Section(0)).
 					String("uts", "UTS namespace to use", ox.Section(0)).
-					Array("volume", "Bind mount a volume into the container", ox.Elem(ox.StringT), ox.Short("v"), ox.Section(0)).
-					Array("volumes-from", "Mount volumes from the specified container(s)", ox.Elem(ox.StringT), ox.Section(0)),
+					Array("volume", "Bind mount a volume into the container", ox.Short("v"), ox.Section(0)).
+					Array("volumes-from", "Mount volumes from the specified container(s)", ox.Section(0)),
 			),
 			ox.Sub(
 				ox.Banner("Create a new empty pod\n\nDescription:\n  After creating the pod, the pod ID is printed to stdout.\n\n  You can then start it at any time with the  podman pod start <pod_id> command. The pod will be created with the initial state 'created'."),
@@ -2768,7 +2768,7 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Slice("add-host", "Add a custom host-to-IP mapping (host:ip)", ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
+					Slice("add-host", "Add a custom host-to-IP mapping (host:ip)", ox.Default("[]"), ox.Section(0)).
 					String("blkio-weight", "Block IO weight (relative weight) accepts a weight value between 10 and 1000.", ox.Section(0)).
 					String("blkio-weight-device", "Block IO weight (relative device weight, format: DEVICE_NAME:WEIGHT)", ox.Spec("DEVICE_NAME:WEIGHT"), ox.Section(0)).
 					String("cgroup-parent", "Optional parent cgroup for the container", ox.Section(0)).
@@ -2776,15 +2776,15 @@ func main() {
 					Float32("cpus", "Number of CPUs. The default is 0.000 which means no limit", ox.Spec("float"), ox.Section(0)).
 					String("cpuset-cpus", "CPUs in which to allow execution (0-3, 0,1)", ox.Section(0)).
 					String("cpuset-mems", "Memory nodes (MEMs) in which to allow execution (0-3, 0,1). Only effective on NUMA systems.", ox.Section(0)).
-					Array("device", "Add a host device to the container", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("device-read-bps", "Limit read rate (bytes per second) from a device (e.g. --device-read-bps=/dev/sda:1mb)", ox.Elem(ox.StringT), ox.Section(0)).
-					Array("device-write-bps", "Limit write rate (bytes per second) to a device (e.g. --device-write-bps=/dev/sda:1mb)", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("dns", "Set custom DNS servers", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("dns-option", "Set custom DNS options", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("dns-search", "Set custom DNS search domains", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("device", "Add a host device to the container", ox.Section(0)).
+					Array("device-read-bps", "Limit read rate (bytes per second) from a device (e.g. --device-read-bps=/dev/sda:1mb)", ox.Section(0)).
+					Array("device-write-bps", "Limit write rate (bytes per second) to a device (e.g. --device-write-bps=/dev/sda:1mb)", ox.Section(0)).
+					Slice("dns", "Set custom DNS servers", ox.Section(0)).
+					Slice("dns-option", "Set custom DNS options", ox.Section(0)).
+					Slice("dns-search", "Set custom DNS search domains", ox.Section(0)).
 					String("exit-policy", "Behaviour when the last container exits", ox.Default("continue"), ox.Section(0)).
-					Slice("gidmap", "GID map to use for the user namespace", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("gpus", "GPU devices to add to the container ('all' to pass all GPUs)", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("gidmap", "GID map to use for the user namespace", ox.Section(0)).
+					Slice("gpus", "GPU devices to add to the container ('all' to pass all GPUs)", ox.Section(0)).
 					String("hosts-file", "Base file to create the /etc/hosts file inside the container, or one of the special values. (\"image\"|\"none\")", ox.Section(0)).
 					Bool("infra", "Create an infra container associated with the pod to share namespaces with", ox.Default("true"), ox.Section(0)).
 					String("infra-command", "Overwrite the default ENTRYPOINT of the image", ox.Section(0)).
@@ -2793,34 +2793,34 @@ func main() {
 					String("infra-name", "Assign a name to the container", ox.Section(0)).
 					String("ip", "Specify a static IPv4 address for the container", ox.Section(0)).
 					String("ip6", "Specify a static IPv6 address for the container", ox.Section(0)).
-					Array("label", "Set metadata on container", ox.Elem(ox.StringT), ox.Short("l"), ox.Section(0)).
-					Array("label-file", "Read in a line delimited file of labels", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("label", "Set metadata on container", ox.Short("l"), ox.Section(0)).
+					Array("label-file", "Read in a line delimited file of labels", ox.Section(0)).
 					String("mac-address", "Container MAC address (e.g. 92:d0:c6:0a:29:33)", ox.Section(0)).
 					String("memory", "Memory limit (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Short("m"), ox.Section(0)).
 					String("memory-swap", "Swap limit equal to memory plus swap: '-1' to enable unlimited swap", ox.Section(0)).
 					String("name", "Assign a name to the pod", ox.Short("n"), ox.Section(0)).
-					Array("network", "Connect a container to a network", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("network-alias", "Add network-scoped alias for the container", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("network", "Connect a container to a network", ox.Section(0)).
+					Slice("network-alias", "Add network-scoped alias for the container", ox.Section(0)).
 					Bool("no-hostname", "Do not create /etc/hostname within the container, instead use the version from the image", ox.Section(0)).
 					Bool("no-hosts", "Do not create /etc/hosts within the container, instead use the version from the image", ox.Section(0)).
 					String("pid", "PID namespace to use", ox.Section(0)).
 					String("pod-id-file", "Write the pod ID to the file", ox.Section(0)).
-					Slice("publish", "Publish a container's port, or a range of ports, to the host", ox.Elem(ox.StringT), ox.Default("[]"), ox.Short("p"), ox.Section(0)).
+					Slice("publish", "Publish a container's port, or a range of ports, to the host", ox.Default("[]"), ox.Short("p"), ox.Section(0)).
 					Bool("replace", "If a pod with the same name exists, replace it", ox.Section(0)).
 					String("restart", "Restart policy to apply when a container exits (\"always\"|\"no\"|\"never\"|\"on-failure\"|\"unless-stopped\")", ox.Section(0)).
-					Array("security-opt", "Security Options", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("security-opt", "Security Options", ox.Section(0)).
 					String("share", "A comma delimited list of kernel namespaces the pod will share", ox.Default("ipc,net,uts"), ox.Section(0)).
 					Bool("share-parent", "Set the pod's cgroup as the cgroup parent for all containers joining the pod", ox.Default("true"), ox.Section(0)).
 					String("shm-size", "Size of /dev/shm (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Default("65536k"), ox.Section(0)).
 					String("shm-size-systemd", "Size of systemd specific tmpfs mounts (/run, /run/lock) (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Section(0)).
 					String("subgidname", "Name of range listed in /etc/subgid for use in user namespace", ox.Section(0)).
 					String("subuidname", "Name of range listed in /etc/subuid for use in user namespace", ox.Section(0)).
-					Slice("sysctl", "Sysctl options", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("uidmap", "UID map to use for the user namespace", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("sysctl", "Sysctl options", ox.Section(0)).
+					Slice("uidmap", "UID map to use for the user namespace", ox.Section(0)).
 					String("userns", "User namespace to use", ox.Section(0)).
 					String("uts", "UTS namespace to use", ox.Section(0)).
-					Array("volume", "Bind mount a volume into the container", ox.Elem(ox.StringT), ox.Short("v"), ox.Section(0)).
-					Array("volumes-from", "Mount volumes from the specified container(s)", ox.Elem(ox.StringT), ox.Section(0)),
+					Array("volume", "Bind mount a volume into the container", ox.Short("v"), ox.Section(0)).
+					Array("volumes-from", "Mount volumes from the specified container(s)", ox.Section(0)),
 			),
 			ox.Sub(
 				ox.Banner("Check if a pod exists in local storage\n\nDescription:\n  If the named pod exists in local storage, podman pod exists exits with 0, otherwise the exit code will be 1."),
@@ -2907,7 +2907,7 @@ func main() {
 					Bool("ctr-ids", "Display the container UUIDs. If no-trunc is not set they will be truncated", ox.Section(0)).
 					Bool("ctr-names", "Display the container names", ox.Section(0)).
 					Bool("ctr-status", "Display the container status", ox.Section(0)).
-					Array("filter", "Filter output based on conditions given", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Array("filter", "Filter output based on conditions given", ox.Short("f"), ox.Section(0)).
 					String("format", "Pretty-print pods to JSON or using a Go template", ox.Section(0)).
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)).
 					Bool("no-trunc", "Do not truncate pod and container IDs", ox.Section(0)).
@@ -2941,7 +2941,7 @@ func main() {
 					Bool("force", "Force removal of a running pod by first stopping all containers, then removing all containers in the pod.  The default is false", ox.Short("f"), ox.Section(0)).
 					Bool("ignore", "Ignore errors when a specified pod is missing", ox.Short("i"), ox.Section(0)).
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)).
-					Array("pod-id-file", "Read the pod ID from the file", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("pod-id-file", "Read the pod ID from the file", ox.Section(0)).
 					Int("time", "Seconds to wait for pod stop before killing the container", ox.Default("10"), ox.Short("t"), ox.Section(0)),
 			),
 			ox.Sub(
@@ -2955,7 +2955,7 @@ func main() {
 				ox.Flags().
 					Bool("all", "Restart all running pods", ox.Short("a"), ox.Section(0)).
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)).
-					Array("pod-id-file", "Read the pod ID from the file", ox.Elem(ox.StringT), ox.Section(0)),
+					Array("pod-id-file", "Read the pod ID from the file", ox.Section(0)),
 			),
 			ox.Sub(
 				ox.Banner("Display a live stream of resource usage statistics for the containers in one or more pods\n\nDescription:\n  Display the containers' resource-usage statistics of one or more running pod"),
@@ -2984,7 +2984,7 @@ func main() {
 					Bool("all", "Stop all running pods", ox.Short("a"), ox.Section(0)).
 					Bool("ignore", "Ignore errors when a specified pod is missing", ox.Short("i"), ox.Section(0)).
 					Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)).
-					Array("pod-id-file", "Write the pod ID to the file", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("pod-id-file", "Write the pod ID to the file", ox.Section(0)).
 					Int("time", "Seconds to wait for pod stop before killing the container", ox.Default("10"), ox.Short("t"), ox.Section(0)),
 			),
 			ox.Sub(
@@ -3034,7 +3034,7 @@ func main() {
 			ox.Flags().
 				Bool("all", "Show all the containers, default is only running containers", ox.Short("a"), ox.Section(0)).
 				Bool("external", "Show containers in storage not controlled by Podman", ox.Section(0)).
-				Array("filter", "Filter output based on conditions given", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Array("filter", "Filter output based on conditions given", ox.Short("f"), ox.Section(0)).
 				String("format", "Pretty-print containers to JSON or using a Go template", ox.Section(0)).
 				Int("last", "Print the n last created containers (all states)", ox.Default("-1"), ox.Short("n"), ox.Section(0)).
 				Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)).
@@ -3061,8 +3061,8 @@ func main() {
 				String("arch", "Use ARCH instead of the architecture of the machine for choosing images", ox.Spec("ARCH"), ox.Section(0)).
 				String("authfile", "Path of the authentication file. Use REGISTRY_AUTH_FILE environment variable to override", ox.Section(0)).
 				String("cert-dir", "Pathname of a directory containing TLS certificates and keys", ox.Spec("Pathname"), ox.Section(0)).
-				Slice("creds", "Credentials (USERNAME:PASSWORD) to use for authenticating to a registry", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("decryption-key", "Key needed to decrypt the image (e.g. /path/to/key.pem)", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("creds", "Credentials (USERNAME:PASSWORD) to use for authenticating to a registry", ox.Section(0)).
+				Array("decryption-key", "Key needed to decrypt the image (e.g. /path/to/key.pem)", ox.Section(0)).
 				Bool("disable-content-trust", "This is a Docker specific option and is a NOOP", ox.Section(0)).
 				String("os", "Use OS instead of the running OS for choosing images", ox.Spec("OS"), ox.Section(0)).
 				String("platform", "Specify the platform for selecting the image.  (Conflicts with arch and os)", ox.Section(0)).
@@ -3086,11 +3086,11 @@ func main() {
 				Bool("compress", "Compress tarball image layers when pushing to a directory using the 'dir' transport.", ox.Default("is same compression type as source"), ox.Section(0)).
 				String("compression-format", "compression format to use", ox.Default("gzip"), ox.Section(0)).
 				Int("compression-level", "compression level to use", ox.Section(0)).
-				Slice("creds", "Credentials (USERNAME:PASSWORD) to use for authenticating to a registry", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("creds", "Credentials (USERNAME:PASSWORD) to use for authenticating to a registry", ox.Section(0)).
 				String("digestfile", "Write the digest of the pushed image to the specified file", ox.Section(0)).
 				Bool("disable-content-trust", "This is a Docker specific option and is a NOOP", ox.Section(0)).
 				Slice("encrypt-layer", "Layers to encrypt, 0-indexed layer indices with support for negative indexing (e.g. 0 is the first layer, -1 is the last layer). If not defined, will encrypt all layers if encryption-key flag is specified", ox.Elem(ox.IntT), ox.Section(0)).
-				Array("encryption-key", "Key with the encryption protocol to use to encrypt the image (e.g. jwe:/path/to/key.pem)", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("encryption-key", "Key with the encryption protocol to use to encrypt the image (e.g. jwe:/path/to/key.pem)", ox.Section(0)).
 				Bool("force-compression", "Use the specified compression algorithm even if the destination contains a differently-compressed variant already", ox.Section(0)).
 				String("format", "Manifest type (oci, v2s2, or v2s1) to use in the destination", ox.Default("is manifest type of source, with fallbacks"), ox.Short("f"), ox.Section(0)).
 				Bool("quiet", "Suppress output information when pushing images", ox.Short("q"), ox.Section(0)).
@@ -3119,8 +3119,8 @@ func main() {
 			)),
 			ox.Flags().
 				Bool("all", "Restart all non-running containers", ox.Short("a"), ox.Section(0)).
-				Array("cidfile", "Read the container ID from the file", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("filter", "Filter output based on conditions given", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Array("cidfile", "Read the container ID from the file", ox.Section(0)).
+				Array("filter", "Filter output based on conditions given", ox.Short("f"), ox.Section(0)).
 				Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)).
 				Bool("running", "Restart only running containers", ox.Section(0)).
 				Int("time", "Seconds to wait for stop before killing the container", ox.Default("10"), ox.Short("t"), ox.Section(0)),
@@ -3135,9 +3135,9 @@ func main() {
 			)),
 			ox.Flags().
 				Bool("all", "Remove all containers", ox.Short("a"), ox.Section(0)).
-				Array("cidfile", "Read the container ID from the file", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("cidfile", "Read the container ID from the file", ox.Section(0)).
 				Bool("depend", "Remove container and all containers that depend on the selected container", ox.Section(0)).
-				Array("filter", "Filter output based on conditions given", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("filter", "Filter output based on conditions given", ox.Section(0)).
 				Bool("force", "Force removal of a running or unusable container", ox.Short("f"), ox.Section(0)).
 				Bool("ignore", "Ignore errors when a specified container is missing", ox.Short("i"), ox.Section(0)).
 				Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)).
@@ -3167,20 +3167,20 @@ func main() {
 				"Options",
 			)),
 			ox.Flags().
-				Slice("add-host", "Add a custom host-to-IP mapping (host:ip)", ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
-				Array("annotation", "Add annotations to container (key=value)", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("add-host", "Add a custom host-to-IP mapping (host:ip)", ox.Default("[]"), ox.Section(0)).
+				Array("annotation", "Add annotations to container (key=value)", ox.Section(0)).
 				String("arch", "use ARCH instead of the architecture of the machine for choosing images", ox.Spec("ARCH"), ox.Section(0)).
-				Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Elem(ox.StringT), ox.Short("a"), ox.Section(0)).
+				Slice("attach", "Attach to STDIN, STDOUT or STDERR", ox.Short("a"), ox.Section(0)).
 				String("authfile", "Path of the authentication file. Use REGISTRY_AUTH_FILE environment variable to override", ox.Section(0)).
 				String("blkio-weight", "Block IO weight (relative weight) accepts a weight value between 10 and 1000.", ox.Section(0)).
 				String("blkio-weight-device", "Block IO weight (relative device weight, format: DEVICE_NAME:WEIGHT)", ox.Spec("DEVICE_NAME:WEIGHT"), ox.Section(0)).
-				Slice("cap-add", "Add capabilities to the container", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("cap-drop", "Drop capabilities from the container", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("cgroup-conf", "Configure cgroup v2 (key=value)", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("cap-add", "Add capabilities to the container", ox.Section(0)).
+				Slice("cap-drop", "Drop capabilities from the container", ox.Section(0)).
+				Slice("cgroup-conf", "Configure cgroup v2 (key=value)", ox.Section(0)).
 				String("cgroup-parent", "Optional parent cgroup for the container", ox.Section(0)).
 				String("cgroupns", "cgroup namespace to use", ox.Section(0)).
 				String("cgroups", "control container cgroup configuration (\"enabled\"|\"disabled\"|\"no-conmon\"|\"split\")", ox.Default("enabled"), ox.Section(0)).
-				Array("chrootdirs", "Chroot directories inside the container", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("chrootdirs", "Chroot directories inside the container", ox.Section(0)).
 				String("cidfile", "Write the container ID to the file", ox.Section(0)).
 				String("conmon-pidfile", "Path to the file that will receive the PID of conmon", ox.Section(0)).
 				Uint("cpu-period", "Limit the CPU CFS (Completely Fair Scheduler) period", ox.Section(0)).
@@ -3191,28 +3191,28 @@ func main() {
 				Float32("cpus", "Number of CPUs. The default is 0.000 which means no limit", ox.Spec("float"), ox.Section(0)).
 				String("cpuset-cpus", "CPUs in which to allow execution (0-3, 0,1)", ox.Section(0)).
 				String("cpuset-mems", "Memory nodes (MEMs) in which to allow execution (0-3, 0,1). Only effective on NUMA systems.", ox.Section(0)).
-				Array("decryption-key", "Key needed to decrypt the image (e.g. /path/to/key.pem)", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("decryption-key", "Key needed to decrypt the image (e.g. /path/to/key.pem)", ox.Section(0)).
 				Bool("detach", "Run container in background and print container ID", ox.Short("d"), ox.Section(0)).
 				String("detach-keys", "Override the key sequence for detaching a container. Format is a single character [a-Z] or a comma separated sequence of `ctrl-<value>`, where `<value>` is one of: `a-cf`, `@`, `^`, `[`, `\\`, `]`, `^` or `_`", ox.Spec("glob"), ox.Default("ctrl-p,ctrl-q"), ox.Section(0)).
-				Array("device", "Add a host device to the container", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("device-cgroup-rule", "Add a rule to the cgroup allowed devices list", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("device-read-bps", "Limit read rate (bytes per second) from a device (e.g. --device-read-bps=/dev/sda:1mb)", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("device-read-iops", "Limit read rate (IO per second) from a device (e.g. --device-read-iops=/dev/sda:1000)", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("device-write-bps", "Limit write rate (bytes per second) to a device (e.g. --device-write-bps=/dev/sda:1mb)", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("device-write-iops", "Limit write rate (IO per second) to a device (e.g. --device-write-iops=/dev/sda:1000)", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("device", "Add a host device to the container", ox.Section(0)).
+				Slice("device-cgroup-rule", "Add a rule to the cgroup allowed devices list", ox.Section(0)).
+				Array("device-read-bps", "Limit read rate (bytes per second) from a device (e.g. --device-read-bps=/dev/sda:1mb)", ox.Section(0)).
+				Array("device-read-iops", "Limit read rate (IO per second) from a device (e.g. --device-read-iops=/dev/sda:1000)", ox.Section(0)).
+				Array("device-write-bps", "Limit write rate (bytes per second) to a device (e.g. --device-write-bps=/dev/sda:1mb)", ox.Section(0)).
+				Array("device-write-iops", "Limit write rate (IO per second) to a device (e.g. --device-write-iops=/dev/sda:1000)", ox.Section(0)).
 				Bool("disable-content-trust", "This is a Docker specific option and is a NOOP", ox.Section(0)).
-				Slice("dns", "Set custom DNS servers", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("dns-option", "Set custom DNS options", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("dns-search", "Set custom DNS search domains", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("dns", "Set custom DNS servers", ox.Section(0)).
+				Slice("dns-option", "Set custom DNS options", ox.Section(0)).
+				Slice("dns-search", "Set custom DNS search domains", ox.Section(0)).
 				String("entrypoint", "Overwrite the default ENTRYPOINT of the image", ox.Section(0)).
-				Array("env", "Set environment variables in container", ox.Elem(ox.StringT), ox.Default("[PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin]"), ox.Short("e"), ox.Section(0)).
-				Array("env-file", "Read in a file of environment variables", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("env", "Set environment variables in container", ox.Default("[PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin]"), ox.Short("e"), ox.Section(0)).
+				Array("env-file", "Read in a file of environment variables", ox.Section(0)).
 				Bool("env-host", "Use all current host environment variables in container", ox.Section(0)).
-				Array("env-merge", "Preprocess environment variables from image before injecting them into the container", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("expose", "Expose a port or a range of ports", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("gidmap", "GID map to use for the user namespace", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("gpus", "GPU devices to add to the container ('all' to pass all GPUs)", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("group-add", "Add additional groups to the primary container process. 'keep-groups' allows container processes to use supplementary groups.", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("env-merge", "Preprocess environment variables from image before injecting them into the container", ox.Section(0)).
+				Slice("expose", "Expose a port or a range of ports", ox.Section(0)).
+				Slice("gidmap", "GID map to use for the user namespace", ox.Section(0)).
+				Slice("gpus", "GPU devices to add to the container ('all' to pass all GPUs)", ox.Section(0)).
+				Slice("group-add", "Add additional groups to the primary container process. 'keep-groups' allows container processes to use supplementary groups.", ox.Section(0)).
 				String("group-entry", "Entry to write to /etc/group", ox.Section(0)).
 				String("health-cmd", "set a healthcheck command for the container ('none' disables the existing healthcheck)", ox.Section(0)).
 				String("health-interval", "set an interval for the healthcheck. (a value of disable results in no automatic timer setup)", ox.Default("30s"), ox.Section(0)).
@@ -3229,7 +3229,7 @@ func main() {
 				String("health-startup-timeout", "Set the maximum amount of time that the startup healthcheck may take before it is considered failed", ox.Default("30s"), ox.Section(0)).
 				String("health-timeout", "the maximum time allowed to complete the healthcheck before an interval is considered failed", ox.Default("30s"), ox.Section(0)).
 				String("hosts-file", "Base file to create the /etc/hosts file inside the container, or one of the special values. (\"image\"|\"none\")", ox.Section(0)).
-				Slice("hostuser", "Host user account to add to /etc/passwd within container", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("hostuser", "Host user account to add to /etc/passwd within container", ox.Section(0)).
 				Bool("http-proxy", "Set proxy environment variables in the container based on the host proxy vars", ox.Default("true"), ox.Section(0)).
 				String("image-volume", "Tells podman how to handle the builtin image volumes (\"bind\"|\"tmpfs\"|\"ignore\")", ox.Default("anonymous"), ox.Section(0)).
 				Bool("init", "Run an init binary inside the container that forwards signals and reaps processes", ox.Section(0)).
@@ -3238,19 +3238,19 @@ func main() {
 				String("ip", "Specify a static IPv4 address for the container", ox.Section(0)).
 				String("ip6", "Specify a static IPv6 address for the container", ox.Section(0)).
 				String("ipc", "IPC namespace to use", ox.Section(0)).
-				Array("label", "Set metadata on container", ox.Elem(ox.StringT), ox.Short("l"), ox.Section(0)).
-				Array("label-file", "Read in a line delimited file of labels", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("label", "Set metadata on container", ox.Short("l"), ox.Section(0)).
+				Array("label-file", "Read in a line delimited file of labels", ox.Section(0)).
 				String("log-driver", "Logging driver for the container", ox.Default("journald"), ox.Section(0)).
-				Array("log-opt", "Logging driver options", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("log-opt", "Logging driver options", ox.Section(0)).
 				String("mac-address", "Container MAC address (e.g. 92:d0:c6:0a:29:33)", ox.Section(0)).
 				String("memory", "Memory limit (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Short("m"), ox.Section(0)).
 				String("memory-reservation", "Memory soft limit (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Section(0)).
 				String("memory-swap", "Swap limit equal to memory plus swap: '-1' to enable unlimited swap", ox.Section(0)).
 				Int("memory-swappiness", "Tune container memory swappiness (0 to 100, or -1 for system default)", ox.Default("-1"), ox.Section(0)).
-				Array("mount", "Attach a filesystem mount to the container", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("mount", "Attach a filesystem mount to the container", ox.Section(0)).
 				String("name", "Assign a name to the container", ox.Section(0)).
-				Array("network", "Connect a container to a network", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("network-alias", "Add network-scoped alias for the container", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("network", "Connect a container to a network", ox.Section(0)).
+				Slice("network-alias", "Add network-scoped alias for the container", ox.Section(0)).
 				Bool("no-healthcheck", "Disable healthchecks on container", ox.Section(0)).
 				Bool("no-hostname", "Do not create /etc/hostname within the container, instead use the version from the image", ox.Section(0)).
 				Bool("no-hosts", "Do not create /etc/hosts within the container, instead use the version from the image", ox.Section(0)).
@@ -3269,7 +3269,7 @@ func main() {
 				Slice("preserve-fd", "Pass a file descriptor into the container", ox.Elem(ox.UintT), ox.Default("[]"), ox.Section(0)).
 				Uint("preserve-fds", "Pass a number of additional file descriptors into the container", ox.Section(0)).
 				Bool("privileged", "Give extended privileges to container", ox.Section(0)).
-				Slice("publish", "Publish a container's port, or a range of ports, to the host", ox.Elem(ox.StringT), ox.Default("[]"), ox.Short("p"), ox.Section(0)).
+				Slice("publish", "Publish a container's port, or a range of ports, to the host", ox.Default("[]"), ox.Short("p"), ox.Section(0)).
 				Bool("publish-all", "Publish all exposed ports to random ports on the host interface", ox.Short("P"), ox.Section(0)).
 				String("pull", "Pull image policy (\"always\"|\"missing\"|\"never\"|\"newer\")", ox.Default("missing"), ox.Section(0)).
 				Bool("quiet", "Suppress output information when pulling images", ox.Short("q"), ox.Section(0)).
@@ -3277,7 +3277,7 @@ func main() {
 				Bool("read-only", "Make containers root filesystem read-only", ox.Section(0)).
 				Bool("read-only-tmpfs", "When running --read-only containers mount read-write tmpfs on /dev, /dev/shm, /run, /tmp and /var/tmp", ox.Default("true"), ox.Section(0)).
 				Bool("replace", "If a container with the same name exists, replace it", ox.Section(0)).
-				Slice("requires", "Add one or more requirement containers that must be started before this container will start", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("requires", "Add one or more requirement containers that must be started before this container will start", ox.Section(0)).
 				String("restart", "Restart policy to apply when a container exits (\"always\"|\"no\"|\"never\"|\"on-failure\"|\"unless-stopped\")", ox.Section(0)).
 				Uint("retry", "number of times to retry in case of failure when performing pull", ox.Default("3"), ox.Section(0)).
 				String("retry-delay", "delay between retries in case of pull failures", ox.Section(0)).
@@ -3286,8 +3286,8 @@ func main() {
 				Bool("rootfs", "The first argument is not an image but the rootfs to the exploded container", ox.Section(0)).
 				String("sdnotify", "control sd-notify behavior (\"container\"|\"conmon\"|\"healthy\"|\"ignore\")", ox.Default("container"), ox.Section(0)).
 				String("seccomp-policy", "Policy for selecting a seccomp profile (experimental)", ox.Default("default"), ox.Section(0)).
-				Array("secret", "Add secret to container", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("security-opt", "Security Options", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("secret", "Add secret to container", ox.Section(0)).
+				Array("security-opt", "Security Options", ox.Section(0)).
 				String("shm-size", "Size of /dev/shm (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Default("65536k"), ox.Section(0)).
 				String("shm-size-systemd", "Size of systemd specific tmpfs mounts (/run, /run/lock) (format: <number>[<unit>], where unit = b (bytes), k (kibibytes), m (mebibytes), or g (gibibytes))", ox.Spec("<number>[<unit>]"), ox.Section(0)).
 				Bool("sig-proxy", "Proxy received signals to the process", ox.Default("true"), ox.Section(0)).
@@ -3295,24 +3295,24 @@ func main() {
 				Uint("stop-timeout", "Timeout (in seconds) that containers stopped by user command have to exit. If exceeded, the container will be forcibly stopped via SIGKILL.", ox.Default("10"), ox.Section(0)).
 				String("subgidname", "Name of range listed in /etc/subgid for use in user namespace", ox.Section(0)).
 				String("subuidname", "Name of range listed in /etc/subuid for use in user namespace", ox.Section(0)).
-				Slice("sysctl", "Sysctl options", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("sysctl", "Sysctl options", ox.Section(0)).
 				String("systemd", "Run container in systemd mode (\"true\"|\"false\"|\"always\")", ox.Default("true"), ox.Section(0)).
 				Uint("timeout", "Maximum length of time a container is allowed to run. The container will be killed automatically after the time expires.", ox.Section(0)).
 				Bool("tls-verify", "Require HTTPS and verify certificates when contacting registries for pulling images", ox.Section(0)).
 				String("tmpfs", "Mount a temporary filesystem (tmpfs) into a container", ox.Spec("tmpfs"), ox.Section(0)).
 				Bool("tty", "Allocate a pseudo-TTY for container", ox.Short("t"), ox.Section(0)).
 				String("tz", "Set timezone in container", ox.Section(0)).
-				Slice("uidmap", "UID map to use for the user namespace", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("ulimit", "Ulimit options", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("uidmap", "UID map to use for the user namespace", ox.Section(0)).
+				Slice("ulimit", "Ulimit options", ox.Section(0)).
 				String("umask", "Set umask in container", ox.Default("0022"), ox.Section(0)).
-				Array("unsetenv", "Unset environment default variables in container", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("unsetenv", "Unset environment default variables in container", ox.Section(0)).
 				Bool("unsetenv-all", "Unset all default environment variables in container", ox.Section(0)).
 				String("user", "Username or UID (format: <name|uid>[:<group|gid>])", ox.Short("u"), ox.Section(0)).
 				String("userns", "User namespace to use", ox.Section(0)).
 				String("uts", "UTS namespace to use", ox.Section(0)).
 				String("variant", "Use VARIANT instead of the running architecture variant for choosing images", ox.Spec("VARIANT"), ox.Section(0)).
-				Array("volume", "Bind mount a volume into the container", ox.Elem(ox.StringT), ox.Short("v"), ox.Section(0)).
-				Array("volumes-from", "Mount volumes from the specified container(s)", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("volume", "Bind mount a volume into the container", ox.Short("v"), ox.Section(0)).
+				Array("volumes-from", "Mount volumes from the specified container(s)", ox.Section(0)).
 				String("workdir", "Working directory inside the container", ox.Short("w"), ox.Section(0)),
 		),
 		ox.Sub(
@@ -3343,8 +3343,8 @@ func main() {
 				String("authfile", "Path of the authentication file. Use REGISTRY_AUTH_FILE environment variable to override", ox.Section(0)).
 				String("cert-dir", "Pathname of a directory containing TLS certificates and keys", ox.Spec("Pathname"), ox.Section(0)).
 				Bool("compatible", "List stars, official and automated columns (Docker compatibility)", ox.Section(0)).
-				Slice("creds", "Credentials (USERNAME:PASSWORD) to use for authenticating to a registry", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("filter", "Filter output based on conditions provided", ox.Elem(ox.StringT), ox.Default("[]"), ox.Short("f"), ox.Section(0)).
+				Slice("creds", "Credentials (USERNAME:PASSWORD) to use for authenticating to a registry", ox.Section(0)).
+				Array("filter", "Filter output based on conditions provided", ox.Default("[]"), ox.Short("f"), ox.Section(0)).
 				String("format", "Change the output format to JSON or a Go template", ox.Section(0)).
 				Int("limit", "Limit the number of results", ox.Section(0)).
 				Bool("list-tags", "List the tags of the input registry", ox.Section(0)).
@@ -3365,9 +3365,9 @@ func main() {
 				)),
 				ox.Flags().
 					String("driver", "Specify secret driver", ox.Default("file"), ox.Short("d"), ox.Section(0)).
-					Map("driver-opts", "Specify driver specific options", ox.MapKey(ox.StringT), ox.Elem(ox.StringT), ox.Default("[]"), ox.Section(0)).
+					Map("driver-opts", "Specify driver specific options", ox.Default("[]"), ox.Section(0)).
 					Bool("env", "Read secret data from environment variable", ox.Section(0)).
-					Array("label", "Specify labels on the secret", ox.Elem(ox.StringT), ox.Short("l"), ox.Section(0)).
+					Array("label", "Specify labels on the secret", ox.Short("l"), ox.Section(0)).
 					Bool("replace", "If a secret with the same name exists, replace it", ox.Section(0)),
 			),
 			ox.Sub(
@@ -3399,7 +3399,7 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Array("filter", "Filter secret output", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Array("filter", "Filter secret output", ox.Short("f"), ox.Section(0)).
 					String("format", "Format volume output using Go template", ox.Default("{{range .}}{{.ID}}\\t{{.Name}}\\t{{.Driver}}\\t{{.CreatedAt}}\\t{{.UpdatedAt}}\\n{{end -}}"), ox.Section(0)).
 					Bool("noheading", "Do not print headers", ox.Short("n"), ox.Section(0)).
 					Bool("quiet", "Print secret IDs only", ox.Short("q"), ox.Section(0)),
@@ -3429,7 +3429,7 @@ func main() {
 				Bool("all", "Start all containers regardless of their state or configuration", ox.Section(0)).
 				Bool("attach", "Attach container's STDOUT and STDERR", ox.Short("a"), ox.Section(0)).
 				String("detach-keys", "Select the key sequence for detaching a container. Format is a single character [a-Z] or a comma separated sequence of `ctrl-<value>`, where `<value>` is one of: `a-z`, `@`, `^`, `[`, `\\`, `]`, `^` or `_`", ox.Spec("glob"), ox.Default("ctrl-p,ctrl-q"), ox.Section(0)).
-				Array("filter", "Filter output based on conditions given", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Array("filter", "Filter output based on conditions given", ox.Short("f"), ox.Section(0)).
 				Bool("interactive", "Make STDIN available to the contained process", ox.Short("i"), ox.Section(0)).
 				Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)).
 				Bool("sig-proxy", "Proxy received signals to the process", ox.Default("true if attaching, false otherwise"), ox.Section(0)),
@@ -3461,8 +3461,8 @@ func main() {
 			)),
 			ox.Flags().
 				Bool("all", "Stop all running containers", ox.Short("a"), ox.Section(0)).
-				Array("cidfile", "Read the container ID from the file", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("filter", "Filter output based on conditions given", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Array("cidfile", "Read the container ID from the file", ox.Section(0)).
+				Array("filter", "Filter output based on conditions given", ox.Short("f"), ox.Section(0)).
 				Bool("ignore", "Ignore errors when a specified container is missing", ox.Short("i"), ox.Section(0)).
 				Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)).
 				Int("time", "Seconds to wait for stop before killing the container", ox.Default("10"), ox.Short("t"), ox.Section(0)),
@@ -3562,7 +3562,7 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Array("filter", "filter output", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Array("filter", "filter output", ox.Short("f"), ox.Section(0)).
 					String("format", "format the output using a Go template", ox.Section(0)).
 					Bool("no-trunc", "do not truncate the output", ox.Default("true"), ox.Section(0)).
 					String("since", "show all events created since timestamp", ox.Section(0)).
@@ -3602,7 +3602,7 @@ func main() {
 					Bool("all", "Remove all unused data", ox.Short("a"), ox.Section(0)).
 					Bool("build", "Remove build containers", ox.Section(0)).
 					Bool("external", "Remove container data in storage not controlled by podman", ox.Section(0)).
-					Array("filter", "Provide filter values (e.g. 'label=<key>=<value>')", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("filter", "Provide filter values (e.g. 'label=<key>=<value>')", ox.Section(0)).
 					Bool("force", "Do not prompt for confirmation.  The default is false", ox.Short("f"), ox.Section(0)).
 					Bool("volumes", "Prune volumes", ox.Section(0)),
 			),
@@ -3674,8 +3674,8 @@ func main() {
 			)),
 			ox.Flags().
 				Bool("all", "Unpause all paused containers", ox.Short("a"), ox.Section(0)).
-				Array("cidfile", "Read the container ID from the file", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("filter", "Filter output based on conditions given", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Array("cidfile", "Read the container ID from the file", ox.Section(0)).
+				Array("filter", "Filter output based on conditions given", ox.Short("f"), ox.Section(0)).
 				Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
 		),
 		ox.Sub(
@@ -3714,10 +3714,10 @@ func main() {
 				Float32("cpus", "Number of CPUs. The default is 0.000 which means no limit", ox.Spec("float"), ox.Section(0)).
 				String("cpuset-cpus", "CPUs in which to allow execution (0-3, 0,1)", ox.Section(0)).
 				String("cpuset-mems", "Memory nodes (MEMs) in which to allow execution (0-3, 0,1). Only effective on NUMA systems.", ox.Section(0)).
-				Array("device-read-bps", "Limit read rate (bytes per second) from a device (e.g. --device-read-bps=/dev/sda:1mb)", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("device-read-iops", "Limit read rate (IO per second) from a device (e.g. --device-read-iops=/dev/sda:1000)", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("device-write-bps", "Limit write rate (bytes per second) to a device (e.g. --device-write-bps=/dev/sda:1mb)", ox.Elem(ox.StringT), ox.Section(0)).
-				Array("device-write-iops", "Limit write rate (IO per second) to a device (e.g. --device-write-iops=/dev/sda:1000)", ox.Elem(ox.StringT), ox.Section(0)).
+				Array("device-read-bps", "Limit read rate (bytes per second) from a device (e.g. --device-read-bps=/dev/sda:1mb)", ox.Section(0)).
+				Array("device-read-iops", "Limit read rate (IO per second) from a device (e.g. --device-read-iops=/dev/sda:1000)", ox.Section(0)).
+				Array("device-write-bps", "Limit write rate (bytes per second) to a device (e.g. --device-write-bps=/dev/sda:1mb)", ox.Section(0)).
+				Array("device-write-iops", "Limit write rate (IO per second) to a device (e.g. --device-write-iops=/dev/sda:1000)", ox.Section(0)).
 				String("health-cmd", "set a healthcheck command for the container ('none' disables the existing healthcheck)", ox.Section(0)).
 				String("health-interval", "set an interval for the healthcheck. (a value of disable results in no automatic timer setup) Changing this setting resets timer.", ox.Default("30s"), ox.Section(0)).
 				String("health-log-destination", "set the destination of the HealthCheck log. Directory path, local or events_logger (local use container state file) Warning: Changing this setting may cause the loss of previous logs!", ox.Default("local"), ox.Section(0)).
@@ -3755,8 +3755,8 @@ func main() {
 				ox.Flags().
 					String("driver", "Specify volume driver name", ox.Default("local"), ox.Short("d"), ox.Section(0)).
 					Bool("ignore", "Don't fail if volume already exists", ox.Section(0)).
-					Array("label", "Set metadata for a volume", ox.Elem(ox.StringT), ox.Default("[]"), ox.Short("l"), ox.Section(0)).
-					Array("opt", "Set driver specific options", ox.Elem(ox.StringT), ox.Default("[]"), ox.Short("o"), ox.Section(0)),
+					Array("label", "Set metadata for a volume", ox.Default("[]"), ox.Short("l"), ox.Section(0)).
+					Array("opt", "Set driver specific options", ox.Default("[]"), ox.Short("o"), ox.Section(0)),
 			),
 			ox.Sub(
 				ox.Banner("Check if volume exists\n\nDescription:\n  If the given volume exists, podman volume exists exits with 0, otherwise the exit code will be 1."),
@@ -3801,7 +3801,7 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Array("filter", "Filter volume output", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Array("filter", "Filter volume output", ox.Short("f"), ox.Section(0)).
 					String("format", "Format volume output using Go template", ox.Default("{{range .}}{{.Driver}}\\t{{.Name}}\\n{{end -}}"), ox.Section(0)).
 					Bool("noheading", "Do not print headers", ox.Short("n"), ox.Section(0)).
 					Bool("quiet", "Print volume output in quiet mode", ox.Short("q"), ox.Section(0)),
@@ -3820,7 +3820,7 @@ func main() {
 					"Options",
 				)),
 				ox.Flags().
-					Array("filter", "Provide filter values (e.g. 'label=<key>=<value>')", ox.Elem(ox.StringT), ox.Section(0)).
+					Array("filter", "Provide filter values (e.g. 'label=<key>=<value>')", ox.Section(0)).
 					Bool("force", "Do not prompt for confirmation", ox.Short("f"), ox.Section(0)),
 			),
 			ox.Sub(
@@ -3857,7 +3857,7 @@ func main() {
 				"Options",
 			)),
 			ox.Flags().
-				Slice("condition", "Condition to wait on", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("condition", "Condition to wait on", ox.Section(0)).
 				Bool("ignore", "Ignore if a container does not exist", ox.Section(0)).
 				String("interval", "Time Interval to wait before polling for completion", ox.Default("250ms"), ox.Short("i"), ox.Section(0)).
 				Bool("latest", "Act on the latest container podman is aware of", ox.Short("l"), ox.Section(0)),
@@ -3868,11 +3868,11 @@ func main() {
 			String("conmon", "Path of the conmon binary", ox.Section(0)).
 			String("connection", "Connection to use for remote Podman service (CONTAINER_CONNECTION)", ox.Short("c"), ox.Section(0)).
 			String("events-backend", "Events backend to use (\"file\"|\"journald\"|\"none\")", ox.Default("journald"), ox.Section(0)).
-			Array("hooks-dir", "Set the OCI hooks directory path (may be set multiple times)", ox.Elem(ox.StringT), ox.Default("[/usr/share/containers/oci/hooks.d]"), ox.Section(0)).
+			Array("hooks-dir", "Set the OCI hooks directory path (may be set multiple times)", ox.Default("[/usr/share/containers/oci/hooks.d]"), ox.Section(0)).
 			String("identity", "path to SSH identity file, (CONTAINER_SSHKEY)", ox.Section(0)).
 			String("imagestore", "Path to the 'image store', different from 'graph root', use this to split storing the image into a separate 'image store', see 'man containers-storage.conf' for details", ox.Section(0)).
 			String("log-level", "Log messages above specified level (trace, debug, info, warn, warning, error, fatal, panic)", ox.Default("warn"), ox.Section(0)).
-			Array("module", "Load the containers.conf(5) module", ox.Elem(ox.StringT), ox.Section(0)).
+			Array("module", "Load the containers.conf(5) module", ox.Section(0)).
 			String("network-cmd-path", "Path to the command for configuring the network", ox.Section(0)).
 			String("network-config-dir", "Path of the configuration directory for networks", ox.Section(0)).
 			String("out", "Send output (stdout) from podman to a file", ox.Section(0)).
@@ -3880,10 +3880,10 @@ func main() {
 			String("root", "Path to the graph root directory where images, containers, etc. are stored", ox.Section(0)).
 			String("runroot", "Path to the 'run directory' where all state information is stored", ox.Section(0)).
 			String("runtime", "Path to the OCI-compatible binary used to run containers.", ox.Default("crun"), ox.Section(0)).
-			Array("runtime-flag", "add global flags for the container runtime", ox.Elem(ox.StringT), ox.Section(0)).
+			Array("runtime-flag", "add global flags for the container runtime", ox.Section(0)).
 			String("ssh", "define the ssh mode", ox.Default("golang"), ox.Section(0)).
 			String("storage-driver", "Select which storage driver is used to manage storage of images and containers", ox.Section(0)).
-			Array("storage-opt", "Used to pass an option to the storage driver", ox.Elem(ox.StringT), ox.Section(0)).
+			Array("storage-opt", "Used to pass an option to the storage driver", ox.Section(0)).
 			Bool("syslog", "Output logging information to syslog as well as the console", ox.Default("false"), ox.Section(0)).
 			String("tmpdir", "Path to the tmp directory for libpod state content.", ox.Section(0)).
 			Bool("transient-store", "Enable transient container storage", ox.Section(0)).

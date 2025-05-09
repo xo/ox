@@ -541,7 +541,7 @@ func main() {
 					"Global Flags",
 				)),
 				ox.Flags().
-					Slice("components", "The components to restart. If not provided, all components are restarted.", ox.Elem(ox.StringT)).
+					Slice("components", "The components to restart. If not provided, all components are restarted.").
 					String("format", "Columns for output in a comma-separated list. Possible values: ID, `Cause`, `Progress`, `Phase`, `Created`, `Updated`.", ox.Spec("ID")).
 					Bool("no-header", "Return raw data with no headers").
 					Bool("wait", "Boolean that specifies whether to wait for the restart to complete before allowing further terminal input. This can be helpful for scripting.").
@@ -936,7 +936,7 @@ func main() {
 						"Global Flags",
 					)),
 					ox.Flags().
-						Slice("files", "cdn files", ox.Elem(ox.StringT), ox.Default("[*]")).
+						Slice("files", "cdn files", ox.Default("[*]")).
 						String("access-token", "API V2 access token", ox.Short("t"), ox.Section(0)).
 						String("api-url", "Override default API endpoint", ox.Short("u"), ox.Section(0)).
 						String("config", "Specify a custom config file", ox.Default("$APPCONFIG/config.yaml"), ox.Short("c"), ox.Section(0)).
@@ -1045,7 +1045,7 @@ func main() {
 					)),
 					ox.Flags().
 						String("certificate-chain-path", "The path on your local machine to a full PEM-formatted trust chain between the certificate authority's certificate and your domain's SSL certificate.").
-						Slice("dns-names", "Comma-separated list of domains for which the certificate will be issued. The domains must be managed using DigitalOcean's DNS.", ox.Elem(ox.StringT)).
+						Slice("dns-names", "Comma-separated list of domains for which the certificate will be issued. The domains must be managed using DigitalOcean's DNS.").
 						String("leaf-certificate-path", "The path on your local machine to a PEM-formatted public SSL certificate.").
 						String("name", "A user-specified name for the certificate. (required)").
 						String("private-key-path", "The path on your local machine to a PEM-formatted private-key corresponding to the SSL certificate.").
@@ -1567,12 +1567,12 @@ func main() {
 						String("project-id", "The UUID of the project to assign the Droplet to").
 						String("region", "A slug specifying the region to create the Droplet in, such as `nyc1`. Use the `doctl compute region list` command for a list of valid regions.", ox.Default("slug")).
 						String("size", "A slug indicating the Droplet's number of vCPUs, RAM, and disk size. For example, `s-1vcpu-1gb` specifies a Droplet with one vCPU and 1 GiB of RAM. The disk size is defined by the slug's plan. Run `doctl compute size list` for a list of valid size slugs and their disk sizes. (required)", ox.Default("slug")).
-						Slice("ssh-keys", "A list of SSH key IDs or fingerprints to embed in the Droplet's root account upon creation", ox.Elem(ox.StringT)).
+						Slice("ssh-keys", "A list of SSH key IDs or fingerprints to embed in the Droplet's root account upon creation").
 						String("tag-name", "Applies a tag to the Droplet").
-						Slice("tag-names", "Applies a list of tags to the Droplet", ox.Elem(ox.StringT)).
+						Slice("tag-names", "Applies a list of tags to the Droplet").
 						String("user-data", "A shell script to run on the Droplet's first boot").
 						String("user-data-file", "The path to a file containing a shell script or Cloud-init YAML file to run on the Droplet's first boot. Example: path/to/file.yaml", ox.Spec("path/to/file.yaml")).
-						Slice("volumes", "A list of block storage volume IDs to attach to the Droplet", ox.Elem(ox.StringT)).
+						Slice("volumes", "A list of block storage volume IDs to attach to the Droplet").
 						String("vpc-uuid", "The UUID of a non-default VPC to create the Droplet in").
 						Bool("wait", "Instructs the terminal to wait for the action to complete before returning access to the user").
 						String("access-token", "API V2 access token", ox.Short("t"), ox.Section(0)).
@@ -1750,7 +1750,7 @@ func main() {
 						"Global Flags",
 					)),
 					ox.Flags().
-						Slice("tag-name", "The tag name to remove from Droplet", ox.Elem(ox.StringT)).
+						Slice("tag-name", "The tag name to remove from Droplet").
 						String("access-token", "API V2 access token", ox.Short("t"), ox.Section(0)).
 						String("api-url", "Override default API endpoint", ox.Short("u"), ox.Section(0)).
 						String("config", "Specify a custom config file", ox.Default("$APPCONFIG/config.yaml"), ox.Short("c"), ox.Section(0)).
@@ -2258,7 +2258,7 @@ func main() {
 						"Global Flags",
 					)),
 					ox.Flags().
-						Slice("tag-names", "A comma-separated list of existing tags, for example: frontend,backend,env:prod. Droplets with these tags will be placed behind the cloud firewall", ox.Elem(ox.StringT)).
+						Slice("tag-names", "A comma-separated list of existing tags, for example: frontend,backend,env:prod. Droplets with these tags will be placed behind the cloud firewall").
 						String("access-token", "API V2 access token", ox.Short("t"), ox.Section(0)).
 						String("api-url", "Override default API endpoint", ox.Short("u"), ox.Section(0)).
 						String("config", "Specify a custom config file", ox.Default("$APPCONFIG/config.yaml"), ox.Short("c"), ox.Section(0)).
@@ -2285,7 +2285,7 @@ func main() {
 						String("name", "The firewall's name (required)").
 						Bool("no-header", "Return raw data with no headers").
 						String("outbound-rules", "A comma-separate key-value list that defines an outbound rule. The rule must define a communication protocol, a port number, and a destination location, such as a Droplet ID, IP address, or a tag. For example, the following rule defines that the firewall only allows traffic to be sent to port 22 of any IPv4 address on the internet: protocol:tcp,ports:22,address:0.0.0.0/0.", ox.Default("protocol:tcp,ports:22,address:0.0.0.0/0")).
-						Slice("tag-names", "A comma-separated list of existing tags, for example: frontend,backend,env:prod. Droplets with these tags will be placed behind the cloud firewall", ox.Elem(ox.StringT)).
+						Slice("tag-names", "A comma-separated list of existing tags, for example: frontend,backend,env:prod. Droplets with these tags will be placed behind the cloud firewall").
 						String("access-token", "API V2 access token", ox.Short("t"), ox.Section(0)).
 						String("api-url", "Override default API endpoint", ox.Short("u"), ox.Section(0)).
 						String("config", "Specify a custom config file", ox.Default("$APPCONFIG/config.yaml"), ox.Short("c"), ox.Section(0)).
@@ -2432,7 +2432,7 @@ func main() {
 						"Global Flags",
 					)),
 					ox.Flags().
-						Slice("tag-names", "A comma-separated list of existing tags, for example: frontend,backend,env:prod. Droplets with these tags will be placed behind the cloud firewall", ox.Elem(ox.StringT)).
+						Slice("tag-names", "A comma-separated list of existing tags, for example: frontend,backend,env:prod. Droplets with these tags will be placed behind the cloud firewall").
 						String("access-token", "API V2 access token", ox.Short("t"), ox.Section(0)).
 						String("api-url", "Override default API endpoint", ox.Short("u"), ox.Section(0)).
 						String("config", "Specify a custom config file", ox.Default("$APPCONFIG/config.yaml"), ox.Short("c"), ox.Section(0)).
@@ -2459,7 +2459,7 @@ func main() {
 						String("name", "The firewall's name (required)").
 						Bool("no-header", "Return raw data with no headers").
 						String("outbound-rules", "A comma-separate key-value list that defines an outbound rule. The rule must define a communication protocol, a port number, and a destination location, such as a Droplet ID, IP address, or a tag. For example, the following rule defines that the firewall only allows traffic to be sent to port 22 of any IPv4 address on the internet: protocol:tcp,ports:22,address:0.0.0.0/0.", ox.Default("protocol:tcp,ports:22,address:0.0.0.0/0")).
-						Slice("tag-names", "A comma-separated list of existing tags, for example: frontend,backend,env:prod. Droplets with these tags will be placed behind the cloud firewall", ox.Elem(ox.StringT)).
+						Slice("tag-names", "A comma-separated list of existing tags, for example: frontend,backend,env:prod. Droplets with these tags will be placed behind the cloud firewall").
 						String("access-token", "API V2 access token", ox.Short("t"), ox.Section(0)).
 						String("api-url", "Override default API endpoint", ox.Short("u"), ox.Section(0)).
 						String("config", "Specify a custom config file", ox.Default("$APPCONFIG/config.yaml"), ox.Short("c"), ox.Section(0)).
@@ -2502,7 +2502,7 @@ func main() {
 						String("image-distribution", "A custom image distribution slug to apply to the image", ox.Default("Unknown")).
 						String("image-url", "The URL to retrieve the image from (required)").
 						String("region", "The slug of the region you want to store the image in. For a list of region slugs, use the `doctl compute region list` command. (required)", ox.Default("slug")).
-						Slice("tag-names", "A list of tag names to apply to the image", ox.Elem(ox.StringT)).
+						Slice("tag-names", "A list of tag names to apply to the image").
 						String("access-token", "API V2 access token", ox.Short("t"), ox.Section(0)).
 						String("api-url", "Override default API endpoint", ox.Short("u"), ox.Section(0)).
 						String("config", "Specify a custom config file", ox.Default("$APPCONFIG/config.yaml"), ox.Short("c"), ox.Section(0)).
@@ -2819,7 +2819,7 @@ func main() {
 						Int("size-unit", "The load balancer's size, e.g.: 1. Only one of size-unit and size should be used").
 						String("sticky-sessions", "cookie_name:DO-LB, cookie_ttl_seconds:5                                                                                A comma-separated list of key-value pairs representing a list of active sessions, e.g.: type:cookies, cookie_name:DO-LB, cookie_ttl_seconds:5", ox.Spec("type:cookies,")).
 						String("tag-name", "The name of a tag. All Droplets with this tag applied will be assigned to the load balancer.").
-						Slice("target-lb-ids", "A comma-separated list of Load Balancer IDs to add as target to the global load balancer", ox.Elem(ox.StringT)).
+						Slice("target-lb-ids", "A comma-separated list of Load Balancer IDs to add as target to the global load balancer").
 						String("type", "The type of load balancer, e.g.: REGIONAL or `GLOBAL`", ox.Default("REGIONAL")).
 						String("vpc-uuid", "The UUID of the VPC to create the load balancer in").
 						Bool("wait", "Boolean that specifies whether to wait for a load balancer to complete before returning control to the terminal").
@@ -2981,7 +2981,7 @@ func main() {
 						Int("size-unit", "The load balancer's size, e.g.: 1. Only one of size-unit and size should be used").
 						String("sticky-sessions", "cookie_name:DO-LB, cookie_ttl_seconds:5                                                                                      A comma-separated list of key-value pairs representing a list of active sessions, e.g.: type:cookies, cookie_name:DO-LB, cookie_ttl_seconds:5", ox.Spec("type:cookies,")).
 						String("tag-name", "Assigns Droplets with the specified tag to the load balancer").
-						Slice("target-lb-ids", "A comma-separated list of Load Balancer IDs to add as target to the global load balancer", ox.Elem(ox.StringT)).
+						Slice("target-lb-ids", "A comma-separated list of Load Balancer IDs to add as target to the global load balancer").
 						String("vpc-uuid", "The UUID of the VPC to create the load balancer in").
 						String("access-token", "API V2 access token", ox.Short("t"), ox.Section(0)).
 						String("api-url", "Override default API endpoint", ox.Short("u"), ox.Section(0)).
@@ -3559,7 +3559,7 @@ func main() {
 						"Global Flags",
 					)),
 					ox.Flags().
-						Slice("resource", "The resource to tag in URN format (required)", ox.Elem(ox.StringT)).
+						Slice("resource", "The resource to tag in URN format (required)").
 						String("access-token", "API V2 access token", ox.Short("t"), ox.Section(0)).
 						String("api-url", "Override default API endpoint", ox.Short("u"), ox.Section(0)).
 						String("config", "Specify a custom config file", ox.Default("$APPCONFIG/config.yaml"), ox.Short("c"), ox.Section(0)).
@@ -3661,7 +3661,7 @@ func main() {
 						"Global Flags",
 					)),
 					ox.Flags().
-						Slice("resource", "The resource to untag in URN format (required)", ox.Elem(ox.StringT)).
+						Slice("resource", "The resource to untag in URN format (required)").
 						String("access-token", "API V2 access token", ox.Short("t"), ox.Section(0)).
 						String("api-url", "Override default API endpoint", ox.Short("u"), ox.Section(0)).
 						String("config", "Specify a custom config file", ox.Default("$APPCONFIG/config.yaml"), ox.Short("c"), ox.Section(0)).
@@ -4116,7 +4116,7 @@ func main() {
 					String("restore-from-timestamp", "The timestamp of an existing database cluster backup in UTC combined date and time format (2006-01-02 15:04:05 +0000 UTC). The most recent backup is used if excluded.").
 					String("size", "The size of the nodes in the database cluster, for example db-s-1vcpu-1gb indicates a 1 CPU, 1GB node. For a list of available size slugs, visit: https://docs.digitalocean.com/reference/api/api-reference/#tag/Databases", ox.Default("db-s-1vcpu-1gb")).
 					Int("storage-size-mib", "The amount of disk space allocated to the cluster. Applicable for PostgreSQL and MySQL clusters. Each plan size has a default value but can be increased in increments up to a maximum amount. For ranges, visit: https://www.digitalocean.com/pricing/managed-databases").
-					Slice("tag", "A comma-separated list of tags to apply to the database cluster.", ox.Elem(ox.StringT)).
+					Slice("tag", "A comma-separated list of tags to apply to the database cluster.").
 					Bool("wait", "A boolean value that specifies whether to wait for the database cluster to be provisioned before returning control to the terminal.").
 					String("access-token", "API V2 access token", ox.Short("t"), ox.Section(0)).
 					String("api-url", "Override default API endpoint", ox.Short("u"), ox.Section(0)).
@@ -5473,7 +5473,7 @@ func main() {
 						"Global Flags",
 					)),
 					ox.Flags().
-						Slice("1-clicks", "moon,loki,netdata   The 1-clicks application to install on the cluster. Multiple 1-clicks can be added simultaneously, for example: --1-clicks moon,loki,netdata", ox.Elem(ox.StringT)).
+						Slice("1-clicks", "moon,loki,netdata   The 1-clicks application to install on the cluster. Multiple 1-clicks can be added simultaneously, for example: --1-clicks moon,loki,netdata").
 						String("format", "Columns for output in a comma-separated list. Possible values: SLUG, `TYPE`.", ox.Spec("SLUG")).
 						Bool("no-header", "Return raw data with no headers").
 						String("access-token", "API V2 access token", ox.Short("t"), ox.Section(0)).
@@ -5538,21 +5538,21 @@ func main() {
 						"Global Flags",
 					)),
 					ox.Flags().
-						Slice("1-clicks", "A comma-separated list of 1-click applications to install on the Kubernetes cluster. Use the `doctl kubernetes 1-click list` command for a list of available 1-click applications.", ox.Elem(ox.StringT)).
+						Slice("1-clicks", "A comma-separated list of 1-click applications to install on the Kubernetes cluster. Use the `doctl kubernetes 1-click list` command for a list of available 1-click applications.").
 						Bool("auto-upgrade", "Enables automatic upgrades to new patch releases during the cluster's maintenance window. Defaults to false. To enable automatic upgrade, supply `--auto-upgrade=true`.", ox.Spec("false")).
 						CIDR("cluster-subnet", "The CIDR block to use for the pod network. Must be a valid CIDR block. Defaults to 10.244.0.0/16. If left empty/default the cluster will be created with a virtual network. If a custom one is provided, the cluster will be created as vpc-native cluster. VPC-native CIDR blocks cannot overlap within an account.", ox.Default("10.244.0.0/16")).
-						Slice("control-plane-firewall-allowed-addresses", "A comma-separated list of allowed addresses that can access the control plane.", ox.Elem(ox.StringT)).
+						Slice("control-plane-firewall-allowed-addresses", "A comma-separated list of allowed addresses that can access the control plane.").
 						Int("count", "The number of nodes in the default node pool (incompatible with --node-pool)", ox.Default("3")).
 						Bool("enable-control-plane-firewall", "Creates the cluster with control plane firewall enabled. Defaults to false. To enable the control plane firewall, supply --enable-control-plane-firewall=true.").
 						Bool("ha", "Creates the cluster with a highly-available control plane. Defaults to false. To enable the HA control plane, supply --ha=true.").
 						String("maintenance-window", "Sets the beginning of the schedule for the four hour maintenance window for the cluster. The syntax format is: `day=HH:MM`, where time is in UTC. Day can be: `any`, `monday`, `tuesday`, `wednesday`, `thursday`, `friday`, `saturday`, `sunday`.", ox.Spec("schedule"), ox.Default("any=00:00")).
-						Slice("node-pool", "A comma-separated list of node-pools, defined using semicolon-separated configuration values and surrounded by quotes (incompatible with --size and --count).", ox.Elem(ox.StringT)).
+						Slice("node-pool", "A comma-separated list of node-pools, defined using semicolon-separated configuration values and surrounded by quotes (incompatible with --size and --count).").
 						String("region", "A slug indicating which region to create the cluster in. Use the `doctl kubernetes options regions` command for a list of options (required)", ox.Default("nyc1")).
 						CIDR("service-subnet", "The CIDR block to use for the service network. Must be a valid CIDR block. Defaults to 10.245.0.0/16. If left empty/default the cluster will be created with a virtual network. If a custom one is provided, the cluster will be created as vpc-native cluster. VPC-native CIDR blocks cannot overlap within an account.", ox.Default("10.245.0.0/16")).
 						Bool("set-current-context", "Sets the current kubectl context to that of the new cluster", ox.Default("true")).
 						String("size", "The machine size to use when creating nodes in the default node pool (incompatible with --node-pool). Use the `doctl kubernetes options sizes` command for a list of possible values.", ox.Spec("size"), ox.Default("s-1vcpu-2gb")).
 						Bool("surge-upgrade", "Enables surge-upgrade for the cluster", ox.Default("true")).
-						Slice("tag", "A comma-separated list of tags to apply to the cluster, in addition to the default tags of `k8s` and `k8s:$K8S_CLUSTER_ID`.", ox.Elem(ox.StringT)).
+						Slice("tag", "A comma-separated list of tags to apply to the cluster, in addition to the default tags of `k8s` and `k8s:$K8S_CLUSTER_ID`.").
 						Bool("update-kubeconfig", "Adds a configuration context for the new cluster to your kubectl", ox.Default("true")).
 						String("vpc-uuid", "The UUID of a VPC network to create the cluster in. Must be the UUID of a valid VPC in the same region specified for the cluster. If a VPC is not specified, the cluster is placed in the default VPC network for the region.").
 						Bool("wait", "Instructs the terminal to wait for the action to complete before returning control to the user", ox.Default("true")).
@@ -5600,10 +5600,10 @@ func main() {
 					)),
 					ox.Flags().
 						Bool("force", "Deletes the cluster without a confirmation prompt", ox.Short("f")).
-						Slice("load-balancers", "A comma-separated list of load balancer IDs or names to delete", ox.Elem(ox.StringT)).
-						Slice("snapshots", "A comma-separated list of volume snapshot IDs or names to delete", ox.Elem(ox.StringT)).
+						Slice("load-balancers", "A comma-separated list of load balancer IDs or names to delete").
+						Slice("snapshots", "A comma-separated list of volume snapshot IDs or names to delete").
 						Bool("update-kubeconfig", "Removes the deleted cluster from your kubeconfig", ox.Default("true")).
-						Slice("volumes", "A comma-separated list of volume IDs or names to delete", ox.Elem(ox.StringT)).
+						Slice("volumes", "A comma-separated list of volume IDs or names to delete").
 						String("access-token", "API V2 access token", ox.Short("t"), ox.Section(0)).
 						String("api-url", "Override default API endpoint", ox.Short("u"), ox.Section(0)).
 						String("config", "Specify a custom config file", ox.Default("$APPCONFIG/config.yaml"), ox.Short("c"), ox.Section(0)).
@@ -5805,13 +5805,13 @@ func main() {
 						ox.Flags().
 							Bool("auto-scale", "Enables auto-scaling on the node pool").
 							Int("count", "The number of nodes in the node pool (required)").
-							Slice("label", "A label in key=value notation to apply to the node pool. Repeat this flag to specify additional labels. An existing label is removed from the node pool if it is not specified by any flag.", ox.Elem(ox.StringT)).
+							Slice("label", "A label in key=value notation to apply to the node pool. Repeat this flag to specify additional labels. An existing label is removed from the node pool if it is not specified by any flag.").
 							Int("max-nodes", "The maximum number of nodes in the node pool when autoscaling is enabled").
 							Int("min-nodes", "The minimum number of nodes in the node pool when autoscaling (auto_scale) is enabled. If auto_scale is set to false, the default value will be 0. Scale-to-zero is not supported.").
 							String("name", "The name of the node pool (required)").
 							String("size", "The size of the nodes in the node pool. Use the `doctl kubernetes options sizes` command for a list of possible values. (required)", ox.Spec("size")).
-							Slice("tag", "A tag to apply to the node pool. Repeat this flag to specify additional tags. An existing tag is removed from the node pool if it is not specified by any flag.", ox.Elem(ox.StringT)).
-							Map("taint", "Taint in key=value:effect notation to apply to the node pool. Repeat this flag to specify additional taints. Set to an empty string (\"\") to clear all taints. An existing taint is removed from the node pool if it is not specified by any flag.", ox.Spec("key=value:effect"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT)).
+							Slice("tag", "A tag to apply to the node pool. Repeat this flag to specify additional tags. An existing tag is removed from the node pool if it is not specified by any flag.").
+							Map("taint", "Taint in key=value:effect notation to apply to the node pool. Repeat this flag to specify additional taints. Set to an empty string (\"\") to clear all taints. An existing taint is removed from the node pool if it is not specified by any flag.", ox.Spec("key=value:effect")).
 							String("access-token", "API V2 access token", ox.Short("t"), ox.Section(0)).
 							String("api-url", "Override default API endpoint", ox.Short("u"), ox.Section(0)).
 							String("config", "Specify a custom config file", ox.Default("$APPCONFIG/config.yaml"), ox.Short("c"), ox.Section(0)).
@@ -5941,12 +5941,12 @@ func main() {
 						ox.Flags().
 							Bool("auto-scale", "Enables auto-scaling on the node pool").
 							Int("count", "The number of nodes in the node pool").
-							Map("label", "A label in key=value notation to apply to the node pool. Repeat this flag to specify additional labels. Existing labels are removed from the node pool if they are not specified in the updated value.", ox.Spec("key=value"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT)).
+							Map("label", "A label in key=value notation to apply to the node pool. Repeat this flag to specify additional labels. Existing labels are removed from the node pool if they are not specified in the updated value.", ox.Spec("key=value")).
 							Int("max-nodes", "The maximum number of nodes in the node pool when autoscaling is enabled").
 							Int("min-nodes", "The minimum number of nodes in the node pool when autoscaling is enabled").
 							String("name", "The name of the node pool").
-							Slice("tag", "A tag to apply to the node pool. Repeat this flag to specify additional tags. An existing tag is removed from the node pool if it is not specified by any flag.", ox.Elem(ox.StringT)).
-							Map("taint", "Taint in key=value:effect notation to apply to the node pool. Repeat this flag to specify additional taints. Set to an empty string (\"\") to clear all taints. An existing taint is removed from the node pool if it is not specified by any flag.", ox.Spec("key=value:effect"), ox.MapKey(ox.StringT), ox.Elem(ox.StringT)).
+							Slice("tag", "A tag to apply to the node pool. Repeat this flag to specify additional tags. An existing tag is removed from the node pool if it is not specified by any flag.").
+							Map("taint", "Taint in key=value:effect notation to apply to the node pool. Repeat this flag to specify additional taints. Set to an empty string (\"\") to clear all taints. An existing taint is removed from the node pool if it is not specified by any flag.", ox.Spec("key=value:effect")).
 							String("access-token", "API V2 access token", ox.Short("t"), ox.Section(0)).
 							String("api-url", "Override default API endpoint", ox.Short("u"), ox.Section(0)).
 							String("config", "Specify a custom config file", ox.Default("$APPCONFIG/config.yaml"), ox.Short("c"), ox.Section(0)).
@@ -6040,13 +6040,13 @@ func main() {
 					ox.Flags().
 						String("auto-upgrade", "Indicates whether the cluster automatically upgrades to new patch releases during its maintenance window. To enable automatic upgrade, use --auto-upgrade=true.", ox.Spec("--auto-upgrade=true")).
 						String("cluster-name", "Specifies a new cluster name").
-						Slice("control-plane-firewall-allowed-addresses", "A comma-separated list of allowed addresses that can access the control plane.", ox.Elem(ox.StringT)).
+						Slice("control-plane-firewall-allowed-addresses", "A comma-separated list of allowed addresses that can access the control plane.").
 						Bool("enable-control-plane-firewall", "Creates the cluster with control plane firewall enabled. Defaults to false. To enable the control plane firewall, supply --enable-control-plane-firewall=true.").
 						Bool("ha", "Enables the highly-available control plane for the cluster").
 						String("maintenance-window", "Sets the beginning of the four hour maintenance window for the cluster. Syntax is in the format: 'day=HH:MM', where time is in UTC. Day can be: any, `monday`, `tuesday`, `wednesday`, `thursday`, `friday`, `saturday`, `sunday`.", ox.Default("any=00:00")).
 						Bool("set-current-context", "Sets the current kubectl context to that of the new cluster", ox.Default("true")).
 						Bool("surge-upgrade", "Enables surge-upgrade for the cluster").
-						Slice("tag", "A comma-separated list of tags to apply to the cluster. This removes other  user-provided tags from the cluster if they are not specified in this argument.", ox.Elem(ox.StringT)).
+						Slice("tag", "A comma-separated list of tags to apply to the cluster. This removes other  user-provided tags from the cluster if they are not specified in this argument.").
 						Bool("update-kubeconfig", "Updates the cluster in your kubeconfig", ox.Default("true")).
 						String("access-token", "API V2 access token", ox.Short("t"), ox.Section(0)).
 						String("api-url", "Override default API endpoint", ox.Short("u"), ox.Section(0)).
@@ -6205,12 +6205,12 @@ func main() {
 					ox.Flags().
 						String("compare", "The comparator of the alert policy. Possible values: GreaterThan or `LessThan`", ox.Default("GreaterThan")).
 						String("description", "A description of the alert policy").
-						Slice("emails", "Email address to send alerts to", ox.Elem(ox.StringT)).
+						Slice("emails", "Email address to send alerts to").
 						Bool("enabled", "Enables the alert policy", ox.Default("true")).
-						Slice("entities", "Resources to apply the alert against, such as a Droplet ID.", ox.Elem(ox.StringT)).
+						Slice("entities", "Resources to apply the alert against, such as a Droplet ID.").
 						String("slack-channels", "A Slack channel to send alerts to. For example, production-alerts", ox.Default("production-alerts")).
 						String("slack-urls", "A Slack webhook URL to send alerts to, for example, https://hooks.slack.com/services/T1234567/AAAAAAAA/ZZZZZZ.", ox.Spec("https://hooks.slack.com/services/T1234567/AAAAAAAA/ZZZZZZ")).
-						Slice("tags", "Tags to apply the alert policy to. If set to a tag, all Droplet with that tag are monitored by the alert policy.", ox.Elem(ox.StringT)).
+						Slice("tags", "Tags to apply the alert policy to. If set to a tag, all Droplet with that tag are monitored by the alert policy.").
 						String("type", "The type of alert policy. For example,v1/insights/droplet/memory_utilization_percent alerts on the percent of memory utilization. For a full list of alert types, see https://docs.digitalocean.com/reference/api/api-reference/#operation/monitoring_create_alertPolicy", ox.Spec("v1/insights/droplet/memory_utilization_percent")).
 						String("value", "The threshold value of the alert policy to compare against. For example, if the alert policy is of type DropletCPUUtilizationPercent and the value is set to `80`, an alert is triggered if the Droplet's CPU usage exceeds 80% for the specified window.", ox.Default("DropletCPUUtilizationPercent")).
 						Duration("window", "The amount of time the resource must exceed the threshold value before an alert is triggered. Possible values: 5m, `10m`, `30m`, or `1h`", ox.Default("5m")).
@@ -6299,12 +6299,12 @@ func main() {
 					ox.Flags().
 						String("compare", "The comparator of the alert policy. Either GreaterThan or `LessThan`", ox.Default("GreaterThan")).
 						String("description", "A description of the alert policy.").
-						Slice("emails", "Email addresses to send alerts to", ox.Elem(ox.StringT)).
+						Slice("emails", "Email addresses to send alerts to").
 						Bool("enabled", "Whether the alert policy is enabled.", ox.Default("true")).
-						Slice("entities", "Resources to apply the policy to", ox.Elem(ox.StringT)).
+						Slice("entities", "Resources to apply the policy to").
 						String("slack-channels", "A Slack channel to send alerts to, for example, production-alerts. Must be used with `--slack-url`.", ox.Default("production-alerts")).
 						String("slack-urls", "A Slack webhook URL to send alerts to, for example, https://hooks.slack.com/services/T1234567/AAAAAAAA/ZZZZZZ.", ox.Spec("https://hooks.slack.com/services/T1234567/AAAAAAAA/ZZZZZZ")).
-						Slice("tags", "Tags to apply the alert against", ox.Elem(ox.StringT)).
+						Slice("tags", "Tags to apply the alert against").
 						String("type", "The type of alert policy. For example,v1/insights/droplet/memory_utilization_percent alerts on the percent of memory utilization. For a full list of alert types, see https://docs.digitalocean.com/reference/api/api-reference/#operation/monitoring_create_alertPolicy", ox.Spec("v1/insights/droplet/memory_utilization_percent")).
 						Int("value", "The value of the alert policy to compare against.").
 						String("window", "The window to apply the alert policy conditions against.", ox.Default("5m")).
@@ -6357,7 +6357,7 @@ func main() {
 						)),
 						ox.Flags().
 							String("comparison", "A comparison operator used against the alert's threshold. Possible values: greater_than or `less_than`", ox.Default("greater_than")).
-							Slice("emails", "Emails addresses to send alerts. The addresses must be associated with your DigitalOcean account", ox.Elem(ox.StringT)).
+							Slice("emails", "Emails addresses to send alerts. The addresses must be associated with your DigitalOcean account").
 							String("format", "Columns for output in a comma-separated list. Possible values: ID, `Name`, `Type`, `Threshold`, `Comparison`, `Period`, `Emails`, `Slack Channels`.", ox.Spec("ID")).
 							String("name", "The name of the alert (required)").
 							Bool("no-header", "Return raw data with no headers").
@@ -6451,7 +6451,7 @@ func main() {
 						)),
 						ox.Flags().
 							String("comparison", "A comparison operator used against the alert's threshold. Possible values: greater_than or `less_than`", ox.Default("greater_than")).
-							Slice("emails", "Emails addresses to send alerts. The addresses must be associated with your DigitalOcean account", ox.Elem(ox.StringT)).
+							Slice("emails", "Emails addresses to send alerts. The addresses must be associated with your DigitalOcean account").
 							String("format", "Columns for output in a comma-separated list. Possible values: ID, `Name`, `Type`, `Threshold`, `Comparison`, `Period`, `Emails`, `Slack Channels`.", ox.Spec("ID")).
 							String("name", "The name of the alert (required)").
 							Bool("no-header", "Return raw data with no headers").
@@ -6736,7 +6736,7 @@ func main() {
 						"Global Flags",
 					)),
 					ox.Flags().
-						Slice("resource", "URNs specifying resources to assign to the project", ox.Elem(ox.StringT)).
+						Slice("resource", "URNs specifying resources to assign to the project").
 						String("access-token", "API V2 access token", ox.Short("t"), ox.Section(0)).
 						String("api-url", "Override default API endpoint", ox.Short("u"), ox.Section(0)).
 						String("config", "Specify a custom config file", ox.Default("$APPCONFIG/config.yaml"), ox.Short("c"), ox.Section(0)).

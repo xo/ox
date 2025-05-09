@@ -42,15 +42,15 @@ func main() {
 					Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
 					String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
 					String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-create"), ox.Section(0)).
-					Slice("non-resource-url", "A partial url that user should have access to.", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("non-resource-url", "A partial url that user should have access to.", ox.Section(0)).
 					String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
-					Slice("resource", "Resource that the rule applies to", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("resource-name", "Resource in the white list that the rule applies to, repeat this flag for multiple items", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("resource", "Resource that the rule applies to", ox.Section(0)).
+					Slice("resource-name", "Resource in the white list that the rule applies to, repeat this flag for multiple items", ox.Section(0)).
 					Bool("save-config", "If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.", ox.Spec("false"), ox.Section(0)).
 					Bool("show-managed-fields", "If true, keep the managedFields when printing objects in JSON or YAML format.", ox.Spec("false"), ox.Section(0)).
 					String("template", "Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].", ox.Section(0)).
 					String("validate", "Must be one of: strict (or true), warn, ignore (or false). \"true\" or \"strict\" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. \"warn\" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as \"ignore\" otherwise. \"false\" or \"ignore\" will not perform any schema validation, silently dropping any unknown or duplicate fields.", ox.Default("strict"), ox.Section(0)).
-					Slice("verb", "Verb that applies to the resources contained in the rule", ox.Elem(ox.StringT), ox.Section(0)),
+					Slice("verb", "Verb that applies to the resources contained in the rule", ox.Section(0)),
 			),
 			ox.Sub(
 				ox.Banner("Create a cluster role binding for a particular cluster role."),
@@ -66,13 +66,13 @@ func main() {
 					String("clusterrole", "ClusterRole this ClusterRoleBinding should reference", ox.Section(0)).
 					String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
 					String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-create"), ox.Section(0)).
-					Slice("group", "Groups to bind to the clusterrole. The flag can be repeated to add multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("group", "Groups to bind to the clusterrole. The flag can be repeated to add multiple groups.", ox.Section(0)).
 					String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 					Bool("save-config", "If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.", ox.Spec("false"), ox.Section(0)).
-					Slice("serviceaccount", "Service accounts to bind to the clusterrole, in the format <namespace>:<name>. The flag can be repeated to add multiple service accounts.", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("serviceaccount", "Service accounts to bind to the clusterrole, in the format <namespace>:<name>. The flag can be repeated to add multiple service accounts.", ox.Section(0)).
 					Bool("show-managed-fields", "If true, keep the managedFields when printing objects in JSON or YAML format.", ox.Spec("false"), ox.Section(0)).
 					String("template", "Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].", ox.Section(0)).
-					Slice("user", "Usernames to bind to the clusterrole. The flag can be repeated to add multiple users.", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("user", "Usernames to bind to the clusterrole. The flag can be repeated to add multiple users.", ox.Section(0)).
 					String("validate", "Must be one of: strict (or true), warn, ignore (or false). \"true\" or \"strict\" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. \"warn\" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as \"ignore\" otherwise. \"false\" or \"ignore\" will not perform any schema validation, silently dropping any unknown or duplicate fields.", ox.Default("strict"), ox.Section(0)),
 			),
 			ox.Sub(
@@ -90,9 +90,9 @@ func main() {
 					Bool("append-hash", "Append a hash of the configmap to its name.", ox.Spec("false"), ox.Section(0)).
 					String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
 					String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-create"), ox.Section(0)).
-					Slice("from-env-file", "Specify the path to a file to read lines of key=val pairs to create a configmap.", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("from-file", "Key file can be specified using its file path, in which case file basename will be used as configmap key, or optionally with a key and file path, in which case the given key will be used.  Specifying a directory will iterate each named file in the directory whose basename is a valid configmap key.", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("from-literal", "Specify a key and literal value to insert in configmap (i.e. mykey=somevalue)", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("from-env-file", "Specify the path to a file to read lines of key=val pairs to create a configmap.", ox.Section(0)).
+					Slice("from-file", "Key file can be specified using its file path, in which case file basename will be used as configmap key, or optionally with a key and file path, in which case the given key will be used.  Specifying a directory will iterate each named file in the directory whose basename is a valid configmap key.", ox.Section(0)).
+					Slice("from-literal", "Specify a key and literal value to insert in configmap (i.e. mykey=somevalue)", ox.Section(0)).
 					String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 					Bool("save-config", "If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.", ox.Spec("false"), ox.Section(0)).
 					Bool("show-managed-fields", "If true, keep the managedFields when printing objects in JSON or YAML format.", ox.Spec("false"), ox.Section(0)).
@@ -136,7 +136,7 @@ func main() {
 					Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
 					String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
 					String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-create"), ox.Section(0)).
-					Slice("image", "Image names to run. A deployment can have multiple images set for multi-container pod.", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("image", "Image names to run. A deployment can have multiple images set for multi-container pod.", ox.Section(0)).
 					String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 					Int("port", "The containerPort that this deployment exposes.", ox.Default("-1"), ox.Section(0)).
 					Int("replicas", "Number of replicas to create. Default is 1.", ox.Default("1"), ox.Short("r"), ox.Section(0)).
@@ -157,13 +157,13 @@ func main() {
 				ox.Footer("Use \"kubectl options\" for a list of global command-line options (applies to all commands)."),
 				ox.Flags().
 					Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
-					Slice("annotation", "Annotation to insert in the ingress object, in the format annotation=value", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("annotation", "Annotation to insert in the ingress object, in the format annotation=value", ox.Section(0)).
 					String("class", "Ingress Class to be used", ox.Section(0)).
 					String("default-backend", "Default service for backend, in format of svcname:port", ox.Section(0)).
 					String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
 					String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-create"), ox.Section(0)).
 					String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
-					Slice("rule", "Rule in format host/path=service:port[,tls=secretname]. Paths containing the leading character '*' are considered pathType=Prefix. tls argument is optional.", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("rule", "Rule in format host/path=service:port[,tls=secretname]. Paths containing the leading character '*' are considered pathType=Prefix. tls argument is optional.", ox.Section(0)).
 					Bool("save-config", "If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.", ox.Spec("false"), ox.Section(0)).
 					Bool("show-managed-fields", "If true, keep the managedFields when printing objects in JSON or YAML format.", ox.Spec("false"), ox.Section(0)).
 					String("template", "Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].", ox.Section(0)).
@@ -293,13 +293,13 @@ func main() {
 					String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
 					String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-create"), ox.Section(0)).
 					String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
-					Slice("resource", "Resource that the rule applies to", ox.Elem(ox.StringT), ox.Section(0)).
-					Slice("resource-name", "Resource in the white list that the rule applies to, repeat this flag for multiple items", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("resource", "Resource that the rule applies to", ox.Section(0)).
+					Slice("resource-name", "Resource in the white list that the rule applies to, repeat this flag for multiple items", ox.Section(0)).
 					Bool("save-config", "If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.", ox.Spec("false"), ox.Section(0)).
 					Bool("show-managed-fields", "If true, keep the managedFields when printing objects in JSON or YAML format.", ox.Spec("false"), ox.Section(0)).
 					String("template", "Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].", ox.Section(0)).
 					String("validate", "Must be one of: strict (or true), warn, ignore (or false). \"true\" or \"strict\" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. \"warn\" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as \"ignore\" otherwise. \"false\" or \"ignore\" will not perform any schema validation, silently dropping any unknown or duplicate fields.", ox.Default("strict"), ox.Section(0)).
-					Slice("verb", "Verb that applies to the resources contained in the rule", ox.Elem(ox.StringT), ox.Section(0)),
+					Slice("verb", "Verb that applies to the resources contained in the rule", ox.Section(0)),
 			),
 			ox.Sub(
 				ox.Banner("Create a role binding for a particular role or cluster role."),
@@ -315,14 +315,14 @@ func main() {
 					String("clusterrole", "ClusterRole this RoleBinding should reference", ox.Section(0)).
 					String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
 					String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-create"), ox.Section(0)).
-					Slice("group", "Groups to bind to the role. The flag can be repeated to add multiple groups.", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("group", "Groups to bind to the role. The flag can be repeated to add multiple groups.", ox.Section(0)).
 					String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 					String("role", "Role this RoleBinding should reference", ox.Section(0)).
 					Bool("save-config", "If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.", ox.Spec("false"), ox.Section(0)).
-					Slice("serviceaccount", "Service accounts to bind to the role, in the format <namespace>:<name>. The flag can be repeated to add multiple service accounts.", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("serviceaccount", "Service accounts to bind to the role, in the format <namespace>:<name>. The flag can be repeated to add multiple service accounts.", ox.Section(0)).
 					Bool("show-managed-fields", "If true, keep the managedFields when printing objects in JSON or YAML format.", ox.Spec("false"), ox.Section(0)).
 					String("template", "Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].", ox.Section(0)).
-					Slice("user", "Usernames to bind to the role. The flag can be repeated to add multiple users.", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("user", "Usernames to bind to the role. The flag can be repeated to add multiple users.", ox.Section(0)).
 					String("validate", "Must be one of: strict (or true), warn, ignore (or false). \"true\" or \"strict\" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. \"warn\" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as \"ignore\" otherwise. \"false\" or \"ignore\" will not perform any schema validation, silently dropping any unknown or duplicate fields.", ox.Default("strict"), ox.Section(0)),
 			),
 			ox.Sub(
@@ -348,7 +348,7 @@ func main() {
 						String("docker-username", "Username for Docker registry authentication", ox.Section(0)).
 						String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
 						String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-create"), ox.Section(0)).
-						Slice("from-file", "Key files can be specified using their file path, in which case a default name of .dockerconfigjson will be given to them, or optionally with a name and file path, in which case the given name will be used. Specifying a directory will iterate each named file in the directory that is a valid secret key. For this command, the key should always be .dockerconfigjson.", ox.Elem(ox.StringT), ox.Section(0)).
+						Slice("from-file", "Key files can be specified using their file path, in which case a default name of .dockerconfigjson will be given to them, or optionally with a name and file path, in which case the given name will be used. Specifying a directory will iterate each named file in the directory that is a valid secret key. For this command, the key should always be .dockerconfigjson.", ox.Section(0)).
 						String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 						Bool("save-config", "If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.", ox.Spec("false"), ox.Section(0)).
 						Bool("show-managed-fields", "If true, keep the managedFields when printing objects in JSON or YAML format.", ox.Spec("false"), ox.Section(0)).
@@ -369,9 +369,9 @@ func main() {
 						Bool("append-hash", "Append a hash of the secret to its name.", ox.Spec("false"), ox.Section(0)).
 						String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
 						String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-create"), ox.Section(0)).
-						Slice("from-env-file", "Specify the path to a file to read lines of key=val pairs to create a secret.", ox.Elem(ox.StringT), ox.Section(0)).
-						Slice("from-file", "Key files can be specified using their file path, in which case a default name will be given to them, or optionally with a name and file path, in which case the given name will be used.  Specifying a directory will iterate each named file in the directory that is a valid secret key.", ox.Elem(ox.StringT), ox.Section(0)).
-						Slice("from-literal", "Specify a key and literal value to insert in secret (i.e. mykey=somevalue)", ox.Elem(ox.StringT), ox.Section(0)).
+						Slice("from-env-file", "Specify the path to a file to read lines of key=val pairs to create a secret.", ox.Section(0)).
+						Slice("from-file", "Key files can be specified using their file path, in which case a default name will be given to them, or optionally with a name and file path, in which case the given name will be used.  Specifying a directory will iterate each named file in the directory that is a valid secret key.", ox.Section(0)).
+						Slice("from-literal", "Specify a key and literal value to insert in secret (i.e. mykey=somevalue)", ox.Section(0)).
 						String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 						Bool("save-config", "If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.", ox.Spec("false"), ox.Section(0)).
 						Bool("show-managed-fields", "If true, keep the managedFields when printing objects in JSON or YAML format.", ox.Spec("false"), ox.Section(0)).
@@ -425,7 +425,7 @@ func main() {
 						String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 						Bool("save-config", "If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.", ox.Spec("false"), ox.Section(0)).
 						Bool("show-managed-fields", "If true, keep the managedFields when printing objects in JSON or YAML format.", ox.Spec("false"), ox.Section(0)).
-						Slice("tcp", "Port pairs can be specified as '<port>:<targetPort>'.", ox.Elem(ox.StringT), ox.Section(0)).
+						Slice("tcp", "Port pairs can be specified as '<port>:<targetPort>'.", ox.Section(0)).
 						String("template", "Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].", ox.Section(0)).
 						String("validate", "Must be one of: strict (or true), warn, ignore (or false). \"true\" or \"strict\" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. \"warn\" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as \"ignore\" otherwise. \"false\" or \"ignore\" will not perform any schema validation, silently dropping any unknown or duplicate fields.", ox.Default("strict"), ox.Section(0)),
 				),
@@ -446,7 +446,7 @@ func main() {
 						String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 						Bool("save-config", "If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.", ox.Spec("false"), ox.Section(0)).
 						Bool("show-managed-fields", "If true, keep the managedFields when printing objects in JSON or YAML format.", ox.Spec("false"), ox.Section(0)).
-						Slice("tcp", "Port pairs can be specified as '<port>:<targetPort>'.", ox.Elem(ox.StringT), ox.Section(0)).
+						Slice("tcp", "Port pairs can be specified as '<port>:<targetPort>'.", ox.Section(0)).
 						String("template", "Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].", ox.Section(0)).
 						String("validate", "Must be one of: strict (or true), warn, ignore (or false). \"true\" or \"strict\" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. \"warn\" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as \"ignore\" otherwise. \"false\" or \"ignore\" will not perform any schema validation, silently dropping any unknown or duplicate fields.", ox.Default("strict"), ox.Section(0)),
 				),
@@ -466,7 +466,7 @@ func main() {
 						String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 						Bool("save-config", "If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.", ox.Spec("false"), ox.Section(0)).
 						Bool("show-managed-fields", "If true, keep the managedFields when printing objects in JSON or YAML format.", ox.Spec("false"), ox.Section(0)).
-						Slice("tcp", "Port pairs can be specified as '<port>:<targetPort>'.", ox.Elem(ox.StringT), ox.Section(0)).
+						Slice("tcp", "Port pairs can be specified as '<port>:<targetPort>'.", ox.Section(0)).
 						String("template", "Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].", ox.Section(0)).
 						String("validate", "Must be one of: strict (or true), warn, ignore (or false). \"true\" or \"strict\" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. \"warn\" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as \"ignore\" otherwise. \"false\" or \"ignore\" will not perform any schema validation, silently dropping any unknown or duplicate fields.", ox.Default("strict"), ox.Section(0)),
 				),
@@ -487,7 +487,7 @@ func main() {
 						String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 						Bool("save-config", "If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.", ox.Spec("false"), ox.Section(0)).
 						Bool("show-managed-fields", "If true, keep the managedFields when printing objects in JSON or YAML format.", ox.Spec("false"), ox.Section(0)).
-						Slice("tcp", "Port pairs can be specified as '<port>:<targetPort>'.", ox.Elem(ox.StringT), ox.Section(0)).
+						Slice("tcp", "Port pairs can be specified as '<port>:<targetPort>'.", ox.Section(0)).
 						String("template", "Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].", ox.Section(0)).
 						String("validate", "Must be one of: strict (or true), warn, ignore (or false). \"true\" or \"strict\" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. \"warn\" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as \"ignore\" otherwise. \"false\" or \"ignore\" will not perform any schema validation, silently dropping any unknown or duplicate fields.", ox.Default("strict"), ox.Section(0)),
 				),
@@ -523,7 +523,7 @@ func main() {
 				ox.Footer("Use \"kubectl options\" for a list of global command-line options (applies to all commands)."),
 				ox.Flags().
 					Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
-					Slice("audience", "Audience of the requested token. If unset, defaults to requesting a token for use with the Kubernetes API server. May be repeated to request a token valid for multiple audiences.", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("audience", "Audience of the requested token. If unset, defaults to requesting a token for use with the Kubernetes API server. May be repeated to request a token valid for multiple audiences.", ox.Section(0)).
 					String("bound-object-kind", "Kind of an object to bind the token to. Supported kinds are Node, Pod, Secret. If set, --bound-object-name must be provided.", ox.Section(0)).
 					String("bound-object-name", "Name of an object to bind the token to. The token will expire when the object is deleted. Requires --bound-object-kind.", ox.Section(0)).
 					String("bound-object-uid", "UID of an object to bind the token to. Requires --bound-object-kind and --bound-object-name. If unset, the UID of the existing object is used.", ox.Section(0)).
@@ -537,7 +537,7 @@ func main() {
 				String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
 				Bool("edit", "Edit the API resource before creating", ox.Spec("false"), ox.Section(0)).
 				String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-create"), ox.Section(0)).
-				Slice("filename", "Filename, directory, or URL to files to use to create the resource", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Slice("filename", "Filename, directory, or URL to files to use to create the resource", ox.Short("f"), ox.Section(0)).
 				String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 				String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 				String("raw", "Raw URI to POST to the server.  Uses the transport specified by the kubeconfig file.", ox.Section(0)).
@@ -565,7 +565,7 @@ func main() {
 				String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
 				String("external-ip", "Additional external IP address (not managed by Kubernetes) to accept for the service. If this IP is routed to a node, the service can be accessed by this IP in addition to its generated service IP.", ox.Section(0)).
 				String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-expose"), ox.Section(0)).
-				Slice("filename", "Filename, directory, or URL to files identifying the resource to expose a service", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Slice("filename", "Filename, directory, or URL to files identifying the resource to expose a service", ox.Short("f"), ox.Section(0)).
 				String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 				String("labels", "Labels to apply to the service created by this call.", ox.Short("l"), ox.Section(0)).
 				String("load-balancer-ip", "IP to assign to the LoadBalancer. If empty, an ephemeral IP will be created and used (cloud-provider specific).", ox.Section(0)).
@@ -596,15 +596,15 @@ func main() {
 			ox.Footer("Use \"kubectl options\" for a list of global command-line options (applies to all commands)."),
 			ox.Flags().
 				Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
-				Slice("annotations", "Annotations to apply to the pod.", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("annotations", "Annotations to apply to the pod.", ox.Section(0)).
 				Bool("attach", "If true, wait for the Pod to start running, and then attach to the Pod as if 'kubectl attach ...' were called.  Default false, unless '-i/--stdin' is set, in which case the default is true. With '--restart=Never' the exit code of the container process is returned.", ox.Spec("false"), ox.Section(0)).
 				String("cascade", "Must be \"background\", \"orphan\", or \"foreground\". Selects the deletion cascading strategy for the dependents (e.g. Pods created by a ReplicationController). Defaults to background.", ox.Default("background"), ox.Section(0)).
 				Bool("command", "If true and extra arguments are present, use them as the 'command' field in the container, rather than the 'args' field which is the default.", ox.Spec("false"), ox.Section(0)).
 				String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
-				Slice("env", "Environment variables to set in the container.", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("env", "Environment variables to set in the container.", ox.Section(0)).
 				Bool("expose", "If true, create a ClusterIP service associated with the pod.  Requires `--port`.", ox.Spec("false"), ox.Section(0)).
 				String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-run"), ox.Section(0)).
-				Slice("filename", "to use to replace the resource.", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Slice("filename", "to use to replace the resource.", ox.Short("f"), ox.Section(0)).
 				Bool("force", "If true, immediately remove resources from API and bypass graceful deletion. Note that immediate deletion of some resources may result in inconsistency or data loss and requires confirmation.", ox.Spec("false"), ox.Section(0)).
 				Int("grace-period", "Period of time in seconds given to the resource to terminate gracefully. Ignored if negative. Set to 1 for immediate shutdown. Can only be set to 0 when --force is true (force deletion).", ox.Default("-1"), ox.Section(0)).
 				String("image", "The image for the container to run.", ox.Section(0)).
@@ -650,11 +650,11 @@ func main() {
 					Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
 					String("containers", "The names of containers in the selected pod templates to change - may use wildcards", ox.Default("*"), ox.Short("c"), ox.Section(0)).
 					String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
-					Slice("env", "Specify a key-value pair for an environment variable to set into each container.", ox.Elem(ox.StringT), ox.Short("e"), ox.Section(0)).
+					Slice("env", "Specify a key-value pair for an environment variable to set into each container.", ox.Short("e"), ox.Section(0)).
 					String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-set"), ox.Section(0)).
-					Slice("filename", "Filename, directory, or URL to files the resource to update the env", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Slice("filename", "Filename, directory, or URL to files the resource to update the env", ox.Short("f"), ox.Section(0)).
 					String("from", "The name of a resource from which to inject environment variables", ox.Section(0)).
-					Slice("keys", "Comma-separated list of keys to import from specified resource", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("keys", "Comma-separated list of keys to import from specified resource", ox.Section(0)).
 					String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 					Bool("list", "If true, display the environment and any changes in the standard format. this flag will removed when we have kubectl view env.", ox.Spec("false"), ox.Section(0)).
 					Bool("local", "If true, set env will NOT contact api-server but run locally.", ox.Spec("false"), ox.Section(0)).
@@ -681,7 +681,7 @@ func main() {
 					Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
 					String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
 					String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-set"), ox.Section(0)).
-					Slice("filename", "Filename, directory, or URL to files identifying the resource to get from a server.", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Slice("filename", "Filename, directory, or URL to files identifying the resource to get from a server.", ox.Short("f"), ox.Section(0)).
 					String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 					Bool("local", "If true, set image will NOT contact api-server but run locally.", ox.Spec("false"), ox.Section(0)).
 					String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
@@ -705,7 +705,7 @@ func main() {
 					String("containers", "The names of containers in the selected pod templates to change, all containers are selected by default - may use wildcards", ox.Default("*"), ox.Short("c"), ox.Section(0)).
 					String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
 					String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-set"), ox.Section(0)).
-					Slice("filename", "Filename, directory, or URL to files identifying the resource to get from a server.", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Slice("filename", "Filename, directory, or URL to files identifying the resource to get from a server.", ox.Short("f"), ox.Section(0)).
 					String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 					String("limits", "The resource requirement requests for this container.  For example, 'cpu=100m,memory=256Mi'.  Note that server side components may assign requests depending on the server configuration, such as limit ranges.", ox.Section(0)).
 					Bool("local", "If true, set resources will NOT contact api-server but run locally.", ox.Spec("false"), ox.Section(0)).
@@ -730,7 +730,7 @@ func main() {
 					Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
 					String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
 					String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-set"), ox.Section(0)).
-					Slice("filename", "identifying the resource.", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Slice("filename", "identifying the resource.", ox.Short("f"), ox.Section(0)).
 					Bool("local", "If true, annotation will NOT contact api-server but run locally.", ox.Spec("false"), ox.Section(0)).
 					String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 					Bool("recursive", "Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.", ox.Spec("true"), ox.Short("R"), ox.Section(0)).
@@ -753,7 +753,7 @@ func main() {
 					Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
 					String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
 					String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-set"), ox.Section(0)).
-					Slice("filename", "Filename, directory, or URL to files identifying the resource to get from a server.", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Slice("filename", "Filename, directory, or URL to files identifying the resource to get from a server.", ox.Short("f"), ox.Section(0)).
 					String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 					Bool("local", "If true, set serviceaccount will NOT contact api-server but run locally.", ox.Spec("false"), ox.Section(0)).
 					String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
@@ -775,17 +775,17 @@ func main() {
 					Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
 					String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
 					String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-set"), ox.Section(0)).
-					Slice("filename", "Filename, directory, or URL to files the resource to update the subjects", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
-					Slice("group", "Groups to bind to the role", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("filename", "Filename, directory, or URL to files the resource to update the subjects", ox.Short("f"), ox.Section(0)).
+					Slice("group", "Groups to bind to the role", ox.Section(0)).
 					String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 					Bool("local", "If true, set subject will NOT contact api-server but run locally.", ox.Spec("false"), ox.Section(0)).
 					String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 					Bool("recursive", "Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.", ox.Spec("false"), ox.Short("R"), ox.Section(0)).
 					String("selector", "Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.", ox.Short("l"), ox.Section(0)).
-					Slice("serviceaccount", "Service accounts to bind to the role", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("serviceaccount", "Service accounts to bind to the role", ox.Section(0)).
 					Bool("show-managed-fields", "If true, keep the managedFields when printing objects in JSON or YAML format.", ox.Spec("false"), ox.Section(0)).
 					String("template", "Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].", ox.Section(0)).
-					Slice("user", "Usernames to bind to the role", ox.Elem(ox.StringT), ox.Section(0)),
+					Slice("user", "Usernames to bind to the role", ox.Section(0)),
 			),
 		),
 		ox.Sub(
@@ -818,10 +818,10 @@ func main() {
 				Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
 				Int("chunk-size", "Return large lists in chunks rather than all at once. Pass 0 to disable. This flag is beta and may change in the future.", ox.Default("500"), ox.Section(0)).
 				String("field-selector", "Selector (field query) to filter on, supports '=', '==', and '!='.(e.g. --field-selector key1=value1,key2=value2). The server only supports a limited number of field queries per type.", ox.Section(0)).
-				Slice("filename", "Filename, directory, or URL to files identifying the resource to get from a server.", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Slice("filename", "Filename, directory, or URL to files identifying the resource to get from a server.", ox.Short("f"), ox.Section(0)).
 				Bool("ignore-not-found", "If the requested object does not exist the command will return exit code 0.", ox.Spec("false"), ox.Section(0)).
 				String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
-				Slice("label-columns", "Accepts a comma separated list of labels that are going to be presented as columns. Names are case-sensitive. You can also use multiple flag options like -L label1 -L label2...", ox.Elem(ox.StringT), ox.Short("L"), ox.Section(0)).
+				Slice("label-columns", "Accepts a comma separated list of labels that are going to be presented as columns. Names are case-sensitive. You can also use multiple flag options like -L label1 -L label2...", ox.Short("L"), ox.Section(0)).
 				Bool("no-headers", "When using the default or custom-column output format, don't print headers (default print headers).", ox.Spec("false"), ox.Section(0)).
 				String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file, custom-columns, custom-columns-file, wide). See custom columns [https://kubernetes.io/docs/reference/kubectl/#custom-columns], golang template [http://golang.org/pkg/text/template/#pkg-overview] and jsonpath template [https://kubernetes.io/docs/reference/kubectl/jsonpath/].", ox.Short("o"), ox.Section(0)).
 				Bool("output-watch-events", "Output watch event objects when --watch or --watch-only is used. Existing objects are output as initial ADDED events.", ox.Spec("false"), ox.Section(0)).
@@ -851,7 +851,7 @@ func main() {
 			ox.Flags().
 				Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
 				String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-edit"), ox.Section(0)).
-				Slice("filename", "Filename, directory, or URL to files to use to edit the resource", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Slice("filename", "Filename, directory, or URL to files to use to edit the resource", ox.Short("f"), ox.Section(0)).
 				String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 				String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 				Bool("output-patch", "Output the patch if the resource is edited.", ox.Spec("false"), ox.Section(0)).
@@ -879,7 +879,7 @@ func main() {
 				String("cascade", "Must be \"background\", \"orphan\", or \"foreground\". Selects the deletion cascading strategy for the dependents (e.g. Pods created by a ReplicationController). Defaults to background.", ox.Default("background"), ox.Section(0)).
 				String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
 				String("field-selector", "Selector (field query) to filter on, supports '=', '==', and '!='.(e.g. --field-selector key1=value1,key2=value2). The server only supports a limited number of field queries per type.", ox.Section(0)).
-				Slice("filename", "containing the resource to delete.", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Slice("filename", "containing the resource to delete.", ox.Short("f"), ox.Section(0)).
 				Bool("force", "If true, immediately remove resources from API and bypass graceful deletion. Note that immediate deletion of some resources may result in inconsistency or data loss and requires confirmation.", ox.Spec("false"), ox.Section(0)).
 				Int("grace-period", "Period of time in seconds given to the resource to terminate gracefully. Ignored if negative. Set to 1 for immediate shutdown. Can only be set to 0 when --force is true (force deletion).", ox.Default("-1"), ox.Section(0)).
 				Bool("ignore-not-found", "Treat \"resource not found\" as a successful delete. Defaults to \"true\" when --all is specified.", ox.Spec("false"), ox.Section(0)).
@@ -911,7 +911,7 @@ func main() {
 				ox.Footer("Use \"kubectl options\" for a list of global command-line options (applies to all commands)."),
 				ox.Flags().
 					Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
-					Slice("filename", "Filename, directory, or URL to files identifying the resource to get from a server.", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Slice("filename", "Filename, directory, or URL to files identifying the resource to get from a server.", ox.Short("f"), ox.Section(0)).
 					String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 					String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 					Bool("recursive", "Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.", ox.Spec("false"), ox.Short("R"), ox.Section(0)).
@@ -932,7 +932,7 @@ func main() {
 				ox.Flags().
 					Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
 					String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-rollout"), ox.Section(0)).
-					Slice("filename", "Filename, directory, or URL to files identifying the resource to get from a server.", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Slice("filename", "Filename, directory, or URL to files identifying the resource to get from a server.", ox.Short("f"), ox.Section(0)).
 					String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 					String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 					Bool("recursive", "Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.", ox.Spec("false"), ox.Short("R"), ox.Section(0)).
@@ -952,7 +952,7 @@ func main() {
 				ox.Flags().
 					Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
 					String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-rollout"), ox.Section(0)).
-					Slice("filename", "Filename, directory, or URL to files identifying the resource to get from a server.", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Slice("filename", "Filename, directory, or URL to files identifying the resource to get from a server.", ox.Short("f"), ox.Section(0)).
 					String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 					String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 					Bool("recursive", "Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.", ox.Spec("false"), ox.Short("R"), ox.Section(0)).
@@ -972,7 +972,7 @@ func main() {
 				ox.Flags().
 					Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
 					String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-rollout"), ox.Section(0)).
-					Slice("filename", "Filename, directory, or URL to files identifying the resource to get from a server.", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Slice("filename", "Filename, directory, or URL to files identifying the resource to get from a server.", ox.Short("f"), ox.Section(0)).
 					String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 					String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 					Bool("recursive", "Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.", ox.Spec("false"), ox.Short("R"), ox.Section(0)).
@@ -990,7 +990,7 @@ func main() {
 				)),
 				ox.Footer("Use \"kubectl options\" for a list of global command-line options (applies to all commands)."),
 				ox.Flags().
-					Slice("filename", "Filename, directory, or URL to files identifying the resource to get from a server.", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Slice("filename", "Filename, directory, or URL to files identifying the resource to get from a server.", ox.Short("f"), ox.Section(0)).
 					String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 					Bool("recursive", "Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.", ox.Spec("false"), ox.Short("R"), ox.Section(0)).
 					Int("revision", "Pin to a specific revision for showing its status. Defaults to 0 (last revision).", ox.Default("0"), ox.Section(0)).
@@ -1010,7 +1010,7 @@ func main() {
 				ox.Flags().
 					Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
 					String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
-					Slice("filename", "Filename, directory, or URL to files identifying the resource to get from a server.", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Slice("filename", "Filename, directory, or URL to files identifying the resource to get from a server.", ox.Short("f"), ox.Section(0)).
 					String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 					String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 					Bool("recursive", "Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.", ox.Spec("false"), ox.Short("R"), ox.Section(0)).
@@ -1035,7 +1035,7 @@ func main() {
 				Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
 				Int("current-replicas", "Precondition for current size. Requires that the current size of the resource match this value in order to scale. -1 (default) for no condition.", ox.Default("-1"), ox.Section(0)).
 				String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
-				Slice("filename", "Filename, directory, or URL to files identifying the resource to set a new size", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Slice("filename", "Filename, directory, or URL to files identifying the resource to set a new size", ox.Short("f"), ox.Section(0)).
 				String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 				String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 				Bool("recursive", "Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.", ox.Spec("false"), ox.Short("R"), ox.Section(0)).
@@ -1061,7 +1061,7 @@ func main() {
 				Int("cpu-percent", "The target average CPU utilization (represented as a percent of requested CPU) over all the pods. If it's not specified or negative, a default autoscaling policy will be used.", ox.Default("-1"), ox.Section(0)).
 				String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
 				String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-autoscale"), ox.Section(0)).
-				Slice("filename", "Filename, directory, or URL to files identifying the resource to autoscale.", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Slice("filename", "Filename, directory, or URL to files identifying the resource to autoscale.", ox.Short("f"), ox.Section(0)).
 				String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 				Int("max", "The upper limit for the number of pods that can be set by the autoscaler. Required.", ox.Default("-1"), ox.Section(0)).
 				Int("min", "The lower limit for the number of pods that can be set by the autoscaler. If it's not specified or negative, the server will apply a default value.", ox.Default("-1"), ox.Section(0)).
@@ -1089,7 +1089,7 @@ func main() {
 				ox.Footer("Use \"kubectl options\" for a list of global command-line options (applies to all commands)."),
 				ox.Flags().
 					Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
-					Slice("filename", "Filename, directory, or URL to files identifying the resource to update", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Slice("filename", "Filename, directory, or URL to files identifying the resource to update", ox.Short("f"), ox.Section(0)).
 					Bool("force", "Update the CSR even if it is already approved.", ox.Spec("false"), ox.Section(0)).
 					String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 					String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
@@ -1108,7 +1108,7 @@ func main() {
 				ox.Footer("Use \"kubectl options\" for a list of global command-line options (applies to all commands)."),
 				ox.Flags().
 					Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
-					Slice("filename", "Filename, directory, or URL to files identifying the resource to update", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Slice("filename", "Filename, directory, or URL to files identifying the resource to update", ox.Short("f"), ox.Section(0)).
 					Bool("force", "Update the CSR even if it is already denied.", ox.Spec("false"), ox.Section(0)).
 					String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 					String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
@@ -1136,7 +1136,7 @@ func main() {
 				ox.Flags().
 					Bool("all-namespaces", "If true, dump all namespaces.  If true, --namespaces is ignored.", ox.Spec("false"), ox.Short("A"), ox.Section(0)).
 					Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
-					Slice("namespaces", "A comma separated list of namespaces to dump.", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("namespaces", "A comma separated list of namespaces to dump.", ox.Section(0)).
 					String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Default("json"), ox.Short("o"), ox.Section(0)).
 					String("output-directory", "Where to output the files.  If empty or '-' uses stdout, otherwise creates a directory hierarchy in that directory", ox.Section(0)).
 					Duration("pod-running-timeout", "The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running", ox.Default("20s"), ox.Section(0)).
@@ -1274,7 +1274,7 @@ func main() {
 			ox.Flags().
 				Bool("all-namespaces", "If present, list the requested object(s) across all namespaces. Namespace in current context is ignored even if specified with --namespace.", ox.Spec("false"), ox.Short("A"), ox.Section(0)).
 				Int("chunk-size", "Return large lists in chunks rather than all at once. Pass 0 to disable. This flag is beta and may change in the future.", ox.Default("500"), ox.Section(0)).
-				Slice("filename", "Filename, directory, or URL to files containing the resource to describe", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Slice("filename", "Filename, directory, or URL to files containing the resource to describe", ox.Short("f"), ox.Section(0)).
 				String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 				Bool("recursive", "Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.", ox.Spec("false"), ox.Short("R"), ox.Section(0)).
 				String("selector", "Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.", ox.Short("l"), ox.Section(0)).
@@ -1337,7 +1337,7 @@ func main() {
 			ox.Footer("Use \"kubectl options\" for a list of global command-line options (applies to all commands)."),
 			ox.Flags().
 				String("container", "Container name. If omitted, use the kubectl.kubernetes.io/default-container annotation for selecting the container to be attached or the first container in the pod will be chosen", ox.Short("c"), ox.Section(0)).
-				Slice("filename", "to use to exec into the resource", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Slice("filename", "to use to exec into the resource", ox.Short("f"), ox.Section(0)).
 				Duration("pod-running-timeout", "The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running", ox.Default("1m0s"), ox.Section(0)).
 				Bool("quiet", "Only print output from the remote session", ox.Spec("false"), ox.Short("q"), ox.Section(0)).
 				Bool("stdin", "Pass stdin to the container", ox.Spec("false"), ox.Short("i"), ox.Section(0)).
@@ -1354,7 +1354,7 @@ func main() {
 			)),
 			ox.Footer("Use \"kubectl options\" for a list of global command-line options (applies to all commands)."),
 			ox.Flags().
-				Slice("address", "Addresses to listen on (comma separated). Only accepts IP addresses or localhost as a value. When localhost is supplied, kubectl will try to bind on both 127.0.0.1 and ::1 and will fail if neither of these addresses are available to bind.", ox.Elem(ox.StringT), ox.Default("localhost"), ox.Section(0)).
+				Slice("address", "Addresses to listen on (comma separated). Only accepts IP addresses or localhost as a value. When localhost is supplied, kubectl will try to bind on both 127.0.0.1 and ::1 and will fail if neither of these addresses are available to bind.", ox.Default("localhost"), ox.Section(0)).
 				Duration("pod-running-timeout", "The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running", ox.Default("1m0s"), ox.Section(0)),
 		),
 		ox.Sub(
@@ -1431,7 +1431,7 @@ func main() {
 				ox.Flags().
 					Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
 					String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
-					Slice("filename", "Filename, directory, or URL to files identifying the resource to reconcile.", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Slice("filename", "Filename, directory, or URL to files identifying the resource to reconcile.", ox.Short("f"), ox.Section(0)).
 					String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 					String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 					Bool("recursive", "Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.", ox.Spec("false"), ox.Short("R"), ox.Section(0)).
@@ -1472,8 +1472,8 @@ func main() {
 				String("container", "Container name to use for debug container.", ox.Short("c"), ox.Section(0)).
 				String("copy-to", "Create a copy of the target Pod with this name.", ox.Section(0)).
 				String("custom", "Path to a JSON or YAML file containing a partial container spec to customize built-in debug profiles.", ox.Section(0)).
-				Slice("env", "Environment variables to set in the container.", ox.Elem(ox.StringT), ox.Section(0)).
-				Slice("filename", "identifying the resource to debug", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Slice("env", "Environment variables to set in the container.", ox.Section(0)).
+				Slice("filename", "identifying the resource to debug", ox.Short("f"), ox.Section(0)).
 				String("image", "Container image to use for debug container.", ox.Section(0)).
 				String("image-pull-policy", "The image pull policy for the container. If left empty, this value will not be specified by the client and defaulted by the server.", ox.Section(0)).
 				Bool("keep-annotations", "If true, keep the original pod annotations.(This flag only works when used with '--copy-to')", ox.Spec("false"), ox.Section(0)).
@@ -1486,7 +1486,7 @@ func main() {
 				Bool("quiet", "If true, suppress informational messages.", ox.Spec("false"), ox.Short("q"), ox.Section(0)).
 				Bool("replace", "When used with '--copy-to', delete the original Pod.", ox.Spec("false"), ox.Section(0)).
 				Bool("same-node", "When used with '--copy-to', schedule the copy of target Pod on the same node.", ox.Spec("false"), ox.Section(0)).
-				Slice("set-image", "When used with '--copy-to', a list of name=image pairs for changing container images, similar to how 'kubectl set image' works.", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("set-image", "When used with '--copy-to', a list of name=image pairs for changing container images, similar to how 'kubectl set image' works.", ox.Section(0)).
 				Bool("share-processes", "When used with '--copy-to', enable process namespace sharing in the copy.", ox.Spec("true"), ox.Section(0)).
 				Bool("stdin", "Keep stdin open on the container(s) in the pod, even if nothing is attached.", ox.Spec("false"), ox.Short("i"), ox.Section(0)).
 				String("target", "When using an ephemeral container, target processes in this container name.", ox.Section(0)).
@@ -1511,7 +1511,7 @@ func main() {
 				String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 				Bool("show-managed-fields", "If true, keep the managedFields when printing objects in JSON or YAML format.", ox.Spec("false"), ox.Section(0)).
 				String("template", "Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].", ox.Section(0)).
-				Slice("types", "Output only events of given types.", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("types", "Output only events of given types.", ox.Section(0)).
 				Bool("watch", "After listing the requested events, watch for more events.", ox.Spec("false"), ox.Short("w"), ox.Section(0)),
 		),
 		ox.Sub(
@@ -1527,11 +1527,11 @@ func main() {
 			ox.Flags().
 				Int("concurrency", "Number of objects to process in parallel when diffing against the live version. Larger number = faster, but more memory, I/O and CPU over that shorter period of time.", ox.Default("1"), ox.Section(0)).
 				String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-client-side-apply"), ox.Section(0)).
-				Slice("filename", "Filename, directory, or URL to files contains the configuration to diff", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Slice("filename", "Filename, directory, or URL to files contains the configuration to diff", ox.Short("f"), ox.Section(0)).
 				Bool("force-conflicts", "If true, server-side apply will force the changes against conflicts.", ox.Spec("false"), ox.Section(0)).
 				String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 				Bool("prune", "Include resources that would be deleted by pruning. Can be used with -l and default shows all resources would be pruned", ox.Spec("false"), ox.Section(0)).
-				Slice("prune-allowlist", "Overwrite the default allowlist with <group/version/kind> for --prune", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("prune-allowlist", "Overwrite the default allowlist with <group/version/kind> for --prune", ox.Section(0)).
 				Bool("recursive", "Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.", ox.Spec("false"), ox.Short("R"), ox.Section(0)).
 				String("selector", "Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.", ox.Short("l"), ox.Section(0)).
 				Bool("server-side", "If true, apply runs in the server instead of the client.", ox.Spec("false"), ox.Section(0)).
@@ -1559,7 +1559,7 @@ func main() {
 				ox.Flags().
 					Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
 					String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-client-side-apply"), ox.Section(0)).
-					Slice("filename", "Filename, directory, or URL to files to use to edit the resource", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Slice("filename", "Filename, directory, or URL to files to use to edit the resource", ox.Short("f"), ox.Section(0)).
 					String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 					String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 					Bool("recursive", "Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.", ox.Spec("false"), ox.Short("R"), ox.Section(0)).
@@ -1581,7 +1581,7 @@ func main() {
 					Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
 					Bool("create-annotation", "Will create 'last-applied-configuration' annotations if current objects doesn't have one", ox.Spec("false"), ox.Section(0)).
 					String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
-					Slice("filename", "Filename, directory, or URL to files that contains the last-applied-configuration annotations", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Slice("filename", "Filename, directory, or URL to files that contains the last-applied-configuration annotations", ox.Short("f"), ox.Section(0)).
 					String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 					Bool("show-managed-fields", "If true, keep the managedFields when printing objects in JSON or YAML format.", ox.Spec("false"), ox.Section(0)).
 					String("template", "Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].", ox.Section(0)),
@@ -1597,7 +1597,7 @@ func main() {
 				ox.Footer("Use \"kubectl options\" for a list of global command-line options (applies to all commands)."),
 				ox.Flags().
 					Bool("all", "Select all resources in the namespace of the specified resource types", ox.Spec("false"), ox.Section(0)).
-					Slice("filename", "Filename, directory, or URL to files that contains the last-applied-configuration annotations", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+					Slice("filename", "Filename, directory, or URL to files that contains the last-applied-configuration annotations", ox.Short("f"), ox.Section(0)).
 					String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 					String("output", "Output format. Must be one of (yaml, json)", ox.Default("yaml"), ox.Short("o"), ox.Section(0)).
 					Bool("recursive", "Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.", ox.Spec("false"), ox.Short("R"), ox.Section(0)).
@@ -1609,7 +1609,7 @@ func main() {
 				String("cascade", "Must be \"background\", \"orphan\", or \"foreground\". Selects the deletion cascading strategy for the dependents (e.g. Pods created by a ReplicationController). Defaults to background.", ox.Default("background"), ox.Section(0)).
 				String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
 				String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-client-side-apply"), ox.Section(0)).
-				Slice("filename", "The files that contain the configurations to apply.", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Slice("filename", "The files that contain the configurations to apply.", ox.Short("f"), ox.Section(0)).
 				Bool("force", "If true, immediately remove resources from API and bypass graceful deletion. Note that immediate deletion of some resources may result in inconsistency or data loss and requires confirmation.", ox.Spec("false"), ox.Section(0)).
 				Bool("force-conflicts", "If true, server-side apply will force the changes against conflicts.", ox.Spec("false"), ox.Section(0)).
 				Int("grace-period", "Period of time in seconds given to the resource to terminate gracefully. Ignored if negative. Set to 1 for immediate shutdown. Can only be set to 0 when --force is true (force deletion).", ox.Default("-1"), ox.Section(0)).
@@ -1618,7 +1618,7 @@ func main() {
 				String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
 				Bool("overwrite", "Automatically resolve conflicts between the modified and live configuration by using values from the modified configuration", ox.Spec("true"), ox.Section(0)).
 				Bool("prune", "Automatically delete resource objects, that do not appear in the configs and are created by either apply or create --save-config. Should be used with either -l or --all.", ox.Spec("false"), ox.Section(0)).
-				Slice("prune-allowlist", "Overwrite the default allowlist with <group/version/kind> for --prune", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("prune-allowlist", "Overwrite the default allowlist with <group/version/kind> for --prune", ox.Section(0)).
 				Bool("recursive", "Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.", ox.Spec("false"), ox.Short("R"), ox.Section(0)).
 				String("selector", "Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.", ox.Short("l"), ox.Section(0)).
 				Bool("server-side", "If true, apply runs in the server instead of the client.", ox.Spec("false"), ox.Section(0)).
@@ -1643,7 +1643,7 @@ func main() {
 				Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
 				String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
 				String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-patch"), ox.Section(0)).
-				Slice("filename", "Filename, directory, or URL to files identifying the resource to update", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Slice("filename", "Filename, directory, or URL to files identifying the resource to update", ox.Short("f"), ox.Section(0)).
 				String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 				Bool("local", "If true, patch will operate on the content of the file, not the server-side resource.", ox.Spec("false"), ox.Section(0)).
 				String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
@@ -1670,7 +1670,7 @@ func main() {
 				String("cascade", "Must be \"background\", \"orphan\", or \"foreground\". Selects the deletion cascading strategy for the dependents (e.g. Pods created by a ReplicationController). Defaults to background.", ox.Default("background"), ox.Section(0)).
 				String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
 				String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-replace"), ox.Section(0)).
-				Slice("filename", "The files that contain the configurations to replace.", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Slice("filename", "The files that contain the configurations to replace.", ox.Short("f"), ox.Section(0)).
 				Bool("force", "If true, immediately remove resources from API and bypass graceful deletion. Note that immediate deletion of some resources may result in inconsistency or data loss and requires confirmation.", ox.Spec("false"), ox.Section(0)).
 				Int("grace-period", "Period of time in seconds given to the resource to terminate gracefully. Ignored if negative. Set to 1 for immediate shutdown. Can only be set to 0 when --force is true (force deletion).", ox.Default("-1"), ox.Section(0)).
 				String("kustomize", "Process a kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
@@ -1700,7 +1700,7 @@ func main() {
 				Bool("all-namespaces", "If present, list the requested object(s) across all namespaces. Namespace in current context is ignored even if specified with --namespace.", ox.Spec("false"), ox.Short("A"), ox.Section(0)).
 				Bool("allow-missing-template-keys", "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.", ox.Spec("true"), ox.Section(0)).
 				String("field-selector", "Selector (field query) to filter on, supports '=', '==', and '!='.(e.g. --field-selector key1=value1,key2=value2). The server only supports a limited number of field queries per type.", ox.Section(0)).
-				Slice("filename", "identifying the resource.", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Slice("filename", "identifying the resource.", ox.Short("f"), ox.Section(0)).
 				String("for", "The condition to wait on: [create|delete|condition=condition-name[=condition-value]|jsonpath='{JSONPath expression}'=[JSONPath value]]. The default condition-value is true. Condition values are compared after Unicode simple case folding, which is a more general form of case-insensitivity.", ox.Section(0)).
 				Bool("local", "If true, annotation will NOT contact api-server but run locally.", ox.Spec("false"), ox.Section(0)).
 				String("output", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).", ox.Short("o"), ox.Section(0)).
@@ -1724,13 +1724,13 @@ func main() {
 				Bool("as-current-user", "use the uid and gid of the command executor to run the function in the container", ox.Spec("false"), ox.Section(0)).
 				Bool("enable-alpha-plugins", "enable kustomize plugins", ox.Spec("false"), ox.Section(0)).
 				Bool("enable-helm", "Enable use of the Helm chart inflator generator.", ox.Spec("false"), ox.Section(0)).
-				Slice("env", "a list of environment variables to be used by functions", ox.Elem(ox.StringT), ox.Short("e"), ox.Section(0)).
-				Slice("helm-api-versions", "Kubernetes api versions used by Helm for Capabilities.APIVersions", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("env", "a list of environment variables to be used by functions", ox.Short("e"), ox.Section(0)).
+				Slice("helm-api-versions", "Kubernetes api versions used by Helm for Capabilities.APIVersions", ox.Section(0)).
 				String("helm-command", "helm command (path to executable)", ox.Default("helm"), ox.Section(0)).
 				Bool("helm-debug", "Enable debug output from the Helm chart inflator generator.", ox.Spec("false"), ox.Section(0)).
 				String("helm-kube-version", "Kubernetes version used by Helm for Capabilities.KubeVersion", ox.Section(0)).
 				String("load-restrictor", "if set to 'LoadRestrictionsNone', local kustomizations may load files from outside their root. This does, however, break the relocatability of the kustomization.", ox.Default("LoadRestrictionsRootOnly"), ox.Section(0)).
-				Slice("mount", "a list of storage options read from the filesystem", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("mount", "a list of storage options read from the filesystem", ox.Section(0)).
 				Bool("network", "enable network access for functions that declare it", ox.Spec("false"), ox.Section(0)).
 				String("network-name", "the docker network to run the container in", ox.Default("bridge"), ox.Section(0)).
 				String("output", "If specified, write output to this path.", ox.Short("o"), ox.Section(0)),
@@ -1752,7 +1752,7 @@ func main() {
 				String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
 				String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-label"), ox.Section(0)).
 				String("field-selector", "Selector (field query) to filter on, supports '=', '==', and '!='.(e.g. --field-selector key1=value1,key2=value2). The server only supports a limited number of field queries per type.", ox.Section(0)).
-				Slice("filename", "Filename, directory, or URL to files identifying the resource to update the labels", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Slice("filename", "Filename, directory, or URL to files identifying the resource to update the labels", ox.Short("f"), ox.Section(0)).
 				String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 				Bool("list", "If true, display the labels for a given resource.", ox.Spec("false"), ox.Section(0)).
 				Bool("local", "If true, label will NOT contact api-server but run locally.", ox.Spec("false"), ox.Section(0)).
@@ -1781,7 +1781,7 @@ func main() {
 				String("dry-run", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.", ox.Default("none"), ox.Section(0)).
 				String("field-manager", "Name of the manager used to track field ownership.", ox.Default("$APPNAME-annotate"), ox.Section(0)).
 				String("field-selector", "Selector (field query) to filter on, supports '=', '==', and '!='.(e.g. --field-selector key1=value1,key2=value2). The server only supports a limited number of field queries per type.", ox.Section(0)).
-				Slice("filename", "Filename, directory, or URL to files identifying the resource to update the annotation", ox.Elem(ox.StringT), ox.Short("f"), ox.Section(0)).
+				Slice("filename", "Filename, directory, or URL to files identifying the resource to update the annotation", ox.Short("f"), ox.Section(0)).
 				String("kustomize", "Process the kustomization directory. This flag can't be used together with -f or -R.", ox.Short("k"), ox.Section(0)).
 				Bool("list", "If true, display the annotations for a given resource.", ox.Spec("false"), ox.Section(0)).
 				Bool("local", "If true, annotation will NOT contact api-server but run locally.", ox.Spec("false"), ox.Section(0)).
@@ -1806,12 +1806,12 @@ func main() {
 			ox.Flags().
 				String("api-group", "Limit to resources in the specified API group.", ox.Section(0)).
 				Bool("cached", "Use the cached list of resources if available.", ox.Spec("false"), ox.Section(0)).
-				Slice("categories", "Limit to resources that belong to the specified categories.", ox.Elem(ox.StringT), ox.Section(0)).
+				Slice("categories", "Limit to resources that belong to the specified categories.", ox.Section(0)).
 				Bool("namespaced", "If false, non-namespaced resources will be returned, otherwise returning namespaced resources by default.", ox.Spec("true"), ox.Section(0)).
 				Bool("no-headers", "When using the default or custom-column output format, don't print headers (default print headers).", ox.Spec("false"), ox.Section(0)).
 				String("output", "Output format. One of: (wide, name).", ox.Short("o"), ox.Section(0)).
 				String("sort-by", "If non-empty, sort list of resources using specified field. The field can be either 'name' or 'kind'.", ox.Section(0)).
-				Slice("verbs", "Limit to resources that support the specified verbs.", ox.Elem(ox.StringT), ox.Section(0)),
+				Slice("verbs", "Limit to resources that support the specified verbs.", ox.Section(0)),
 		),
 		ox.Sub(
 			ox.Banner("Print the supported API versions on the server, in the form of \"group/version\"."),
@@ -1944,14 +1944,14 @@ func main() {
 				ox.Footer("Use \"kubectl options\" for a list of global command-line options (applies to all commands)."),
 				ox.Flags().
 					String("auth-provider", "Auth provider for the user entry in kubeconfig", ox.Section(0)).
-					Slice("auth-provider-arg", "'key=value' arguments for the auth provider", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("auth-provider-arg", "'key=value' arguments for the auth provider", ox.Section(0)).
 					String("client-certificate", "Path to client-certificate file for the user entry in kubeconfig", ox.Section(0)).
 					String("client-key", "Path to client-key file for the user entry in kubeconfig", ox.Section(0)).
 					Bool("embed-certs", "Embed client cert/key for the user entry in kubeconfig", ox.Spec("false"), ox.Section(0)).
 					String("exec-api-version", "API version of the exec credential plugin for the user entry in kubeconfig", ox.Section(0)).
-					Slice("exec-arg", "New arguments for the exec credential plugin command for the user entry in kubeconfig", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("exec-arg", "New arguments for the exec credential plugin command for the user entry in kubeconfig", ox.Section(0)).
 					String("exec-command", "Command for the exec credential plugin for the user entry in kubeconfig", ox.Section(0)).
-					Slice("exec-env", "'key=value' environment values for the exec credential plugin", ox.Elem(ox.StringT), ox.Section(0)).
+					Slice("exec-env", "'key=value' environment values for the exec credential plugin", ox.Section(0)).
 					String("exec-interactive-mode", "InteractiveMode of the exec credentials plugin for the user entry in kubeconfig", ox.Section(0)).
 					Bool("exec-provide-cluster-info", "ProvideClusterInfo of the exec credentials plugin for the user entry in kubeconfig", ox.Spec("false"), ox.Section(0)).
 					String("password", "password for the user entry in kubeconfig", ox.Section(0)).
