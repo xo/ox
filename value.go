@@ -26,9 +26,10 @@ type Value interface {
 
 // anyVal wraps a value.
 type anyVal[T any] struct {
-	typ Type
-	set bool
-	v   T
+	typ   Type
+	valid func(any) error
+	set   bool
+	v     T
 }
 
 // NewVal returns a [Value] func storing the value as type T.
@@ -64,6 +65,10 @@ func (val *anyVal[T]) WasSet() bool {
 	return val.set
 }
 
+func (val *anyVal[T]) SetValid(valid func(any) error) {
+	val.valid = valid
+}
+
 func (val *anyVal[T]) Set(s string) error {
 	var value any = s
 	switch val.typ {
@@ -95,14 +100,22 @@ func (val *anyVal[T]) Set(s string) error {
 		inc(&val.v, 1)
 		return nil
 	}
-	v, err := as[T](value, layout(val.v))
+	// convert
+	z, err := as[T](value, layout(val.v))
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrInvalidValue, err)
 	}
-	var ok bool
-	if val.v, ok = v.(T); !ok {
+	// validate
+	v, ok := z.(T)
+	switch {
+	case !ok:
 		return fmt.Errorf("%w: %T->%T", ErrInvalidConversion, value, val.v)
+	case val.valid != nil:
+		if err := val.valid(v); err != nil {
+			return err
+		}
 	}
+	val.v = v
 	return nil
 }
 
@@ -147,6 +160,7 @@ type sliceVal struct {
 	typ   Type
 	v     []Value
 	set   bool
+	valid func(any) error
 	split func(string) []string
 }
 
@@ -199,9 +213,10 @@ func (val *sliceVal) Set(s string) error {
 		if err != nil {
 			return err
 		}
+		setValid(v, val.valid)
 		switch err := v.Set(str); {
 		case err != nil && 1 < len(strs):
-			return fmt.Errorf("set %d: %w", i, err)
+			return fmt.Errorf("set %d: %w", i+1, err)
 		case err != nil:
 			return err
 		}
@@ -216,6 +231,11 @@ func (val *sliceVal) String() string {
 		s[i] = toString[string](v)
 	}
 	return "[" + strings.Join(s, " ") + "]"
+}
+
+// SetValid sets the valid func.
+func (val *sliceVal) SetValid(valid func(any) error) {
+	val.valid = valid
 }
 
 // SetSplit sets the split func.
@@ -239,6 +259,7 @@ type mapVal struct {
 	typ   Type
 	set   bool
 	v     valueMap
+	valid func(string) error
 	split func(string) []string
 }
 
@@ -300,6 +321,11 @@ func (val *mapVal) Get() (string, error) {
 	return val.v.String(), nil
 }
 
+// SetValid sets the valid func.
+func (val *mapVal) SetValid(valid func(string) error) {
+	val.valid = valid
+}
+
 // SetSplit sets the split func.
 func (val *mapVal) SetSplit(split func(string) []string) {
 	val.split = split
@@ -347,8 +373,9 @@ func makeMap(key, typ Type) (valueMap, error) {
 
 // valMap wraps a map.
 type valMap[K cmp.Ordered] struct {
-	typ Type
-	v   map[K]Value
+	typ   Type
+	valid func(any) error
+	v     map[K]Value
 }
 
 // newValueMap creates a new value map.
@@ -356,6 +383,11 @@ func newValueMap[K cmp.Ordered](typ Type) valueMap {
 	return &valMap[K]{
 		typ: typ,
 	}
+}
+
+// SetValid sets the valid func for the value map.
+func (val *valMap[K]) SetValid(valid func(any) error) {
+	val.valid = valid
 }
 
 func (val *valMap[K]) Set(s string) error {
@@ -379,6 +411,7 @@ func (val *valMap[K]) Set(s string) error {
 		if v, err = val.typ.New(); err != nil {
 			return err
 		}
+		setValid(v, val.valid)
 	}
 	if err := v.Set(value); err != nil {
 		return err
@@ -673,6 +706,19 @@ func invalid(val any) bool {
 		return v.IsZero()
 	}
 	return false
+}
+
+// valid creates a validator func for the provided values.
+func valid[T comparable](values ...T) func(any) error {
+	return func(val any) error {
+		switch v, err := as[T](val, layout(val)); {
+		case err != nil:
+			return err
+		case !slices.Contains(values, v.(T)):
+			return ErrInvalidValue
+		}
+		return nil
+	}
 }
 
 // layout returns the layout for the value.

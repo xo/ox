@@ -686,9 +686,9 @@ type Flag struct {
 	// Special is the flag's special value.
 	Special string
 	// Valid are the flag's validators.
-	Valid []func(any) (bool, error)
+	Valid []func(any) error
 	// Allowed are the allowed values.
-	Allowed any
+	Allowed []any
 }
 
 // NewFlag creates a new command-line flag.
@@ -805,16 +805,23 @@ func (g *Flag) SpecString() string {
 }
 
 // Validate checks a value against the flag's validator funcs.
-func (g *Flag) Validate(s string) (bool, error) {
+func (g *Flag) Validate(v any) error {
 	for _, f := range g.Valid {
-		switch ok, err := f(s); {
-		case err != nil:
-			return false, err
-		case !ok:
-			return false, nil
+		if err := f(v); err != nil {
+			if g.Allowed != nil {
+				var buf strings.Builder
+				for i, v := range g.Allowed {
+					if i != 0 {
+						buf.WriteString(", ")
+					}
+					fmt.Fprintf(&buf, "%q", v)
+				}
+				return fmt.Errorf("%w: %q: allowed values: %s", ErrInvalidValue, v, buf.String())
+			}
+			return fmt.Errorf("%w: %q (%w)", ErrInvalidValue, v, err)
 		}
 	}
-	return true, nil
+	return nil
 }
 
 // ExecType is the interface for func's that can be used with [Run],

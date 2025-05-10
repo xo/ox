@@ -134,28 +134,22 @@ func (vars Vars) Set(ctx *Context, g *Flag, s string, set bool) error {
 	if name == "" {
 		return ErrInvalidFlagName
 	}
-	// validate
-	switch ok, err := g.Validate(s); {
-	case err != nil:
-		return err
-	case !ok && g.Allowed != nil:
-		allowed := strings.TrimSuffix(strings.TrimPrefix(fmt.Sprintf("%v", g.Allowed), "["), "]")
-		return fmt.Errorf("%w: %q not in (%s)", ErrInvalidValue, s, allowed)
-	case !ok:
-		return fmt.Errorf("%w: %q", ErrInvalidValue, s)
-	}
-	var err error
+	// instantiate
 	v, ok := vars[name]
 	if !ok {
+		var err error
 		if v, err = g.New(ctx); err != nil {
 			return err
 		}
+		setValid(v, g.Validate)
 		setSplit(v, g.Split)
 	}
+	// set
 	if err := v.Set(s); err != nil {
 		return err
 	}
 	v.SetSet(set)
+	// bind
 	for i, bind := range g.Binds {
 		setSplit(bind, g.Split)
 		if err := bind.Bind(s); err != nil {
@@ -165,6 +159,16 @@ func (vars Vars) Set(ctx *Context, g *Flag, s string, set bool) error {
 	}
 	vars[name] = v
 	return nil
+}
+
+// setValid sets the valid func on v.
+func setValid(v any, valid func(any) error) {
+	if valid == nil {
+		return
+	}
+	if z, ok := v.(interface{ SetValid(func(any) error) }); ok {
+		z.SetValid(valid)
+	}
 }
 
 // setSplit sets the split func on v.

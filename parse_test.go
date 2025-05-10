@@ -26,15 +26,17 @@ func TestParse(t *testing.T) {
 			t.Logf("args: %q", c.Args)
 			switch err := c.Parse(); {
 			case err != nil:
-				t.Fatalf("expected no error, got: %v", err)
-			case c.Exec == nil:
-				t.Fatal("exec is nil")
+				fmt.Fprintln(c.Stdout, "error:", err)
 			}
-			t.Logf("exec: %s", c.Exec.Name)
+			if c.Exec != nil {
+				t.Logf("exec: %s", c.Exec.Name)
+			}
 			t.Logf("vars: %s", c.Vars)
-			ctx := WithContext(context.Background(), c)
-			if err := c.Exec.Exec(ctx, c.Args); err != nil {
-				t.Fatalf("expected no error, got: %v", err)
+			if c.Exec != nil {
+				ctx := WithContext(context.Background(), c)
+				if err := c.Exec.Exec(ctx, c.Args); err != nil {
+					t.Fatalf("expected no error, got: %v", err)
+				}
 			}
 			s := strings.TrimSpace(c.Stdout.(*bytes.Buffer).String())
 			if exp := strings.Join(test.exp, "\n"); s != exp {
@@ -202,6 +204,12 @@ func parseTests() []parseTest {
 			},
 		},
 		{
+			ss("a//six//--map//a=b,c=d//--slice//e,g"),
+			[]string{
+				`error: --slice: set 2: invalid value: "g": allowed values: "foo", "bar", "e", "f"`,
+			},
+		},
+		{
 			ss("a//six//-s//15mib//-r//186mb/s//-d//15us"),
 			[]string{
 				"exec: six",
@@ -266,7 +274,7 @@ func testCommand(t *testing.T) *Command {
 				Duration("duration", "", Short("d")).
 				Size("size", "", Short("s")).
 				Rate("rate", "", Short("r")).
-				Slice("slice", "", Short("S")).
+				Slice("slice", "", Short("S"), Valid("foo", "bar", "e", "f")).
 				Array("array", "", Short("a")).
 				Map("map", "", Short("m")),
 		),

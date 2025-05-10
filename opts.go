@@ -278,17 +278,6 @@ func ArgsFunc(funcs ...func([]string) error) CommandOption {
 	}
 }
 
-// Valid is a [Flag] option to add
-func Valid[T comparable](values ...T) FlagOption {
-	return option{
-		name: "Valid",
-		flag: func(g *Flag) error {
-			g.Valid, g.Allowed = append(g.Valid, isValid(values...)), values
-			return nil
-		},
-	}
-}
-
 // ValidArgs is a [Command] option to add a argument validation func to the
 // command that validates the range of allowed minimum/maximum argruments and
 // allowed argument values. A minimum/maximum < 0 means no minimum/maximum.
@@ -556,6 +545,20 @@ func Special(special string) FlagOption {
 		},
 		flag: func(g *Flag) error {
 			g.Special = special
+			return nil
+		},
+	}
+}
+
+// Valid is a [Flag] option to add a value validator to a flag.
+func Valid[T comparable](values ...T) FlagOption {
+	return option{
+		name: "Valid",
+		flag: func(g *Flag) error {
+			g.Valid = append(g.Valid, valid(values...))
+			for _, val := range values {
+				g.Allowed = append(g.Allowed, val)
+			}
 			return nil
 		},
 	}
