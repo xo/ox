@@ -809,16 +809,10 @@ func (g *Flag) Validate(v any) error {
 	for _, f := range g.Valid {
 		if err := f(v); err != nil {
 			if g.Allowed != nil {
-				var buf strings.Builder
-				for i, v := range g.Allowed {
-					if i != 0 {
-						buf.WriteString(", ")
-					}
-					fmt.Fprintf(&buf, "%q", v)
-				}
-				return fmt.Errorf("%w: %q: allowed values: %s", ErrInvalidValue, v, buf.String())
+				s := flagFormatter(g)
+				return fmt.Errorf("%w: "+s+": allowed values: %s", ErrInvalidValue, v, allowed(s, g.Allowed))
 			}
-			return fmt.Errorf("%w: %q (%w)", ErrInvalidValue, v, err)
+			return fmt.Errorf("%w: "+flagFormatter(g)+" (%w)", ErrInvalidValue, v, err)
 		}
 	}
 	return nil
@@ -1099,6 +1093,36 @@ func SplitBy(str string, cut rune) []string {
 		s[i] = string(r)
 	}
 	return s
+}
+
+// allowed formats a flag's allowed values.
+func allowed(s string, allowed []any) string {
+	var buf strings.Builder
+	for i, v := range allowed {
+		if i != 0 {
+			buf.WriteString(", ")
+		}
+		fmt.Fprintf(&buf, s, v)
+	}
+	return buf.String()
+}
+
+// flagFormatter returns the value format string for the flag.
+func flagFormatter(g *Flag) string {
+	switch g.Type {
+	case SliceT, ArrayT, MapT:
+		return formatter(g.Elem)
+	}
+	return formatter(g.Type)
+}
+
+// formatter returns the value format string for the type.
+func formatter(typ Type) string {
+	switch typ {
+	case BytesT, StringT, RunesT, ByteT, RuneT:
+		return "%q"
+	}
+	return "%v"
 }
 
 // peek peeks at the next rune in r.
