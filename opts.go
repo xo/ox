@@ -550,7 +550,7 @@ func Special(special string) FlagOption {
 	}
 }
 
-// Valid is a [Flag] option to add a value validator to a flag.
+// Valid is a [Flag] option to add a allowed value validator to a flag.
 func Valid[T comparable](values ...T) FlagOption {
 	return option{
 		name: "Valid",

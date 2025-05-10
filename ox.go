@@ -365,7 +365,7 @@ func (ctx *Context) Comps() ([]Completion, CompDirective, error) {
 		Panic:  func(any) {},
 		Exit:   func(int) {},
 		Continue: func(cmd *Command, err error) bool {
-			fmt.Fprintf(os.Stderr, "COMP CONTINUE ERR: %v\n", err)
+			fmt.Fprintf(ctx.Stderr, "COMP CONTINUE ERR: %v\n", err)
 			switch {
 			case errors.Is(err, ErrUnknownFlag),
 				errors.Is(err, ErrMissingArgument),
@@ -382,7 +382,7 @@ func (ctx *Context) Comps() ([]Completion, CompDirective, error) {
 		fmt.Fprintf(ctx.Stderr, "COMP PARSE ERR: %v\n", err)
 		return nil, CompError, err
 	}
-	fmt.Fprintf(os.Stderr, "COMP COMMAND: %s\n", c.Exec.Name)
+	fmt.Fprintf(ctx.Stderr, "COMP COMMAND: %s\n", c.Exec.Name)
 	var comps []Completion
 	var dir CompDirective
 	// TODO: expose flags to allow hidden/deprecated
