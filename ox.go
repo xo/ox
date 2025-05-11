@@ -441,13 +441,14 @@ func (ctx *Context) Populate(cmd *Command, all, overwrite bool) error {
 		case g.Type == HookT, g.Def == nil && !all:
 			continue
 		case g.Def != nil:
-			var err error
-			if value, err = ctx.Expand(g.Def); err != nil {
-				return err
+			v, err := ctx.Expand(g.Def)
+			if err != nil {
+				return fmt.Errorf("populate %s: cannot expand %v (%T): %w", g.Name, g.Def, g.Def, err)
 			}
+			value, _ = asString[string](v)
 		}
 		if err := ctx.Vars.Set(ctx, g, value, false); err != nil {
-			return fmt.Errorf("cannot populate %s with %q: %w", g.Name, value, err)
+			return fmt.Errorf("populate %s: %w", g.Name, err)
 		}
 	}
 	return nil
@@ -469,10 +470,10 @@ func (ctx *Context) Populate(cmd *Command, all, overwrite bool) error {
 //	$CONFIG_TYPE{KEY} - the registered config file loader type and key value, for example: `$YAML{my_key}`, `$TOML{my_key}`
 //
 // TODO: finish implementation for $CONFIG_TYPE, expand anywhere in string
-func (ctx *Context) Expand(v any) (string, error) {
+func (ctx *Context) Expand(v any) (any, error) {
 	s, ok := v.(string)
 	if !ok {
-		return asString[string](v)
+		return v, nil
 	}
 	if ctx.Override != nil {
 		if s, ok := ctx.Override[s]; ok {
@@ -524,7 +525,7 @@ func (ctx *Context) Expand(v any) (string, error) {
 	}
 	s, err := f()
 	if err != nil {
-		return "", fmt.Errorf("unable to expand %q: %w", s, err)
+		return "", fmt.Errorf("expand %q: %w", v, err)
 	}
 	return s, nil
 }

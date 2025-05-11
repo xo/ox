@@ -1,6 +1,7 @@
 package ox
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"io"
@@ -551,7 +552,7 @@ func Special(special string) FlagOption {
 }
 
 // Valid is a [Flag] option to add a allowed value validator to a flag.
-func Valid[T comparable](values ...T) FlagOption {
+func Valid[T cmp.Ordered](values ...T) FlagOption {
 	return option{
 		name: "Valid",
 		flag: func(g *Flag) error {

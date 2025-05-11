@@ -319,11 +319,15 @@ func typeRef(val any) Type {
 	case *url.URL:
 		return URLT
 	}
-	s := reflect.TypeOf(val).String()
-	if typ, ok := reflectTypes[s]; ok {
-		return typ
+	typ := reflect.TypeOf(val)
+	if typ != nil {
+		s := typ.String()
+		if typ, ok := reflectTypes[s]; ok {
+			return typ
+		}
+		return Type(s)
 	}
-	return Type(s)
+	return ""
 }
 
 // defaultType returns the type, map key type, and element type of v.

@@ -709,7 +709,7 @@ func invalid(val any) bool {
 }
 
 // valid creates a validator func for the provided values.
-func valid[T comparable](values ...T) func(any) error {
+func valid[T cmp.Ordered](values ...T) func(any) error {
 	return func(val any) error {
 		switch v, err := as[T](val, layout(val)); {
 		case err != nil:
