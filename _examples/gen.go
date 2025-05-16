@@ -1,6 +1,6 @@
 // Command gen parses and generates xo/ox style run entries for well-known,
 // commmon commands `docker`, `doctl`, `gh`, `helm`, `hugo`, `kubectl`,
-// `podman`, `psql`, `du`, `cp`, `tar`.
+// `podman`, `psql`, `rclone`, `du`, `cp`, `tar`.
 //
 // Generates the xo/ox API calls based on the command's `<command> help ...`
 // output.
@@ -32,6 +32,7 @@ var defaultCommands = []string{
 	`kubectl`,
 	`podman`,
 	`psql`,
+	`rclone`,
 }
 
 const banner = "" +
@@ -241,8 +242,11 @@ type command struct {
 
 func (cmd *command) parse(ctx context.Context) error {
 	args := append([]string{"help"}, cmd.names()[1:]...)
-	if cmd.app == "psql" {
+	switch cmd.app {
+	case "psql":
 		args = []string{"--help"}
+	case "rclone":
+		args = append(args[1:], "--help")
 	}
 	logger("run: %s %s", cmd.exec, strings.Join(args, " "))
 	buf, err := runCommand(ctx, cmd.exec, args...)
@@ -279,6 +283,7 @@ func (cmd *command) parse(ctx context.Context) error {
 		logger("  process %s %q", typ, section)
 		switch typ {
 		case sectNone:
+			logger("    skipping (none)")
 		case sectUsage:
 			spec, extra, _ := strings.Cut(strings.TrimSpace(s), "\n")
 			spec = strings.TrimSpace(strings.TrimPrefix(spec, cmd.String()))
@@ -376,7 +381,7 @@ func (cmd *command) addFlag(sect, name, short, typstr, desc string) {
 			if err != nil {
 				panic(err)
 			}
-			dflt = strings.ReplaceAll(dflt, val, s)
+			dflt = strings.ReplaceAll(dflt, val.(string), s)
 		}
 	}
 	if sect != "Flags" && !slices.Contains(cmd.sections, sect) {
@@ -710,8 +715,9 @@ func (cmd *command) parseCommands(ctx context.Context, sect, s string) error {
 }
 
 func (cmd *command) skipCommand(name string) bool {
-	switch cmd.String() + " " + name {
-	case "docker context create":
+	switch s := cmd.String() + " " + name; {
+	case s == "docker context create",
+		strings.HasPrefix(s, "rclone") && strings.HasSuffix(s, "about"):
 		return true
 	}
 	return false
@@ -729,6 +735,8 @@ func (cmd *command) parseSect(section string) (sectType, error) {
 		return sectFlags, nil
 	case strings.Contains(sect, "commands"):
 		return sectCommands, nil
+	case sect == "additional help topics":
+		return sectNone, nil
 	default:
 		switch cmd.app {
 		case "docker":
@@ -798,7 +806,7 @@ func (cmd *command) firstSection(buf []byte) (string, int) {
 	}
 	var re *regexp.Regexp
 	switch cmd.app {
-	case "helm", "doctl", "hugo", "podman", "psql":
+	case "helm", "doctl", "hugo", "podman", "psql", "rclone":
 		re = regexp.MustCompile(`(?m)^(Usage):\n`)
 	default:
 		re = cmd.sectRE()

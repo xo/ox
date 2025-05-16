@@ -26,6 +26,8 @@
 /_examples/gen/podman/podman.exe
 /_examples/gen/psql/psql
 /_examples/gen/psql/psql.exe
+/_examples/gen/rclone/rclone
+/_examples/gen/rclone/rclone.exe
 
 *.txt
 *.log
