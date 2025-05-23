@@ -1052,9 +1052,11 @@ prompt for the comment text.`),
 					String(`body`, `The comment body text`, ox.Default("text"), ox.Short("b"), ox.Section(0)).
 					String(`body-file`, `Read body text from file (use "-" to read from standard input)`, ox.Spec(`file`), ox.Short("F"), ox.Section(0)).
 					Bool(`create-if-none`, `Create a new comment if no comments are found. Can be used only with --edit-last`, ox.Section(0)).
-					Bool(`edit-last`, `Edit the last comment of the same author`, ox.Section(0)).
+					Bool(`delete-last`, `Delete the last comment of the current user`, ox.Section(0)).
+					Bool(`edit-last`, `Edit the last comment of the current user`, ox.Section(0)).
 					Bool(`editor`, `Skip prompts and open the text editor to write the body in`, ox.Short("e"), ox.Section(0)).
 					Bool(`web`, `Open the web browser to write the comment`, ox.Short("w"), ox.Section(0)).
+					Bool(`yes`, `Skip the delete confirmation prompt when --delete-last is provided`, ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
@@ -1119,12 +1121,18 @@ remote branch. The new branch will be configured as the base branch for pull req
 				ox.Banner(`Edit one or more issues within the same repository.
 
 Editing issues' projects requires authorization with the `+"`"+`project`+"`"+` scope.
-To authorize, run `+"`"+`gh auth refresh -s project`+"`"+`.`),
+To authorize, run `+"`"+`gh auth refresh -s project`+"`"+`.
+
+The `+"`"+`--add-assignee`+"`"+` and `+"`"+`--remove-assignee`+"`"+` flags both support
+the following special values:
+- `+"`"+`@me`+"`"+`: assign or unassign yourself
+- `+"`"+`@copilot`+"`"+`: assign or unassign Copilot (not supported on GitHub Enterprise Server)`),
 				ox.Spec(`{<numbers> | <urls>} [flags]`),
 				ox.Example(`
   $ gh issue edit 23 --title "I found a bug" --body "Nothing works"
   $ gh issue edit 23 --add-label "bug,help wanted" --remove-label "core"
   $ gh issue edit 23 --add-assignee "@me" --remove-assignee monalisa,hubot
+  $ gh issue edit 23 --add-assignee "@copilot"
   $ gh issue edit 23 --add-project "Roadmap" --remove-project v1,v2
   $ gh issue edit 23 --milestone "Version 1"
   $ gh issue edit 23 --remove-milestone
@@ -1599,9 +1607,11 @@ prompt for the comment text.`),
 					String(`body`, `The comment body text`, ox.Default("text"), ox.Short("b"), ox.Section(0)).
 					String(`body-file`, `Read body text from file (use "-" to read from standard input)`, ox.Spec(`file`), ox.Short("F"), ox.Section(0)).
 					Bool(`create-if-none`, `Create a new comment if no comments are found. Can be used only with --edit-last`, ox.Section(0)).
-					Bool(`edit-last`, `Edit the last comment of the same author`, ox.Section(0)).
+					Bool(`delete-last`, `Delete the last comment of the current user`, ox.Section(0)).
+					Bool(`edit-last`, `Edit the last comment of the current user`, ox.Section(0)).
 					Bool(`editor`, `Skip prompts and open the text editor to write the body in`, ox.Short("e"), ox.Section(0)).
 					Bool(`web`, `Open the web browser to write the comment`, ox.Short("w"), ox.Section(0)).
+					Bool(`yes`, `Skip the delete confirmation prompt when --delete-last is provided`, ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
 			ox.Sub(
@@ -1637,13 +1647,22 @@ Without an argument, the pull request that belongs to the current branch
 is selected.
 
 Editing a pull request's projects requires authorization with the `+"`"+`project`+"`"+` scope.
-To authorize, run `+"`"+`gh auth refresh -s project`+"`"+`.`),
+To authorize, run `+"`"+`gh auth refresh -s project`+"`"+`.
+
+The `+"`"+`--add-assignee`+"`"+` and `+"`"+`--remove-assignee`+"`"+` flags both support
+the following special values:
+- `+"`"+`@me`+"`"+`: assign or unassign yourself
+- `+"`"+`@copilot`+"`"+`: assign or unassign Copilot (not supported on GitHub Enterprise Server)
+
+The `+"`"+`--add-reviewer`+"`"+` and `+"`"+`--remove-reviewer`+"`"+` flags do not support
+these special values.`),
 				ox.Spec(`[<number> | <url> | <branch>] [flags]`),
 				ox.Example(`
   $ gh pr edit 23 --title "I found a bug" --body "Nothing works"
   $ gh pr edit 23 --add-label "bug,help wanted" --remove-label "core"
   $ gh pr edit 23 --add-reviewer monalisa,hubot  --remove-reviewer myorg/team-name
   $ gh pr edit 23 --add-assignee "@me" --remove-assignee monalisa,hubot
+  $ gh pr edit 23 --add-assignee "@copilot"
   $ gh pr edit 23 --add-project "Roadmap" --remove-project v1,v2
   $ gh pr edit 23 --milestone "Version 1"
   $ gh pr edit 23 --remove-milestone`),

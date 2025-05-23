@@ -362,6 +362,12 @@ func (cmd *command) addFlag(sect, name, short, typstr, desc string) {
 		dflt = strings.TrimSpace(unquote(desc[i+len(defaultprefix) : len(desc)-1]))
 		desc = desc[:i]
 	}
+	const sortBy = `Sort by `
+	if cmd.app == "podman" && name == "sort" && strings.HasPrefix(desc, sortBy) {
+		v := strings.Split(desc[len(sortBy):], ", ")
+		slices.Sort(v)
+		desc = sortBy + strings.Join(v, ", ")
+	}
 	if dflt != "" {
 		c := &ox.Context{
 			Root: &ox.Command{
