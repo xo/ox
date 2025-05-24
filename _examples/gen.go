@@ -365,6 +365,9 @@ func (cmd *command) addFlag(sect, name, short, typstr, desc string) {
 	const sortBy = `Sort by `
 	if cmd.app == "podman" && name == "sort" && strings.HasPrefix(desc, sortBy) {
 		v := strings.Split(desc[len(sortBy):], ", ")
+		for i := range v {
+			v[i] = strings.TrimSpace(v[i])
+		}
 		slices.Sort(v)
 		desc = sortBy + strings.Join(v, ", ")
 	}
