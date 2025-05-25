@@ -464,6 +464,8 @@ func (ctx *Context) Populate(cmd *Command, all, overwrite bool) error {
 //	$CACHE - the current user's cache directory (ex: ~/.cache)
 //	$APPCACHE - the current user's cache directory, with the root command's name added as a subdir (ex: ~/.cache/appName)
 //	$NUMCPU - the value of [runtime.NumCPU] (ex: 4)
+//	$NUMCPU2 - the value of [runtime.NumCPU], plus 2 (ex: 6)
+//	$NUMCPU2X - the value of [runtime.NumCPU], times 2 (ex: 8)
 //	$ARCH - the value of [runtime.GOARCH] (ex: amd64)
 //	$OS - the value of [runtime.GOOS] (ex: windows)
 //	$ENV{KEY} - the environment value for $KEY
@@ -516,6 +518,10 @@ func (ctx *Context) Expand(v any) (any, error) {
 		}
 	case "$NUMCPU":
 		return strconv.Itoa(runtime.NumCPU()), nil
+	case "$NUMCPU2":
+		return strconv.Itoa(runtime.NumCPU() + 2), nil
+	case "$NUMCPU2X":
+		return strconv.Itoa(runtime.NumCPU() * 2), nil
 	case "$ARCH":
 		return runtime.GOARCH, nil
 	case "$OS":
@@ -653,8 +659,8 @@ func (err *SuggestionError) ErrorDetails() string {
 	return fmt.Sprintf(text.SuggestionErrorDetails, err.Command.Name)
 }
 
-// Wrap wraps a line of text to the specified width, and adding a prefix of
-// empty prefixWidth to each wrapped line.
+// Wrap wraps a line of text to the specified width, adding a prefix of empty
+// prefixWidth to each wrapped line.
 func Wrap(s string, width, prefixWidth int) string {
 	words := strings.Fields(strings.TrimSpace(s))
 	if len(words) == 0 {

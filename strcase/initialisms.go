@@ -105,7 +105,7 @@ func (ini *Initialisms) CamelToSnakeIdentifier(name string) string {
 // SnakeToCamel converts name to CamelCase.
 func (ini *Initialisms) SnakeToCamel(name string) string {
 	var s string
-	for _, word := range strings.Split(name, "_") {
+	for word := range strings.SplitSeq(name, "_") {
 		if word == "" {
 			continue
 		}

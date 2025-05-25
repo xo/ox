@@ -25,7 +25,7 @@ type decoder struct {
 	opts []func(*toml.Decoder)
 }
 
-// Decode satisfies the [ox.ConfigDecoder] interface.
+// Decode satisfies the [ox.ConfigLoader] interface.
 func (d *decoder) Decode(_ context.Context, r io.Reader, v any) error {
 	dec := toml.NewDecoder(r)
 	for _, o := range d.opts {

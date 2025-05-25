@@ -55,7 +55,7 @@
 - Optional, common types, available with optional import:
   - `*github.com/google/uuid.UUID` - standard UUID's
   - `*github.com/kenshaw/colors.Color` - named and css style colors (`white`, `black`, `#ffffff`, `RGBA(...)`, ...)
-  - `*github.com/gobwas/glob.Glob` - a file path globbing type
+  - `*github.com/kenshaw/glob.Glob` - a file path globbing type
 - Registerable user defined types, which work with all API styles
 - Testable commands/sub-commands
 - Simple/flexible APIs for Reflection, Bind, and Context style use cases

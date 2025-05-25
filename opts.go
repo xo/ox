@@ -141,7 +141,7 @@ func Defaults(opts ...Option) CommandOption {
 //		ox.From(&args),
 //	)
 //
-// See [FlagsFrom] for more information of the available tag options.
+// See [FlagsFrom] for more information for available tag options.
 func From[T *E, E any](val T) CommandOption {
 	return option{
 		name: "From",
@@ -176,7 +176,8 @@ func Sub(opts ...Option) CommandOption {
 	}
 }
 
-// Version is a [Command] option to hook --version with version output.
+// Version is a [Command] option to hook --version with version output derived
+// from Go's build info.
 func Version() CommandOption {
 	return option{
 		name: "Version",
@@ -184,7 +185,10 @@ func Version() CommandOption {
 			return nil
 		},
 		post: func(cmd *Command) error {
-			if len(cmd.Commands) != 0 {
+			switch {
+			case cmd.Parent != nil:
+				return ErrCanOnlyBeUsedWithRootCommand
+			case len(cmd.Commands) != 0:
 				return NewVersion(cmd)
 			}
 			return NewVersionFlag(cmd)
@@ -795,7 +799,7 @@ func CommandSort(commandSort bool) CommandOption {
 	}
 }
 
-// MaxDist is a [Command] option to set the maximum Levenshtein for flags when
+// MaxDist is a [Command] option to set the maximum Levenshtein distance for flags when
 // used with a [Command].
 func MaxDist(maxDist int) CommandOption {
 	return option{
@@ -868,8 +872,8 @@ func (m SectionMap) Option() option {
 		},
 		post: func(cmd *Command) error {
 			for _, k := range slices.Sorted(maps.Keys(m)) {
-				if strings.HasPrefix(k, "flag:") {
-					if g := cmd.Flag(strings.TrimPrefix(k, "flag:"), false, false); g != nil {
+				if after, ok := strings.CutPrefix(k, "flag:"); ok {
+					if g := cmd.Flag(after, false, false); g != nil {
 						g.Section = m[k]
 					}
 				} else if c := cmd.Command(k); c != nil {

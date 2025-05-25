@@ -7,7 +7,7 @@ import (
 	"github.com/xo/ox"
 )
 
-func TestGLOB(t *testing.T) {
+func TestGlob(t *testing.T) {
 	for _, exp := range globTests() {
 		t.Run(exp, func(t *testing.T) {
 			v, err := ox.GlobT.New()

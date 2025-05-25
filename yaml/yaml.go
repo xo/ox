@@ -2,31 +2,51 @@
 package yaml
 
 import (
-	"context"
-	"io"
+	"sync"
 
 	"github.com/goccy/go-yaml"
 	"github.com/xo/ox"
 )
 
 func init() {
-	ox.RegisterConfigFileType("yaml", func(opts ...any) (ox.ConfigDecoder, error) {
-		d := new(decoder)
-		for _, opt := range opts {
-			if o, ok := opt.(yaml.DecodeOption); ok {
-				d.opts = append(d.opts, o)
+	ox.RegisterConfigLoader("yaml", func(opts ...any) (ox.ConfigLoader, error) {
+		/*
+			d := new(decoder)
+			for _, opt := range opts {
+				switch v := opt.(type) {
+				case func(*decoder) error:
+					if err := v(d); err != nil {
+						return nil, err
+					}
+				case yaml.DecodeOption:
+					d.opts = append(d.opts, v)
+				}
 			}
-		}
-		return d, nil
+			return d, nil
+		*/
+		return nil, nil
 	})
 }
 
-// decoder is a yaml decoder.
 type decoder struct {
 	opts []yaml.DecodeOption
+	once sync.Once
 }
 
-// Decode satisfies the [ox.ConfigDecoder] interface.
+// func From(r io.Reader)
+
+func File(name string) func(*decoder) error {
+	return func(d *decoder) error {
+		return nil
+	}
+}
+
+/*
+// decoder is a yaml decoder.
+type decoder struct{}
+
+// Decode satisfies the [ox.ConfigLoader] interface.
 func (d *decoder) Decode(_ context.Context, r io.Reader, v any) error {
 	return yaml.NewDecoder(r, d.opts...).Decode(v)
 }
+*/
