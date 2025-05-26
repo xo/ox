@@ -63,7 +63,7 @@ Complete documentation is available at https://gohugo.io/.`),
 			String(`themesDir`, `filesystem path to themes directory`).
 			String(`trace`, `write trace to file (not useful in general)`, ox.Spec(`file`)).
 			Bool(`watch`, `watch filesystem for changes and recreate as needed`, ox.Short("w")),
-		ox.Sub(
+		ox.Sub( // hugo build
 			ox.Usage(`build`, `Build your site`),
 			ox.Banner(`build is the main command, used to build your Hugo site.
 
@@ -114,7 +114,7 @@ Complete documentation is available at https://gohugo.io/.`),
 				String(`trace`, `write trace to file (not useful in general)`, ox.Spec(`file`)).
 				Bool(`watch`, `watch filesystem for changes and recreate as needed`, ox.Short("w")),
 		),
-		ox.Sub(
+		ox.Sub( // hugo config
 			ox.Usage(`config`, `Display site configuration`),
 			ox.Banner(`Display site configuration, both default and custom settings.`),
 			ox.Spec(`[command] [flags]`),
@@ -141,7 +141,7 @@ Complete documentation is available at https://gohugo.io/.`),
 				Bool(`renderToMemory`, `render to memory (mostly useful when running the server)`, ox.Short("M"), ox.Section(0)).
 				String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 				String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // hugo config mounts
 				ox.Usage(`mounts`, `Print the configured file mounts`),
 				ox.Banner(`Print the configured file mounts`),
 				ox.Spec(`[flags] [args]`),
@@ -167,7 +167,7 @@ Complete documentation is available at https://gohugo.io/.`),
 					String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // hugo convert
 			ox.Usage(`convert`, `Convert front matter to another format`),
 			ox.Banner(`Convert front matter to another format.
 
@@ -191,7 +191,7 @@ See convert's subcommands toJSON, toTOML and toYAML for more information.`),
 				Bool(`renderToMemory`, `render to memory (mostly useful when running the server)`, ox.Short("M"), ox.Section(0)).
 				String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 				String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // hugo convert toJSON
 				ox.Usage(`toJSON`, `Convert front matter to JSON`),
 				ox.Banner(`toJSON converts all front matter in the content directory
 to use JSON for the front matter.`),
@@ -214,7 +214,7 @@ to use JSON for the front matter.`),
 					String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)).
 					Bool(`unsafe`, `enable less safe operations, please backup first`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // hugo convert toTOML
 				ox.Usage(`toTOML`, `Convert front matter to TOML`),
 				ox.Banner(`toTOML converts all front matter in the content directory
 to use TOML for the front matter.`),
@@ -237,7 +237,7 @@ to use TOML for the front matter.`),
 					String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)).
 					Bool(`unsafe`, `enable less safe operations, please backup first`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // hugo convert toYAML
 				ox.Usage(`toYAML`, `Convert front matter to YAML`),
 				ox.Banner(`toYAML converts all front matter in the content directory
 to use YAML for the front matter.`),
@@ -261,7 +261,7 @@ to use YAML for the front matter.`),
 					Bool(`unsafe`, `enable less safe operations, please backup first`, ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // hugo env
 			ox.Usage(`env`, `Display version and environment info`),
 			ox.Banner(`Display version and environment info. This is useful in Hugo bug reports`),
 			ox.Spec(`[flags] [args]`),
@@ -281,7 +281,7 @@ to use YAML for the front matter.`),
 				String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 				String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // hugo gen
 			ox.Usage(`gen`, `Generate documentation and syntax highlighting styles`),
 			ox.Banner(`Generate documentation for your project using Hugo's documentation engine, including syntax highlighting for various programming languages.`),
 			ox.Spec(`[command]`),
@@ -301,7 +301,7 @@ to use YAML for the front matter.`),
 				Bool(`renderToMemory`, `render to memory (mostly useful when running the server)`, ox.Short("M"), ox.Section(0)).
 				String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 				String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // hugo gen chromastyles
 				ox.Usage(`chromastyles`, `Generate CSS stylesheet for the Chroma code highlighter`),
 				ox.Banner(`Generate CSS stylesheet for the Chroma code highlighter for a given style. This stylesheet is needed if markup.highlight.noClasses is disabled in config.
 
@@ -327,7 +327,7 @@ See https://xyproto.github.io/splash/docs/all.html for a preview of the availabl
 					String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 					String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // hugo gen doc
 				ox.Usage(`doc`, `Generate Markdown documentation for the Hugo CLI.`),
 				ox.Banner(`Generate Markdown documentation for the Hugo CLI.
 			This command is, mostly, used to create up-to-date documentation
@@ -353,7 +353,7 @@ See https://xyproto.github.io/splash/docs/all.html for a preview of the availabl
 					String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 					String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // hugo gen man
 				ox.Usage(`man`, `Generate man pages for the Hugo CLI`),
 				ox.Banner(`This command automatically generates up-to-date man pages of Hugo's
 	command-line interface.  By default, it creates the man page files
@@ -377,7 +377,7 @@ See https://xyproto.github.io/splash/docs/all.html for a preview of the availabl
 					String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // hugo import
 			ox.Usage(`import`, `Import a site from another system`),
 			ox.Banner(`Import a site from another system.
 
@@ -399,7 +399,7 @@ Import requires a subcommand, e.g. `+"`"+`hugo import jekyll jekyll_root_path ta
 				Bool(`renderToMemory`, `render to memory (mostly useful when running the server)`, ox.Short("M"), ox.Section(0)).
 				String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 				String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // hugo import jekyll
 				ox.Usage(`jekyll`, `hugo import from Jekyll`),
 				ox.Banner(`hugo import from Jekyll.
 		
@@ -423,7 +423,7 @@ Import from Jekyll requires two paths, e.g. `+"`"+`hugo import jekyll jekyll_roo
 					String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // hugo list
 			ox.Usage(`list`, `List content`),
 			ox.Banner(`List content.
 
@@ -445,7 +445,7 @@ List requires a subcommand, e.g. hugo list drafts`),
 				Bool(`renderToMemory`, `render to memory (mostly useful when running the server)`, ox.Short("M"), ox.Section(0)).
 				String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 				String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // hugo list all
 				ox.Usage(`all`, `List all content`),
 				ox.Banner(`List all content including draft, future, and expired.`),
 				ox.Spec(`[flags] [args]`),
@@ -465,7 +465,7 @@ List requires a subcommand, e.g. hugo list drafts`),
 					String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 					String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // hugo list drafts
 				ox.Usage(`drafts`, `List draft content`),
 				ox.Banner(`List draft content.`),
 				ox.Spec(`[flags] [args]`),
@@ -485,7 +485,7 @@ List requires a subcommand, e.g. hugo list drafts`),
 					String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 					String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // hugo list expired
 				ox.Usage(`expired`, `List expired content`),
 				ox.Banner(`List content with a past expiration date.`),
 				ox.Spec(`[flags] [args]`),
@@ -505,7 +505,7 @@ List requires a subcommand, e.g. hugo list drafts`),
 					String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 					String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // hugo list future
 				ox.Usage(`future`, `List future content`),
 				ox.Banner(`List content with a future publication date.`),
 				ox.Spec(`[flags] [args]`),
@@ -525,7 +525,7 @@ List requires a subcommand, e.g. hugo list drafts`),
 					String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 					String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // hugo list published
 				ox.Usage(`published`, `List published content`),
 				ox.Banner(`List content that is not draft, future, or expired.`),
 				ox.Spec(`[flags] [args]`),
@@ -546,7 +546,7 @@ List requires a subcommand, e.g. hugo list drafts`),
 					String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // hugo mod
 			ox.Usage(`mod`, `Manage modules`),
 			ox.Banner(`Various helpers to help manage the modules in your project's dependency graph.
 Most operations here requires a Go version installed on your system (>= Go 1.12) and the relevant VCS client (typically Git).
@@ -575,7 +575,7 @@ See https://gohugo.io/hugo-modules/ for more information.`),
 				Bool(`renderToMemory`, `render to memory (mostly useful when running the server)`, ox.Short("M"), ox.Section(0)).
 				String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 				String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // hugo mod clean
 				ox.Usage(`clean`, `Delete the Hugo Module cache for the current project.`),
 				ox.Banner(`Delete the Hugo Module cache for the current project.`),
 				ox.Spec(`[flags] [args]`),
@@ -602,7 +602,7 @@ See https://gohugo.io/hugo-modules/ for more information.`),
 					String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 					String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // hugo mod get
 				ox.Usage(`get`, `Resolves dependencies in your current Hugo Project.`),
 				ox.Banner(`
 Resolves dependencies in your current Hugo Project.
@@ -651,7 +651,7 @@ See https://gohugo.io/hugo-modules/ for more information.`),
 					String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 					String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // hugo mod graph
 				ox.Usage(`graph`, `Print a module dependency graph.`),
 				ox.Banner(`Print a module dependency graph with information about module status (disabled, vendored).
 Note that for vendored modules, that is the version listed and not the one from go.mod.`),
@@ -678,7 +678,7 @@ Note that for vendored modules, that is the version listed and not the one from 
 					String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 					String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // hugo mod init
 				ox.Usage(`init`, `Initialize this project as a Hugo Module.`),
 				ox.Banner(`Initialize this project as a Hugo Module.
 	It will try to guess the module path, but you may help by passing it as an argument, e.g:
@@ -709,7 +709,7 @@ Note that for vendored modules, that is the version listed and not the one from 
 					String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 					String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // hugo mod npm
 				ox.Usage(`npm`, `Various npm helpers.`),
 				ox.Banner(`Various npm (Node package manager) helpers.`),
 				ox.Spec(`[command] [flags]`),
@@ -729,7 +729,7 @@ Note that for vendored modules, that is the version listed and not the one from 
 					Bool(`renderToMemory`, `render to memory (mostly useful when running the server)`, ox.Short("M"), ox.Section(0)).
 					String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 					String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // hugo mod npm pack
 					ox.Usage(`pack`, `Experimental: Prepares and writes a composite package.json file for your project.`),
 					ox.Banner(`Prepares and writes a composite package.json file for your project.
 
@@ -764,7 +764,7 @@ so this may/will change in future versions of Hugo.`),
 						String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // hugo mod tidy
 				ox.Usage(`tidy`, `Remove unused entries in go.mod and go.sum.`),
 				ox.Banner(`Remove unused entries in go.mod and go.sum.`),
 				ox.Spec(`[flags] [args]`),
@@ -789,7 +789,7 @@ so this may/will change in future versions of Hugo.`),
 					String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 					String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // hugo mod vendor
 				ox.Usage(`vendor`, `Vendor all module dependencies into the _vendor directory.`),
 				ox.Banner(`Vendor all module dependencies into the _vendor directory.
 	If a module is vendored, that is where Hugo will look for it's dependencies.`),
@@ -815,7 +815,7 @@ so this may/will change in future versions of Hugo.`),
 					String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 					String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // hugo mod verify
 				ox.Usage(`verify`, `Verify dependencies.`),
 				ox.Banner(`Verify checks that the dependencies of the current module, which are stored in a local downloaded source cache, have not been modified since being downloaded.`),
 				ox.Spec(`[flags] [args]`),
@@ -842,7 +842,7 @@ so this may/will change in future versions of Hugo.`),
 					String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // hugo new
 			ox.Usage(`new`, `Create new content`),
 			ox.Banner(`Create a new content file and automatically set the date and title.
 It will guess which kind of file to create based on the path provided.
@@ -869,7 +869,7 @@ Ensure you run this within the root directory of your site.`),
 				Bool(`renderToMemory`, `render to memory (mostly useful when running the server)`, ox.Short("M"), ox.Section(0)).
 				String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 				String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // hugo new content
 				ox.Usage(`content`, `Create new content`),
 				ox.Banner(`Create a new content file and automatically set the date and title.
 It will guess which kind of file to create based on the path provided.
@@ -904,7 +904,7 @@ Ensure you run this within the root directory of your site.`),
 					String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 					String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // hugo new site
 				ox.Usage(`site`, `Create a new site (skeleton)`),
 				ox.Banner(`Create a new site in the provided directory.
 The new site will have the correct structure, but no content or theme yet.
@@ -928,7 +928,7 @@ Use `+"`"+`hugo new [contentPath]`+"`"+` to create new content.`),
 					String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 					String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // hugo new theme
 				ox.Usage(`theme`, `Create a new theme (skeleton)`),
 				ox.Banner(`Create a new theme (skeleton) called [name] in ./themes.
 New theme is a skeleton. Please add content to the touched files. Add your
@@ -952,7 +952,7 @@ according to your needs.`),
 					String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // hugo server
 			ox.Usage(`server`, `Start the embedded web server`),
 			ox.Banner(`Hugo provides its own webserver which builds and serves the site.
 While hugo server is high performance, it is a webserver with limited options.
@@ -1027,7 +1027,7 @@ of a second, you will be able to save and see your changes nearly instantly.`),
 				Bool(`renderToMemory`, `render to memory (mostly useful when running the server)`, ox.Short("M"), ox.Section(0)).
 				String(`source`, `filesystem path to read files relative from`, ox.Short("s"), ox.Section(0)).
 				String(`themesDir`, `filesystem path to themes directory`, ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // hugo server trust
 				ox.Usage(`trust`, `Install the local CA in the system trust store.`),
 				ox.Banner(`Install the local CA in the system trust store.`),
 				ox.Spec(`[flags] [args]`),

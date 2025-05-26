@@ -21,7 +21,7 @@ func main() {
 		ox.Sections("Basic Commands (Beginner)", "Basic Commands (Intermediate)", "Deploy Commands", "Cluster Management Commands", "Troubleshooting and Debugging Commands", "Advanced Commands", "Settings Commands", "Other Commands"),
 		ox.Footer(`Use "kubectl <command> --help" for more information about a given command.
 Use "kubectl options" for a list of global command-line options (applies to all commands).`),
-		ox.Sub(
+		ox.Sub( // kubectl create
 			ox.Usage(`create`, `Create a resource from a file or from stdin`),
 			ox.Banner(`Create a resource from a file or from stdin.
 
@@ -53,12 +53,12 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 				String(`raw`, `Raw URI to POST to the server.  Uses the transport specified by the kubeconfig file.`, ox.Section(0)).
 				Bool(`recursive`, `Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.`, ox.Spec(`false`), ox.Short("R"), ox.Section(0)).
 				Bool(`save-config`, `If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.`, ox.Spec(`false`), ox.Section(0)).
-				String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+				String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 				Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
 				String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 				String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)).
 				Bool(`windows-line-endings`, `Only relevant if --edit=true. Defaults to the line ending native to your platform.`, ox.Spec(`false`), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // kubectl create clusterrole
 				ox.Usage(`clusterrole`, `Create a cluster role`),
 				ox.Banner(`Create a cluster role.`),
 				ox.Spec(`NAME --verb=verb --resource=resource.group [--resource-name=resourcename] [--dry-run=server|client|none] [options]`),
@@ -99,7 +99,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)).
 					Slice(`verb`, `Verb that applies to the resources contained in the rule`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl create clusterrolebinding
 				ox.Usage(`clusterrolebinding`, `Create a cluster role binding for a particular cluster role`),
 				ox.Banner(`Create a cluster role binding for a particular cluster role.`),
 				ox.Spec(`NAME --clusterrole=NAME [--user=username] [--group=groupname] [--serviceaccount=namespace:serviceaccountname] [--dry-run=server|client|none] [options]`),
@@ -124,7 +124,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					Slice(`user`, `Usernames to bind to the clusterrole. The flag can be repeated to add multiple users.`, ox.Section(0)).
 					String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl create configmap
 				ox.Usage(`configmap`, `Create a config map from a local file, directory or literal value`),
 				ox.Banner(`Create a config map based on a file, directory, or specified literal value.
 
@@ -168,7 +168,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 					String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl create cronjob
 				ox.Usage(`cronjob`, `Create a cron job with the specified name`),
 				ox.Banner(`Create a cron job with the specified name.`),
 				ox.Spec(`NAME --image=image --schedule='0/5 * * * ?' -- [COMMAND] [args...] [flags] [options]`),
@@ -196,7 +196,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 					String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl create deployment
 				ox.Usage(`deployment`, `Create a deployment with the specified name`),
 				ox.Banner(`Create a deployment with the specified name.`),
 				ox.Spec(`NAME --image=image -- [COMMAND] [args...] [options]`),
@@ -233,7 +233,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 					String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl create ingress
 				ox.Usage(`ingress`, `Create an ingress with the specified name`),
 				ox.Banner(`Create an ingress with the specified name.`),
 				ox.Spec(`NAME --rule=host/path=service:port[,tls[=secret]]  [options]`),
@@ -292,7 +292,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 					String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl create job
 				ox.Usage(`job`, `Create a job with the specified name`),
 				ox.Banner(`Create a job with the specified name.`),
 				ox.Spec(`NAME --image=image [--from=cronjob/name] -- [COMMAND] [args...] [options]`),
@@ -321,7 +321,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 					String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl create namespace
 				ox.Usage(`namespace`, `Create a namespace with the specified name`),
 				ox.Banner(`Create a namespace with the specified name.`),
 				ox.Spec(`NAME [--dry-run=server|client|none] [options]`),
@@ -343,7 +343,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 					String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl create poddisruptionbudget
 				ox.Usage(`poddisruptionbudget`, `Create a pod disruption budget with the specified name`),
 				ox.Banner(`Create a pod disruption budget with the specified name, selector, and desired minimum available pods.`),
 				ox.Spec(`NAME --selector=SELECTOR --min-available=N [--dry-run=server|client|none] [options]`),
@@ -373,7 +373,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 					String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl create priorityclass
 				ox.Usage(`priorityclass`, `Create a priority class with the specified name`),
 				ox.Banner(`Create a priority class with the specified name, value, globalDefault and description.`),
 				ox.Spec(`NAME --value=VALUE --global-default=BOOL [--dry-run=server|client|none] [options]`),
@@ -405,7 +405,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)).
 					Int(`value`, `the value of this priority class.`, ox.Default("0"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl create quota
 				ox.Usage(`quota`, `Create a quota with the specified name`),
 				ox.Banner(`Create a resource quota with the specified name, hard limits, and optional scopes.`),
 				ox.Spec(`NAME [--hard=key1=value1,key2=value2] [--scopes=Scope1,Scope2] [--dry-run=server|client|none] [options]`),
@@ -432,7 +432,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 					String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl create role
 				ox.Usage(`role`, `Create a role with single rule`),
 				ox.Banner(`Create a role with single rule.`),
 				ox.Spec(`NAME --verb=verb --resource=resource.group/subresource [--resource-name=resourcename] [--dry-run=server|client|none] [options]`),
@@ -465,7 +465,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)).
 					Slice(`verb`, `Verb that applies to the resources contained in the rule`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl create rolebinding
 				ox.Usage(`rolebinding`, `Create a role binding for a particular role or cluster role`),
 				ox.Banner(`Create a role binding for a particular role or cluster role.`),
 				ox.Spec(`NAME --clusterrole=NAME|--role=NAME [--user=username] [--group=groupname] [--serviceaccount=namespace:serviceaccountname] [--dry-run=server|client|none] [options]`),
@@ -494,7 +494,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					Slice(`user`, `Usernames to bind to the role. The flag can be repeated to add multiple users.`, ox.Section(0)).
 					String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl create secret
 				ox.Usage(`secret`, `Create a secret using a specified subcommand`),
 				ox.Banner(`Create a secret with specified type.
 
@@ -506,7 +506,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 				ox.Spec(`(docker-registry | generic | tls) [options]`),
 				ox.Footer(`Use "kubectl create secret <command> --help" for more information about a given command.
 Use "kubectl options" for a list of global command-line options (applies to all commands).`),
-				ox.Sub(
+				ox.Sub( // kubectl create secret docker-registry
 					ox.Usage(`docker-registry`, `Create a secret for use with a Docker registry`),
 					ox.Banner(`Create a new secret for use with Docker registries.
         
@@ -547,7 +547,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 						String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 						String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // kubectl create secret generic
 					ox.Usage(`generic`, `Create a secret from a local file, directory, or literal value`),
 					ox.Banner(`Create a secret based on a file, directory, or specified literal value.
 
@@ -591,7 +591,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 						String(`type`, `The type of secret to create`, ox.Section(0)).
 						String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // kubectl create secret tls
 					ox.Usage(`tls`, `Create a TLS secret`),
 					ox.Banner(`Create a TLS secret from the given public/private key pair.
 
@@ -618,14 +618,14 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 						String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl create service
 				ox.Usage(`service`, `Create a service using a specified subcommand`),
 				ox.Banner(`Create a service using a specified subcommand.`),
 				ox.Spec(`[flags] [options]`),
 				ox.Aliases("svc"),
 				ox.Footer(`Use "kubectl create service <command> --help" for more information about a given command.
 Use "kubectl options" for a list of global command-line options (applies to all commands).`),
-				ox.Sub(
+				ox.Sub( // kubectl create service clusterip
 					ox.Usage(`clusterip`, `Create a ClusterIP service`),
 					ox.Banner(`Create a ClusterIP service with the specified name.`),
 					ox.Spec(`NAME [--tcp=<port>:<targetPort>] [--dry-run=server|client|none] [options]`),
@@ -651,7 +651,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 						String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 						String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // kubectl create service externalname
 					ox.Usage(`externalname`, `Create an ExternalName service`),
 					ox.Banner(`Create an ExternalName service with the specified name.
 
@@ -676,7 +676,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 						String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 						String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // kubectl create service loadbalancer
 					ox.Usage(`loadbalancer`, `Create a LoadBalancer service`),
 					ox.Banner(`Create a LoadBalancer service with the specified name.`),
 					ox.Spec(`NAME [--tcp=port:targetPort] [--dry-run=server|client|none] [options]`),
@@ -698,7 +698,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 						String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 						String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // kubectl create service nodeport
 					ox.Usage(`nodeport`, `Create a NodePort service`),
 					ox.Banner(`Create a NodePort service with the specified name.`),
 					ox.Spec(`NAME [--tcp=port:targetPort] [--dry-run=server|client|none] [options]`),
@@ -722,7 +722,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 						String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl create serviceaccount
 				ox.Usage(`serviceaccount`, `Create a service account with the specified name`),
 				ox.Banner(`Create a service account with the specified name.`),
 				ox.Spec(`NAME [--dry-run=server|client|none] [options]`),
@@ -744,7 +744,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 					String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl create token
 				ox.Usage(`token`, `Request a service account token`),
 				ox.Banner(`Request a service account token.`),
 				ox.Spec(`SERVICE_ACCOUNT_NAME [options]`),
@@ -782,7 +782,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl expose
 			ox.Usage(`expose`, `Take a replication controller, service, deployment or pod and expose it as a new Kubernetes service`),
 			ox.Banner(`Expose a resource as a new Kubernetes service.
 
@@ -843,7 +843,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 				String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 				String(`type`, `Type for this service: ClusterIP, NodePort, LoadBalancer, or ExternalName. Default is 'ClusterIP'.`, ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl run
 			ox.Usage(`run`, `Run a particular image on the cluster`),
 			ox.Banner(`Create and run a particular image in a pod.`),
 			ox.Spec(`NAME --image=image [--env="key=value"] [--port=port] [--dry-run=server|client] [--overrides=inline-json] [--command] -- [COMMAND] [args...] [options]`),
@@ -915,7 +915,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 				Bool(`tty`, `Allocate a TTY for the container in the pod.`, ox.Spec(`false`), ox.Short("t"), ox.Section(0)).
 				Bool(`wait`, `If true, wait for resources to be gone before returning. This waits for finalizers.`, ox.Spec(`false`), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl set
 			ox.Usage(`set`, `Set specific features on objects`),
 			ox.Banner(`Configure application resources.
 
@@ -924,7 +924,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 			ox.Section(0),
 			ox.Footer(`Use "kubectl set <command> --help" for more information about a given command.
 Use "kubectl options" for a list of global command-line options (applies to all commands).`),
-			ox.Sub(
+			ox.Sub( // kubectl set env
 				ox.Usage(`env`, `Update environment variables on a pod template`),
 				ox.Banner(`Update environment variables on a pod template.
 
@@ -992,11 +992,11 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`prefix`, `Prefix to append to variable names`, ox.Section(0)).
 					Bool(`recursive`, `Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.`, ox.Spec(`false`), ox.Short("R"), ox.Section(0)).
 					Bool(`resolve`, `If true, show secret or configmap references when listing variables`, ox.Spec(`false`), ox.Section(0)).
-					String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+					String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 					Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl set image
 				ox.Usage(`image`, `Update the image of a pod template`),
 				ox.Banner(`Update existing container image(s) of resources.
 
@@ -1030,11 +1030,11 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					Bool(`local`, `If true, set image will NOT contact api-server but run locally.`, ox.Spec(`false`), ox.Section(0)).
 					String(`output`, `Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).`, ox.Short("o"), ox.Section(0)).
 					Bool(`recursive`, `Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.`, ox.Spec(`false`), ox.Short("R"), ox.Section(0)).
-					String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+					String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 					Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl set resources
 				ox.Usage(`resources`, `Update resource requests/limits on objects with pod templates`),
 				ox.Banner(`Specify compute resource requirements (CPU, memory) for any resource that defines a pod template.  If a pod is successfully scheduled, it is guaranteed the amount of resource requested, but may burst up to its specified limits.
 
@@ -1071,11 +1071,11 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`output`, `Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).`, ox.Short("o"), ox.Section(0)).
 					Bool(`recursive`, `Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.`, ox.Spec(`false`), ox.Short("R"), ox.Section(0)).
 					String(`requests`, `The resource requirement requests for this container.  For example, 'cpu=100m,memory=256Mi'.  Note that server side components may assign requests depending on the server configuration, such as limit ranges.`, ox.Section(0)).
-					String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+					String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 					Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl set selector
 				ox.Usage(`selector`, `Set the selector on a resource`),
 				ox.Banner(`Set the selector on a resource. Note that the new selector will overwrite the old selector if the resource had one prior to the invocation of 'set selector'.
 
@@ -1102,7 +1102,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl set serviceaccount
 				ox.Usage(`serviceaccount`, `Update the service account of a resource`),
 				ox.Banner(`Update the service account of pod template resources.
 
@@ -1134,7 +1134,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl set subject
 				ox.Usage(`subject`, `Update the user, group, or service account in a role binding or cluster role binding`),
 				ox.Banner(`Update the user, group, or service account in a role binding or cluster role binding.`),
 				ox.Spec(`(-f FILENAME | TYPE NAME) [--user=username] [--group=groupname] [--serviceaccount=namespace:serviceaccountname] [--dry-run=server|client|none] [options]`),
@@ -1162,14 +1162,14 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					Bool(`local`, `If true, set subject will NOT contact api-server but run locally.`, ox.Spec(`false`), ox.Section(0)).
 					String(`output`, `Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).`, ox.Short("o"), ox.Section(0)).
 					Bool(`recursive`, `Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.`, ox.Spec(`false`), ox.Short("R"), ox.Section(0)).
-					String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+					String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 					Slice(`serviceaccount`, `Service accounts to bind to the role`, ox.Section(0)).
 					Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 					Slice(`user`, `Usernames to bind to the role`, ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl explain
 			ox.Usage(`explain`, `Get documentation for a resource`),
 			ox.Banner(`Describe fields and structure of various resources.
 
@@ -1202,11 +1202,11 @@ Use "kubectl api-resources" for a complete list of supported resources.`),
 			)),
 			ox.Footer(`Use "kubectl options" for a list of global command-line options (applies to all commands).`),
 			ox.Flags().
-				String(`api-version`, `Use given api-version (group/version) of the resource.`, ox.Section(0)).
-				String(`output`, `Format in which to render the schema. Valid values are: (plaintext, plaintext-openapiv2).`, ox.Default("plaintext"), ox.Short("o"), ox.Section(0)).
-				Bool(`recursive`, `When true, print the name of all the fields recursively. Otherwise, print the available fields with their description.`, ox.Spec(`false`), ox.Section(0)),
+				String(`api-version`, `Get different explanations for particular API version (API group/version)`, ox.Section(0)).
+				String(`output`, `Format in which to render the schema (plaintext, plaintext-openapiv2)`, ox.Default("plaintext"), ox.Section(0)).
+				Bool(`recursive`, `Print the fields of fields (Currently only 1 level deep)`, ox.Spec(`false`), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl get
 			ox.Usage(`get`, `Display one or many resources`),
 			ox.Banner(`Display one or many resources.
 
@@ -1277,18 +1277,18 @@ Use "kubectl api-resources" for a complete list of supported resources.`),
 				Bool(`output-watch-events`, `Output watch event objects when --watch or --watch-only is used. Existing objects are output as initial ADDED events.`, ox.Spec(`false`), ox.Section(0)).
 				String(`raw`, `Raw URI to request from the server.  Uses the transport specified by the kubeconfig file.`, ox.Section(0)).
 				Bool(`recursive`, `Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.`, ox.Spec(`false`), ox.Short("R"), ox.Section(0)).
-				String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+				String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 				Bool(`server-print`, `If true, have the server return the appropriate table output. Supports extension APIs and CRDs.`, ox.Spec(`true`), ox.Section(0)).
 				Bool(`show-kind`, `If present, list the resource type for the requested object(s).`, ox.Spec(`false`), ox.Section(0)).
 				Bool(`show-labels`, `When printing, show all labels as the last column`, ox.Spec(`false`), ox.Default("hide labels column"), ox.Section(0)).
 				Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
 				String(`sort-by`, `If non-empty, sort list types using this field specification.  The field specification is expressed as a JSONPath expression (e.g. '{.metadata.name}'). The field in the API resource specified by this JSONPath expression must be an integer or a string.`, ox.Section(0)).
-				String(`subresource`, `If specified, gets the subresource of the requested object. This flag is beta and may change in the future.`, ox.Section(0)).
+				String(`subresource`, `If specified, gets the subresource of the requested object.`, ox.Section(0)).
 				String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 				Bool(`watch`, `After listing/getting the requested object, watch for changes.`, ox.Spec(`false`), ox.Short("w"), ox.Section(0)).
 				Bool(`watch-only`, `Watch for changes to the requested object(s), without listing/getting first.`, ox.Spec(`false`), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl edit
 			ox.Usage(`edit`, `Edit a resource on the server`),
 			ox.Banner(`Edit a resource from the default editor.
 
@@ -1334,12 +1334,12 @@ Use "kubectl api-resources" for a complete list of supported resources.`),
 				Bool(`recursive`, `Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.`, ox.Spec(`false`), ox.Short("R"), ox.Section(0)).
 				Bool(`save-config`, `If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.`, ox.Spec(`false`), ox.Section(0)).
 				Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
-				String(`subresource`, `If specified, edit will operate on the subresource of the requested object. This flag is beta and may change in the future.`, ox.Section(0)).
+				String(`subresource`, `If specified, edit will operate on the subresource of the requested object.`, ox.Section(0)).
 				String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 				String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)).
 				Bool(`windows-line-endings`, `Defaults to the line ending native to your platform.`, ox.Spec(`false`), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl delete
 			ox.Usage(`delete`, `Delete resources by file names, stdin, resources and names, or by resources and label selector`),
 			ox.Banner(`Delete resources by file names, stdin, resources and names, or by resources and label selector.
 
@@ -1404,11 +1404,11 @@ Use "kubectl api-resources" for a complete list of supported resources.`),
 				String(`output`, `Output mode. Use "-o name" for shorter output (resource/name).`, ox.Short("o"), ox.Section(0)).
 				String(`raw`, `Raw URI to DELETE to the server.  Uses the transport specified by the kubeconfig file.`, ox.Section(0)).
 				Bool(`recursive`, `Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.`, ox.Spec(`false`), ox.Short("R"), ox.Section(0)).
-				String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+				String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 				Duration(`timeout`, `The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object`, ox.Default("0s"), ox.Section(0)).
 				Bool(`wait`, `If true, wait for resources to be gone before returning. This waits for finalizers.`, ox.Spec(`true`), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl rollout
 			ox.Usage(`rollout`, `Manage the rollout of a resource`),
 			ox.Banner(`Manage the rollout of one or many resources.
         
@@ -1433,7 +1433,7 @@ Use "kubectl api-resources" for a complete list of supported resources.`),
 			ox.Section(2),
 			ox.Footer(`Use "kubectl rollout <command> --help" for more information about a given command.
 Use "kubectl options" for a list of global command-line options (applies to all commands).`),
-			ox.Sub(
+			ox.Sub( // kubectl rollout history
 				ox.Usage(`history`, `View rollout history`),
 				ox.Banner(`View previous rollout revisions and configurations.`),
 				ox.Spec(`(TYPE NAME | TYPE/NAME) [flags] [options]`),
@@ -1454,11 +1454,11 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`output`, `Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).`, ox.Short("o"), ox.Section(0)).
 					Bool(`recursive`, `Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.`, ox.Spec(`false`), ox.Short("R"), ox.Section(0)).
 					Int(`revision`, `See the details, including podTemplate of the revision specified`, ox.Default("0"), ox.Section(0)).
-					String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+					String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 					Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl rollout pause
 				ox.Usage(`pause`, `Mark the provided resource as paused`),
 				ox.Banner(`Mark the provided resource as paused.
 
@@ -1480,11 +1480,11 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`kustomize`, `Process the kustomization directory. This flag can't be used together with -f or -R.`, ox.Short("k"), ox.Section(0)).
 					String(`output`, `Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).`, ox.Short("o"), ox.Section(0)).
 					Bool(`recursive`, `Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.`, ox.Spec(`false`), ox.Short("R"), ox.Section(0)).
-					String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+					String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 					Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl rollout restart
 				ox.Usage(`restart`, `Restart a resource`),
 				ox.Banner(`Restart a resource.
 
@@ -1513,11 +1513,11 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`kustomize`, `Process the kustomization directory. This flag can't be used together with -f or -R.`, ox.Short("k"), ox.Section(0)).
 					String(`output`, `Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).`, ox.Short("o"), ox.Section(0)).
 					Bool(`recursive`, `Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.`, ox.Spec(`false`), ox.Short("R"), ox.Section(0)).
-					String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+					String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 					Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl rollout resume
 				ox.Usage(`resume`, `Resume a paused resource`),
 				ox.Banner(`Resume a paused resource.
 
@@ -1537,11 +1537,11 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`kustomize`, `Process the kustomization directory. This flag can't be used together with -f or -R.`, ox.Short("k"), ox.Section(0)).
 					String(`output`, `Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).`, ox.Short("o"), ox.Section(0)).
 					Bool(`recursive`, `Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.`, ox.Spec(`false`), ox.Short("R"), ox.Section(0)).
-					String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+					String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 					Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl rollout status
 				ox.Usage(`status`, `Show the status of the rollout`),
 				ox.Banner(`Show the status of the rollout.
 
@@ -1559,11 +1559,11 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`kustomize`, `Process the kustomization directory. This flag can't be used together with -f or -R.`, ox.Short("k"), ox.Section(0)).
 					Bool(`recursive`, `Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.`, ox.Spec(`false`), ox.Short("R"), ox.Section(0)).
 					Int(`revision`, `Pin to a specific revision for showing its status. Defaults to 0 (last revision).`, ox.Default("0"), ox.Section(0)).
-					String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+					String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 					Duration(`timeout`, `The length of time to wait before ending watch, zero means never. Any other values should contain a corresponding time unit (e.g. 1s, 2m, 3h).`, ox.Default("0s"), ox.Section(0)).
 					Bool(`watch`, `Watch the status of the rollout until it's done.`, ox.Spec(`true`), ox.Short("w"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl rollout undo
 				ox.Usage(`undo`, `Undo a previous rollout`),
 				ox.Banner(`Roll back to a previous rollout.`),
 				ox.Spec(`(TYPE NAME | TYPE/NAME) [flags] [options]`),
@@ -1587,13 +1587,13 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`kustomize`, `Process the kustomization directory. This flag can't be used together with -f or -R.`, ox.Short("k"), ox.Section(0)).
 					String(`output`, `Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).`, ox.Short("o"), ox.Section(0)).
 					Bool(`recursive`, `Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.`, ox.Spec(`false`), ox.Short("R"), ox.Section(0)).
-					String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+					String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 					Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 					Int(`to-revision`, `The revision to rollback to. Default to 0 (last revision).`, ox.Default("0"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl scale
 			ox.Usage(`scale`, `Set a new size for a deployment, replica set, or replication controller`),
 			ox.Banner(`Set a new size for a deployment, replica set, replication controller, or stateful set.
 
@@ -1632,14 +1632,14 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 				Bool(`recursive`, `Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.`, ox.Spec(`false`), ox.Short("R"), ox.Section(0)).
 				Int(`replicas`, `The new desired number of replicas. Required.`, ox.Default("0"), ox.Section(0)).
 				String(`resource-version`, `Precondition for resource version. Requires that the current resource version match this value in order to scale.`, ox.Section(0)).
-				String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+				String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 				Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
 				String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 				Duration(`timeout`, `The length of time to wait before giving up on a scale operation, zero means don't wait. Any other values should contain a corresponding time unit (e.g. 1s, 2m, 3h).`, ox.Default("0s"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl autoscale
 			ox.Usage(`autoscale`, `Auto-scale a deployment, replica set, stateful set, or replication controller`),
-			ox.Banner(`Creates an autoscaler that automatically chooses and sets the number of pods that run in a Kubernetes cluster.
+			ox.Banner(`Creates an autoscaler that automatically chooses and sets the number of pods that run in a Kubernetes cluster. The command will attempt to use the autoscaling/v2 API first, in case of an error, it will fall back to autoscaling/v1 API.
 
  Looks up a deployment, replica set, stateful set, or replication controller by name and creates an autoscaler that uses the given resource as a reference. An autoscaler can automatically increase or decrease number of pods deployed within the system as needed.`),
 			ox.Spec(`(-f FILENAME | TYPE NAME | TYPE/NAME) [--min=MINPODS] --max=MAXPODS [--cpu-percent=CPU] [options]`),
@@ -1670,14 +1670,14 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 				Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
 				String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl certificate
 			ox.Usage(`certificate`, `Modify certificate resources`),
 			ox.Banner(`Modify certificate resources.`),
 			ox.Spec(`SUBCOMMAND [options]`),
 			ox.Section(3),
 			ox.Footer(`Use "kubectl certificate <command> --help" for more information about a given command.
 Use "kubectl options" for a list of global command-line options (applies to all commands).`),
-			ox.Sub(
+			ox.Sub( // kubectl certificate approve
 				ox.Usage(`approve`, `Approve a certificate signing request`),
 				ox.Banner(`Approve a certificate signing request.
 
@@ -1702,7 +1702,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl certificate deny
 				ox.Usage(`deny`, `Deny a certificate signing request`),
 				ox.Banner(`Deny a certificate signing request.
 
@@ -1726,7 +1726,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl cluster-info
 			ox.Usage(`cluster-info`, `Display cluster information`),
 			ox.Banner(`Display addresses of the control plane and services with label kubernetes.io/cluster-service=true. To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.`),
 			ox.Spec(`[flags] [options]`),
@@ -1736,7 +1736,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 			ox.Section(3),
 			ox.Footer(`Use "kubectl cluster-info <command> --help" for more information about a given command.
 Use "kubectl options" for a list of global command-line options (applies to all commands).`),
-			ox.Sub(
+			ox.Sub( // kubectl cluster-info dump
 				ox.Usage(`dump`, `Dump relevant information for debugging and diagnosis`),
 				ox.Banner(`Dump cluster information out suitable for debugging and diagnosing cluster problems.  By default, dumps everything to stdout. You can optionally specify a directory with --output-directory.  If you specify a directory, Kubernetes will build a set of files in that directory.  By default, only dumps things in the current namespace and 'kube-system' namespace, but you can switch to a different namespace with the --namespaces flag, or specify --all-namespaces to dump all namespaces.
 
@@ -1769,7 +1769,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl top
 			ox.Usage(`top`, `Display resource (CPU/memory) usage`),
 			ox.Banner(`Display resource (CPU/memory) usage.
 
@@ -1780,7 +1780,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 			ox.Section(3),
 			ox.Footer(`Use "kubectl top <command> --help" for more information about a given command.
 Use "kubectl options" for a list of global command-line options (applies to all commands).`),
-			ox.Sub(
+			ox.Sub( // kubectl top node
 				ox.Usage(`node`, `Display resource (CPU/memory) usage of nodes`),
 				ox.Banner(`Display resource (CPU/memory) usage of nodes.
 
@@ -1799,12 +1799,12 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 				ox.Footer(`Use "kubectl options" for a list of global command-line options (applies to all commands).`),
 				ox.Flags().
 					Bool(`no-headers`, `If present, print output without headers`, ox.Spec(`false`), ox.Section(0)).
-					String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+					String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 					Bool(`show-capacity`, `Print node resources based on Capacity instead of Allocatable(default) of the nodes.`, ox.Spec(`false`), ox.Section(0)).
 					String(`sort-by`, `If non-empty, sort nodes list using specified field. The field can be either 'cpu' or 'memory'.`, ox.Section(0)).
 					Bool(`use-protocol-buffers`, `Enables using protocol-buffers to access Metrics API.`, ox.Spec(`true`), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl top pod
 				ox.Usage(`pod`, `Display resource (CPU/memory) usage of pods`),
 				ox.Banner(`Display resource (CPU/memory) usage of pods.
 
@@ -1834,13 +1834,13 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					Bool(`containers`, `If present, print usage of containers within a pod.`, ox.Spec(`false`), ox.Section(0)).
 					String(`field-selector`, `Selector (field query) to filter on, supports '=', '==', and '!='.(e.g. --field-selector key1=value1,key2=value2). The server only supports a limited number of field queries per type.`, ox.Section(0)).
 					Bool(`no-headers`, `If present, print output without headers.`, ox.Spec(`false`), ox.Section(0)).
-					String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+					String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 					String(`sort-by`, `If non-empty, sort pods list using specified field. The field can be either 'cpu' or 'memory'.`, ox.Section(0)).
 					Bool(`sum`, `Print the sum of the resource usage`, ox.Spec(`false`), ox.Section(0)).
 					Bool(`use-protocol-buffers`, `Enables using protocol-buffers to access Metrics API.`, ox.Spec(`true`), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl cordon
 			ox.Usage(`cordon`, `Mark node as unschedulable`),
 			ox.Banner(`Mark node as unschedulable.`),
 			ox.Spec(`NODE [options]`),
@@ -1854,9 +1854,9 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 			ox.Footer(`Use "kubectl options" for a list of global command-line options (applies to all commands).`),
 			ox.Flags().
 				String(`dry-run`, `Must be "none", "server", or "client". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.`, ox.Default("none"), ox.Section(0)).
-				String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)),
+				String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl uncordon
 			ox.Usage(`uncordon`, `Mark node as schedulable`),
 			ox.Banner(`Mark node as schedulable.`),
 			ox.Spec(`NODE [options]`),
@@ -1870,9 +1870,9 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 			ox.Footer(`Use "kubectl options" for a list of global command-line options (applies to all commands).`),
 			ox.Flags().
 				String(`dry-run`, `Must be "none", "server", or "client". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.`, ox.Default("none"), ox.Section(0)).
-				String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)),
+				String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl drain
 			ox.Usage(`drain`, `Drain node in preparation for maintenance`),
 			ox.Banner(`Drain node in preparation for maintenance.
 
@@ -1904,11 +1904,11 @@ https://kubernetes.io/images/docs/kubectl_drain.svg Workflowhttps://kubernetes.i
 				Int(`grace-period`, `Period of time in seconds given to each pod to terminate gracefully. If negative, the default value specified in the pod will be used.`, ox.Default("-1"), ox.Section(0)).
 				Bool(`ignore-daemonsets`, `Ignore DaemonSet-managed pods.`, ox.Spec(`false`), ox.Section(0)).
 				String(`pod-selector`, `Label selector to filter pods on the node`, ox.Section(0)).
-				String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+				String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 				Int(`skip-wait-for-delete-timeout`, `If pod DeletionTimestamp older than N seconds, skip waiting for the pod.  Seconds must be greater than 0 to skip.`, ox.Default("0"), ox.Section(0)).
 				Duration(`timeout`, `The length of time to wait before giving up, zero means infinite`, ox.Default("0s"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl taint
 			ox.Usage(`taint`, `Update the taints on one or more nodes`),
 			ox.Banner(`Update the taints on one or more nodes.
 
@@ -1947,12 +1947,12 @@ https://kubernetes.io/images/docs/kubectl_drain.svg Workflowhttps://kubernetes.i
 				String(`field-manager`, `Name of the manager used to track field ownership.`, ox.Default("$APPNAME-taint"), ox.Section(0)).
 				String(`output`, `Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).`, ox.Short("o"), ox.Section(0)).
 				Bool(`overwrite`, `If true, allow taints to be overwritten, otherwise reject taint updates that overwrite existing taints.`, ox.Spec(`false`), ox.Section(0)).
-				String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+				String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 				Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
 				String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 				String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl describe
 			ox.Usage(`describe`, `Show details of a specific resource or group of resources`),
 			ox.Banner(`Show details of a specific resource or group of resources.
 
@@ -1994,10 +1994,10 @@ Use "kubectl api-resources" for a complete list of supported resources.`),
 				Slice(`filename`, `Filename, directory, or URL to files containing the resource to describe`, ox.Short("f"), ox.Section(0)).
 				String(`kustomize`, `Process the kustomization directory. This flag can't be used together with -f or -R.`, ox.Short("k"), ox.Section(0)).
 				Bool(`recursive`, `Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.`, ox.Spec(`false`), ox.Short("R"), ox.Section(0)).
-				String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+				String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 				Bool(`show-events`, `If true, display events related to the described object.`, ox.Spec(`true`), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl logs
 			ox.Usage(`logs`, `Print the logs for a container in a pod`),
 			ox.Banner(`Print the logs for a container in a pod or specified resource. If the pod has only one container, the container name is optional.`),
 			ox.Spec(`[-f] [-p] (POD | TYPE/NAME) [-c CONTAINER] [options]`),
@@ -2072,13 +2072,13 @@ Use "kubectl api-resources" for a complete list of supported resources.`),
 				Duration(`pod-running-timeout`, `The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running`, ox.Default("20s"), ox.Section(0)).
 				Bool(`prefix`, `Prefix each log line with the log source (pod name and container name)`, ox.Spec(`false`), ox.Section(0)).
 				Bool(`previous`, `If true, print the logs for the previous instance of the container in a pod if it exists.`, ox.Spec(`false`), ox.Short("p"), ox.Section(0)).
-				String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+				String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 				Duration(`since`, `Only return logs newer than a relative duration like 5s, 2m, or 3h. Defaults to all logs. Only one of since-time / since may be used.`, ox.Default("0s"), ox.Section(0)).
 				String(`since-time`, `Only return logs after a specific date (RFC3339). Defaults to all logs. Only one of since-time / since may be used.`, ox.Section(0)).
 				Int(`tail`, `Lines of recent log file to display. Defaults to -1 with no selector, showing all log lines otherwise 10, if a selector is provided.`, ox.Default("-1"), ox.Section(0)).
 				Bool(`timestamps`, `Include timestamps on each line in the log output`, ox.Spec(`false`), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl attach
 			ox.Usage(`attach`, `Attach to a running container`),
 			ox.Banner(`Attach to a process that is already running inside an existing container.`),
 			ox.Spec(`(POD | TYPE/NAME) -c CONTAINER [options]`),
@@ -2108,7 +2108,7 @@ Use "kubectl api-resources" for a complete list of supported resources.`),
 				Bool(`stdin`, `Pass stdin to the container`, ox.Spec(`false`), ox.Short("i"), ox.Section(0)).
 				Bool(`tty`, `Stdin is a TTY`, ox.Spec(`false`), ox.Short("t"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl exec
 			ox.Usage(`exec`, `Execute a command in a container`),
 			ox.Banner(`Execute a command in a container.`),
 			ox.Spec(`(POD | TYPE/NAME) [-c CONTAINER] [flags] -- COMMAND [args...] [options]`),
@@ -2148,7 +2148,7 @@ Use "kubectl api-resources" for a complete list of supported resources.`),
 				Bool(`stdin`, `Pass stdin to the container`, ox.Spec(`false`), ox.Short("i"), ox.Section(0)).
 				Bool(`tty`, `Stdin is a TTY`, ox.Spec(`false`), ox.Short("t"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl port-forward
 			ox.Usage(`port-forward`, `Forward one or more local ports to a pod`),
 			ox.Banner(`Forward one or more local ports to a pod.
 
@@ -2186,7 +2186,7 @@ Use "kubectl api-resources" for a complete list of supported resources.`),
 				Slice(`address`, `Addresses to listen on (comma separated). Only accepts IP addresses or localhost as a value. When localhost is supplied, kubectl will try to bind on both 127.0.0.1 and ::1 and will fail if neither of these addresses are available to bind.`, ox.Default("localhost"), ox.Section(0)).
 				Duration(`pod-running-timeout`, `The length of time (like 5s, 2m, or 3h, higher than zero) to wait until at least one pod is running`, ox.Default("1m0s"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl proxy
 			ox.Usage(`proxy`, `Run a proxy to the Kubernetes API server`),
 			ox.Banner(`Creates a proxy server or application-level gateway between localhost and the Kubernetes API server. It also allows serving static content over specified HTTP path. All incoming data enters through one port and gets forwarded to the remote Kubernetes API server port, except for the path matching the static content path.`),
 			ox.Spec(`[--port=PORT] [--www=static-dir] [--www-prefix=prefix] [--api-prefix=prefix] [options]`),
@@ -2232,7 +2232,7 @@ Use "kubectl api-resources" for a complete list of supported resources.`),
 				String(`www`, `Also serve static files from the given directory under the specified prefix.`, ox.Short("w"), ox.Section(0)).
 				String(`www-prefix`, `Prefix to serve static files under, if static file directory is specified.`, ox.Spec(`path`), ox.Default("/static/"), ox.Short("P"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl cp
 			ox.Usage(`cp`, `Copy files and directories to and from containers`),
 			ox.Banner(`Copy files and directories to and from containers.`),
 			ox.Spec(`<file-spec-src> <file-spec-dest> [options]`),
@@ -2271,14 +2271,14 @@ Use "kubectl api-resources" for a complete list of supported resources.`),
 				Bool(`no-preserve`, `The copied file/directory's ownership and permissions will not be preserved in the container`, ox.Spec(`false`), ox.Section(0)).
 				Int(`retries`, `Set number of retries to complete a copy operation from a container. Specify 0 to disable or any negative value for infinite retrying. The default is 0 (no retry).`, ox.Default("0"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl auth
 			ox.Usage(`auth`, `Inspect authorization`),
 			ox.Banner(`Inspect authorization.`),
 			ox.Spec(`[flags] [options]`),
 			ox.Section(4),
 			ox.Footer(`Use "kubectl auth <command> --help" for more information about a given command.
 Use "kubectl options" for a list of global command-line options (applies to all commands).`),
-			ox.Sub(
+			ox.Sub( // kubectl auth can-i
 				ox.Usage(`can-i`, `Check whether an action is allowed`),
 				ox.Banner(`Check whether an action is allowed.
 
@@ -2323,7 +2323,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					Bool(`quiet`, `If true, suppress output and just return the exit code.`, ox.Spec(`false`), ox.Short("q"), ox.Section(0)).
 					String(`subresource`, `SubResource such as pod/log or deployment/scale`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl auth reconcile
 				ox.Usage(`reconcile`, `Reconciles rules for RBAC role, role binding, cluster role, and cluster role binding objects`),
 				ox.Banner(`Reconciles rules for RBAC role, role binding, cluster role, and cluster role binding objects.
 
@@ -2354,7 +2354,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl auth whoami
 				ox.Usage(`whoami`, `Experimental: Check self subject attributes`),
 				ox.Banner(`Check who you are and your attributes (groups, extra).
 
@@ -2379,7 +2379,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl debug
 			ox.Usage(`debug`, `Create debugging sessions for troubleshooting workloads and nodes`),
 			ox.Banner(`Debug cluster resources using interactive debugging containers.
 
@@ -2389,7 +2389,9 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 
   *  Workload: Create a copy of an existing pod with certain attributes changed, for example changing the image tag to a new version.
   *  Workload: Add an ephemeral container to an already running pod, for example to add debugging utilities without restarting the pod.
-  *  Node: Create a new pod that runs in the node's host namespaces and can access the node's filesystem.`),
+  *  Node: Create a new pod that runs in the node's host namespaces and can access the node's filesystem.
+
+ Note: When a non-root user is configured for the entire target Pod, some capabilities granted by debug profile may not work.`),
 			ox.Spec(`(POD | TYPE[[.VERSION].GROUP]/NAME) [ -- COMMAND [args...] ] [options]`),
 			ox.Example(`
   # Create an interactive debugging session in pod mypod and immediately attach to it.
@@ -2448,7 +2450,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 				String(`target`, `When using an ephemeral container, target processes in this container name.`, ox.Section(0)).
 				Bool(`tty`, `Allocate a TTY for the debugging container.`, ox.Spec(`false`), ox.Short("t"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl events
 			ox.Usage(`events`, `List events`),
 			ox.Banner(`Display events.
 
@@ -2486,7 +2488,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 				Slice(`types`, `Output only events of given types.`, ox.Section(0)).
 				Bool(`watch`, `After listing the requested events, watch for more events.`, ox.Spec(`false`), ox.Short("w"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl diff
 			ox.Usage(`diff`, `Diff the live version against a would-be applied version`),
 			ox.Banner(`Diff configurations specified by file name or stdin between the current online configuration, and the configuration as it would be if applied.
 
@@ -2520,11 +2522,11 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 				Bool(`prune`, `Include resources that would be deleted by pruning. Can be used with -l and default shows all resources would be pruned`, ox.Spec(`false`), ox.Section(0)).
 				Slice(`prune-allowlist`, `Overwrite the default allowlist with <group/version/kind> for --prune`, ox.Section(0)).
 				Bool(`recursive`, `Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.`, ox.Spec(`false`), ox.Short("R"), ox.Section(0)).
-				String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+				String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 				Bool(`server-side`, `If true, apply runs in the server instead of the client.`, ox.Spec(`false`), ox.Section(0)).
 				Bool(`show-managed-fields`, `If true, include managed fields in the diff.`, ox.Spec(`false`), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl apply
 			ox.Usage(`apply`, `Apply a configuration to a resource by file name or stdin`),
 			ox.Banner(`Apply a configuration to a resource by file name or stdin. The resource name must be specified. This resource will be created if it doesn't exist yet. To use 'apply', always create the resource initially with either 'apply' or 'create --save-config'.
 
@@ -2574,15 +2576,15 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 				Bool(`prune`, `Automatically delete resource objects, that do not appear in the configs and are created by either apply or create --save-config. Should be used with either -l or --all.`, ox.Spec(`false`), ox.Section(0)).
 				Slice(`prune-allowlist`, `Overwrite the default allowlist with <group/version/kind> for --prune`, ox.Section(0)).
 				Bool(`recursive`, `Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.`, ox.Spec(`false`), ox.Short("R"), ox.Section(0)).
-				String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+				String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 				Bool(`server-side`, `If true, apply runs in the server instead of the client.`, ox.Spec(`false`), ox.Section(0)).
 				Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
-				String(`subresource`, `If specified, apply will operate on the subresource of the requested object.  Only allowed when using --server-side. This flag is beta and may change in the future.`, ox.Section(0)).
+				String(`subresource`, `If specified, apply will operate on the subresource of the requested object.  Only allowed when using --server-side.`, ox.Section(0)).
 				String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 				Duration(`timeout`, `The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object`, ox.Default("0s"), ox.Section(0)).
 				String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)).
 				Bool(`wait`, `If true, wait for resources to be gone before returning. This waits for finalizers.`, ox.Spec(`false`), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // kubectl apply edit-last-applied
 				ox.Usage(`edit-last-applied`, `Edit latest last-applied-configuration annotations of a resource/object`),
 				ox.Banner(`Edit the latest last-applied-configuration annotations of resources from the default editor.
 
@@ -2616,7 +2618,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)).
 					Bool(`windows-line-endings`, `Defaults to the line ending native to your platform.`, ox.Spec(`false`), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl apply set-last-applied
 				ox.Usage(`set-last-applied`, `Set the last-applied-configuration annotation on a live object to match the contents of a file`),
 				ox.Banner(`Set the latest last-applied-configuration annotations by setting it to match the contents of a file. This results in the last-applied-configuration being updated as though 'kubectl apply -f<file> ' was run, without updating any other parts of the object.`),
 				ox.Spec(`-f FILENAME [options]`),
@@ -2642,7 +2644,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl apply view-last-applied
 				ox.Usage(`view-last-applied`, `View the latest last-applied-configuration annotations of a resource/object`),
 				ox.Banner(`View the latest last-applied-configuration annotations by type/name or file.
 
@@ -2664,10 +2666,10 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`kustomize`, `Process the kustomization directory. This flag can't be used together with -f or -R.`, ox.Short("k"), ox.Section(0)).
 					String(`output`, `Output format. Must be one of (yaml, json)`, ox.Default("yaml"), ox.Short("o"), ox.Section(0)).
 					Bool(`recursive`, `Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.`, ox.Spec(`false`), ox.Short("R"), ox.Section(0)).
-					String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)),
+					String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl patch
 			ox.Usage(`patch`, `Update fields of a resource`),
 			ox.Banner(`Update fields of a resource using strategic merge patch, a JSON merge patch, or a JSON patch.
 
@@ -2710,11 +2712,11 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 				String(`patch-file`, `A file containing a patch to be applied to the resource.`, ox.Section(0)).
 				Bool(`recursive`, `Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.`, ox.Spec(`false`), ox.Short("R"), ox.Section(0)).
 				Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
-				String(`subresource`, `If specified, patch will operate on the subresource of the requested object. This flag is beta and may change in the future.`, ox.Section(0)).
+				String(`subresource`, `If specified, patch will operate on the subresource of the requested object.`, ox.Section(0)).
 				String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 				String(`type`, `The type of patch being provided; one of [json merge strategic]`, ox.Default("strategic"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl replace
 			ox.Usage(`replace`, `Replace a resource by file name or stdin`),
 			ox.Banner(`Replace a resource by file name or stdin.
 
@@ -2753,13 +2755,13 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 				Bool(`recursive`, `Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.`, ox.Spec(`false`), ox.Short("R"), ox.Section(0)).
 				Bool(`save-config`, `If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.`, ox.Spec(`false`), ox.Section(0)).
 				Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
-				String(`subresource`, `If specified, replace will operate on the subresource of the requested object. This flag is beta and may change in the future.`, ox.Section(0)).
+				String(`subresource`, `If specified, replace will operate on the subresource of the requested object.`, ox.Section(0)).
 				String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 				Duration(`timeout`, `The length of time to wait before giving up on a delete, zero means determine a timeout from the size of the object`, ox.Default("0s"), ox.Section(0)).
 				String(`validate`, `Must be one of: strict (or true), warn, ignore (or false). "true" or "strict" will use a schema to validate the input and fail the request if invalid. It will perform server side validation if ServerSideFieldValidation is enabled on the api-server, but will fall back to less reliable client-side validation if not. "warn" will warn about unknown or duplicate fields without blocking the request if server-side field validation is enabled on the API server, and behave as "ignore" otherwise. "false" or "ignore" will not perform any schema validation, silently dropping any unknown or duplicate fields.`, ox.Default("strict"), ox.Section(0)).
 				Bool(`wait`, `If true, wait for resources to be gone before returning. This waits for finalizers.`, ox.Spec(`false`), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl wait
 			ox.Usage(`wait`, `Experimental: Wait for a specific condition on one or many resources`),
 			ox.Banner(`Wait for a specific condition on one or many resources.
 
@@ -2812,7 +2814,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 				String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)).
 				Duration(`timeout`, `The length of time to wait before giving up. Zero means check once and don't wait, negative means wait for a week.`, ox.Default("30s"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl kustomize
 			ox.Usage(`kustomize`, `Build a kustomization target from a directory or URL`),
 			ox.Banner(`Build a set of KRM resources using a 'kustomization.yaml' file. The DIR argument must be a path to a directory containing 'kustomization.yaml', or a git repository URL with a path suffix specifying same with respect to the repository root. If DIR is omitted, '.' is assumed.`),
 			ox.Spec(`DIR [flags] [options]`),
@@ -2845,7 +2847,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 				String(`network-name`, `the docker network to run the container in`, ox.Default("bridge"), ox.Section(0)).
 				String(`output`, `If specified, write output to this path.`, ox.Short("o"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl label
 			ox.Usage(`label`, `Update the labels on a resource`),
 			ox.Banner(`Update the labels on a resource.
 
@@ -2893,11 +2895,11 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 				Bool(`overwrite`, `If true, allow labels to be overwritten, otherwise reject label updates that overwrite existing labels.`, ox.Spec(`false`), ox.Section(0)).
 				Bool(`recursive`, `Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.`, ox.Spec(`false`), ox.Short("R"), ox.Section(0)).
 				String(`resource-version`, `If non-empty, the labels update will only succeed if this is the current resource-version for the object. Only valid when specifying a single resource.`, ox.Section(0)).
-				String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+				String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 				Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
 				String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl annotate
 			ox.Usage(`annotate`, `Update the annotations on a resource`),
 			ox.Banner(`Update the annotations on one or more resources.
 
@@ -2947,11 +2949,11 @@ Use "kubectl api-resources" for a complete list of supported resources.`),
 				Bool(`overwrite`, `If true, allow annotations to be overwritten, otherwise reject annotation updates that overwrite existing annotations.`, ox.Spec(`false`), ox.Section(0)).
 				Bool(`recursive`, `Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.`, ox.Spec(`false`), ox.Short("R"), ox.Section(0)).
 				String(`resource-version`, `If non-empty, the annotation update will only succeed if this is the current resource-version for the object. Only valid when specifying a single resource.`, ox.Section(0)).
-				String(`selector`, `Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
+				String(`selector`, `Selector (label query) to filter on, supports '=', '==', '!=', 'in', 'notin'.(e.g. -l key1=value1,key2=value2,key3 in (value3)). Matching objects must satisfy all of the specified label constraints.`, ox.Short("l"), ox.Section(0)).
 				Bool(`show-managed-fields`, `If true, keep the managedFields when printing objects in JSON or YAML format.`, ox.Spec(`false`), ox.Section(0)).
 				String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl api-resources
 			ox.Usage(`api-resources`, `Print the supported API resources on the server`),
 			ox.Banner(`Print the supported API resources on the server.`),
 			ox.Spec(`[flags] [options]`),
@@ -2988,7 +2990,7 @@ Use "kubectl api-resources" for a complete list of supported resources.`),
 				String(`sort-by`, `If non-empty, sort list of resources using specified field. The field can be either 'name' or 'kind'.`, ox.Section(0)).
 				Slice(`verbs`, `Limit to resources that support the specified verbs.`, ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl api-versions
 			ox.Usage(`api-versions`, `Print the supported API versions on the server, in the form of "group/version"`),
 			ox.Banner(`Print the supported API versions on the server, in the form of "group/version".`),
 			ox.Spec(`[options]`),
@@ -2998,7 +3000,7 @@ Use "kubectl api-resources" for a complete list of supported resources.`),
 			ox.Section(7),
 			ox.Footer(`Use "kubectl options" for a list of global command-line options (applies to all commands).`),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl config
 			ox.Usage(`config`, `Modify kubeconfig files`),
 			ox.Banner(`Modify kubeconfig files using subcommands like "kubectl config set current-context my-context".
 
@@ -3011,7 +3013,7 @@ Use "kubectl api-resources" for a complete list of supported resources.`),
 			ox.Section(7),
 			ox.Footer(`Use "kubectl config <command> --help" for more information about a given command.
 Use "kubectl options" for a list of global command-line options (applies to all commands).`),
-			ox.Sub(
+			ox.Sub( // kubectl config current-context
 				ox.Usage(`current-context`, `Display the current-context`),
 				ox.Banner(`Display the current-context.`),
 				ox.Spec(`[flags] [options]`),
@@ -3020,7 +3022,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
   kubectl config current-context`),
 				ox.Footer(`Use "kubectl options" for a list of global command-line options (applies to all commands).`),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl config delete-cluster
 				ox.Usage(`delete-cluster`, `Delete the specified cluster from the kubeconfig`),
 				ox.Banner(`Delete the specified cluster from the kubeconfig.`),
 				ox.Spec(`NAME [options]`),
@@ -3029,7 +3031,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
   kubectl config delete-cluster minikube`),
 				ox.Footer(`Use "kubectl options" for a list of global command-line options (applies to all commands).`),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl config delete-context
 				ox.Usage(`delete-context`, `Delete the specified context from the kubeconfig`),
 				ox.Banner(`Delete the specified context from the kubeconfig.`),
 				ox.Spec(`NAME [options]`),
@@ -3038,7 +3040,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
   kubectl config delete-context minikube`),
 				ox.Footer(`Use "kubectl options" for a list of global command-line options (applies to all commands).`),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl config delete-user
 				ox.Usage(`delete-user`, `Delete the specified user from the kubeconfig`),
 				ox.Banner(`Delete the specified user from the kubeconfig.`),
 				ox.Spec(`NAME [options]`),
@@ -3047,7 +3049,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
   kubectl config delete-user minikube`),
 				ox.Footer(`Use "kubectl options" for a list of global command-line options (applies to all commands).`),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl config get-clusters
 				ox.Usage(`get-clusters`, `Display clusters defined in the kubeconfig`),
 				ox.Banner(`Display clusters defined in the kubeconfig.`),
 				ox.Spec(`[flags] [options]`),
@@ -3056,7 +3058,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
   kubectl config get-clusters`),
 				ox.Footer(`Use "kubectl options" for a list of global command-line options (applies to all commands).`),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl config get-contexts
 				ox.Usage(`get-contexts`, `Describe one or many contexts`),
 				ox.Banner(`Display one or many contexts from the kubeconfig file.`),
 				ox.Spec(`[(-o|--output=)name)] [options]`),
@@ -3074,7 +3076,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					Bool(`no-headers`, `When using the default or custom-column output format, don't print headers (default print headers).`, ox.Spec(`false`), ox.Section(0)).
 					String(`output`, `Output format. One of: (name).`, ox.Short("o"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl config get-users
 				ox.Usage(`get-users`, `Display users defined in the kubeconfig`),
 				ox.Banner(`Display users defined in the kubeconfig.`),
 				ox.Spec(`[flags] [options]`),
@@ -3083,7 +3085,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
   kubectl config get-users`),
 				ox.Footer(`Use "kubectl options" for a list of global command-line options (applies to all commands).`),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl config rename-context
 				ox.Usage(`rename-context`, `Rename a context from the kubeconfig file`),
 				ox.Banner(`Renames a context from the kubeconfig file.
 
@@ -3098,7 +3100,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
   kubectl config rename-context old-name new-name`),
 				ox.Footer(`Use "kubectl options" for a list of global command-line options (applies to all commands).`),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl config set
 				ox.Usage(`set`, `Set an individual value in a kubeconfig file`),
 				ox.Banner(`Set an individual value in a kubeconfig file.
 
@@ -3127,7 +3129,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 				ox.Flags().
 					Bool(`set-raw-bytes`, `When writing a []byte PROPERTY_VALUE, write the given string directly without base64 decoding.`, ox.Spec(`false`), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl config set-cluster
 				ox.Usage(`set-cluster`, `Set a cluster entry in kubeconfig`),
 				ox.Banner(`Set a cluster entry in kubeconfig.
 
@@ -3160,7 +3162,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`server`, `server for the cluster entry in kubeconfig`, ox.Section(0)).
 					String(`tls-server-name`, `tls-server-name for the cluster entry in kubeconfig`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl config set-context
 				ox.Usage(`set-context`, `Set a context entry in kubeconfig`),
 				ox.Banner(`Set a context entry in kubeconfig.
 
@@ -3179,7 +3181,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`namespace`, `namespace for the context entry in kubeconfig`, ox.Section(0)).
 					String(`user`, `user for the context entry in kubeconfig`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl config set-credentials
 				ox.Usage(`set-credentials`, `Set a user entry in kubeconfig`),
 				ox.Banner(`Set a user entry in kubeconfig.
 
@@ -3250,7 +3252,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`token`, `token for the user entry in kubeconfig`, ox.Section(0)).
 					String(`username`, `username for the user entry in kubeconfig`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl config unset
 				ox.Usage(`unset`, `Unset an individual value in a kubeconfig file`),
 				ox.Banner(`Unset an individual value in a kubeconfig file.
 
@@ -3264,7 +3266,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
   kubectl config unset contexts.foo.namespace`),
 				ox.Footer(`Use "kubectl options" for a list of global command-line options (applies to all commands).`),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl config use-context
 				ox.Usage(`use-context`, `Set the current-context in a kubeconfig file`),
 				ox.Banner(`Set the current-context in a kubeconfig file.`),
 				ox.Spec(`CONTEXT_NAME [options]`),
@@ -3274,7 +3276,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
   kubectl config use-context minikube`),
 				ox.Footer(`Use "kubectl options" for a list of global command-line options (applies to all commands).`),
 			),
-			ox.Sub(
+			ox.Sub( // kubectl config view
 				ox.Usage(`view`, `Display merged kubeconfig settings or a specified kubeconfig file`),
 				ox.Banner(`Display merged kubeconfig settings or a specified kubeconfig file.
 
@@ -3304,7 +3306,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 					String(`template`, `Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].`, ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // kubectl plugin
 			ox.Usage(`plugin`, `Provides utilities for interacting with plugins`),
 			ox.Banner(`Provides utilities for interacting with plugins.
 
@@ -3321,7 +3323,7 @@ Use "kubectl options" for a list of global command-line options (applies to all 
 			ox.Section(7),
 			ox.Footer(`Use "kubectl plugin <command> --help" for more information about a given command.
 Use "kubectl options" for a list of global command-line options (applies to all commands).`),
-			ox.Sub(
+			ox.Sub( // kubectl plugin list
 				ox.Usage(`list`, `List all visible plugin executables on a user's PATH`),
 				ox.Banner(`List all available plugin files on a user's PATH. To see plugins binary names without the full path use --name-only flag.
 

@@ -34,7 +34,7 @@ For more help on how to use Docker, head to https://docs.docker.com/go/guides/`)
 			String(`tlscert`, `Path to TLS certificate file (default`, ox.Section(0)).
 			String(`tlskey`, `Path to TLS key file (default`, ox.Section(0)).
 			Bool(`tlsverify`, `Use TLS and verify the remote`, ox.Section(0)),
-		ox.Sub(
+		ox.Sub( // docker run
 			ox.Usage(`run`, `Create and run a new container from an image`),
 			ox.Banner(`Create and run a new container from an image`),
 			ox.Spec(`[OPTIONS] IMAGE [COMMAND] [ARG...]`),
@@ -148,7 +148,7 @@ For more help on how to use Docker, head to https://docs.docker.com/go/guides/`)
 				Slice(`volumes-from`, `Mount volumes from the specified`, ox.Section(0)).
 				String(`workdir`, `Working directory inside the`, ox.Short("w"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker exec
 			ox.Usage(`exec`, `Execute a command in a running container`),
 			ox.Banner(`Execute a command in a running container`),
 			ox.Spec(`[OPTIONS] CONTAINER COMMAND [ARG...]`),
@@ -168,7 +168,7 @@ For more help on how to use Docker, head to https://docs.docker.com/go/guides/`)
 				String(`user`, `Username or UID (format:`, ox.Short("u"), ox.Section(0)).
 				String(`workdir`, `Working directory inside the container`, ox.Short("w"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker ps
 			ox.Usage(`ps`, `List containers`),
 			ox.Banner(`List containers`),
 			ox.Spec(`[OPTIONS]`),
@@ -187,7 +187,7 @@ For more help on how to use Docker, head to https://docs.docker.com/go/guides/`)
 				Bool(`quiet`, `Only display container IDs`, ox.Short("q"), ox.Section(0)).
 				Bool(`size`, `Display total file sizes`, ox.Short("s"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker build
 			ox.Usage(`build`, `Build an image from a Dockerfile`),
 			ox.Banner(`Build an image from a Dockerfile`),
 			ox.Spec(`[OPTIONS] PATH | URL | -`),
@@ -228,7 +228,7 @@ For more help on how to use Docker, head to https://docs.docker.com/go/guides/`)
 				String(`target`, `Set the target build stage to build.`, ox.Section(0)).
 				String(`ulimit`, `Ulimit options`, ox.Spec(`ulimit`), ox.Default("[]"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker pull
 			ox.Usage(`pull`, `Download an image from a registry`),
 			ox.Banner(`Download an image from a registry`),
 			ox.Spec(`[OPTIONS] NAME[:TAG|@DIGEST]`),
@@ -243,7 +243,7 @@ For more help on how to use Docker, head to https://docs.docker.com/go/guides/`)
 				String(`platform`, `Set platform if server is multi-platform`, ox.Section(0)).
 				Bool(`quiet`, `Suppress verbose output`, ox.Short("q"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker push
 			ox.Usage(`push`, `Upload an image to a registry`),
 			ox.Banner(`Upload an image to a registry`),
 			ox.Spec(`[OPTIONS] NAME[:TAG]`),
@@ -258,7 +258,7 @@ For more help on how to use Docker, head to https://docs.docker.com/go/guides/`)
 				String(`platform`, `Push a platform-specific manifest as a`, ox.Section(0)).
 				Bool(`quiet`, `Suppress verbose output`, ox.Short("q"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker images
 			ox.Usage(`images`, `List images`),
 			ox.Banner(`List images`),
 			ox.Spec(`[OPTIONS] [REPOSITORY[:TAG]]`),
@@ -276,7 +276,7 @@ For more help on how to use Docker, head to https://docs.docker.com/go/guides/`)
 				Bool(`quiet`, `Only show image IDs`, ox.Short("q"), ox.Section(0)).
 				Bool(`tree`, `List multi-platform images as a tree (EXPERIMENTAL)`, ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker login
 			ox.Usage(`login`, `Authenticate to a registry`),
 			ox.Banner(`Authenticate to a registry.
 Defaults to Docker Hub if no server is specified.`),
@@ -290,14 +290,14 @@ Defaults to Docker Hub if no server is specified.`),
 				Bool(`password-stdin`, `Take the Password or Personal Access Token`, ox.Section(0)).
 				String(`username`, `Username`, ox.Short("u"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker logout
 			ox.Usage(`logout`, `Log out from a registry`),
 			ox.Spec(`[SERVER]`),
 			ox.Section(0),
 			ox.Footer(`Log out from a registry.
 If no server is specified, the default is defined by the daemon.`),
 		),
-		ox.Sub(
+		ox.Sub( // docker search
 			ox.Usage(`search`, `Search Docker Hub for images`),
 			ox.Banner(`Search Docker Hub for images`),
 			ox.Spec(`[OPTIONS] TERM`),
@@ -311,7 +311,7 @@ If no server is specified, the default is defined by the daemon.`),
 				Int(`limit`, `Max number of search results`, ox.Section(0)).
 				Bool(`no-trunc`, `Don't truncate output`, ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker info
 			ox.Usage(`info`, `Display system-wide information`),
 			ox.Banner(`Display system-wide information`),
 			ox.Spec(`[OPTIONS]`),
@@ -323,14 +323,14 @@ If no server is specified, the default is defined by the daemon.`),
 			ox.Flags().
 				String(`format`, `Format output using a custom template:`, ox.Short("f"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker builder
 			ox.Usage(`builder`, `Manage builds`),
 			ox.Banner(`Manage builds`),
 			ox.Spec(`COMMAND`),
 			ox.Sections("Commands"),
 			ox.Section(1),
 			ox.Footer(`Run 'docker builder COMMAND --help' for more information on a command.`),
-			ox.Sub(
+			ox.Sub( // docker builder build
 				ox.Usage(`build`, `Build an image from a Dockerfile`),
 				ox.Banner(`Build an image from a Dockerfile`),
 				ox.Spec(`[OPTIONS] PATH | URL | -`),
@@ -371,7 +371,7 @@ If no server is specified, the default is defined by the daemon.`),
 					String(`target`, `Set the target build stage to build.`, ox.Section(0)).
 					String(`ulimit`, `Ulimit options`, ox.Spec(`ulimit`), ox.Default("[]"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker builder prune
 				ox.Usage(`prune`, `Remove build cache`),
 				ox.Banner(`Remove build cache`),
 				ox.Section(0),
@@ -385,14 +385,14 @@ If no server is specified, the default is defined by the daemon.`),
 					Slice(`keep-storage`, `Amount of disk space to keep for cache`, ox.Elem(ox.UintT), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // docker checkpoint
 			ox.Usage(`checkpoint`, `Manage checkpoints`),
 			ox.Banner(`Manage checkpoints`),
 			ox.Spec(`COMMAND`),
 			ox.Sections("Commands"),
 			ox.Section(1),
 			ox.Footer(`Run 'docker checkpoint COMMAND --help' for more information on a command.`),
-			ox.Sub(
+			ox.Sub( // docker checkpoint create
 				ox.Usage(`create`, `Create a checkpoint from a running container`),
 				ox.Banner(`Create a checkpoint from a running container`),
 				ox.Spec(`[OPTIONS] CONTAINER CHECKPOINT`),
@@ -404,7 +404,7 @@ If no server is specified, the default is defined by the daemon.`),
 					String(`checkpoint-dir`, `Use a custom checkpoint storage directory`, ox.Section(0)).
 					Bool(`leave-running`, `Leave the container running after checkpoint`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker checkpoint ls
 				ox.Usage(`ls`, `List checkpoints for a container`),
 				ox.Banner(`List checkpoints for a container`),
 				ox.Spec(`[OPTIONS] CONTAINER`),
@@ -416,7 +416,7 @@ If no server is specified, the default is defined by the daemon.`),
 				ox.Flags().
 					String(`checkpoint-dir`, `Use a custom checkpoint storage directory`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker checkpoint rm
 				ox.Usage(`rm`, `Remove a checkpoint`),
 				ox.Banner(`Remove a checkpoint`),
 				ox.Spec(`[OPTIONS] CONTAINER CHECKPOINT`),
@@ -429,14 +429,14 @@ If no server is specified, the default is defined by the daemon.`),
 					String(`checkpoint-dir`, `Use a custom checkpoint storage directory`, ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // docker container
 			ox.Usage(`container`, `Manage containers`),
 			ox.Banner(`Manage containers`),
 			ox.Spec(`COMMAND`),
 			ox.Sections("Commands"),
 			ox.Section(1),
 			ox.Footer(`Run 'docker container COMMAND --help' for more information on a command.`),
-			ox.Sub(
+			ox.Sub( // docker container attach
 				ox.Usage(`attach`, `Attach local standard input, output, and error streams to a running container`),
 				ox.Banner(`Attach local standard input, output, and error streams to a running container`),
 				ox.Spec(`[OPTIONS] CONTAINER`),
@@ -450,7 +450,7 @@ If no server is specified, the default is defined by the daemon.`),
 					Bool(`no-stdin`, `Do not attach STDIN`, ox.Section(0)).
 					Bool(`sig-proxy`, `Proxy all received signals to the process`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker container commit
 				ox.Usage(`commit`, `Create a new image from a container's changes`),
 				ox.Banner(`Create a new image from a container's changes`),
 				ox.Spec(`[OPTIONS] CONTAINER [REPOSITORY[:TAG]]`),
@@ -465,7 +465,7 @@ If no server is specified, the default is defined by the daemon.`),
 					String(`message`, `Commit message`, ox.Short("m"), ox.Section(0)).
 					Bool(`pause`, `Pause container during commit`, ox.Default("true"), ox.Short("p"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker container cp
 				ox.Usage(`cp`, `Copy files/folders between a container and the local filesystem`),
 				ox.Banner(`docker cp [OPTIONS] SRC_PATH|- CONTAINER:DEST_PATH
 
@@ -486,7 +486,7 @@ container source to stdout.`),
 					Bool(`follow-link`, `Always follow symbol link in SRC_PATH`, ox.Short("L"), ox.Section(0)).
 					Bool(`quiet`, `Suppress progress output during copy. Progress`, ox.Short("q"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker container create
 				ox.Usage(`create`, `Create a new container`),
 				ox.Banner(`Create a new container`),
 				ox.Spec(`[OPTIONS] IMAGE [COMMAND] [ARG...]`),
@@ -597,14 +597,14 @@ container source to stdout.`),
 					Slice(`volumes-from`, `Mount volumes from the specified`, ox.Section(0)).
 					String(`workdir`, `Working directory inside the`, ox.Short("w"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker container diff
 				ox.Usage(`diff`, `Inspect changes to files or directories on a container's filesystem`),
 				ox.Banner(`Inspect changes to files or directories on a container's filesystem`),
 				ox.Spec(`CONTAINER`),
 				ox.Aliases("container diff"),
 				ox.Section(0),
 			),
-			ox.Sub(
+			ox.Sub( // docker container exec
 				ox.Usage(`exec`, `Execute a command in a running container`),
 				ox.Banner(`Execute a command in a running container`),
 				ox.Spec(`[OPTIONS] CONTAINER COMMAND [ARG...]`),
@@ -624,7 +624,7 @@ container source to stdout.`),
 					String(`user`, `Username or UID (format:`, ox.Short("u"), ox.Section(0)).
 					String(`workdir`, `Working directory inside the container`, ox.Short("w"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker container export
 				ox.Usage(`export`, `Export a container's filesystem as a tar archive`),
 				ox.Banner(`Export a container's filesystem as a tar archive`),
 				ox.Spec(`[OPTIONS] CONTAINER`),
@@ -636,7 +636,7 @@ container source to stdout.`),
 				ox.Flags().
 					String(`output`, `Write to a file, instead of STDOUT`, ox.Short("o"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker container inspect
 				ox.Usage(`inspect`, `Display detailed information on one or more containers`),
 				ox.Banner(`Display detailed information on one or more containers`),
 				ox.Spec(`[OPTIONS] CONTAINER [CONTAINER...]`),
@@ -648,7 +648,7 @@ container source to stdout.`),
 					String(`format`, `Format output using a custom template:`, ox.Short("f"), ox.Section(0)).
 					Bool(`size`, `Display total file sizes`, ox.Short("s"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker container kill
 				ox.Usage(`kill`, `Kill one or more running containers`),
 				ox.Banner(`Kill one or more running containers`),
 				ox.Spec(`[OPTIONS] CONTAINER [CONTAINER...]`),
@@ -660,7 +660,7 @@ container source to stdout.`),
 				ox.Flags().
 					String(`signal`, `Signal to send to the container`, ox.Short("s"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker container logs
 				ox.Usage(`logs`, `Fetch the logs of a container`),
 				ox.Banner(`Fetch the logs of a container`),
 				ox.Spec(`[OPTIONS] CONTAINER`),
@@ -677,7 +677,7 @@ container source to stdout.`),
 					Bool(`timestamps`, `Show timestamps`, ox.Short("t"), ox.Section(0)).
 					String(`until`, `Show logs before a timestamp (e.g.`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker container ls
 				ox.Usage(`ls`, `List containers`),
 				ox.Banner(`List containers`),
 				ox.Spec(`[OPTIONS]`),
@@ -696,21 +696,21 @@ container source to stdout.`),
 					Bool(`quiet`, `Only display container IDs`, ox.Short("q"), ox.Section(0)).
 					Bool(`size`, `Display total file sizes`, ox.Short("s"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker container pause
 				ox.Usage(`pause`, `Pause all processes within one or more containers`),
 				ox.Banner(`Pause all processes within one or more containers`),
 				ox.Spec(`CONTAINER [CONTAINER...]`),
 				ox.Aliases("container pause"),
 				ox.Section(0),
 			),
-			ox.Sub(
+			ox.Sub( // docker container port
 				ox.Usage(`port`, `List port mappings or a specific mapping for the container`),
 				ox.Banner(`List port mappings or a specific mapping for the container`),
 				ox.Spec(`CONTAINER [PRIVATE_PORT[/PROTO]]`),
 				ox.Aliases("container port"),
 				ox.Section(0),
 			),
-			ox.Sub(
+			ox.Sub( // docker container prune
 				ox.Usage(`prune`, `Remove all stopped containers`),
 				ox.Banner(`Remove all stopped containers`),
 				ox.Spec(`[OPTIONS]`),
@@ -722,14 +722,14 @@ container source to stdout.`),
 					String(`filter`, `Provide filter values (e.g. "until=<timestamp>")`, ox.Spec(`filter`), ox.Section(0)).
 					Bool(`force`, `Do not prompt for confirmation`, ox.Short("f"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker container rename
 				ox.Usage(`rename`, `Rename a container`),
 				ox.Banner(`Rename a container`),
 				ox.Spec(`CONTAINER NEW_NAME`),
 				ox.Aliases("container rename"),
 				ox.Section(0),
 			),
-			ox.Sub(
+			ox.Sub( // docker container restart
 				ox.Usage(`restart`, `Restart one or more containers`),
 				ox.Banner(`Restart one or more containers`),
 				ox.Spec(`[OPTIONS] CONTAINER [CONTAINER...]`),
@@ -742,7 +742,7 @@ container source to stdout.`),
 					String(`signal`, `Signal to send to the container`, ox.Short("s"), ox.Section(0)).
 					Int(`timeout`, `Seconds to wait before killing the container`, ox.Short("t"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker container rm
 				ox.Usage(`rm`, `Remove one or more containers`),
 				ox.Banner(`Remove one or more containers`),
 				ox.Spec(`[OPTIONS] CONTAINER [CONTAINER...]`),
@@ -756,7 +756,7 @@ container source to stdout.`),
 					Bool(`link`, `Remove the specified link`, ox.Short("l"), ox.Section(0)).
 					Bool(`volumes`, `Remove anonymous volumes associated with the container`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker container run
 				ox.Usage(`run`, `Create and run a new container from an image`),
 				ox.Banner(`Create and run a new container from an image`),
 				ox.Spec(`[OPTIONS] IMAGE [COMMAND] [ARG...]`),
@@ -870,7 +870,7 @@ container source to stdout.`),
 					Slice(`volumes-from`, `Mount volumes from the specified`, ox.Section(0)).
 					String(`workdir`, `Working directory inside the`, ox.Short("w"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker container start
 				ox.Usage(`start`, `Start one or more stopped containers`),
 				ox.Banner(`Start one or more stopped containers`),
 				ox.Spec(`[OPTIONS] CONTAINER [CONTAINER...]`),
@@ -886,7 +886,7 @@ container source to stdout.`),
 					String(`detach-keys`, `Override the key sequence for detaching a`, ox.Section(0)).
 					Bool(`interactive`, `Attach container's STDIN`, ox.Short("i"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker container stats
 				ox.Usage(`stats`, `Display a live stream of container(s) resource usage statistics`),
 				ox.Banner(`Display a live stream of container(s) resource usage statistics`),
 				ox.Spec(`[OPTIONS] [CONTAINER...]`),
@@ -901,7 +901,7 @@ container source to stdout.`),
 					Bool(`no-stream`, `Disable streaming stats and only pull the first result`, ox.Section(0)).
 					Bool(`no-trunc`, `Do not truncate output`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker container stop
 				ox.Usage(`stop`, `Stop one or more running containers`),
 				ox.Banner(`Stop one or more running containers`),
 				ox.Spec(`[OPTIONS] CONTAINER [CONTAINER...]`),
@@ -914,21 +914,21 @@ container source to stdout.`),
 					String(`signal`, `Signal to send to the container`, ox.Short("s"), ox.Section(0)).
 					Int(`timeout`, `Seconds to wait before killing the container`, ox.Short("t"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker container top
 				ox.Usage(`top`, `Display the running processes of a container`),
 				ox.Banner(`Display the running processes of a container`),
 				ox.Spec(`CONTAINER [ps OPTIONS]`),
 				ox.Aliases("container top"),
 				ox.Section(0),
 			),
-			ox.Sub(
+			ox.Sub( // docker container unpause
 				ox.Usage(`unpause`, `Unpause all processes within one or more containers`),
 				ox.Banner(`Unpause all processes within one or more containers`),
 				ox.Spec(`CONTAINER [CONTAINER...]`),
 				ox.Aliases("container unpause"),
 				ox.Section(0),
 			),
-			ox.Sub(
+			ox.Sub( // docker container update
 				ox.Usage(`update`, `Update configuration of one or more containers`),
 				ox.Banner(`Update configuration of one or more containers`),
 				ox.Spec(`[OPTIONS] CONTAINER [CONTAINER...]`),
@@ -953,7 +953,7 @@ container source to stdout.`),
 					Int(`pids-limit`, `Tune container pids limit (set -1 for`, ox.Section(0)).
 					String(`restart`, `Restart policy to apply when a`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker container wait
 				ox.Usage(`wait`, `Block until one or more containers stop, then print their exit codes`),
 				ox.Banner(`Block until one or more containers stop, then print their exit codes`),
 				ox.Spec(`CONTAINER [CONTAINER...]`),
@@ -961,26 +961,26 @@ container source to stdout.`),
 				ox.Section(0),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // docker context
 			ox.Usage(`context`, `Manage contexts`),
 			ox.Banner(`Manage contexts`),
 			ox.Spec(`COMMAND`),
 			ox.Sections("Commands"),
 			ox.Section(1),
 			ox.Footer(`Run 'docker context COMMAND --help' for more information on a command.`),
-			ox.Sub(
+			ox.Sub( // docker context export
 				ox.Usage(`export`, `Export a context to a tar archive FILE or a tar stream on STDOUT.`),
 				ox.Spec(`[OPTIONS] CONTEXT [FILE|-]`),
 				ox.Section(0),
 				ox.Footer(`Export a context to a tar archive FILE or a tar stream on STDOUT.`),
 			),
-			ox.Sub(
+			ox.Sub( // docker context import
 				ox.Usage(`import`, `Import a context from a tar or zip file`),
 				ox.Spec(`CONTEXT FILE|-`),
 				ox.Section(0),
 				ox.Footer(`Import a context from a tar or zip file`),
 			),
-			ox.Sub(
+			ox.Sub( // docker context inspect
 				ox.Usage(`inspect`, `Display detailed information on one or more contexts`),
 				ox.Banner(`Display detailed information on one or more contexts`),
 				ox.Spec(`[OPTIONS] [CONTEXT] [CONTEXT...]`),
@@ -991,7 +991,7 @@ container source to stdout.`),
 				ox.Flags().
 					String(`format`, `Format output using a custom template:`, ox.Short("f"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker context ls
 				ox.Usage(`ls`, `List contexts`),
 				ox.Banner(`List contexts`),
 				ox.Spec(`[OPTIONS]`),
@@ -1004,7 +1004,7 @@ container source to stdout.`),
 					String(`format`, `Format output using a custom template:`, ox.Section(0)).
 					Bool(`quiet`, `Only show context names`, ox.Short("q"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker context rm
 				ox.Usage(`rm`, `Remove one or more contexts`),
 				ox.Banner(`Remove one or more contexts`),
 				ox.Spec(`CONTEXT [CONTEXT...]`),
@@ -1016,12 +1016,12 @@ container source to stdout.`),
 				ox.Flags().
 					Bool(`force`, `Force the removal of a context in use`, ox.Short("f"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker context show
 				ox.Usage(`show`, `Print the name of the current context`),
 				ox.Section(0),
 				ox.Footer(`Print the name of the current context`),
 			),
-			ox.Sub(
+			ox.Sub( // docker context update
 				ox.Usage(`update`, `Update a context`),
 				ox.Banner(`Update a context`),
 				ox.Spec(`[OPTIONS] CONTEXT`),
@@ -1035,21 +1035,21 @@ $ docker context update my-context --description "some description" --docker "ho
 					String(`description`, `Description of the context`, ox.Section(0)).
 					Map(`docker`, `set the docker endpoint`, ox.Default("[]"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker context use
 				ox.Usage(`use`, `Set the current docker context`),
 				ox.Spec(`CONTEXT`),
 				ox.Section(0),
 				ox.Footer(`Set the current docker context`),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // docker image
 			ox.Usage(`image`, `Manage images`),
 			ox.Banner(`Manage images`),
 			ox.Spec(`COMMAND`),
 			ox.Sections("Commands"),
 			ox.Section(1),
 			ox.Footer(`Run 'docker image COMMAND --help' for more information on a command.`),
-			ox.Sub(
+			ox.Sub( // docker image build
 				ox.Usage(`build`, `Build an image from a Dockerfile`),
 				ox.Banner(`Build an image from a Dockerfile`),
 				ox.Spec(`[OPTIONS] PATH | URL | -`),
@@ -1090,7 +1090,7 @@ $ docker context update my-context --description "some description" --docker "ho
 					String(`target`, `Set the target build stage to build.`, ox.Section(0)).
 					String(`ulimit`, `Ulimit options`, ox.Spec(`ulimit`), ox.Default("[]"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker image history
 				ox.Usage(`history`, `Show the history of an image`),
 				ox.Banner(`Show the history of an image`),
 				ox.Spec(`[OPTIONS] IMAGE`),
@@ -1106,7 +1106,7 @@ $ docker context update my-context --description "some description" --docker "ho
 					String(`platform`, `Show history for the given platform. Formatted`, ox.Section(0)).
 					Bool(`quiet`, `Only show image IDs`, ox.Short("q"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker image import
 				ox.Usage(`import`, `Import the contents from a tarball to create a filesystem image`),
 				ox.Banner(`Import the contents from a tarball to create a filesystem image`),
 				ox.Spec(`[OPTIONS] file|URL|- [REPOSITORY[:TAG]]`),
@@ -1120,7 +1120,7 @@ $ docker context update my-context --description "some description" --docker "ho
 					String(`message`, `Set commit message for imported image`, ox.Short("m"), ox.Section(0)).
 					String(`platform`, `Set platform if server is multi-platform capable`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker image inspect
 				ox.Usage(`inspect`, `Display detailed information on one or more images`),
 				ox.Banner(`Display detailed information on one or more images`),
 				ox.Spec(`[OPTIONS] IMAGE [IMAGE...]`),
@@ -1132,7 +1132,7 @@ $ docker context update my-context --description "some description" --docker "ho
 					String(`format`, `Format output using a custom template:`, ox.Short("f"), ox.Section(0)).
 					String(`platform`, `Inspect a specific platform of the`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker image load
 				ox.Usage(`load`, `Load an image from a tar archive or STDIN`),
 				ox.Banner(`Load an image from a tar archive or STDIN`),
 				ox.Spec(`[OPTIONS]`),
@@ -1146,7 +1146,7 @@ $ docker context update my-context --description "some description" --docker "ho
 					String(`platform`, `Load only the given platform variant. Formatted`, ox.Section(0)).
 					Bool(`quiet`, `Suppress the load output`, ox.Short("q"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker image ls
 				ox.Usage(`ls`, `List images`),
 				ox.Banner(`List images`),
 				ox.Spec(`[OPTIONS] [REPOSITORY[:TAG]]`),
@@ -1164,7 +1164,7 @@ $ docker context update my-context --description "some description" --docker "ho
 					Bool(`quiet`, `Only show image IDs`, ox.Short("q"), ox.Section(0)).
 					Bool(`tree`, `List multi-platform images as a tree (EXPERIMENTAL)`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker image prune
 				ox.Usage(`prune`, `Remove unused images`),
 				ox.Banner(`Remove unused images`),
 				ox.Spec(`[OPTIONS]`),
@@ -1177,7 +1177,7 @@ $ docker context update my-context --description "some description" --docker "ho
 					String(`filter`, `Provide filter values (e.g. "until=<timestamp>")`, ox.Spec(`filter`), ox.Section(0)).
 					Bool(`force`, `Do not prompt for confirmation`, ox.Short("f"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker image pull
 				ox.Usage(`pull`, `Download an image from a registry`),
 				ox.Banner(`Download an image from a registry`),
 				ox.Spec(`[OPTIONS] NAME[:TAG|@DIGEST]`),
@@ -1192,7 +1192,7 @@ $ docker context update my-context --description "some description" --docker "ho
 					String(`platform`, `Set platform if server is multi-platform`, ox.Section(0)).
 					Bool(`quiet`, `Suppress verbose output`, ox.Short("q"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker image push
 				ox.Usage(`push`, `Upload an image to a registry`),
 				ox.Banner(`Upload an image to a registry`),
 				ox.Spec(`[OPTIONS] NAME[:TAG]`),
@@ -1207,7 +1207,7 @@ $ docker context update my-context --description "some description" --docker "ho
 					String(`platform`, `Push a platform-specific manifest as a`, ox.Section(0)).
 					Bool(`quiet`, `Suppress verbose output`, ox.Short("q"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker image rm
 				ox.Usage(`rm`, `Remove one or more images`),
 				ox.Banner(`Remove one or more images`),
 				ox.Spec(`[OPTIONS] IMAGE [IMAGE...]`),
@@ -1220,7 +1220,7 @@ $ docker context update my-context --description "some description" --docker "ho
 					Bool(`force`, `Force removal of the image`, ox.Short("f"), ox.Section(0)).
 					Bool(`no-prune`, `Do not delete untagged parents`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker image save
 				ox.Usage(`save`, `Save one or more images to a tar archive (streamed to STDOUT by default)`),
 				ox.Banner(`Save one or more images to a tar archive (streamed to STDOUT by default)`),
 				ox.Spec(`[OPTIONS] IMAGE [IMAGE...]`),
@@ -1233,7 +1233,7 @@ $ docker context update my-context --description "some description" --docker "ho
 					String(`output`, `Write to a file, instead of STDOUT`, ox.Short("o"), ox.Section(0)).
 					String(`platform`, `Save only the given platform variant. Formatted`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker image tag
 				ox.Usage(`tag`, `Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE`),
 				ox.Banner(`Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE`),
 				ox.Spec(`SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]`),
@@ -1241,7 +1241,7 @@ $ docker context update my-context --description "some description" --docker "ho
 				ox.Section(0),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // docker manifest
 			ox.Usage(`manifest`, `Manage Docker image manifests and manifest lists`),
 			ox.Banner(`The **docker manifest** command has subcommands for managing image manifests and
 manifest lists. A manifest list allows you to use one name to refer to the same image
@@ -1256,7 +1256,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 			ox.Sections("Commands"),
 			ox.Section(1),
 			ox.Footer(`Run 'docker manifest COMMAND --help' for more information on a command.`),
-			ox.Sub(
+			ox.Sub( // docker manifest annotate
 				ox.Usage(`annotate`, `Add additional information to a local image manifest`),
 				ox.Banner(`Add additional information to a local image manifest`),
 				ox.Spec(`[OPTIONS] MANIFEST_LIST MANIFEST`),
@@ -1271,7 +1271,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					String(`os-version`, `Set operating system version`, ox.Section(0)).
 					String(`variant`, `Set architecture variant`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker manifest create
 				ox.Usage(`create`, `Create a local manifest list for annotating and pushing to a registry`),
 				ox.Banner(`Create a local manifest list for annotating and pushing to a registry`),
 				ox.Spec(`MANIFEST_LIST MANIFEST [MANIFEST...]`),
@@ -1283,7 +1283,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Bool(`amend`, `Amend an existing manifest list`, ox.Short("a"), ox.Section(0)).
 					Bool(`insecure`, `Allow communication with an insecure registry`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker manifest inspect
 				ox.Usage(`inspect`, `Display an image manifest, or manifest list`),
 				ox.Banner(`Display an image manifest, or manifest list`),
 				ox.Spec(`[OPTIONS] [MANIFEST_LIST] MANIFEST`),
@@ -1295,7 +1295,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Bool(`insecure`, `Allow communication with an insecure registry`, ox.Section(0)).
 					Bool(`verbose`, `Output additional info including layers and platform`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker manifest push
 				ox.Usage(`push`, `Push a manifest list to a repository`),
 				ox.Banner(`Push a manifest list to a repository`),
 				ox.Spec(`[OPTIONS] MANIFEST_LIST`),
@@ -1307,21 +1307,21 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Bool(`insecure`, `Allow push to an insecure registry`, ox.Section(0)).
 					Bool(`purge`, `Remove the local manifest list after push`, ox.Short("p"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker manifest rm
 				ox.Usage(`rm`, `Delete one or more manifest lists from local storage`),
 				ox.Banner(`Delete one or more manifest lists from local storage`),
 				ox.Spec(`MANIFEST_LIST [MANIFEST_LIST...]`),
 				ox.Section(0),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // docker network
 			ox.Usage(`network`, `Manage networks`),
 			ox.Banner(`Manage networks`),
 			ox.Spec(`COMMAND`),
 			ox.Sections("Commands"),
 			ox.Section(1),
 			ox.Footer(`Run 'docker network COMMAND --help' for more information on a command.`),
-			ox.Sub(
+			ox.Sub( // docker network connect
 				ox.Usage(`connect`, `Connect a container to a network`),
 				ox.Banner(`Connect a container to a network`),
 				ox.Spec(`[OPTIONS] NETWORK CONTAINER`),
@@ -1338,7 +1338,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Slice(`link`, `Add link to another container`, ox.Section(0)).
 					Slice(`link-local-ip`, `Add a link-local address for the container`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker network create
 				ox.Usage(`create`, `Create a network`),
 				ox.Banner(`Create a network`),
 				ox.Spec(`[OPTIONS] NETWORK`),
@@ -1365,7 +1365,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					String(`scope`, `Control the network's scope`, ox.Section(0)).
 					Slice(`subnet`, `Subnet in CIDR format that represents a`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker network disconnect
 				ox.Usage(`disconnect`, `Disconnect a container from a network`),
 				ox.Banner(`Disconnect a container from a network`),
 				ox.Spec(`[OPTIONS] NETWORK CONTAINER`),
@@ -1376,7 +1376,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 				ox.Flags().
 					Bool(`force`, `Force the container to disconnect from a network`, ox.Short("f"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker network inspect
 				ox.Usage(`inspect`, `Display detailed information on one or more networks`),
 				ox.Banner(`Display detailed information on one or more networks`),
 				ox.Spec(`[OPTIONS] NETWORK [NETWORK...]`),
@@ -1388,7 +1388,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					String(`format`, `Format output using a custom template:`, ox.Short("f"), ox.Section(0)).
 					Bool(`verbose`, `Verbose output for diagnostics`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker network ls
 				ox.Usage(`ls`, `List networks`),
 				ox.Banner(`List networks`),
 				ox.Spec(`[OPTIONS]`),
@@ -1403,7 +1403,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Bool(`no-trunc`, `Do not truncate the output`, ox.Section(0)).
 					Bool(`quiet`, `Only display network IDs`, ox.Short("q"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker network prune
 				ox.Usage(`prune`, `Remove all unused networks`),
 				ox.Banner(`Remove all unused networks`),
 				ox.Spec(`[OPTIONS]`),
@@ -1415,7 +1415,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					String(`filter`, `Provide filter values (e.g. "until=<timestamp>")`, ox.Spec(`filter`), ox.Section(0)).
 					Bool(`force`, `Do not prompt for confirmation`, ox.Short("f"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker network rm
 				ox.Usage(`rm`, `Remove one or more networks`),
 				ox.Banner(`Remove one or more networks`),
 				ox.Spec(`NETWORK [NETWORK...]`),
@@ -1428,14 +1428,14 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Bool(`force`, `Do not error if the network does not exist`, ox.Short("f"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // docker plugin
 			ox.Usage(`plugin`, `Manage plugins`),
 			ox.Banner(`Manage plugins`),
 			ox.Spec(`COMMAND`),
 			ox.Sections("Commands"),
 			ox.Section(1),
 			ox.Footer(`Run 'docker plugin COMMAND --help' for more information on a command.`),
-			ox.Sub(
+			ox.Sub( // docker plugin create
 				ox.Usage(`create`, `Create a plugin from a rootfs and configuration. Plugin data directory must contain config.json and rootfs directory.`),
 				ox.Banner(`Create a plugin from a rootfs and configuration. Plugin data directory must contain config.json and rootfs directory.`),
 				ox.Spec(`[OPTIONS] PLUGIN PLUGIN-DATA-DIR`),
@@ -1446,7 +1446,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 				ox.Flags().
 					Bool(`compress`, `Compress the context using gzip`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker plugin disable
 				ox.Usage(`disable`, `Disable a plugin`),
 				ox.Banner(`Disable a plugin`),
 				ox.Spec(`[OPTIONS] PLUGIN`),
@@ -1457,7 +1457,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 				ox.Flags().
 					Bool(`force`, `Force the disable of an active plugin`, ox.Short("f"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker plugin enable
 				ox.Usage(`enable`, `Enable a plugin`),
 				ox.Banner(`Enable a plugin`),
 				ox.Spec(`[OPTIONS] PLUGIN`),
@@ -1468,7 +1468,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 				ox.Flags().
 					Int(`timeout`, `HTTP client timeout (in seconds)`, ox.Default("30"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker plugin inspect
 				ox.Usage(`inspect`, `Display detailed information on one or more plugins`),
 				ox.Banner(`Display detailed information on one or more plugins`),
 				ox.Spec(`[OPTIONS] PLUGIN [PLUGIN...]`),
@@ -1479,7 +1479,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 				ox.Flags().
 					String(`format`, `Format output using a custom template:`, ox.Short("f"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker plugin install
 				ox.Usage(`install`, `Install a plugin`),
 				ox.Banner(`Install a plugin`),
 				ox.Spec(`[OPTIONS] PLUGIN [KEY=VALUE...]`),
@@ -1493,7 +1493,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Bool(`disable-content-trust`, `Skip image verification`, ox.Default("true"), ox.Section(0)).
 					Bool(`grant-all-permissions`, `Grant all permissions necessary to run`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker plugin ls
 				ox.Usage(`ls`, `List plugins`),
 				ox.Banner(`List plugins`),
 				ox.Spec(`[OPTIONS]`),
@@ -1508,7 +1508,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Bool(`no-trunc`, `Don't truncate output`, ox.Section(0)).
 					Bool(`quiet`, `Only display plugin IDs`, ox.Short("q"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker plugin push
 				ox.Usage(`push`, `Push a plugin to a registry`),
 				ox.Banner(`Push a plugin to a registry`),
 				ox.Spec(`[OPTIONS] PLUGIN[:TAG]`),
@@ -1519,7 +1519,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 				ox.Flags().
 					Bool(`disable-content-trust`, `Skip image signing`, ox.Default("true"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker plugin rm
 				ox.Usage(`rm`, `Remove one or more plugins`),
 				ox.Banner(`Remove one or more plugins`),
 				ox.Spec(`[OPTIONS] PLUGIN [PLUGIN...]`),
@@ -1531,13 +1531,13 @@ For full details on using docker manifest lists, see the registry v2 specificati
 				ox.Flags().
 					Bool(`force`, `Force the removal of an active plugin`, ox.Short("f"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker plugin set
 				ox.Usage(`set`, `Change settings for a plugin`),
 				ox.Spec(`PLUGIN KEY=VALUE [KEY=VALUE...]`),
 				ox.Section(0),
 				ox.Footer(`Change settings for a plugin`),
 			),
-			ox.Sub(
+			ox.Sub( // docker plugin upgrade
 				ox.Usage(`upgrade`, `Upgrade an existing plugin`),
 				ox.Banner(`Upgrade an existing plugin`),
 				ox.Spec(`[OPTIONS] PLUGIN [REMOTE]`),
@@ -1551,14 +1551,14 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Bool(`skip-remote-check`, `Do not check if specified remote plugin`, ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // docker system
 			ox.Usage(`system`, `Manage Docker`),
 			ox.Banner(`Manage Docker`),
 			ox.Spec(`COMMAND`),
 			ox.Sections("Commands"),
 			ox.Section(1),
 			ox.Footer(`Run 'docker system COMMAND --help' for more information on a command.`),
-			ox.Sub(
+			ox.Sub( // docker system df
 				ox.Usage(`df`, `Show docker disk usage`),
 				ox.Banner(`Show docker disk usage`),
 				ox.Spec(`[OPTIONS]`),
@@ -1570,7 +1570,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					String(`format`, `Format output using a custom template:`, ox.Section(0)).
 					Bool(`verbose`, `Show detailed information on space usage`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker system events
 				ox.Usage(`events`, `Get real time events from the server`),
 				ox.Banner(`Get real time events from the server`),
 				ox.Spec(`[OPTIONS]`),
@@ -1585,7 +1585,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					String(`since`, `Show all events created since timestamp`, ox.Section(0)).
 					String(`until`, `Stream events until this timestamp`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker system info
 				ox.Usage(`info`, `Display system-wide information`),
 				ox.Banner(`Display system-wide information`),
 				ox.Spec(`[OPTIONS]`),
@@ -1597,7 +1597,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 				ox.Flags().
 					String(`format`, `Format output using a custom template:`, ox.Short("f"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker system prune
 				ox.Usage(`prune`, `Remove unused data`),
 				ox.Banner(`Remove unused data`),
 				ox.Spec(`[OPTIONS]`),
@@ -1612,21 +1612,21 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Bool(`volumes`, `Prune anonymous volumes`, ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // docker trust
 			ox.Usage(`trust`, `Manage trust on Docker images`),
 			ox.Banner(`Manage trust on Docker images`),
 			ox.Spec(`COMMAND`),
 			ox.Sections("Management Commands", "Commands"),
 			ox.Section(1),
 			ox.Footer(`Run 'docker trust COMMAND --help' for more information on a command.`),
-			ox.Sub(
+			ox.Sub( // docker trust key
 				ox.Usage(`key`, `Manage keys for signing Docker images`),
 				ox.Banner(`Manage keys for signing Docker images`),
 				ox.Spec(`COMMAND`),
 				ox.Sections("Commands"),
 				ox.Section(0),
 				ox.Footer(`Run 'docker trust key COMMAND --help' for more information on a command.`),
-				ox.Sub(
+				ox.Sub( // docker trust key generate
 					ox.Usage(`generate`, `Generate and load a signing key-pair`),
 					ox.Banner(`Generate and load a signing key-pair`),
 					ox.Spec(`NAME`),
@@ -1637,7 +1637,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					ox.Flags().
 						String(`dir`, `Directory to generate key in, defaults to current`, ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // docker trust key load
 					ox.Usage(`load`, `Load a private key file for signing`),
 					ox.Banner(`Load a private key file for signing`),
 					ox.Spec(`[OPTIONS] KEYFILE`),
@@ -1649,14 +1649,14 @@ For full details on using docker manifest lists, see the registry v2 specificati
 						String(`name`, `Name for the loaded key`, ox.Default("signer"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // docker trust signer
 				ox.Usage(`signer`, `Manage entities who can sign Docker images`),
 				ox.Banner(`Manage entities who can sign Docker images`),
 				ox.Spec(`COMMAND`),
 				ox.Sections("Commands"),
 				ox.Section(0),
 				ox.Footer(`Run 'docker trust signer COMMAND --help' for more information on a command.`),
-				ox.Sub(
+				ox.Sub( // docker trust signer add
 					ox.Usage(`add`, `Add a signer`),
 					ox.Banner(`Add a signer`),
 					ox.Spec(`OPTIONS NAME REPOSITORY [REPOSITORY...]`),
@@ -1667,7 +1667,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					ox.Flags().
 						Slice(`key`, `Path to the signer's public key file`, ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // docker trust signer remove
 					ox.Usage(`remove`, `Remove a signer`),
 					ox.Banner(`Remove a signer`),
 					ox.Spec(`[OPTIONS] NAME REPOSITORY [REPOSITORY...]`),
@@ -1679,7 +1679,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 						Bool(`force`, `Do not prompt for confirmation before removing the most`, ox.Short("f"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // docker trust inspect
 				ox.Usage(`inspect`, `Return low-level information about keys and signatures`),
 				ox.Banner(`Return low-level information about keys and signatures`),
 				ox.Spec(`IMAGE[:TAG] [IMAGE[:TAG]...]`),
@@ -1690,7 +1690,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 				ox.Flags().
 					Bool(`pretty`, `Print the information in a human friendly format`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker trust revoke
 				ox.Usage(`revoke`, `Remove trust for an image`),
 				ox.Banner(`Remove trust for an image`),
 				ox.Spec(`[OPTIONS] IMAGE[:TAG]`),
@@ -1701,7 +1701,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 				ox.Flags().
 					Bool(`yes`, `Do not prompt for confirmation`, ox.Short("y"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker trust sign
 				ox.Usage(`sign`, `Sign an image`),
 				ox.Banner(`Sign an image`),
 				ox.Spec(`IMAGE:TAG`),
@@ -1713,14 +1713,14 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Bool(`local`, `Sign a locally tagged image`, ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // docker volume
 			ox.Usage(`volume`, `Manage volumes`),
 			ox.Banner(`Manage volumes`),
 			ox.Spec(`COMMAND`),
 			ox.Sections("Commands"),
 			ox.Section(1),
 			ox.Footer(`Run 'docker volume COMMAND --help' for more information on a command.`),
-			ox.Sub(
+			ox.Sub( // docker volume create
 				ox.Usage(`create`, `Create a volume`),
 				ox.Banner(`Create a volume`),
 				ox.Spec(`[OPTIONS] [VOLUME]`),
@@ -1743,7 +1743,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Slice(`topology-required`, `A topology that the Cluster Volume must`, ox.Section(0)).
 					String(`type`, `Cluster Volume access type ("mount",`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker volume inspect
 				ox.Usage(`inspect`, `Display detailed information on one or more volumes`),
 				ox.Banner(`Display detailed information on one or more volumes`),
 				ox.Spec(`[OPTIONS] VOLUME [VOLUME...]`),
@@ -1754,7 +1754,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 				ox.Flags().
 					String(`format`, `Format output using a custom template:`, ox.Short("f"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker volume ls
 				ox.Usage(`ls`, `List volumes`),
 				ox.Banner(`List volumes`),
 				ox.Spec(`[OPTIONS]`),
@@ -1769,7 +1769,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					String(`format`, `Format output using a custom template:`, ox.Section(0)).
 					Bool(`quiet`, `Only display volume names`, ox.Short("q"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker volume prune
 				ox.Usage(`prune`, `Remove unused local volumes`),
 				ox.Banner(`Remove unused local volumes`),
 				ox.Spec(`[OPTIONS]`),
@@ -1782,7 +1782,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					String(`filter`, `Provide filter values (e.g. "label=<label>")`, ox.Spec(`filter`), ox.Section(0)).
 					Bool(`force`, `Do not prompt for confirmation`, ox.Short("f"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker volume rm
 				ox.Usage(`rm`, `Remove one or more volumes`),
 				ox.Banner(`Remove one or more volumes. You cannot remove a volume that is in use by a container.`),
 				ox.Spec(`[OPTIONS] VOLUME [VOLUME...]`),
@@ -1794,7 +1794,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 				ox.Flags().
 					Bool(`force`, `Force the removal of one or more volumes`, ox.Short("f"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker volume update
 				ox.Usage(`update`, `Update a volume (cluster volumes only)`),
 				ox.Banner(`Update a volume (cluster volumes only)`),
 				ox.Spec(`[OPTIONS] [VOLUME]`),
@@ -1806,14 +1806,14 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					String(`availability`, `Cluster Volume availability ("active",`, ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // docker config
 			ox.Usage(`config`, `Manage Swarm configs`),
 			ox.Banner(`Manage Swarm configs`),
 			ox.Spec(`COMMAND`),
 			ox.Sections("Commands"),
 			ox.Section(2),
 			ox.Footer(`Run 'docker config COMMAND --help' for more information on a command.`),
-			ox.Sub(
+			ox.Sub( // docker config create
 				ox.Usage(`create`, `Create a config from a file or STDIN`),
 				ox.Banner(`Create a config from a file or STDIN`),
 				ox.Spec(`[OPTIONS] CONFIG file|-`),
@@ -1825,7 +1825,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Slice(`label`, `Config labels`, ox.Short("l"), ox.Section(0)).
 					String(`template-driver`, `Template driver`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker config inspect
 				ox.Usage(`inspect`, `Display detailed information on one or more configs`),
 				ox.Banner(`Display detailed information on one or more configs`),
 				ox.Spec(`[OPTIONS] CONFIG [CONFIG...]`),
@@ -1837,7 +1837,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					String(`format`, `Format output using a custom template:`, ox.Short("f"), ox.Section(0)).
 					Bool(`pretty`, `Print the information in a human friendly format`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker config ls
 				ox.Usage(`ls`, `List configs`),
 				ox.Banner(`List configs`),
 				ox.Spec(`[OPTIONS]`),
@@ -1851,7 +1851,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					String(`format`, `Format output using a custom template:`, ox.Section(0)).
 					Bool(`quiet`, `Only display IDs`, ox.Short("q"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker config rm
 				ox.Usage(`rm`, `Remove one or more configs`),
 				ox.Banner(`Remove one or more configs`),
 				ox.Spec(`CONFIG [CONFIG...]`),
@@ -1859,20 +1859,20 @@ For full details on using docker manifest lists, see the registry v2 specificati
 				ox.Section(0),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // docker node
 			ox.Usage(`node`, `Manage Swarm nodes`),
 			ox.Banner(`Manage Swarm nodes`),
 			ox.Spec(`COMMAND`),
 			ox.Sections("Commands"),
 			ox.Section(2),
 			ox.Footer(`Run 'docker node COMMAND --help' for more information on a command.`),
-			ox.Sub(
+			ox.Sub( // docker node demote
 				ox.Usage(`demote`, `Demote one or more nodes from manager in the swarm`),
 				ox.Spec(`NODE [NODE...]`),
 				ox.Section(0),
 				ox.Footer(`Demote one or more nodes from manager in the swarm`),
 			),
-			ox.Sub(
+			ox.Sub( // docker node inspect
 				ox.Usage(`inspect`, `Display detailed information on one or more nodes`),
 				ox.Banner(`Display detailed information on one or more nodes`),
 				ox.Spec(`[OPTIONS] self|NODE [NODE...]`),
@@ -1884,7 +1884,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					String(`format`, `Format output using a custom template:`, ox.Short("f"), ox.Section(0)).
 					Bool(`pretty`, `Print the information in a human friendly format`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker node ls
 				ox.Usage(`ls`, `List nodes in the swarm`),
 				ox.Banner(`List nodes in the swarm`),
 				ox.Spec(`[OPTIONS]`),
@@ -1898,13 +1898,13 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					String(`format`, `Format output using a custom template:`, ox.Section(0)).
 					Bool(`quiet`, `Only display IDs`, ox.Short("q"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker node promote
 				ox.Usage(`promote`, `Promote one or more nodes to manager in the swarm`),
 				ox.Spec(`NODE [NODE...]`),
 				ox.Section(0),
 				ox.Footer(`Promote one or more nodes to manager in the swarm`),
 			),
-			ox.Sub(
+			ox.Sub( // docker node ps
 				ox.Usage(`ps`, `List tasks running on one or more nodes, defaults to current node`),
 				ox.Banner(`List tasks running on one or more nodes, defaults to current node`),
 				ox.Spec(`[OPTIONS] [NODE...]`),
@@ -1919,7 +1919,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Bool(`no-trunc`, `Do not truncate output`, ox.Section(0)).
 					Bool(`quiet`, `Only display task IDs`, ox.Short("q"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker node rm
 				ox.Usage(`rm`, `Remove one or more nodes from the swarm`),
 				ox.Banner(`Remove one or more nodes from the swarm`),
 				ox.Spec(`[OPTIONS] NODE [NODE...]`),
@@ -1931,7 +1931,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 				ox.Flags().
 					Bool(`force`, `Force remove a node from the swarm`, ox.Short("f"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker node update
 				ox.Usage(`update`, `Update a node`),
 				ox.Banner(`Update a node`),
 				ox.Spec(`[OPTIONS] NODE`),
@@ -1946,14 +1946,14 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					String(`role`, `Role of the node ("worker", "manager")`, ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // docker secret
 			ox.Usage(`secret`, `Manage Swarm secrets`),
 			ox.Banner(`Manage Swarm secrets`),
 			ox.Spec(`COMMAND`),
 			ox.Sections("Commands"),
 			ox.Section(2),
 			ox.Footer(`Run 'docker secret COMMAND --help' for more information on a command.`),
-			ox.Sub(
+			ox.Sub( // docker secret create
 				ox.Usage(`create`, `Create a secret from a file or STDIN as content`),
 				ox.Banner(`Create a secret from a file or STDIN as content`),
 				ox.Spec(`[OPTIONS] SECRET [file|-]`),
@@ -1966,7 +1966,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Slice(`label`, `Secret labels`, ox.Short("l"), ox.Section(0)).
 					String(`template-driver`, `Template driver`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker secret inspect
 				ox.Usage(`inspect`, `Display detailed information on one or more secrets`),
 				ox.Banner(`Display detailed information on one or more secrets`),
 				ox.Spec(`[OPTIONS] SECRET [SECRET...]`),
@@ -1978,7 +1978,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					String(`format`, `Format output using a custom template:`, ox.Short("f"), ox.Section(0)).
 					Bool(`pretty`, `Print the information in a human friendly format`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker secret ls
 				ox.Usage(`ls`, `List secrets`),
 				ox.Banner(`List secrets`),
 				ox.Spec(`[OPTIONS]`),
@@ -1992,7 +1992,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					String(`format`, `Format output using a custom template:`, ox.Section(0)).
 					Bool(`quiet`, `Only display IDs`, ox.Short("q"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker secret rm
 				ox.Usage(`rm`, `Remove one or more secrets`),
 				ox.Banner(`Remove one or more secrets`),
 				ox.Spec(`SECRET [SECRET...]`),
@@ -2000,14 +2000,14 @@ For full details on using docker manifest lists, see the registry v2 specificati
 				ox.Section(0),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // docker service
 			ox.Usage(`service`, `Manage Swarm services`),
 			ox.Banner(`Manage Swarm services`),
 			ox.Spec(`COMMAND`),
 			ox.Sections("Commands"),
 			ox.Section(2),
 			ox.Footer(`Run 'docker service COMMAND --help' for more information on a command.`),
-			ox.Sub(
+			ox.Sub( // docker service create
 				ox.Usage(`create`, `Create a new service`),
 				ox.Banner(`Create a new service`),
 				ox.Spec(`[OPTIONS] IMAGE [COMMAND] [ARG...]`),
@@ -2090,7 +2090,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Bool(`with-registry-auth`, `Send registry authentication`, ox.Section(0)).
 					String(`workdir`, `Working directory inside the`, ox.Short("w"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker service inspect
 				ox.Usage(`inspect`, `Display detailed information on one or more services`),
 				ox.Banner(`Display detailed information on one or more services`),
 				ox.Spec(`[OPTIONS] SERVICE [SERVICE...]`),
@@ -2102,7 +2102,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					String(`format`, `Format output using a custom template:`, ox.Short("f"), ox.Section(0)).
 					Bool(`pretty`, `Print the information in a human friendly format`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker service logs
 				ox.Usage(`logs`, `Fetch the logs of a service or task`),
 				ox.Banner(`Fetch the logs of a service or task`),
 				ox.Spec(`[OPTIONS] SERVICE|TASK`),
@@ -2121,7 +2121,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					String(`tail`, `Number of lines to show from the end of the logs`, ox.Short("n"), ox.Section(0)).
 					Bool(`timestamps`, `Show timestamps`, ox.Short("t"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker service ls
 				ox.Usage(`ls`, `List services`),
 				ox.Banner(`List services`),
 				ox.Spec(`[OPTIONS]`),
@@ -2135,7 +2135,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					String(`format`, `Format output using a custom template:`, ox.Section(0)).
 					Bool(`quiet`, `Only display IDs`, ox.Short("q"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker service ps
 				ox.Usage(`ps`, `List the tasks of one or more services`),
 				ox.Banner(`List the tasks of one or more services`),
 				ox.Spec(`[OPTIONS] SERVICE [SERVICE...]`),
@@ -2150,14 +2150,14 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Bool(`no-trunc`, `Do not truncate output`, ox.Section(0)).
 					Bool(`quiet`, `Only display task IDs`, ox.Short("q"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker service rm
 				ox.Usage(`rm`, `Remove one or more services`),
 				ox.Banner(`Remove one or more services`),
 				ox.Spec(`SERVICE [SERVICE...]`),
 				ox.Aliases("service rm", "service remove"),
 				ox.Section(0),
 			),
-			ox.Sub(
+			ox.Sub( // docker service rollback
 				ox.Usage(`rollback`, `Revert changes to a service's configuration`),
 				ox.Banner(`Revert changes to a service's configuration`),
 				ox.Spec(`[OPTIONS] SERVICE`),
@@ -2169,7 +2169,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Bool(`detach`, `Exit immediately instead of waiting for the service to`, ox.Short("d"), ox.Section(0)).
 					Bool(`quiet`, `Suppress progress output`, ox.Short("q"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker service scale
 				ox.Usage(`scale`, `Scale one or multiple replicated services`),
 				ox.Banner(`Scale one or multiple replicated services`),
 				ox.Spec(`SERVICE=REPLICAS [SERVICE=REPLICAS...]`),
@@ -2180,7 +2180,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 				ox.Flags().
 					Bool(`detach`, `Exit immediately instead of waiting for the service to`, ox.Short("d"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker service update
 				ox.Usage(`update`, `Update a service`),
 				ox.Banner(`Update a service`),
 				ox.Spec(`[OPTIONS] SERVICE`),
@@ -2283,14 +2283,14 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					String(`workdir`, `Working directory inside the`, ox.Short("w"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // docker stack
 			ox.Usage(`stack`, `Manage Swarm stacks`),
 			ox.Banner(`Manage Swarm stacks`),
 			ox.Spec(`COMMAND`),
 			ox.Sections("Commands"),
 			ox.Section(2),
 			ox.Footer(`Run 'docker stack COMMAND --help' for more information on a command.`),
-			ox.Sub(
+			ox.Sub( // docker stack config
 				ox.Usage(`config`, `Outputs the final config file, after doing merges and interpolations`),
 				ox.Banner(`Outputs the final config file, after doing merges and interpolations`),
 				ox.Spec(`[OPTIONS]`),
@@ -2302,7 +2302,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Slice(`compose-file`, `Path to a Compose file, or "-" to read`, ox.Short("c"), ox.Section(0)).
 					Bool(`skip-interpolation`, `Skip interpolation and output only merged`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker stack deploy
 				ox.Usage(`deploy`, `Deploy a new stack or update an existing stack`),
 				ox.Banner(`Deploy a new stack or update an existing stack`),
 				ox.Spec(`[OPTIONS] STACK`),
@@ -2319,7 +2319,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					String(`resolve-image`, `Query the registry to resolve image digest`, ox.Section(0)).
 					Bool(`with-registry-auth`, `Send registry authentication details to`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker stack ls
 				ox.Usage(`ls`, `List stacks`),
 				ox.Banner(`List stacks`),
 				ox.Spec(`[OPTIONS]`),
@@ -2331,7 +2331,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 				ox.Flags().
 					String(`format`, `Format output using a custom template:`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker stack ps
 				ox.Usage(`ps`, `List the tasks in the stack`),
 				ox.Banner(`List the tasks in the stack`),
 				ox.Spec(`[OPTIONS] STACK`),
@@ -2346,7 +2346,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Bool(`no-trunc`, `Do not truncate output`, ox.Section(0)).
 					Bool(`quiet`, `Only display task IDs`, ox.Short("q"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker stack rm
 				ox.Usage(`rm`, `Remove one or more stacks`),
 				ox.Banner(`Remove one or more stacks`),
 				ox.Spec(`[OPTIONS] STACK [STACK...]`),
@@ -2358,7 +2358,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 				ox.Flags().
 					Bool(`detach`, `Do not wait for stack removal`, ox.Default("true"), ox.Short("d"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker stack services
 				ox.Usage(`services`, `List the services in the stack`),
 				ox.Banner(`List the services in the stack`),
 				ox.Spec(`[OPTIONS] STACK`),
@@ -2372,14 +2372,14 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Bool(`quiet`, `Only display IDs`, ox.Short("q"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // docker swarm
 			ox.Usage(`swarm`, `Manage Swarm`),
 			ox.Banner(`Manage Swarm`),
 			ox.Spec(`COMMAND`),
 			ox.Sections("Commands"),
 			ox.Section(2),
 			ox.Footer(`Run 'docker swarm COMMAND --help' for more information on a command.`),
-			ox.Sub(
+			ox.Sub( // docker swarm ca
 				ox.Usage(`ca`, `Display and rotate the root CA`),
 				ox.Banner(`Display and rotate the root CA`),
 				ox.Spec(`[OPTIONS]`),
@@ -2396,7 +2396,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Bool(`quiet`, `Suppress progress output`, ox.Short("q"), ox.Section(0)).
 					Bool(`rotate`, `Rotate the swarm CA - if no certificate`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker swarm init
 				ox.Usage(`init`, `Initialize a swarm`),
 				ox.Banner(`Initialize a swarm`),
 				ox.Spec(`[OPTIONS]`),
@@ -2421,7 +2421,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Uint(`snapshot-interval`, `Number of log entries`, ox.Section(0)).
 					Int(`task-history-limit`, `Task history retention`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker swarm join
 				ox.Usage(`join`, `Join a swarm as a node and/or manager`),
 				ox.Banner(`Join a swarm as a node and/or manager`),
 				ox.Spec(`[OPTIONS] HOST:PORT`),
@@ -2436,7 +2436,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					AddrPort(`listen-addr`, `Listen address (format:`, ox.Section(0)).
 					String(`token`, `Token for entry into the swarm`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker swarm join-token
 				ox.Usage(`join-token`, `Manage join tokens`),
 				ox.Banner(`Manage join tokens`),
 				ox.Spec(`[OPTIONS] (worker|manager)`),
@@ -2448,7 +2448,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Bool(`quiet`, `Only display token`, ox.Short("q"), ox.Section(0)).
 					Bool(`rotate`, `Rotate join token`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker swarm leave
 				ox.Usage(`leave`, `Leave the swarm`),
 				ox.Banner(`Leave the swarm`),
 				ox.Spec(`[OPTIONS]`),
@@ -2459,12 +2459,12 @@ For full details on using docker manifest lists, see the registry v2 specificati
 				ox.Flags().
 					Bool(`force`, `Force this node to leave the swarm, ignoring warnings`, ox.Short("f"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker swarm unlock
 				ox.Usage(`unlock`, `Unlock swarm`),
 				ox.Section(0),
 				ox.Footer(`Unlock swarm`),
 			),
-			ox.Sub(
+			ox.Sub( // docker swarm unlock-key
 				ox.Usage(`unlock-key`, `Manage the unlock key`),
 				ox.Banner(`Manage the unlock key`),
 				ox.Spec(`[OPTIONS]`),
@@ -2476,7 +2476,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Bool(`quiet`, `Only display token`, ox.Short("q"), ox.Section(0)).
 					Bool(`rotate`, `Rotate unlock key`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // docker swarm update
 				ox.Usage(`update`, `Update the swarm`),
 				ox.Banner(`Update the swarm`),
 				ox.Spec(`[OPTIONS]`),
@@ -2494,7 +2494,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 					Int(`task-history-limit`, `Task history retention limit`, ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // docker attach
 			ox.Usage(`attach`, `Attach local standard input, output, and error streams to a running container`),
 			ox.Banner(`Attach local standard input, output, and error streams to a running container`),
 			ox.Spec(`[OPTIONS] CONTAINER`),
@@ -2508,7 +2508,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 				Bool(`no-stdin`, `Do not attach STDIN`, ox.Section(0)).
 				Bool(`sig-proxy`, `Proxy all received signals to the process`, ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker commit
 			ox.Usage(`commit`, `Create a new image from a container's changes`),
 			ox.Banner(`Create a new image from a container's changes`),
 			ox.Spec(`[OPTIONS] CONTAINER [REPOSITORY[:TAG]]`),
@@ -2523,7 +2523,7 @@ For full details on using docker manifest lists, see the registry v2 specificati
 				String(`message`, `Commit message`, ox.Short("m"), ox.Section(0)).
 				Bool(`pause`, `Pause container during commit`, ox.Default("true"), ox.Short("p"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker cp
 			ox.Usage(`cp`, `Copy files/folders between a container and the local filesystem`),
 			ox.Banner(`docker cp [OPTIONS] SRC_PATH|- CONTAINER:DEST_PATH
 
@@ -2544,7 +2544,7 @@ container source to stdout.`),
 				Bool(`follow-link`, `Always follow symbol link in SRC_PATH`, ox.Short("L"), ox.Section(0)).
 				Bool(`quiet`, `Suppress progress output during copy. Progress`, ox.Short("q"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker create
 			ox.Usage(`create`, `Create a new container`),
 			ox.Banner(`Create a new container`),
 			ox.Spec(`[OPTIONS] IMAGE [COMMAND] [ARG...]`),
@@ -2655,14 +2655,14 @@ container source to stdout.`),
 				Slice(`volumes-from`, `Mount volumes from the specified`, ox.Section(0)).
 				String(`workdir`, `Working directory inside the`, ox.Short("w"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker diff
 			ox.Usage(`diff`, `Inspect changes to files or directories on a container's filesystem`),
 			ox.Banner(`Inspect changes to files or directories on a container's filesystem`),
 			ox.Spec(`CONTAINER`),
 			ox.Aliases("container diff"),
 			ox.Section(3),
 		),
-		ox.Sub(
+		ox.Sub( // docker events
 			ox.Usage(`events`, `Get real time events from the server`),
 			ox.Banner(`Get real time events from the server`),
 			ox.Spec(`[OPTIONS]`),
@@ -2677,7 +2677,7 @@ container source to stdout.`),
 				String(`since`, `Show all events created since timestamp`, ox.Section(0)).
 				String(`until`, `Stream events until this timestamp`, ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker export
 			ox.Usage(`export`, `Export a container's filesystem as a tar archive`),
 			ox.Banner(`Export a container's filesystem as a tar archive`),
 			ox.Spec(`[OPTIONS] CONTAINER`),
@@ -2689,7 +2689,7 @@ container source to stdout.`),
 			ox.Flags().
 				String(`output`, `Write to a file, instead of STDOUT`, ox.Short("o"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker history
 			ox.Usage(`history`, `Show the history of an image`),
 			ox.Banner(`Show the history of an image`),
 			ox.Spec(`[OPTIONS] IMAGE`),
@@ -2705,7 +2705,7 @@ container source to stdout.`),
 				String(`platform`, `Show history for the given platform. Formatted`, ox.Section(0)).
 				Bool(`quiet`, `Only show image IDs`, ox.Short("q"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker import
 			ox.Usage(`import`, `Import the contents from a tarball to create a filesystem image`),
 			ox.Banner(`Import the contents from a tarball to create a filesystem image`),
 			ox.Spec(`[OPTIONS] file|URL|- [REPOSITORY[:TAG]]`),
@@ -2719,7 +2719,7 @@ container source to stdout.`),
 				String(`message`, `Set commit message for imported image`, ox.Short("m"), ox.Section(0)).
 				String(`platform`, `Set platform if server is multi-platform capable`, ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker inspect
 			ox.Usage(`inspect`, `Return low-level information on Docker objects`),
 			ox.Banner(`Return low-level information on Docker objects`),
 			ox.Spec(`[OPTIONS] NAME|ID [NAME|ID...]`),
@@ -2732,7 +2732,7 @@ container source to stdout.`),
 				Bool(`size`, `Display total file sizes if the type is container`, ox.Short("s"), ox.Section(0)).
 				String(`type`, `Return JSON for specified type`, ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker kill
 			ox.Usage(`kill`, `Kill one or more running containers`),
 			ox.Banner(`Kill one or more running containers`),
 			ox.Spec(`[OPTIONS] CONTAINER [CONTAINER...]`),
@@ -2744,7 +2744,7 @@ container source to stdout.`),
 			ox.Flags().
 				String(`signal`, `Signal to send to the container`, ox.Short("s"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker load
 			ox.Usage(`load`, `Load an image from a tar archive or STDIN`),
 			ox.Banner(`Load an image from a tar archive or STDIN`),
 			ox.Spec(`[OPTIONS]`),
@@ -2758,7 +2758,7 @@ container source to stdout.`),
 				String(`platform`, `Load only the given platform variant. Formatted`, ox.Section(0)).
 				Bool(`quiet`, `Suppress the load output`, ox.Short("q"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker logs
 			ox.Usage(`logs`, `Fetch the logs of a container`),
 			ox.Banner(`Fetch the logs of a container`),
 			ox.Spec(`[OPTIONS] CONTAINER`),
@@ -2775,28 +2775,28 @@ container source to stdout.`),
 				Bool(`timestamps`, `Show timestamps`, ox.Short("t"), ox.Section(0)).
 				String(`until`, `Show logs before a timestamp (e.g.`, ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker pause
 			ox.Usage(`pause`, `Pause all processes within one or more containers`),
 			ox.Banner(`Pause all processes within one or more containers`),
 			ox.Spec(`CONTAINER [CONTAINER...]`),
 			ox.Aliases("container pause"),
 			ox.Section(3),
 		),
-		ox.Sub(
+		ox.Sub( // docker port
 			ox.Usage(`port`, `List port mappings or a specific mapping for the container`),
 			ox.Banner(`List port mappings or a specific mapping for the container`),
 			ox.Spec(`CONTAINER [PRIVATE_PORT[/PROTO]]`),
 			ox.Aliases("container port"),
 			ox.Section(3),
 		),
-		ox.Sub(
+		ox.Sub( // docker rename
 			ox.Usage(`rename`, `Rename a container`),
 			ox.Banner(`Rename a container`),
 			ox.Spec(`CONTAINER NEW_NAME`),
 			ox.Aliases("container rename"),
 			ox.Section(3),
 		),
-		ox.Sub(
+		ox.Sub( // docker restart
 			ox.Usage(`restart`, `Restart one or more containers`),
 			ox.Banner(`Restart one or more containers`),
 			ox.Spec(`[OPTIONS] CONTAINER [CONTAINER...]`),
@@ -2809,7 +2809,7 @@ container source to stdout.`),
 				String(`signal`, `Signal to send to the container`, ox.Short("s"), ox.Section(0)).
 				Int(`timeout`, `Seconds to wait before killing the container`, ox.Short("t"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker rm
 			ox.Usage(`rm`, `Remove one or more containers`),
 			ox.Banner(`Remove one or more containers`),
 			ox.Spec(`[OPTIONS] CONTAINER [CONTAINER...]`),
@@ -2823,7 +2823,7 @@ container source to stdout.`),
 				Bool(`link`, `Remove the specified link`, ox.Short("l"), ox.Section(0)).
 				Bool(`volumes`, `Remove anonymous volumes associated with the container`, ox.Short("v"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker rmi
 			ox.Usage(`rmi`, `Remove one or more images`),
 			ox.Banner(`Remove one or more images`),
 			ox.Spec(`[OPTIONS] IMAGE [IMAGE...]`),
@@ -2836,7 +2836,7 @@ container source to stdout.`),
 				Bool(`force`, `Force removal of the image`, ox.Short("f"), ox.Section(0)).
 				Bool(`no-prune`, `Do not delete untagged parents`, ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker save
 			ox.Usage(`save`, `Save one or more images to a tar archive (streamed to STDOUT by default)`),
 			ox.Banner(`Save one or more images to a tar archive (streamed to STDOUT by default)`),
 			ox.Spec(`[OPTIONS] IMAGE [IMAGE...]`),
@@ -2849,7 +2849,7 @@ container source to stdout.`),
 				String(`output`, `Write to a file, instead of STDOUT`, ox.Short("o"), ox.Section(0)).
 				String(`platform`, `Save only the given platform variant. Formatted`, ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker start
 			ox.Usage(`start`, `Start one or more stopped containers`),
 			ox.Banner(`Start one or more stopped containers`),
 			ox.Spec(`[OPTIONS] CONTAINER [CONTAINER...]`),
@@ -2865,7 +2865,7 @@ container source to stdout.`),
 				String(`detach-keys`, `Override the key sequence for detaching a`, ox.Section(0)).
 				Bool(`interactive`, `Attach container's STDIN`, ox.Short("i"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker stats
 			ox.Usage(`stats`, `Display a live stream of container(s) resource usage statistics`),
 			ox.Banner(`Display a live stream of container(s) resource usage statistics`),
 			ox.Spec(`[OPTIONS] [CONTAINER...]`),
@@ -2880,7 +2880,7 @@ container source to stdout.`),
 				Bool(`no-stream`, `Disable streaming stats and only pull the first result`, ox.Section(0)).
 				Bool(`no-trunc`, `Do not truncate output`, ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker stop
 			ox.Usage(`stop`, `Stop one or more running containers`),
 			ox.Banner(`Stop one or more running containers`),
 			ox.Spec(`[OPTIONS] CONTAINER [CONTAINER...]`),
@@ -2893,28 +2893,28 @@ container source to stdout.`),
 				String(`signal`, `Signal to send to the container`, ox.Short("s"), ox.Section(0)).
 				Int(`timeout`, `Seconds to wait before killing the container`, ox.Short("t"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker tag
 			ox.Usage(`tag`, `Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE`),
 			ox.Banner(`Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE`),
 			ox.Spec(`SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]`),
 			ox.Aliases("image tag"),
 			ox.Section(3),
 		),
-		ox.Sub(
+		ox.Sub( // docker top
 			ox.Usage(`top`, `Display the running processes of a container`),
 			ox.Banner(`Display the running processes of a container`),
 			ox.Spec(`CONTAINER [ps OPTIONS]`),
 			ox.Aliases("container top"),
 			ox.Section(3),
 		),
-		ox.Sub(
+		ox.Sub( // docker unpause
 			ox.Usage(`unpause`, `Unpause all processes within one or more containers`),
 			ox.Banner(`Unpause all processes within one or more containers`),
 			ox.Spec(`CONTAINER [CONTAINER...]`),
 			ox.Aliases("container unpause"),
 			ox.Section(3),
 		),
-		ox.Sub(
+		ox.Sub( // docker update
 			ox.Usage(`update`, `Update configuration of one or more containers`),
 			ox.Banner(`Update configuration of one or more containers`),
 			ox.Spec(`[OPTIONS] CONTAINER [CONTAINER...]`),
@@ -2939,7 +2939,7 @@ container source to stdout.`),
 				Int(`pids-limit`, `Tune container pids limit (set -1 for`, ox.Section(0)).
 				String(`restart`, `Restart policy to apply when a`, ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // docker wait
 			ox.Usage(`wait`, `Block until one or more containers stop, then print their exit codes`),
 			ox.Banner(`Block until one or more containers stop, then print their exit codes`),
 			ox.Spec(`CONTAINER [CONTAINER...]`),

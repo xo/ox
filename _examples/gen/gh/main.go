@@ -25,7 +25,7 @@ func main() {
   Read the manual at https://cli.github.com/manual
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
-		ox.Sub(
+		ox.Sub( // gh auth
 			ox.Usage(`auth`, `Authenticate gh and git with GitHub`),
 			ox.Banner(`Authenticate gh and git with GitHub`),
 			ox.Spec(`<command> [flags]`),
@@ -34,7 +34,7 @@ func main() {
   Read the manual at https://cli.github.com/manual
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
-			ox.Sub(
+			ox.Sub( // gh auth login
 				ox.Usage(`login`, `Log in to a GitHub account`),
 				ox.Banner(`Authenticate with a GitHub host.
 
@@ -95,7 +95,7 @@ For more information on OAuth scopes, see
 					Bool(`web`, `Open a browser to authenticate`, ox.Short("w"), ox.Section(0)).
 					Bool(`with-token`, `Read token from standard input`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh auth logout
 				ox.Usage(`logout`, `Log out of a GitHub account`),
 				ox.Banner(`Remove authentication for a GitHub account.
 
@@ -135,7 +135,7 @@ For more information about revoking OAuth application tokens, see:
 					String(`hostname`, `The hostname of the GitHub instance to log out of`, ox.Short("h"), ox.Section(0)).
 					String(`user`, `The account to log out of`, ox.Short("u"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh auth refresh
 				ox.Usage(`refresh`, `Refresh stored authentication credentials`),
 				ox.Banner(`Expand or fix the permission scopes for stored credentials for active account.
 
@@ -183,7 +183,7 @@ For more information on OAuth scopes, see
 					Bool(`reset-scopes`, `Reset authentication scopes to the default minimum set of scopes`, ox.Section(0)).
 					Slice(`scopes`, `Additional authentication scopes for gh to have`, ox.Short("s"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh auth setup-git
 				ox.Usage(`setup-git`, `Setup git with GitHub CLI`),
 				ox.Banner(`This command configures `+"`"+`git`+"`"+` to use GitHub CLI as a credential helper.
 For more information on git credential helpers please reference:
@@ -212,7 +212,7 @@ If the host is not authenticated with, the command fails with an error.`),
 					String(`force`, `Force setup even if the host is not known. Must be used in conjunction with --hostname`, ox.Spec(`--hostname`), ox.Short("f"), ox.Section(0)).
 					String(`hostname`, `The hostname to configure git for`, ox.Short("h"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh auth status
 				ox.Usage(`status`, `Display active account and authentication state on each known GitHub host`),
 				ox.Banner(`Display active account and authentication state on each known GitHub host.
 
@@ -235,7 +235,7 @@ To change the active account for a host, see `+"`"+`gh auth switch`+"`"+`.`),
 					String(`hostname`, `Check only a specific hostname's auth status`, ox.Short("h"), ox.Section(0)).
 					Bool(`show-token`, `Display the auth token`, ox.Short("t"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh auth switch
 				ox.Usage(`switch`, `Switch active GitHub account`),
 				ox.Banner(`Switch the active account for a GitHub host.
 
@@ -265,7 +265,7 @@ For a list of authenticated accounts you can run `+"`"+`gh auth status`+"`"+`.`)
 					String(`hostname`, `The hostname of the GitHub instance to switch account for`, ox.Short("h"), ox.Section(0)).
 					String(`user`, `The account to switch to`, ox.Short("u"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh auth token
 				ox.Usage(`token`, `Print the authentication token gh uses for a hostname and account`),
 				ox.Banner(`This command outputs the authentication token for an account on a given GitHub host.
 
@@ -285,7 +285,7 @@ Without the `+"`"+`--user`+"`"+` flag, the active account for the host is chosen
 					String(`user`, `The account to output the token for`, ox.Short("u"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // gh browse
 			ox.Usage(`browse`, `Open repositories, issues, pull requests, and more in the browser`),
 			ox.Banner(`Transition from the terminal to the web browser to view and interact with:
 
@@ -337,7 +337,7 @@ Without the `+"`"+`--user`+"`"+` flag, the active account for the host is chosen
 				Bool(`settings`, `Open repository settings`, ox.Short("s"), ox.Section(0)).
 				Bool(`wiki`, `Open repository wiki`, ox.Short("w"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // gh codespace
 			ox.Usage(`codespace`, `Connect to and manage codespaces`),
 			ox.Banner(`Connect to and manage codespaces`),
 			ox.Spec(`[flags]`),
@@ -347,7 +347,7 @@ Without the `+"`"+`--user`+"`"+` flag, the active account for the host is chosen
   Read the manual at https://cli.github.com/manual
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
-			ox.Sub(
+			ox.Sub( // gh codespace code
 				ox.Usage(`code`, `Open a codespace in Visual Studio Code`),
 				ox.Banner(`Open a codespace in Visual Studio Code`),
 				ox.Spec(`[flags]`),
@@ -365,7 +365,7 @@ Without the `+"`"+`--user`+"`"+` flag, the active account for the host is chosen
 					String(`repo-owner`, `Filter codespace selection by repository owner (username or org)`, ox.Section(0)).
 					Bool(`web`, `Use the web version of Visual Studio Code`, ox.Short("w"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh codespace cp
 				ox.Usage(`cp`, `Copy files between local and remote file systems`),
 				ox.Banner(`The `+"`"+`cp`+"`"+` command copies files between the local and remote file systems.
 
@@ -408,7 +408,7 @@ the codespace inside the `+"`"+`~/.ssh directory`+"`"+`.`),
 					String(`repo`, `Filter codespace selection by repository name (user/repo)`, ox.Short("R"), ox.Section(0)).
 					String(`repo-owner`, `Filter codespace selection by repository owner (username or org)`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh codespace create
 				ox.Usage(`create`, `Create a codespace`),
 				ox.Banner(`Create a codespace`),
 				ox.Spec(`[flags]`),
@@ -432,7 +432,7 @@ the codespace inside the `+"`"+`~/.ssh directory`+"`"+`.`),
 					Bool(`status`, `Show status of post-create command and dotfiles`, ox.Short("s"), ox.Section(0)).
 					Bool(`web`, `Create codespace from browser, cannot be used with --display-name, --idle-timeout, or --retention-period`, ox.Short("w"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh codespace delete
 				ox.Usage(`delete`, `Delete codespaces`),
 				ox.Banner(`Delete codespaces based on selection criteria.
 
@@ -458,7 +458,7 @@ Organization administrators may delete any codespace billed to the organization.
 					String(`repo-owner`, `Filter codespace selection by repository owner (username or org)`, ox.Section(0)).
 					String(`user`, `The username to delete codespaces for (used with --org)`, ox.Spec(`username`), ox.Short("u"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh codespace edit
 				ox.Usage(`edit`, `Edit a codespace`),
 				ox.Banner(`Edit a codespace`),
 				ox.Spec(`[flags]`),
@@ -476,7 +476,7 @@ Organization administrators may delete any codespace billed to the organization.
 					String(`repo`, `Filter codespace selection by repository name (user/repo)`, ox.Short("R"), ox.Section(0)).
 					String(`repo-owner`, `Filter codespace selection by repository owner (username or org)`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh codespace jupyter
 				ox.Usage(`jupyter`, `Open a codespace in JupyterLab`),
 				ox.Banner(`Open a codespace in JupyterLab`),
 				ox.Spec(`[flags]`),
@@ -492,7 +492,7 @@ Organization administrators may delete any codespace billed to the organization.
 					String(`repo`, `Filter codespace selection by repository name (user/repo)`, ox.Short("R"), ox.Section(0)).
 					String(`repo-owner`, `Filter codespace selection by repository owner (username or org)`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh codespace list
 				ox.Usage(`list`, `List codespaces`),
 				ox.Banner(`List codespaces of the authenticated user.
 
@@ -518,7 +518,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`user`, `The username to list codespaces for (used with --org)`, ox.Spec(`username`), ox.Short("u"), ox.Section(0)).
 					Bool(`web`, `List codespaces in the web browser, cannot be used with --user or --org`, ox.Short("w"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh codespace logs
 				ox.Usage(`logs`, `Access codespace logs`),
 				ox.Banner(`Access codespace logs`),
 				ox.Spec(`[flags]`),
@@ -535,7 +535,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`repo`, `Filter codespace selection by repository name (user/repo)`, ox.Short("R"), ox.Section(0)).
 					String(`repo-owner`, `Filter codespace selection by repository owner (username or org)`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh codespace ports
 				ox.Usage(`ports`, `List ports in a codespace`),
 				ox.Banner(`List ports in a codespace
 
@@ -555,7 +555,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`repo`, `Filter codespace selection by repository name (user/repo)`, ox.Short("R"), ox.Section(0)).
 					String(`repo-owner`, `Filter codespace selection by repository owner (username or org)`, ox.Section(0)).
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // gh codespace ports forward
 					ox.Usage(`forward`, `Forward ports`),
 					ox.Banner(`Forward ports`),
 					ox.Spec(`<remote-port>:<local-port>... [flags]`),
@@ -571,7 +571,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 						String(`repo`, `Filter codespace selection by repository name (user/repo)`, ox.Short("R"), ox.Section(0)).
 						String(`repo-owner`, `Filter codespace selection by repository owner (username or org)`, ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // gh codespace ports visibility
 					ox.Usage(`visibility`, `Change the visibility of the forwarded port`),
 					ox.Banner(`Change the visibility of the forwarded port`),
 					ox.Spec(`<port>:{public|private|org}... [flags]`),
@@ -590,7 +590,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 						String(`repo-owner`, `Filter codespace selection by repository owner (username or org)`, ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // gh codespace rebuild
 				ox.Usage(`rebuild`, `Rebuild a codespace`),
 				ox.Banner(`Rebuilding recreates your codespace.
 
@@ -610,7 +610,7 @@ your working directory's dev container. A full rebuild also removes cached Docke
 					String(`repo`, `Filter codespace selection by repository name (user/repo)`, ox.Short("R"), ox.Section(0)).
 					String(`repo-owner`, `Filter codespace selection by repository owner (username or org)`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh codespace ssh
 				ox.Usage(`ssh`, `SSH into a codespace`),
 				ox.Banner(`The `+"`"+`ssh`+"`"+` command is used to SSH into a codespace. In its simplest form, you can
 run `+"`"+`gh cs ssh`+"`"+`, select a codespace interactively, and connect.
@@ -666,7 +666,7 @@ you can add the following to your `+"`"+`devcontainer.json`+"`"+`:
 					String(`repo-owner`, `Filter codespace selection by repository owner (username or org)`, ox.Section(0)).
 					Int(`server-port`, `SSH server port number (0 => pick unused)`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh codespace stop
 				ox.Usage(`stop`, `Stop a running codespace`),
 				ox.Banner(`Stop a running codespace`),
 				ox.Spec(`[flags]`),
@@ -684,7 +684,7 @@ you can add the following to your `+"`"+`devcontainer.json`+"`"+`:
 					String(`repo-owner`, `Filter codespace selection by repository owner (username or org)`, ox.Section(0)).
 					String(`user`, `The username to stop codespace for (used with --org)`, ox.Spec(`username`), ox.Short("u"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh codespace view
 				ox.Usage(`view`, `View details about a codespace`),
 				ox.Banner(`View details about a codespace
 
@@ -718,7 +718,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // gh gist
 			ox.Usage(`gist`, `Manage gists`),
 			ox.Banner(`Work with GitHub gists.`),
 			ox.Spec(`<command> [flags]`),
@@ -727,7 +727,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
   Read the manual at https://cli.github.com/manual
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
-			ox.Sub(
+			ox.Sub( // gh gist clone
 				ox.Usage(`clone`, `Clone a gist locally`),
 				ox.Banner(`Clone a GitHub gist locally.
 
@@ -742,7 +742,7 @@ Pass additional `+"`"+`git clone`+"`"+` flags by listing them after `+"`"+`--`+"
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 			),
-			ox.Sub(
+			ox.Sub( // gh gist create
 				ox.Usage(`create`, `Create a new gist`),
 				ox.Banner(`Create a new GitHub gist with given contents.
 
@@ -783,7 +783,7 @@ By default, gists are secret; use `+"`"+`--public`+"`"+` to make publicly listed
 					Bool(`public`, `List the gist publicly`, ox.Default("secret"), ox.Short("p"), ox.Section(0)).
 					Bool(`web`, `Open the web browser with created gist`, ox.Short("w"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh gist delete
 				ox.Usage(`delete`, `Delete a gist`),
 				ox.Banner(`Delete a GitHub gist.
 
@@ -807,7 +807,7 @@ To delete a gist non-interactively, supply the gist id or url.`),
 				ox.Flags().
 					Bool(`yes`, `Confirm deletion without prompting`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh gist edit
 				ox.Usage(`edit`, `Edit one of your gists`),
 				ox.Banner(`Edit one of your gists`),
 				ox.Spec(`{<id> | <url>} [<filename>] [flags]`),
@@ -824,7 +824,7 @@ To delete a gist non-interactively, supply the gist id or url.`),
 					String(`filename`, `Select a file to edit`, ox.Short("f"), ox.Section(0)).
 					String(`remove`, `Remove a file from the gist`, ox.Short("r"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh gist list
 				ox.Usage(`list`, `List your gists`),
 				ox.Banner(`List gists from your user account.
 
@@ -864,7 +864,7 @@ No highlights or other color is printed when output is redirected.`),
 					Bool(`public`, `Show only public gists`, ox.Section(0)).
 					Bool(`secret`, `Show only secret gists`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh gist rename
 				ox.Usage(`rename`, `Rename a file in a gist`),
 				ox.Banner(`Rename a file in the given gist ID / URL.`),
 				ox.Spec(`{<id> | <url>} <old-filename> <new-filename> [flags]`),
@@ -873,7 +873,7 @@ No highlights or other color is printed when output is redirected.`),
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 			),
-			ox.Sub(
+			ox.Sub( // gh gist view
 				ox.Usage(`view`, `View a gist`),
 				ox.Banner(`View the given gist or select from recent gists.`),
 				ox.Spec(`[<id> | <url>] [flags]`),
@@ -891,7 +891,7 @@ No highlights or other color is printed when output is redirected.`),
 					Bool(`web`, `Open gist in the browser`, ox.Short("w"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // gh issue
 			ox.Usage(`issue`, `Manage issues`),
 			ox.Banner(`Work with GitHub issues.`),
 			ox.Spec(`<command> [flags]`),
@@ -910,7 +910,7 @@ No highlights or other color is printed when output is redirected.`),
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 			ox.Flags().
 				String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // gh issue create
 				ox.Usage(`create`, `Create a new issue`),
 				ox.Banner(`Create an issue on GitHub.
 
@@ -949,7 +949,7 @@ To authorize, run `+"`"+`gh auth refresh -s project`+"`"+`.`),
 					Bool(`web`, `Open the browser to create an issue`, ox.Short("w"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh issue list
 				ox.Usage(`list`, `List issues in a repository`),
 				ox.Banner(`List issues in a GitHub repository. By default, this only lists open issues.
 
@@ -991,7 +991,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					Bool(`web`, `List issues in the web browser`, ox.Short("w"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh issue status
 				ox.Usage(`status`, `Show status of relevant issues`),
 				ox.Banner(`Show status of relevant issues
 
@@ -1012,7 +1012,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh issue close
 				ox.Usage(`close`, `Close issue`),
 				ox.Banner(`Close issue`),
 				ox.Spec(`{<number> | <url>} [flags]`),
@@ -1030,7 +1030,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`reason`, `Reason for closing: {completed|not planned}`, ox.Short("r"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh issue comment
 				ox.Usage(`comment`, `Add a comment to an issue`),
 				ox.Banner(`Add a comment to a GitHub issue.
 
@@ -1059,7 +1059,7 @@ prompt for the comment text.`),
 					Bool(`yes`, `Skip the delete confirmation prompt when --delete-last is provided`, ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh issue delete
 				ox.Usage(`delete`, `Delete issue`),
 				ox.Banner(`Delete issue`),
 				ox.Spec(`{<number> | <url>} [flags]`),
@@ -1076,7 +1076,7 @@ prompt for the comment text.`),
 					Bool(`yes`, `Confirm deletion without prompting`, ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh issue develop
 				ox.Usage(`develop`, `Manage linked branches for an issue`),
 				ox.Banner(`Manage linked branches for an issue.
 
@@ -1116,7 +1116,7 @@ remote branch. The new branch will be configured as the base branch for pull req
 					String(`name`, `Name of the branch to create`, ox.Short("n"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh issue edit
 				ox.Usage(`edit`, `Edit issues`),
 				ox.Banner(`Edit one or more issues within the same repository.
 
@@ -1161,7 +1161,7 @@ the following special values:
 					String(`title`, `Set the new title.`, ox.Short("t"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh issue lock
 				ox.Usage(`lock`, `Lock issue conversation`),
 				ox.Banner(`Lock issue conversation`),
 				ox.Spec(`{<number> | <url>} [flags]`),
@@ -1178,7 +1178,7 @@ the following special values:
 					String(`reason`, `Optional reason for locking conversation (off_topic, resolved, spam, too_heated).`, ox.Short("r"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh issue pin
 				ox.Usage(`pin`, `Pin a issue`),
 				ox.Banner(`Pin an issue to a repository.
 
@@ -1204,7 +1204,7 @@ The issue can be specified by issue number or URL.`),
 				ox.Flags().
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh issue reopen
 				ox.Usage(`reopen`, `Reopen issue`),
 				ox.Banner(`Reopen issue`),
 				ox.Spec(`{<number> | <url>} [flags]`),
@@ -1221,7 +1221,7 @@ The issue can be specified by issue number or URL.`),
 					String(`comment`, `Add a reopening comment`, ox.Short("c"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh issue transfer
 				ox.Usage(`transfer`, `Transfer issue to another repository`),
 				ox.Banner(`Transfer issue to another repository`),
 				ox.Spec(`{<number> | <url>} <destination-repo> [flags]`),
@@ -1236,7 +1236,7 @@ The issue can be specified by issue number or URL.`),
 				ox.Flags().
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh issue unlock
 				ox.Usage(`unlock`, `Unlock issue conversation`),
 				ox.Banner(`Unlock issue conversation`),
 				ox.Spec(`{<number> | <url>} [flags]`),
@@ -1251,7 +1251,7 @@ The issue can be specified by issue number or URL.`),
 				ox.Flags().
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh issue unpin
 				ox.Usage(`unpin`, `Unpin a issue`),
 				ox.Banner(`Unpin an issue from a repository.
 
@@ -1277,7 +1277,7 @@ The issue can be specified by issue number or URL.`),
 				ox.Flags().
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh issue view
 				ox.Usage(`view`, `View an issue`),
 				ox.Banner(`Display the title, body, and other information about an issue.
 
@@ -1303,7 +1303,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // gh org
 			ox.Usage(`org`, `Manage organizations`),
 			ox.Banner(`Work with GitHub organizations.`),
 			ox.Spec(`<command> [flags]`),
@@ -1315,7 +1315,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
   Read the manual at https://cli.github.com/manual
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
-			ox.Sub(
+			ox.Sub( // gh org list
 				ox.Usage(`list`, `List organizations for the authenticated user.`),
 				ox.Banner(`List organizations for the authenticated user.`),
 				ox.Spec(`[flags]`),
@@ -1338,7 +1338,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					Int(`limit`, `Maximum number of organizations to list`, ox.Default("30"), ox.Short("L"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // gh pr
 			ox.Usage(`pr`, `Manage pull requests`),
 			ox.Banner(`Work with GitHub pull requests.`),
 			ox.Spec(`<command> [flags]`),
@@ -1357,7 +1357,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 			ox.Flags().
 				String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // gh pr create
 				ox.Usage(`create`, `Create a pull request`),
 				ox.Banner(`Create a pull request on GitHub.
 
@@ -1429,7 +1429,7 @@ To authorize, run `+"`"+`gh auth refresh -s project`+"`"+`.`),
 					Bool(`web`, `Open the web browser to create a pull request`, ox.Short("w"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh pr list
 				ox.Usage(`list`, `List pull requests in a repository`),
 				ox.Banner(`List pull requests in a GitHub repository. By default, this only lists open PRs.
 
@@ -1477,7 +1477,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					Bool(`web`, `List pull requests in the web browser`, ox.Short("w"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh pr status
 				ox.Usage(`status`, `Show status of relevant pull requests`),
 				ox.Banner(`Show status of relevant pull requests.
 
@@ -1504,7 +1504,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh pr checkout
 				ox.Usage(`checkout`, `Check out a pull request in git`),
 				ox.Banner(`Check out a pull request in git`),
 				ox.Spec(`[<number> | <url> | <branch>] [flags]`),
@@ -1532,7 +1532,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					Bool(`recurse-submodules`, `Update all submodules after checkout`, ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh pr checks
 				ox.Usage(`checks`, `Show CI status for a single pull request`),
 				ox.Banner(`Show CI status for a single pull request.
 
@@ -1567,7 +1567,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					Bool(`web`, `Open the web browser to show details about checks`, ox.Short("w"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh pr close
 				ox.Usage(`close`, `Close a pull request`),
 				ox.Banner(`Close a pull request`),
 				ox.Spec(`{<number> | <url> | <branch>} [flags]`),
@@ -1585,7 +1585,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					Bool(`delete-branch`, `Delete the local and remote branch after close`, ox.Short("d"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh pr comment
 				ox.Usage(`comment`, `Add a comment to a pull request`),
 				ox.Banner(`Add a comment to a GitHub pull request.
 
@@ -1614,7 +1614,7 @@ prompt for the comment text.`),
 					Bool(`yes`, `Skip the delete confirmation prompt when --delete-last is provided`, ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh pr diff
 				ox.Usage(`diff`, `View changes in a pull request`),
 				ox.Banner(`View changes in a pull request.
 
@@ -1639,7 +1639,7 @@ With `+"`"+`--web`+"`"+` flag, open the pull request diff in a web browser inste
 					Bool(`web`, `Open the pull request diff in the browser`, ox.Short("w"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh pr edit
 				ox.Usage(`edit`, `Edit a pull request`),
 				ox.Banner(`Edit a pull request.
 
@@ -1692,7 +1692,7 @@ these special values.`),
 					String(`title`, `Set the new title.`, ox.Short("t"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh pr lock
 				ox.Usage(`lock`, `Lock pull request conversation`),
 				ox.Banner(`Lock pull request conversation`),
 				ox.Spec(`{<number> | <url>} [flags]`),
@@ -1709,7 +1709,7 @@ these special values.`),
 					String(`reason`, `Optional reason for locking conversation (off_topic, resolved, spam, too_heated).`, ox.Short("r"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh pr merge
 				ox.Usage(`merge`, `Merge a pull request`),
 				ox.Banner(`Merge a pull request on GitHub.
 
@@ -1745,7 +1745,7 @@ To bypass a merge queue and merge directly, pass the `+"`"+`--admin`+"`"+` flag.
 					String(`subject`, `Subject text for the merge commit`, ox.Default("text"), ox.Short("t"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh pr ready
 				ox.Usage(`ready`, `Mark a pull request as ready for review`),
 				ox.Banner(`Mark a pull request as ready for review.
 
@@ -1767,7 +1767,7 @@ If supported by your plan, convert to draft with `+"`"+`--undo`+"`"+``),
 					Bool(`undo`, `Convert a pull request to "draft"`, ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh pr reopen
 				ox.Usage(`reopen`, `Reopen a pull request`),
 				ox.Banner(`Reopen a pull request`),
 				ox.Spec(`{<number> | <url> | <branch>} [flags]`),
@@ -1784,7 +1784,7 @@ If supported by your plan, convert to draft with `+"`"+`--undo`+"`"+``),
 					String(`comment`, `Add a reopening comment`, ox.Short("c"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh pr review
 				ox.Usage(`review`, `Add a review to a pull request`),
 				ox.Banner(`Add a review to a pull request.
 
@@ -1819,7 +1819,7 @@ Without an argument, the pull request that belongs to the current branch is revi
 					Bool(`request-changes`, `Request changes on a pull request`, ox.Short("r"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh pr unlock
 				ox.Usage(`unlock`, `Unlock pull request conversation`),
 				ox.Banner(`Unlock pull request conversation`),
 				ox.Spec(`{<number> | <url>} [flags]`),
@@ -1834,7 +1834,7 @@ Without an argument, the pull request that belongs to the current branch is revi
 				ox.Flags().
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh pr update-branch
 				ox.Usage(`update-branch`, `Update a pull request branch`),
 				ox.Banner(`Update a pull request branch with latest changes of the base branch.
 
@@ -1861,7 +1861,7 @@ branch, the `+"`"+`--rebase`+"`"+` option should be provided.`),
 					Bool(`rebase`, `Update PR branch by rebasing on top of latest base branch`, ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh pr view
 				ox.Usage(`view`, `View a pull request`),
 				ox.Banner(`Display the title, body, and other information about a pull request.
 
@@ -1890,7 +1890,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // gh project
 			ox.Usage(`project`, `Work with GitHub Projects.`),
 			ox.Banner(`Work with GitHub Projects.
 
@@ -1908,7 +1908,7 @@ add the `+"`"+`project`+"`"+` scope by running `+"`"+`gh auth refresh -s project
   Read the manual at https://cli.github.com/manual
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
-			ox.Sub(
+			ox.Sub( // gh project close
 				ox.Usage(`close`, `Close a project`),
 				ox.Banner(`Close a project
 
@@ -1934,7 +1934,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)).
 					Bool(`undo`, `Reopen a closed project`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh project copy
 				ox.Usage(`copy`, `Copy a project`),
 				ox.Banner(`Copy a project
 
@@ -1959,7 +1959,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)).
 					String(`title`, `Title for the new project`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh project create
 				ox.Usage(`create`, `Create a project`),
 				ox.Banner(`Create a project
 
@@ -1982,7 +1982,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)).
 					String(`title`, `Title for the project`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh project delete
 				ox.Usage(`delete`, `Delete a project`),
 				ox.Banner(`Delete a project
 
@@ -2004,7 +2004,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`owner`, `Login of the owner. Use "@me" for the current user.`, ox.Section(0)).
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh project edit
 				ox.Usage(`edit`, `Edit a project`),
 				ox.Banner(`Edit a project
 
@@ -2030,7 +2030,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`title`, `New title for the project`, ox.Section(0)).
 					String(`visibility`, `Change project visibility: {PUBLIC|PRIVATE}`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh project field-create
 				ox.Usage(`field-create`, `Create a field in a project`),
 				ox.Banner(`Create a field in a project
 
@@ -2058,7 +2058,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					Slice(`single-select-options`, `Options for SINGLE_SELECT data type`, ox.Section(0)).
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh project field-delete
 				ox.Usage(`field-delete`, `Delete a field in a project`),
 				ox.Banner(`Delete a field in a project
 
@@ -2077,7 +2077,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`jq`, `Filter JSON output using a jq expression`, ox.Spec(`expression`), ox.Short("q"), ox.Section(0)).
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh project field-list
 				ox.Usage(`field-list`, `List the fields in a project`),
 				ox.Banner(`List the fields in a project
 
@@ -2100,7 +2100,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`owner`, `Login of the owner. Use "@me" for the current user.`, ox.Section(0)).
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh project item-add
 				ox.Usage(`item-add`, `Add a pull request or an issue to a project`),
 				ox.Banner(`Add a pull request or an issue to a project
 
@@ -2123,7 +2123,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)).
 					String(`url`, `URL of the issue or pull request to add to the project`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh project item-archive
 				ox.Usage(`item-archive`, `Archive an item in a project`),
 				ox.Banner(`Archive an item in a project
 
@@ -2147,7 +2147,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)).
 					Bool(`undo`, `Unarchive an item`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh project item-create
 				ox.Usage(`item-create`, `Create a draft issue item in a project`),
 				ox.Banner(`Create a draft issue item in a project
 
@@ -2171,7 +2171,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)).
 					String(`title`, `Title for the draft issue`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh project item-delete
 				ox.Usage(`item-delete`, `Delete an item from a project by ID`),
 				ox.Banner(`Delete an item from a project by ID
 
@@ -2194,7 +2194,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`owner`, `Login of the owner. Use "@me" for the current user.`, ox.Section(0)).
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh project item-edit
 				ox.Usage(`item-edit`, `Edit an item in a project`),
 				ox.Banner(`Edit either a draft issue or a project item. Both usages require the ID of the item to edit.
 
@@ -2233,7 +2233,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`text`, `Text value for the field`, ox.Section(0)).
 					String(`title`, `Title of the draft issue item`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh project item-list
 				ox.Usage(`item-list`, `List the items in a project`),
 				ox.Banner(`List the items in a project
 
@@ -2256,7 +2256,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`owner`, `Login of the owner. Use "@me" for the current user.`, ox.Section(0)).
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh project link
 				ox.Usage(`link`, `Link a project to a repository or a team`),
 				ox.Banner(`Link a project to a repository or a team`),
 				ox.Spec(`[<number>] [flags]`),
@@ -2281,7 +2281,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`repo`, `The repository to be linked to this project`, ox.Short("R"), ox.Section(0)).
 					String(`team`, `The team to be linked to this project`, ox.Short("T"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh project list
 				ox.Usage(`list`, `List the projects for an owner`),
 				ox.Banner(`List the projects for an owner
 
@@ -2310,7 +2310,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)).
 					Bool(`web`, `Open projects list in the browser`, ox.Short("w"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh project mark-template
 				ox.Usage(`mark-template`, `Mark a project as a template`),
 				ox.Banner(`Mark a project as a template
 
@@ -2336,7 +2336,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)).
 					Bool(`undo`, `Unmark the project as a template.`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh project unlink
 				ox.Usage(`unlink`, `Unlink a project from a repository or a team`),
 				ox.Banner(`Unlink a project from a repository or a team`),
 				ox.Spec(`[<number>] [flags]`),
@@ -2361,7 +2361,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`repo`, `The repository to be unlinked from this project`, ox.Short("R"), ox.Section(0)).
 					String(`team`, `The team to be unlinked from this project`, ox.Short("T"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh project view
 				ox.Usage(`view`, `View a project`),
 				ox.Banner(`View a project
 
@@ -2388,7 +2388,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					Bool(`web`, `Open a project in the browser`, ox.Short("w"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // gh release
 			ox.Usage(`release`, `Manage releases`),
 			ox.Banner(`Manage releases`),
 			ox.Spec(`<command> [flags]`),
@@ -2403,7 +2403,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 			ox.Flags().
 				String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // gh release create
 				ox.Usage(`create`, `Create a new release`),
 				ox.Banner(`Create a new GitHub Release for a repository.
 
@@ -2489,7 +2489,7 @@ effect if there are no existing releases or this is the very first release.`),
 					Bool(`verify-tag`, `Abort in case the git tag doesn't already exist in the remote repository`, ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh release list
 				ox.Usage(`list`, `List releases in a repository`),
 				ox.Banner(`List releases in a repository
 
@@ -2515,7 +2515,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh release delete
 				ox.Usage(`delete`, `Delete a release`),
 				ox.Banner(`Delete a release`),
 				ox.Spec(`<tag> [flags]`),
@@ -2533,7 +2533,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					Bool(`yes`, `Skip the confirmation prompt`, ox.Short("y"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh release delete-asset
 				ox.Usage(`delete-asset`, `Delete an asset from a release`),
 				ox.Banner(`Delete an asset from a release`),
 				ox.Spec(`<tag> <asset-name> [flags]`),
@@ -2550,7 +2550,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					Bool(`yes`, `Skip the confirmation prompt`, ox.Short("y"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh release download
 				ox.Usage(`download`, `Download release assets`),
 				ox.Banner(`Download assets from a GitHub release.
 
@@ -2588,7 +2588,7 @@ is required.`),
 					Bool(`skip-existing`, `Skip downloading when files of the same name exist`, ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh release edit
 				ox.Usage(`edit`, `Edit a release`),
 				ox.Banner(`Edit a release`),
 				ox.Spec(`<tag>`),
@@ -2620,7 +2620,7 @@ is required.`),
 					Bool(`verify-tag`, `Abort in case the git tag doesn't already exist in the remote repository`, ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh release upload
 				ox.Usage(`upload`, `Upload assets to a release`),
 				ox.Banner(`Upload asset files to a GitHub Release.
 
@@ -2640,7 +2640,7 @@ file name.`),
 					Bool(`clobber`, `Overwrite existing assets of the same name`, ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh release view
 				ox.Usage(`view`, `View information about a release`),
 				ox.Banner(`View information about a GitHub Release.
 
@@ -2666,7 +2666,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // gh repo
 			ox.Usage(`repo`, `Manage repositories`),
 			ox.Banner(`Work with GitHub repositories.`),
 			ox.Spec(`<command> [flags]`),
@@ -2680,7 +2680,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
   Read the manual at https://cli.github.com/manual
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
-			ox.Sub(
+			ox.Sub( // gh repo create
 				ox.Usage(`create`, `Create a new repository`),
 				ox.Banner(`Create a new GitHub repository.
 
@@ -2743,7 +2743,7 @@ The repo is created with the configured repository default branch, see <https://
 					String(`team`, `The name of the organization team to be granted access`, ox.Spec(`name`), ox.Short("t"), ox.Section(0)).
 					String(`template`, `Make the new repository based on a template repository`, ox.Spec(`repository`), ox.Short("p"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh repo list
 				ox.Usage(`list`, `List repositories owned by user or organization`),
 				ox.Banner(`List repositories owned by a user or organization.
 
@@ -2775,7 +2775,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					Slice(`topic`, `Filter by topic`, ox.Section(0)).
 					String(`visibility`, `Filter by repository visibility: {public|private|internal}`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh repo archive
 				ox.Usage(`archive`, `Archive a repository`),
 				ox.Banner(`Archive a GitHub repository.
 
@@ -2792,7 +2792,7 @@ With no argument, archives the current repository.`),
 				ox.Flags().
 					Bool(`yes`, `Skip the confirmation prompt`, ox.Short("y"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh repo autolink
 				ox.Usage(`autolink`, `Manage autolink references`),
 				ox.Banner(`Autolinks link issues, pull requests, commit messages, and release descriptions to external third-party services.
 
@@ -2810,7 +2810,7 @@ For more information, see <https://docs.github.com/en/repositories/managing-your
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 				ox.Flags().
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // gh repo autolink create
 					ox.Usage(`create`, `Create a new autolink reference`),
 					ox.Banner(`Create a new autolink reference for a repository.
 
@@ -2849,7 +2849,7 @@ If the template contains multiple instances of `+"`"+`<num>`+"`"+`, only the fir
 						Bool(`numeric`, `Mark autolink as numeric`, ox.Short("n"), ox.Section(0)).
 						String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 				),
-				ox.Sub(
+				ox.Sub( // gh repo autolink delete
 					ox.Usage(`delete`, `Delete an autolink reference`),
 					ox.Banner(`Delete an autolink reference for a repository.`),
 					ox.Spec(`<id> [flags]`),
@@ -2865,7 +2865,7 @@ If the template contains multiple instances of `+"`"+`<num>`+"`"+`, only the fir
 						Bool(`yes`, `Confirm deletion without prompting`, ox.Section(0)).
 						String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 				),
-				ox.Sub(
+				ox.Sub( // gh repo autolink list
 					ox.Usage(`list`, `List autolink references for a GitHub repository`),
 					ox.Banner(`Gets all autolink references that are configured for a repository.
 
@@ -2889,7 +2889,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 						Bool(`web`, `List autolink references in the web browser`, ox.Short("w"), ox.Section(0)).
 						String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 				),
-				ox.Sub(
+				ox.Sub( // gh repo autolink view
 					ox.Usage(`view`, `View an autolink reference`),
 					ox.Banner(`View an autolink reference for a repository.
 
@@ -2910,7 +2910,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 						String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // gh repo clone
 				ox.Usage(`clone`, `Clone a repository locally`),
 				ox.Banner(`Clone a GitHub repository locally. Pass additional `+"`"+`git clone`+"`"+` flags by listing
 them after `+"`"+`--`+"`"+`.
@@ -2956,7 +2956,7 @@ If the repository is a fork, its parent repository will be set as the default re
 				ox.Flags().
 					String(`upstream-remote-name`, `Upstream remote name when cloning a fork`, ox.Default("upstream"), ox.Short("u"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh repo delete
 				ox.Usage(`delete`, `Delete a repository`),
 				ox.Banner(`Delete a GitHub repository.
 
@@ -2976,7 +2976,7 @@ To authorize, run `+"`"+`gh auth refresh -s delete_repo`+"`"+``),
 				ox.Flags().
 					Bool(`yes`, `Confirm deletion without prompting`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh repo deploy-key
 				ox.Usage(`deploy-key`, `Manage deploy keys in a repository`),
 				ox.Banner(`Manage deploy keys in a repository`),
 				ox.Spec(`<command> [flags]`),
@@ -2990,7 +2990,7 @@ To authorize, run `+"`"+`gh auth refresh -s delete_repo`+"`"+``),
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 				ox.Flags().
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // gh repo deploy-key add
 					ox.Usage(`add`, `Add a deploy key to a GitHub repository`),
 					ox.Banner(`Add a deploy key to a GitHub repository.
 
@@ -3015,7 +3015,7 @@ deploy keys added by GitHub CLI will be removed as well.`),
 						String(`title`, `Title of the new key`, ox.Short("t"), ox.Section(0)).
 						String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 				),
-				ox.Sub(
+				ox.Sub( // gh repo deploy-key delete
 					ox.Usage(`delete`, `Delete a deploy key from a GitHub repository`),
 					ox.Banner(`Delete a deploy key from a GitHub repository`),
 					ox.Spec(`<key-id> [flags]`),
@@ -3029,7 +3029,7 @@ deploy keys added by GitHub CLI will be removed as well.`),
 					ox.Flags().
 						String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // gh repo deploy-key list
 					ox.Usage(`list`, `List deploy keys in a GitHub repository`),
 					ox.Banner(`List deploy keys in a GitHub repository
 
@@ -3051,7 +3051,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 						String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // gh repo edit
 				ox.Usage(`edit`, `Edit repository settings`),
 				ox.Banner(`Edit repository settings.
 
@@ -3106,7 +3106,7 @@ For information on all the potential consequences, see <https://gh.io/setting-re
 					Bool(`template`, `Make the repository available as a template repository`, ox.Section(0)).
 					String(`visibility`, `Change the visibility of the repository to {public,private,internal}`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh repo fork
 				ox.Usage(`fork`, `Create a fork of a repository`),
 				ox.Banner(`Create a fork of a repository.
 
@@ -3137,7 +3137,7 @@ Additional `+"`"+`git clone`+"`"+` flags can be passed after `+"`"+`--`+"`"+`.`)
 					Bool(`remote`, `Add a git remote for the fork`, ox.Section(0)).
 					String(`remote-name`, `Specify the name for the new remote`, ox.Default("origin"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh repo gitignore
 				ox.Usage(`gitignore`, `List and view available repository gitignore templates`),
 				ox.Banner(`List and view available repository gitignore templates`),
 				ox.Spec(`<command> [flags]`),
@@ -3146,7 +3146,7 @@ Additional `+"`"+`git clone`+"`"+` flags can be passed after `+"`"+`--`+"`"+`.`)
   Read the manual at https://cli.github.com/manual
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
-				ox.Sub(
+				ox.Sub( // gh repo gitignore list
 					ox.Usage(`list`, `List available repository gitignore templates`),
 					ox.Banner(`List available repository gitignore templates`),
 					ox.Spec(`[flags]`),
@@ -3156,7 +3156,7 @@ Additional `+"`"+`git clone`+"`"+` flags can be passed after `+"`"+`--`+"`"+`.`)
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 				),
-				ox.Sub(
+				ox.Sub( // gh repo gitignore view
 					ox.Usage(`view`, `View an available repository gitignore template`),
 					ox.Banner(`View an available repository `+"`"+`.gitignore`+"`"+` template.
 
@@ -3182,7 +3182,7 @@ For a list of available templates, run `+"`"+`gh repo gitignore list`+"`"+`.`),
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // gh repo license
 				ox.Usage(`license`, `Explore repository licenses`),
 				ox.Banner(`Explore repository licenses`),
 				ox.Spec(`<command> [flags]`),
@@ -3191,7 +3191,7 @@ For a list of available templates, run `+"`"+`gh repo gitignore list`+"`"+`.`),
   Read the manual at https://cli.github.com/manual
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
-				ox.Sub(
+				ox.Sub( // gh repo license list
 					ox.Usage(`list`, `List common repository licenses`),
 					ox.Banner(`List common repository licenses.
 
@@ -3203,7 +3203,7 @@ For even more licenses, visit <https://choosealicense.com/appendix>`),
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 				),
-				ox.Sub(
+				ox.Sub( // gh repo license view
 					ox.Usage(`view`, `View a specific repository license`),
 					ox.Banner(`View a specific repository license by license key or SPDX ID.
 
@@ -3235,7 +3235,7 @@ Run `+"`"+`gh repo license list`+"`"+` to see available commonly used licenses. 
 						Bool(`web`, `Open https://choosealicense.com/ in the browser`, ox.Short("w"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // gh repo rename
 				ox.Usage(`rename`, `Rename a repository`),
 				ox.Banner(`Rename a GitHub repository.
 
@@ -3268,7 +3268,7 @@ For more information on transferring repository ownership, see:
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(0)).
 					Bool(`yes`, `Skip the confirmation prompt`, ox.Short("y"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh repo set-default
 				ox.Usage(`set-default`, `Configure default repository for this directory`),
 				ox.Banner(`This command sets the default remote repository to use when querying the
 GitHub API for the locally cloned repository.
@@ -3307,7 +3307,7 @@ gh uses the default repository for things like:
 					Bool(`unset`, `Unset the current default repository`, ox.Short("u"), ox.Section(0)).
 					Bool(`view`, `View the current default repository`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh repo sync
 				ox.Usage(`sync`, `Sync a repository`),
 				ox.Banner(`Sync destination repository from source repository. Syncing uses the default branch
 of the source repository to update the matching branch on the destination
@@ -3345,7 +3345,7 @@ This can be overridden with the `+"`"+`--source`+"`"+` flag.`),
 					Bool(`force`, `Hard reset the branch of the destination repository to match the source repository`, ox.Section(0)).
 					String(`source`, `Source repository`, ox.Short("s"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh repo unarchive
 				ox.Usage(`unarchive`, `Unarchive a repository`),
 				ox.Banner(`Unarchive a GitHub repository.
 
@@ -3362,7 +3362,7 @@ With no argument, unarchives the current repository.`),
 				ox.Flags().
 					Bool(`yes`, `Skip the confirmation prompt`, ox.Short("y"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh repo view
 				ox.Usage(`view`, `View a repository`),
 				ox.Banner(`Display the description and the README of a GitHub repository.
 
@@ -3390,7 +3390,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					Bool(`web`, `Open a repository in the browser`, ox.Short("w"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // gh cache
 			ox.Usage(`cache`, `Manage GitHub Actions caches`),
 			ox.Banner(`Work with GitHub Actions caches.`),
 			ox.Spec(`<command> [flags]`),
@@ -3407,7 +3407,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 			ox.Flags().
 				String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // gh cache delete
 				ox.Usage(`delete`, `Delete GitHub Actions caches`),
 				ox.Banner(`Delete GitHub Actions caches.
 
@@ -3441,7 +3441,7 @@ Deletion requires authorization with the `+"`"+`repo`+"`"+` scope.`),
 					String(`succeed-on-no-caches`, `Return exit code 0 if no caches found. Must be used in conjunction with --all`, ox.Spec(`--all`), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh cache list
 				ox.Usage(`list`, `List GitHub Actions caches`),
 				ox.Banner(`List GitHub Actions caches
 
@@ -3486,7 +3486,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // gh run
 			ox.Usage(`run`, `View details about workflow runs`),
 			ox.Banner(`List, view, and watch recent workflow runs from GitHub Actions.`),
 			ox.Spec(`<command> [flags]`),
@@ -3500,7 +3500,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 			ox.Flags().
 				String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // gh run cancel
 				ox.Usage(`cancel`, `Cancel a workflow run`),
 				ox.Banner(`Cancel a workflow run`),
 				ox.Spec(`[<run-id>] [flags]`),
@@ -3514,7 +3514,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 				ox.Flags().
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh run delete
 				ox.Usage(`delete`, `Delete a workflow run`),
 				ox.Banner(`Delete a workflow run`),
 				ox.Spec(`[<run-id>] [flags]`),
@@ -3534,7 +3534,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 				ox.Flags().
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh run download
 				ox.Usage(`download`, `Download artifacts generated by a workflow run`),
 				ox.Banner(`Download artifacts generated by a GitHub Actions workflow run.
 
@@ -3572,7 +3572,7 @@ must be used to select an artifact from a specific workflow run.`),
 					Array(`pattern`, `Download artifacts that match a glob pattern`, ox.Short("p"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh run list
 				ox.Usage(`list`, `List recent workflow runs`),
 				ox.Banner(`List recent workflow runs.
 
@@ -3607,7 +3607,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`workflow`, `Filter runs by workflow`, ox.Short("w"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh run rerun
 				ox.Usage(`rerun`, `Rerun a run`),
 				ox.Banner(`Rerun an entire run, only failed jobs, or a specific job from a run.
 
@@ -3636,7 +3636,7 @@ You will need to use databaseId field for triggering job re-runs.`),
 					String(`job`, `Rerun a specific job ID from a run, including dependencies`, ox.Short("j"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh run view
 				ox.Usage(`view`, `View a summary of a workflow run`),
 				ox.Banner(`View a summary of a workflow run.
 
@@ -3688,7 +3688,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					Bool(`web`, `Open run in the browser`, ox.Short("w"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh run watch
 				ox.Usage(`watch`, `Watch a run until it completes, showing its progress`),
 				ox.Banner(`Watch a run until it completes, showing its progress.
 
@@ -3715,7 +3715,7 @@ as it is not currently possible to create a PAT with the `+"`"+`checks:read`+"`"
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // gh workflow
 			ox.Usage(`workflow`, `View details about GitHub Actions workflows`),
 			ox.Banner(`List, view, and run workflows in GitHub Actions.`),
 			ox.Spec(`<command> [flags]`),
@@ -3729,7 +3729,7 @@ as it is not currently possible to create a PAT with the `+"`"+`checks:read`+"`"
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 			ox.Flags().
 				String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // gh workflow disable
 				ox.Usage(`disable`, `Disable a workflow`),
 				ox.Banner(`Disable a workflow, preventing it from running or showing up when listing workflows.`),
 				ox.Spec(`[<workflow-id> | <workflow-name>] [flags]`),
@@ -3743,7 +3743,7 @@ as it is not currently possible to create a PAT with the `+"`"+`checks:read`+"`"
 				ox.Flags().
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh workflow enable
 				ox.Usage(`enable`, `Enable a workflow`),
 				ox.Banner(`Enable a workflow, allowing it to be run and show up when listing workflows.`),
 				ox.Spec(`[<workflow-id> | <workflow-name>] [flags]`),
@@ -3757,7 +3757,7 @@ as it is not currently possible to create a PAT with the `+"`"+`checks:read`+"`"
 				ox.Flags().
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh workflow list
 				ox.Usage(`list`, `List workflows`),
 				ox.Banner(`List workflow files, hiding disabled workflows by default.
 
@@ -3780,7 +3780,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh workflow run
 				ox.Usage(`run`, `Run a workflow by creating a workflow_dispatch event`),
 				ox.Banner(`Create a `+"`"+`workflow_dispatch`+"`"+` event for a given workflow.
 
@@ -3823,7 +3823,7 @@ If the workflow file supports inputs, they can be specified in a few ways:
 					String(`ref`, `Branch or tag name which contains the version of the workflow file you'd like to run`, ox.Short("r"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh workflow view
 				ox.Usage(`view`, `View the summary of a workflow`),
 				ox.Banner(`View the summary of a workflow`),
 				ox.Spec(`[<workflow-id> | <workflow-name> | <filename>] [flags]`),
@@ -3848,7 +3848,7 @@ If the workflow file supports inputs, they can be specified in a few ways:
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // gh co
 			ox.Usage(`co`, `Alias for "pr checkout"`),
 			ox.Banner(`Check out a pull request in git`),
 			ox.Spec(`gh pr checkout [<number> | <url> | <branch>] [flags]`),
@@ -3876,7 +3876,7 @@ If the workflow file supports inputs, they can be specified in a few ways:
 				Bool(`recurse-submodules`, `Update all submodules after checkout`, ox.Section(0)).
 				String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 		),
-		ox.Sub(
+		ox.Sub( // gh alias
 			ox.Usage(`alias`, `Create command shortcuts`),
 			ox.Banner(`Aliases can be used to make shortcuts for gh commands or to compose multiple commands.
 
@@ -3887,7 +3887,7 @@ Run `+"`"+`gh help alias set`+"`"+` to learn more.`),
   Read the manual at https://cli.github.com/manual
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
-			ox.Sub(
+			ox.Sub( // gh alias delete
 				ox.Usage(`delete`, `Delete set aliases`),
 				ox.Banner(`Delete set aliases`),
 				ox.Spec(`{<alias> | --all} [flags]`),
@@ -3901,7 +3901,7 @@ Run `+"`"+`gh help alias set`+"`"+` to learn more.`),
 				ox.Flags().
 					Bool(`all`, `Delete all aliases`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh alias import
 				ox.Usage(`import`, `Import aliases from a YAML file`),
 				ox.Banner(`Import aliases from the contents of a YAML file.
 
@@ -3937,7 +3937,7 @@ another. Run `+"`"+`gh help alias list`+"`"+` to learn more.`),
 				ox.Flags().
 					Bool(`clobber`, `Overwrite existing aliases of the same name`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh alias list
 				ox.Usage(`list`, `List your aliases`),
 				ox.Banner(`This command prints out all of the aliases gh is configured to use.`),
 				ox.Spec(`[flags]`),
@@ -3947,7 +3947,7 @@ another. Run `+"`"+`gh help alias list`+"`"+` to learn more.`),
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 			),
-			ox.Sub(
+			ox.Sub( // gh alias set
 				ox.Usage(`set`, `Create a shortcut for a gh command`),
 				ox.Banner(`Define a word that will expand to a full gh command when invoked.
 
@@ -3994,7 +3994,7 @@ invoked. This allows for chaining multiple commands via piping and redirection.`
 					Bool(`shell`, `Declare an alias to be passed through a shell interpreter`, ox.Short("s"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // gh api
 			ox.Usage(`api`, `Make an authenticated GitHub API request`),
 			ox.Banner(`Makes an authenticated HTTP request to the GitHub API and prints the response.
 
@@ -4147,7 +4147,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 				String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)).
 				Bool(`verbose`, `Include full HTTP request and response in the output`, ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // gh attestation
 			ox.Usage(`attestation`, `Work with artifact attestations`),
 			ox.Banner(`Download and verify artifact attestations.`),
 			ox.Spec(`[subcommand] [flags]`),
@@ -4157,7 +4157,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
   Read the manual at https://cli.github.com/manual
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
-			ox.Sub(
+			ox.Sub( // gh attestation download
 				ox.Usage(`download`, `Download an artifact's attestations for offline use`),
 				ox.Banner(`### NOTE: This feature is currently in public preview, and subject to change.
 
@@ -4212,7 +4212,7 @@ is "sha256:1234", the file will be named "sha256-1234.jsonl".`),
 					String(`predicate-type`, `Filter attestations by provided predicate type`, ox.Section(0)).
 					String(`repo`, `Repository name in the format <owner>/<repo>`, ox.Short("R"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh attestation trusted-root
 				ox.Usage(`trusted-root`, `Output trusted_root.jsonl contents, likely for offline verification`),
 				ox.Banner(`### NOTE: This feature is currently in public preview, and subject to change.
 
@@ -4249,7 +4249,7 @@ want the contents of a trusted_root.jsonl file, use `+"`"+`--verify-only`+"`"+`.
 					String(`tuf-url`, `URL to the TUF repository mirror`, ox.Section(0)).
 					Bool(`verify-only`, `Don't output trusted_root.jsonl contents`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh attestation verify
 				ox.Usage(`verify`, `Verify an artifact's integrity using attestations`),
 				ox.Banner(`Verify the integrity and provenance of an artifact using its associated
 cryptographically signed attestations.
@@ -4404,7 +4404,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // gh config
 			ox.Usage(`config`, `Manage configuration for gh`),
 			ox.Banner(`Display or change configuration settings for gh.
 
@@ -4427,7 +4427,7 @@ Current respected settings:
   Read the manual at https://cli.github.com/manual
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
-			ox.Sub(
+			ox.Sub( // gh config clear-cache
 				ox.Usage(`clear-cache`, `Clear the cli cache`),
 				ox.Banner(`Clear the cli cache`),
 				ox.Spec(`[flags]`),
@@ -4439,7 +4439,7 @@ Current respected settings:
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 			),
-			ox.Sub(
+			ox.Sub( // gh config get
 				ox.Usage(`get`, `Print the value of a given configuration key`),
 				ox.Banner(`Print the value of a given configuration key`),
 				ox.Spec(`<key> [flags]`),
@@ -4455,7 +4455,7 @@ Current respected settings:
 				ox.Flags().
 					String(`host`, `Get per-host setting`, ox.Short("h"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh config list
 				ox.Usage(`list`, `Print a list of configuration keys and values`),
 				ox.Banner(`Print a list of configuration keys and values`),
 				ox.Spec(`[flags]`),
@@ -4470,7 +4470,7 @@ Current respected settings:
 				ox.Flags().
 					String(`host`, `Get per-host configuration`, ox.Short("h"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh config set
 				ox.Usage(`set`, `Update configuration with a value for the given key`),
 				ox.Banner(`Update configuration with a value for the given key`),
 				ox.Spec(`<key> <value> [flags]`),
@@ -4490,7 +4490,7 @@ Current respected settings:
 					String(`host`, `Set per-host setting`, ox.Short("h"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // gh extension
 			ox.Usage(`extension`, `Manage gh extensions`),
 			ox.Banner(`GitHub CLI extensions are repositories that provide additional gh commands.
 
@@ -4512,7 +4512,7 @@ For the list of available extensions, see <https://github.com/topics/gh-extensio
   Read the manual at https://cli.github.com/manual
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
-			ox.Sub(
+			ox.Sub( // gh extension browse
 				ox.Usage(`browse`, `Enter a UI for browsing, adding, and removing extensions`),
 				ox.Banner(`This command will take over your terminal and run a fully interactive
 interface for browsing, adding, and removing gh extensions. A terminal
@@ -4544,7 +4544,7 @@ along with `+"`"+`gh ext install`+"`"+`, `+"`"+`gh ext remove`+"`"+`, and `+"`"+
 					Bool(`debug`, `Log to /tmp/extBrowse-*`, ox.Section(0)).
 					Bool(`single-column`, `Render TUI with only one column of text`, ox.Short("s"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh extension create
 				ox.Usage(`create`, `Create a new extension`),
 				ox.Banner(`Create a new extension`),
 				ox.Spec(`[<name>] [flags]`),
@@ -4570,7 +4570,7 @@ along with `+"`"+`gh ext install`+"`"+`, `+"`"+`gh ext remove`+"`"+`, and `+"`"+
 				ox.Flags().
 					String(`precompiled`, `Create a precompiled extension. Possible values: go, other`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh extension exec
 				ox.Usage(`exec`, `Execute an installed extension`),
 				ox.Banner(`Execute an extension using the short name. For example, if the extension repository is
 `+"`"+`owner/gh-extension`+"`"+`, you should pass `+"`"+`extension`+"`"+`. You can use this command when
@@ -4587,7 +4587,7 @@ of the extension.`),
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 			),
-			ox.Sub(
+			ox.Sub( // gh extension install
 				ox.Usage(`install`, `Install a gh extension from a repository`),
 				ox.Banner(`Install a GitHub CLI extension from a GitHub or local repository.
 
@@ -4639,7 +4639,7 @@ For the list of available extensions, see <https://github.com/topics/gh-extensio
 					Bool(`force`, `Force upgrade extension, or ignore if latest already installed`, ox.Section(0)).
 					String(`pin`, `Pin extension to a release tag or commit ref`, ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh extension list
 				ox.Usage(`list`, `List installed extension commands`),
 				ox.Banner(`List installed extension commands`),
 				ox.Spec(`[flags]`),
@@ -4649,7 +4649,7 @@ For the list of available extensions, see <https://github.com/topics/gh-extensio
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 			),
-			ox.Sub(
+			ox.Sub( // gh extension remove
 				ox.Usage(`remove`, `Remove an installed extension`),
 				ox.Banner(`Remove an installed extension`),
 				ox.Spec(`<name> [flags]`),
@@ -4658,7 +4658,7 @@ For the list of available extensions, see <https://github.com/topics/gh-extensio
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 			),
-			ox.Sub(
+			ox.Sub( // gh extension search
 				ox.Usage(`search`, `Search extensions to the GitHub CLI`),
 				ox.Banner(`Search for gh extensions.
 
@@ -4730,7 +4730,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)).
 					Bool(`web`, `Open the search query in the web browser`, ox.Short("w"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh extension upgrade
 				ox.Usage(`upgrade`, `Upgrade installed extensions`),
 				ox.Banner(`Upgrade installed extensions`),
 				ox.Spec(`{<name> | --all} [flags]`),
@@ -4747,7 +4747,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					Bool(`force`, `Force upgrade extension`, ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // gh gpg-key
 			ox.Usage(`gpg-key`, `Manage GPG keys`),
 			ox.Banner(`Manage GPG keys registered with your GitHub account.`),
 			ox.Spec(`<command> [flags]`),
@@ -4756,7 +4756,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
   Read the manual at https://cli.github.com/manual
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
-			ox.Sub(
+			ox.Sub( // gh gpg-key add
 				ox.Usage(`add`, `Add a GPG key to your GitHub account`),
 				ox.Banner(`Add a GPG key to your GitHub account`),
 				ox.Spec(`[<key-file>] [flags]`),
@@ -4770,7 +4770,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 				ox.Flags().
 					String(`title`, `Title for the new key`, ox.Short("t"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh gpg-key delete
 				ox.Usage(`delete`, `Delete a GPG key from your GitHub account`),
 				ox.Banner(`Delete a GPG key from your GitHub account`),
 				ox.Spec(`<key-id> [flags]`),
@@ -4784,7 +4784,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 				ox.Flags().
 					Bool(`yes`, `Skip the confirmation prompt`, ox.Short("y"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh gpg-key list
 				ox.Usage(`list`, `Lists GPG keys in your GitHub account`),
 				ox.Banner(`Lists GPG keys in your GitHub account`),
 				ox.Spec(`[flags]`),
@@ -4795,7 +4795,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // gh label
 			ox.Usage(`label`, `Manage labels`),
 			ox.Banner(`Work with GitHub labels.`),
 			ox.Spec(`<command> [flags]`),
@@ -4809,7 +4809,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 			ox.Flags().
 				String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // gh label clone
 				ox.Usage(`clone`, `Clones labels from one repository to another`),
 				ox.Banner(`Clones labels from a source repository to a destination repository on GitHub.
 By default, the destination repository is the current repository.
@@ -4840,7 +4840,7 @@ destination repository using the `+"`"+`--force`+"`"+` flag.`),
 					Bool(`force`, `Overwrite labels in the destination repository`, ox.Short("f"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh label create
 				ox.Usage(`create`, `Create a new label`),
 				ox.Banner(`Create a new label on GitHub, or update an existing one with `+"`"+`--force`+"`"+`.
 
@@ -4866,7 +4866,7 @@ The label color needs to be 6 character hex value.`),
 					Bool(`force`, `Update the label color and description if label already exists`, ox.Short("f"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh label delete
 				ox.Usage(`delete`, `Delete a label from a repository`),
 				ox.Banner(`Delete a label from a repository`),
 				ox.Spec(`<name> [flags]`),
@@ -4882,7 +4882,7 @@ The label color needs to be 6 character hex value.`),
 					Bool(`yes`, `Confirm deletion without prompting`, ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh label edit
 				ox.Usage(`edit`, `Edit a label`),
 				ox.Banner(`Update a label on GitHub.
 
@@ -4910,7 +4910,7 @@ The label color needs to be 6 character hex value.`),
 					String(`name`, `New name of the label`, ox.Short("n"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh label list
 				ox.Usage(`list`, `List labels in a repository`),
 				ox.Banner(`Display labels in a GitHub repository.
 
@@ -4946,7 +4946,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // gh ruleset
 			ox.Usage(`ruleset`, `View info about repo rulesets`),
 			ox.Banner(`Repository rulesets are a way to define a set of rules that apply to a repository.
 These commands allow you to view information about them.`),
@@ -4966,7 +4966,7 @@ These commands allow you to view information about them.`),
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 			ox.Flags().
 				String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // gh ruleset check
 				ox.Usage(`check`, `View rules that would apply to a given branch`),
 				ox.Banner(`View information about GitHub rules that apply to a given branch.
 
@@ -5006,7 +5006,7 @@ repository.`),
 					Bool(`web`, `Open the branch rules page in a web browser`, ox.Short("w"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh ruleset list
 				ox.Usage(`list`, `List rulesets for a repository or organization`),
 				ox.Banner(`List GitHub rulesets for a repository or organization.
 
@@ -5044,7 +5044,7 @@ Your access token must have the `+"`"+`admin:org`+"`"+` scope to use the `+"`"+`
 					Bool(`web`, `Open the list of rulesets in the web browser`, ox.Short("w"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh ruleset view
 				ox.Usage(`view`, `View information about a ruleset`),
 				ox.Banner(`View information about a GitHub ruleset.
 
@@ -5085,7 +5085,7 @@ be returned. The default is `+"`"+`true`+"`"+`.`),
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // gh search
 			ox.Usage(`search`, `Search for repositories, issues, and pull requests`),
 			ox.Banner(`Search across all of GitHub.`),
 			ox.Spec(`<command> [flags]`),
@@ -5094,7 +5094,7 @@ be returned. The default is `+"`"+`true`+"`"+`.`),
   Read the manual at https://cli.github.com/manual
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
-			ox.Sub(
+			ox.Sub( // gh search code
 				ox.Usage(`code`, `Search within code`),
 				ox.Banner(`Search within code in GitHub repositories.
 
@@ -5146,7 +5146,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)).
 					Bool(`web`, `Open the search query in the web browser`, ox.Short("w"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh search commits
 				ox.Usage(`commits`, `Search for commits`),
 				ox.Banner(`Search for commits on GitHub.
 
@@ -5207,7 +5207,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					Slice(`visibility`, `Filter based on repository visibility: {public|private|internal}`, ox.Section(0)).
 					Bool(`web`, `Open the search query in the web browser`, ox.Short("w"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh search issues
 				ox.Usage(`issues`, `Search for issues`),
 				ox.Banner(`Search for issues on GitHub.
 
@@ -5285,7 +5285,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					Slice(`visibility`, `Filter based on repository visibility: {public|private|internal}`, ox.Section(0)).
 					Bool(`web`, `Open the search query in the web browser`, ox.Short("w"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh search prs
 				ox.Usage(`prs`, `Search for pull requests`),
 				ox.Banner(`Search for pull requests on GitHub.
 
@@ -5371,7 +5371,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					Slice(`visibility`, `Filter based on repository visibility: {public|private|internal}`, ox.Section(0)).
 					Bool(`web`, `Open the search query in the web browser`, ox.Short("w"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh search repos
 				ox.Usage(`repos`, `Search for repositories`),
 				ox.Banner(`Search for repositories on GitHub.
 
@@ -5438,7 +5438,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					Bool(`web`, `Open the search query in the web browser`, ox.Short("w"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // gh secret
 			ox.Usage(`secret`, `Manage GitHub secrets`),
 			ox.Banner(`Secrets can be set at the repository, or organization level for use in
 GitHub Actions or Dependabot. User, organization, and repository secrets can be set for
@@ -5455,7 +5455,7 @@ GitHub Actions. Run `+"`"+`gh help secret set`+"`"+` to learn how to get started
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 			ox.Flags().
 				String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // gh secret delete
 				ox.Usage(`delete`, `Delete secrets`),
 				ox.Banner(`Delete a secret on one of the following levels:
 - repository (default): available to GitHub Actions runs or Dependabot in a repository
@@ -5479,7 +5479,7 @@ GitHub Actions. Run `+"`"+`gh help secret set`+"`"+` to learn how to get started
 					Bool(`user`, `Delete a secret for your user`, ox.Short("u"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh secret list
 				ox.Usage(`list`, `List secrets`),
 				ox.Banner(`List secrets on one of the following levels:
 - repository (default): available to GitHub Actions runs or Dependabot in a repository
@@ -5508,7 +5508,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					Bool(`user`, `List a secret for your user`, ox.Short("u"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh secret set
 				ox.Usage(`set`, `Create or update secrets`),
 				ox.Banner(`Set a value for a secret on one of the following levels:
 - repository (default): available to GitHub Actions runs or Dependabot in a repository
@@ -5575,7 +5575,7 @@ Secret values are locally encrypted before being sent to GitHub.`),
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // gh ssh-key
 			ox.Usage(`ssh-key`, `Manage SSH keys`),
 			ox.Banner(`Manage SSH keys registered with your GitHub account.`),
 			ox.Spec(`<command> [flags]`),
@@ -5584,7 +5584,7 @@ Secret values are locally encrypted before being sent to GitHub.`),
   Read the manual at https://cli.github.com/manual
   Learn about exit codes using `+"`"+`gh help exit-codes`+"`"+`
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
-			ox.Sub(
+			ox.Sub( // gh ssh-key add
 				ox.Usage(`add`, `Add an SSH key to your GitHub account`),
 				ox.Banner(`Add an SSH key to your GitHub account`),
 				ox.Spec(`[<key-file>] [flags]`),
@@ -5599,7 +5599,7 @@ Secret values are locally encrypted before being sent to GitHub.`),
 					String(`title`, `Title for the new key`, ox.Short("t"), ox.Section(0)).
 					String(`type`, `Type of the ssh key: {authentication|signing}`, ox.Default("authentication"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh ssh-key delete
 				ox.Usage(`delete`, `Delete an SSH key from your GitHub account`),
 				ox.Banner(`Delete an SSH key from your GitHub account`),
 				ox.Spec(`<id> [flags]`),
@@ -5613,7 +5613,7 @@ Secret values are locally encrypted before being sent to GitHub.`),
 				ox.Flags().
 					Bool(`yes`, `Skip the confirmation prompt`, ox.Short("y"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // gh ssh-key list
 				ox.Usage(`list`, `Lists SSH keys in your GitHub account`),
 				ox.Banner(`Lists SSH keys in your GitHub account`),
 				ox.Spec(`[flags]`),
@@ -5624,7 +5624,7 @@ Secret values are locally encrypted before being sent to GitHub.`),
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // gh status
 			ox.Usage(`status`, `Print information about relevant issues, pull requests, and notifications across repositories`),
 			ox.Banner(`The status command prints information about your work on GitHub across all the repositories you're subscribed to, including:
 
@@ -5649,7 +5649,7 @@ Secret values are locally encrypted before being sent to GitHub.`),
 				Slice(`exclude`, `Comma separated list of repos to exclude in owner/name format`, ox.Short("e"), ox.Section(0)).
 				String(`org`, `Report status within an organization`, ox.Short("o"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // gh variable
 			ox.Usage(`variable`, `Manage GitHub Actions variables`),
 			ox.Banner(`Variables can be set at the repository, environment or organization level for use in
 GitHub Actions or Dependabot. Run `+"`"+`gh help variable set`+"`"+` to learn how to get started.`),
@@ -5664,7 +5664,7 @@ GitHub Actions or Dependabot. Run `+"`"+`gh help variable set`+"`"+` to learn ho
   Learn about accessibility experiences using `+"`"+`gh help accessibility`+"`"+``),
 			ox.Flags().
 				String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // gh variable delete
 				ox.Usage(`delete`, `Delete variables`),
 				ox.Banner(`Delete a variable on one of the following levels:
 - repository (default): available to GitHub Actions runs or Dependabot in a repository
@@ -5685,7 +5685,7 @@ GitHub Actions or Dependabot. Run `+"`"+`gh help variable set`+"`"+` to learn ho
 					String(`org`, `Delete a variable for an organization`, ox.Short("o"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh variable get
 				ox.Usage(`get`, `Get variables`),
 				ox.Banner(`Get a variable on one of the following levels:
 - repository (default): available to GitHub Actions runs or Dependabot in a repository
@@ -5710,7 +5710,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh variable list
 				ox.Usage(`list`, `List variables`),
 				ox.Banner(`List variables on one of the following levels:
 - repository (default): available to GitHub Actions runs or Dependabot in a repository
@@ -5736,7 +5736,7 @@ For more information about output formatting flags, see `+"`"+`gh help formattin
 					String(`template`, `Format JSON output using a Go template; see "gh help formatting"`, ox.Short("t"), ox.Section(0)).
 					String(`repo`, `Select another repository using the [HOST/]OWNER/REPO format`, ox.Spec(`[HOST/]OWNER/REPO`), ox.Short("R"), ox.Section(1)),
 			),
-			ox.Sub(
+			ox.Sub( // gh variable set
 				ox.Usage(`set`, `Create or update variables`),
 				ox.Banner(`Set a value for a variable on one of the following levels:
 - repository (default): available to GitHub Actions runs or Dependabot in a repository

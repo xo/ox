@@ -134,26 +134,6 @@ func AppendSize(b []byte, size int64, verb rune, prec int, space bool) []byte {
 	return append(b, unit...)
 }
 
-func bestSize(size int64, iec bool) (string, float64, string) {
-	n, units, suffix := int64(KB), "kMGTPE", "B"
-	if iec {
-		n, units, suffix = KiB, "KMGTPE", "iB"
-	}
-	var neg string
-	if size < 0 {
-		neg, size = "-", -size
-	}
-	if size < n {
-		return neg, float64(size), "B"
-	}
-	e, d := 0, n
-	for i := size / n; n <= i; i /= n {
-		d *= n
-		e++
-	}
-	return neg, float64(size) / float64(d), string(units[e]) + suffix
-}
-
 // FormatSize formats a byte size.
 func FormatSize(size int64, verb rune, prec int, space bool) string {
 	return string(AppendSize(make([]byte, 0, 28), size, verb, prec, space))
@@ -259,6 +239,27 @@ const (
 	PiB = 1_125_899_906_842_624
 	EiB = 1_152_921_504_606_846_976
 )
+
+// bestSize returns the best size.
+func bestSize(size int64, iec bool) (string, float64, string) {
+	n, units, suffix := int64(KB), "kMGTPE", "B"
+	if iec {
+		n, units, suffix = KiB, "KMGTPE", "iB"
+	}
+	var neg string
+	if size < 0 {
+		neg, size = "-", -size
+	}
+	if size < n {
+		return neg, float64(size), "B"
+	}
+	e, d := 0, n
+	for i := size / n; n <= i; i /= n {
+		d *= n
+		e++
+	}
+	return neg, float64(size) / float64(d), string(units[e]) + suffix
+}
 
 // parseSize returns the byte size of s.
 func parseSize(s string) (int64, error) {

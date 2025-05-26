@@ -24,7 +24,7 @@ documentation, changelog and configuration walkthroughs.`),
 		ox.Footer(`Use "rclone [command] --help" for more information about a command.
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
-		ox.Sub(
+		ox.Sub( // rclone authorize
 			ox.Usage(`authorize`, `Remote authorization.`),
 			ox.Banner(`
 Remote authorization. Used to authorize a remote or headless
@@ -40,7 +40,7 @@ Use "rclone help backends" for a list of supported services.`),
 			ox.Flags().
 				Bool(`auth-no-open-browser`, `Do not automatically open auth link in default browser`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone backend
 			ox.Usage(`backend`, `Run a backend-specific command.`),
 			ox.Banner(`
 This runs a backend-specific command. The commands themselves (except
@@ -76,7 +76,7 @@ Use "rclone help backends" for a list of supported services.`),
 				Bool(`json`, `Always output in JSON format`).
 				Array(`option`, `Option in the form name=value or name`, ox.Short("o")),
 		),
-		ox.Sub(
+		ox.Sub( // rclone bisync
 			ox.Usage(`bisync`, `Perform bidirectonal synchronization between two paths.`),
 			ox.Banner(`Perform bidirectonal synchronization between two paths.
 
@@ -105,7 +105,7 @@ Use "rclone help backends" for a list of supported services.`),
 				Bool(`resync`, `Performs the resync run. Path1 files may overwrite Path2 versions. Consider using --verbose or --dry-run first.`, ox.Short("1")).
 				String(`workdir`, `Use custom working dir - useful for testing. (default: /home/ken/.cache/rclone/bisync)`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone cat
 			ox.Usage(`cat`, `Concatenates any files and sends them to stdout.`),
 			ox.Banner(`
 rclone cat sends any files to standard output.
@@ -137,7 +137,7 @@ Use "rclone help backends" for a list of supported services.`),
 				Int(`offset`, `Start printing at offset N (or from end if -ve)`).
 				Int(`tail`, `Only print the last N characters`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone check
 			ox.Usage(`check`, `Checks the files in the source and destination match.`),
 			ox.Banner(`
 Checks the files in the source and destination match.  It compares
@@ -190,7 +190,7 @@ Use "rclone help backends" for a list of supported services.`),
 				String(`missing-on-src`, `Report all files missing from the source to this file`).
 				Bool(`one-way`, `Check one way only, source files must exist on remote`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone checksum
 			ox.Usage(`checksum`, `Checks the files in the source against a SUM file.`),
 			ox.Banner(`
 Checks that hashsums of source files match the SUM file.
@@ -237,7 +237,7 @@ Use "rclone help backends" for a list of supported services.`),
 				String(`missing-on-src`, `Report all files missing from the source to this file`).
 				Bool(`one-way`, `Check one way only, source files must exist on remote`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone cleanup
 			ox.Usage(`cleanup`, `Clean up the remote if possible.`),
 			ox.Banner(`
 Clean up the remote if possible.  Empty the trash or delete old file
@@ -247,7 +247,7 @@ versions. Not supported by all remotes.`),
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone config
 			ox.Usage(`config`, `Enter an interactive configuration session.`),
 			ox.Banner(`Enter an interactive configuration session where you can setup new
 remotes and manage existing ones. You may also set or remove a
@@ -256,7 +256,7 @@ password to protect your configuration.`),
 			ox.Footer(`Use "rclone [command] --help" for more information about a command.
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
-			ox.Sub(
+			ox.Sub( // rclone config create
 				ox.Usage(`create`, `Create a new remote with name, type and options.`),
 				ox.Banner(`
 Create a new remote of `+"`"+`name`+"`"+` with `+"`"+`type`+"`"+` and options.  The options
@@ -372,7 +372,7 @@ Use "rclone help backends" for a list of supported services.`),
 					String(`result`, `Result - use with --continue`).
 					String(`state`, `State - use with --continue`),
 			),
-			ox.Sub(
+			ox.Sub( // rclone config delete
 				ox.Usage(`delete`, `Delete an existing remote.`),
 				ox.Banner(`Delete an existing remote.`),
 				ox.Spec(`name [flags]`),
@@ -380,7 +380,7 @@ Use "rclone help backends" for a list of supported services.`),
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 			),
-			ox.Sub(
+			ox.Sub( // rclone config disconnect
 				ox.Usage(`disconnect`, `Disconnects user from remote`),
 				ox.Banner(`
 This disconnects the remote: passed in to the cloud storage system.
@@ -393,7 +393,7 @@ To reconnect use "rclone config reconnect".`),
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 			),
-			ox.Sub(
+			ox.Sub( // rclone config dump
 				ox.Usage(`dump`, `Dump the config file as JSON.`),
 				ox.Banner(`Dump the config file as JSON.`),
 				ox.Spec(`[flags]`),
@@ -401,7 +401,7 @@ Use "rclone help backends" for a list of supported services.`),
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 			),
-			ox.Sub(
+			ox.Sub( // rclone config file
 				ox.Usage(`file`, `Show path of configuration file in use.`),
 				ox.Banner(`Show path of configuration file in use.`),
 				ox.Spec(`[flags]`),
@@ -409,7 +409,7 @@ Use "rclone help backends" for a list of supported services.`),
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 			),
-			ox.Sub(
+			ox.Sub( // rclone config password
 				ox.Usage(`password`, `Update password in an existing remote.`),
 				ox.Banner(`
 Update an existing remote's password. The password
@@ -428,7 +428,7 @@ both support obscuring passwords directly.`),
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 			),
-			ox.Sub(
+			ox.Sub( // rclone config paths
 				ox.Usage(`paths`, `Show paths used for configuration, cache, temp etc.`),
 				ox.Banner(`Show paths used for configuration, cache, temp etc.`),
 				ox.Spec(`[flags]`),
@@ -436,7 +436,7 @@ Use "rclone help backends" for a list of supported services.`),
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 			),
-			ox.Sub(
+			ox.Sub( // rclone config providers
 				ox.Usage(`providers`, `List in JSON format all the providers and options.`),
 				ox.Banner(`List in JSON format all the providers and options.`),
 				ox.Spec(`[flags]`),
@@ -444,7 +444,7 @@ Use "rclone help backends" for a list of supported services.`),
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 			),
-			ox.Sub(
+			ox.Sub( // rclone config reconnect
 				ox.Usage(`reconnect`, `Re-authenticates user with remote.`),
 				ox.Banner(`
 This reconnects remote: passed in to the cloud storage system.
@@ -457,7 +457,7 @@ This normally means going through the interactive oauth flow again.`),
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 			),
-			ox.Sub(
+			ox.Sub( // rclone config show
 				ox.Usage(`show`, `Print (decrypted) config file, or the config for a single remote.`),
 				ox.Banner(`Print (decrypted) config file, or the config for a single remote.`),
 				ox.Spec(`[<remote>] [flags]`),
@@ -465,7 +465,7 @@ Use "rclone help backends" for a list of supported services.`),
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 			),
-			ox.Sub(
+			ox.Sub( // rclone config touch
 				ox.Usage(`touch`, `Ensure configuration file exists.`),
 				ox.Banner(`Ensure configuration file exists.`),
 				ox.Spec(`[flags]`),
@@ -473,7 +473,7 @@ Use "rclone help backends" for a list of supported services.`),
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 			),
-			ox.Sub(
+			ox.Sub( // rclone config update
 				ox.Usage(`update`, `Update options in an existing remote.`),
 				ox.Banner(`
 Update an existing remote's options. The options should be passed in
@@ -589,7 +589,7 @@ Use "rclone help backends" for a list of supported services.`),
 					String(`result`, `Result - use with --continue`).
 					String(`state`, `State - use with --continue`),
 			),
-			ox.Sub(
+			ox.Sub( // rclone config userinfo
 				ox.Usage(`userinfo`, `Prints info about logged in user of remote.`),
 				ox.Banner(`
 This prints the details of the person logged in to the cloud storage
@@ -602,7 +602,7 @@ Use "rclone help backends" for a list of supported services.`),
 					Bool(`json`, `Format output as JSON`),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // rclone copy
 			ox.Usage(`copy`, `Copy files from source to dest, skipping identical files.`),
 			ox.Banner(`
 Copy the source to the destination.  Does not transfer files that are
@@ -662,7 +662,7 @@ Use "rclone help backends" for a list of supported services.`),
 			ox.Flags().
 				Bool(`create-empty-src-dirs`, `Create empty source dirs on destination after copy`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone copyto
 			ox.Usage(`copyto`, `Copy files from source to dest, skipping identical files.`),
 			ox.Banner(`
 If source:path is a file or directory then it copies it to a file or
@@ -697,7 +697,7 @@ the destination.
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone copyurl
 			ox.Usage(`copyurl`, `Copy url content to dest.`),
 			ox.Banner(`
 Download a URL's content and copy it to the destination without saving
@@ -723,7 +723,7 @@ Use "rclone help backends" for a list of supported services.`),
 				Bool(`print-filename`, `Print the resulting name from --auto-filename`, ox.Short("p")).
 				Bool(`stdout`, `Write the output to stdout rather than a file`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone cryptcheck
 			ox.Usage(`cryptcheck`, `Cryptcheck checks the integrity of a crypted remote.`),
 			ox.Banner(`
 rclone cryptcheck checks a remote against a crypted remote.  This is
@@ -782,7 +782,7 @@ Use "rclone help backends" for a list of supported services.`),
 				String(`missing-on-src`, `Report all files missing from the source to this file`).
 				Bool(`one-way`, `Check one way only, source files must exist on remote`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone cryptdecode
 			ox.Usage(`cryptdecode`, `Cryptdecode returns unencrypted file names.`),
 			ox.Banner(`
 rclone cryptdecode returns unencrypted file names when provided with
@@ -805,7 +805,7 @@ Use "rclone help backends" for a list of supported services.`),
 			ox.Flags().
 				Bool(`reverse`, `Reverse cryptdecode, encrypts filenames`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone dedupe
 			ox.Usage(`dedupe`, `Interactively find duplicate filenames and delete/rename them.`),
 			ox.Banner(`
 
@@ -921,7 +921,7 @@ Use "rclone help backends" for a list of supported services.`),
 				Bool(`by-hash`, `Find identical hashes rather than names`).
 				String(`dedupe-mode`, `Dedupe mode interactive|skip|first|newest|oldest|largest|smallest|rename`, ox.Default("interactive")),
 		),
-		ox.Sub(
+		ox.Sub( // rclone delete
 			ox.Usage(`delete`, `Remove the files in path.`),
 			ox.Banner(`
 Remove the files in path.  Unlike `+"`"+`purge`+"`"+` it obeys include/exclude
@@ -957,7 +957,7 @@ Use "rclone help backends" for a list of supported services.`),
 			ox.Flags().
 				Bool(`rmdirs`, `rmdirs removes empty directories but leaves root intact`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone deletefile
 			ox.Usage(`deletefile`, `Remove a single file from remote.`),
 			ox.Banner(`
 Remove a single file from remote.  Unlike `+"`"+`delete`+"`"+` it cannot be used to
@@ -968,7 +968,7 @@ it will always be removed.`),
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone genautocomplete
 			ox.Usage(`genautocomplete`, `Output completion script for a given shell.`),
 			ox.Banner(`
 Generates a shell completion script for rclone.
@@ -977,7 +977,7 @@ Run with --help to list the supported shells.`),
 			ox.Footer(`Use "rclone [command] --help" for more information about a command.
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
-			ox.Sub(
+			ox.Sub( // rclone genautocomplete bash
 				ox.Usage(`bash`, `Output bash completion script for rclone.`),
 				ox.Banner(`
 Generates a bash shell autocompletion script for rclone.
@@ -1001,7 +1001,7 @@ If output_file is "-", then the output will be written to stdout.`),
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 			),
-			ox.Sub(
+			ox.Sub( // rclone genautocomplete fish
 				ox.Usage(`fish`, `Output fish completion script for rclone.`),
 				ox.Banner(`
 Generates a fish autocompletion script for rclone.
@@ -1025,7 +1025,7 @@ If output_file is "-", then the output will be written to stdout.`),
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 			),
-			ox.Sub(
+			ox.Sub( // rclone genautocomplete zsh
 				ox.Usage(`zsh`, `Output zsh completion script for rclone.`),
 				ox.Banner(`
 Generates a zsh autocompletion script for rclone.
@@ -1050,7 +1050,7 @@ Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // rclone gendocs
 			ox.Usage(`gendocs`, `Output markdown docs for rclone to the directory supplied.`),
 			ox.Banner(`
 This produces markdown docs for the rclone commands to the directory
@@ -1061,7 +1061,7 @@ rclone.org website.`),
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone hashsum
 			ox.Usage(`hashsum`, `Produces a hashsum file for all the objects in the path.`),
 			ox.Banner(`
 Produces a hash file for all the objects in the path using the hash
@@ -1106,7 +1106,7 @@ Use "rclone help backends" for a list of supported services.`),
 				Bool(`download`, `Download the file and hash it locally; if this flag is not specified, the hash is requested from the remote`).
 				String(`output-file`, `Output hashsums to a file rather than the terminal`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone link
 			ox.Usage(`link`, `Generate public link to file/folder.`),
 			ox.Banner(`rclone link will create, retrieve or remove a public link to the given
 file or folder.
@@ -1137,7 +1137,7 @@ Use "rclone help backends" for a list of supported services.`),
 				String(`expire`, `The amount of time that the link will be valid`, ox.Spec(`Duration`), ox.Default("off")).
 				Bool(`unlink`, `Remove existing public link to file/folder`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone listremotes
 			ox.Usage(`listremotes`, `List all the remotes in the config file.`),
 			ox.Banner(`
 rclone listremotes lists all the available remotes from the config file.
@@ -1150,7 +1150,7 @@ Use "rclone help backends" for a list of supported services.`),
 			ox.Flags().
 				Bool(`long`, `Show the type as well as names`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone ls
 			ox.Usage(`ls`, `List the objects in the path with size and path.`),
 			ox.Banner(`
 Lists the objects in the source path to standard output in a human
@@ -1191,7 +1191,7 @@ the bucket-based remotes).`),
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone lsd
 			ox.Usage(`lsd`, `List all directories/containers/buckets in the path.`),
 			ox.Banner(`
 Lists the directories in the source path to standard output. Does not
@@ -1244,7 +1244,7 @@ Use "rclone help backends" for a list of supported services.`),
 			ox.Flags().
 				Bool(`recursive`, `Recurse into the listing`, ox.Short("R")),
 		),
-		ox.Sub(
+		ox.Sub( // rclone lsf
 			ox.Usage(`lsf`, `List directories and objects in remote:path formatted for parsing.`),
 			ox.Banner(`
 List the contents of the source path (directories and objects) to
@@ -1378,7 +1378,7 @@ Use "rclone help backends" for a list of supported services.`),
 				Bool(`recursive`, `Recurse into the listing`, ox.Short("R")).
 				String(`separator`, `Separator for the items in the format`, ox.Default(";"), ox.Short("s")),
 		),
-		ox.Sub(
+		ox.Sub( // rclone lsjson
 			ox.Usage(`lsjson`, `List directories and objects in the path in JSON format.`),
 			ox.Banner(`List directories and objects in the path in JSON format.
 
@@ -1487,7 +1487,7 @@ Use "rclone help backends" for a list of supported services.`),
 				Bool(`recursive`, `Recurse into the listing`, ox.Short("R")).
 				Bool(`stat`, `Just return the info for the pointed to file`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone lsl
 			ox.Usage(`lsl`, `List the objects in path with modification time, size and path.`),
 			ox.Banner(`
 Lists the objects in the source path to standard output in a human
@@ -1528,7 +1528,7 @@ the bucket-based remotes).`),
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone md5sum
 			ox.Usage(`md5sum`, `Produces an md5sum file for all the objects in the path.`),
 			ox.Banner(`
 Produces an md5sum file for all the objects in the path.  This
@@ -1553,7 +1553,7 @@ Use "rclone help backends" for a list of supported services.`),
 				Bool(`download`, `Download the file and hash it locally; if this flag is not specified, the hash is requested from the remote`).
 				String(`output-file`, `Output hashsums to a file rather than the terminal`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone mkdir
 			ox.Usage(`mkdir`, `Make the path if it doesn't already exist.`),
 			ox.Banner(`Make the path if it doesn't already exist.`),
 			ox.Spec(`remote:path [flags]`),
@@ -1561,7 +1561,7 @@ Use "rclone help backends" for a list of supported services.`),
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone mount
 			ox.Usage(`mount`, `Mount the remote as file system on a mountpoint.`),
 			ox.Banner(`
 rclone mount allows Linux, FreeBSD, macOS and Windows to
@@ -2303,7 +2303,7 @@ Use "rclone help backends" for a list of supported services.`),
 				String(`volname`, `Set the volume name (supported on Windows and OSX only)`).
 				Bool(`write-back-cache`, `Makes kernel buffer writes before sending them to rclone (without this, writethrough caching is used) (not supported on Windows)`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone move
 			ox.Usage(`move`, `Move files from source to dest.`),
 			ox.Banner(`
 Moves the contents of the source directory to the destination
@@ -2339,7 +2339,7 @@ Use "rclone help backends" for a list of supported services.`),
 				Bool(`create-empty-src-dirs`, `Create empty source dirs on destination after move`).
 				Bool(`delete-empty-src-dirs`, `Delete empty source dirs after move`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone moveto
 			ox.Usage(`moveto`, `Move file or directory from source to dest.`),
 			ox.Banner(`
 If source:path is a file or directory then it moves it to a file or
@@ -2377,7 +2377,7 @@ successful transfer.
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone ncdu
 			ox.Usage(`ncdu`, `Explore a remote with a text based user interface.`),
 			ox.Banner(`
 This displays a text based user interface allowing the navigation of a
@@ -2419,7 +2419,7 @@ UI won't respond in the meantime since the deletion is done synchronously.`),
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone obscure
 			ox.Usage(`obscure`, `Obscure password for use in the rclone config file.`),
 			ox.Banner(`In the rclone config file, human-readable passwords are
 obscured. Obscuring them is done by encrypting them and writing them
@@ -2449,7 +2449,7 @@ info.`),
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone purge
 			ox.Usage(`purge`, `Remove the path and all of its contents.`),
 			ox.Banner(`
 Remove the path and all of its contents.  Note that this does not obey
@@ -2464,7 +2464,7 @@ use command `+"`"+`rmdir`+"`"+` or `+"`"+`rmdirs`+"`"+`.
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone rc
 			ox.Usage(`rc`, `Run a command against a running rclone.`),
 			ox.Banner(`
 
@@ -2530,7 +2530,7 @@ Use "rclone help backends" for a list of supported services.`),
 				String(`url`, `URL to connect to rclone remote control`, ox.Default("http://localhost:5572/")).
 				String(`user`, `Username to use to rclone remote control`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone rcat
 			ox.Usage(`rcat`, `Copies standard input to file on remote.`),
 			ox.Banner(`
 rclone rcat reads from standard input (stdin) and copies it to a
@@ -2569,7 +2569,7 @@ Use "rclone help backends" for a list of supported services.`),
 			ox.Flags().
 				Int(`size`, `File size hint to preallocate`, ox.Default("-1")),
 		),
-		ox.Sub(
+		ox.Sub( // rclone rcd
 			ox.Usage(`rcd`, `Run rclone listening to remote control commands only.`),
 			ox.Banner(`
 This runs rclone so that it only listens to remote control commands.
@@ -2586,7 +2586,7 @@ See the [rc documentation](/rc/) for more info on the rc flags.`),
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone rmdir
 			ox.Usage(`rmdir`, `Remove the empty directory at path.`),
 			ox.Banner(`
 This removes empty directory given by path. Will not remove the path if it
@@ -2600,7 +2600,7 @@ To delete a path and any objects in it, use `+"`"+`purge`+"`"+` command.`),
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone rmdirs
 			ox.Usage(`rmdirs`, `Remove empty directories under the path.`),
 			ox.Banner(`
 This recursively removes any empty directories (including directories
@@ -2624,7 +2624,7 @@ Use "rclone help backends" for a list of supported services.`),
 			ox.Flags().
 				Bool(`leave-root`, `Do not remove root directory if empty`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone selfupdate
 			ox.Usage(`selfupdate`, `Update the rclone binary.`),
 			ox.Banner(`
 This command downloads the latest release of rclone and replaces
@@ -2685,7 +2685,7 @@ Use "rclone help backends" for a list of supported services.`),
 				String(`package`, `Package format: zip|deb|rpm (default: zip)`).
 				Bool(`stable`, `Install stable release (this is the default)`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone serve
 			ox.Usage(`serve`, `Serve a remote over a protocol.`),
 			ox.Banner(`rclone serve is used to serve a remote over a given protocol. This
 command requires the use of a subcommand to specify the protocol, e.g.
@@ -2697,7 +2697,7 @@ Each subcommand has its own options which you can see in their help.`),
 			ox.Footer(`Use "rclone [command] --help" for more information about a command.
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
-			ox.Sub(
+			ox.Sub( // rclone serve dlna
 				ox.Usage(`dlna`, `Serve remote:path over DLNA`),
 				ox.Banner(`rclone serve dlna is a DLNA media server for media stored in an rclone remote. Many
 devices, such as the Xbox and PlayStation, can automatically discover this server in the LAN
@@ -3064,7 +3064,7 @@ Use "rclone help backends" for a list of supported services.`),
 					Duration(`vfs-write-back`, `Time to writeback files after last use when using cache`, ox.Default("5s")).
 					Duration(`vfs-write-wait`, `Time to wait for in-sequence write before giving error`, ox.Default("1s")),
 			),
-			ox.Sub(
+			ox.Sub( // rclone serve docker
 				ox.Usage(`docker`, `Serve any remote on docker's volume plugin API.`),
 				ox.Banner(`
 This command implements the Docker volume plugin API allowing docker to use
@@ -3470,7 +3470,7 @@ Use "rclone help backends" for a list of supported services.`),
 					String(`volname`, `Set the volume name (supported on Windows and OSX only)`).
 					Bool(`write-back-cache`, `Makes kernel buffer writes before sending them to rclone (without this, writethrough caching is used) (not supported on Windows)`),
 			),
-			ox.Sub(
+			ox.Sub( // rclone serve ftp
 				ox.Usage(`ftp`, `Serve remote:path over FTP.`),
 				ox.Banner(`
 rclone serve ftp implements a basic ftp server to serve the
@@ -3922,7 +3922,7 @@ Use "rclone help backends" for a list of supported services.`),
 					Duration(`vfs-write-back`, `Time to writeback files after last use when using cache`, ox.Default("5s")).
 					Duration(`vfs-write-wait`, `Time to wait for in-sequence write before giving error`, ox.Default("1s")),
 			),
-			ox.Sub(
+			ox.Sub( // rclone serve http
 				ox.Usage(`http`, `Serve the remote over HTTP.`),
 				ox.Banner(`rclone serve http implements a basic web server to serve the remote
 over HTTP.  This can be viewed in a web browser or you can make a
@@ -4375,7 +4375,7 @@ Use "rclone help backends" for a list of supported services.`),
 					Duration(`vfs-write-back`, `Time to writeback files after last use when using cache`, ox.Default("5s")).
 					Duration(`vfs-write-wait`, `Time to wait for in-sequence write before giving error`, ox.Default("1s")),
 			),
-			ox.Sub(
+			ox.Sub( // rclone serve restic
 				ox.Usage(`restic`, `Serve the remote for restic's REST API.`),
 				ox.Banner(`rclone serve restic implements restic's REST backend API
 over HTTP.  This allows restic to use rclone as a data storage
@@ -4562,7 +4562,7 @@ Use "rclone help backends" for a list of supported services.`),
 					String(`template`, `User-specified template`).
 					String(`user`, `User name for authentication`),
 			),
-			ox.Sub(
+			ox.Sub( // rclone serve sftp
 				ox.Usage(`sftp`, `Serve the remote over SFTP.`),
 				ox.Banner(`rclone serve sftp implements an SFTP server to serve the remote
 over SFTP.  This can be used with an SFTP client or you can make a
@@ -5043,7 +5043,7 @@ Use "rclone help backends" for a list of supported services.`),
 					Duration(`vfs-write-back`, `Time to writeback files after last use when using cache`, ox.Default("5s")).
 					Duration(`vfs-write-wait`, `Time to wait for in-sequence write before giving error`, ox.Default("1s")),
 			),
-			ox.Sub(
+			ox.Sub( // rclone serve webdav
 				ox.Usage(`webdav`, `Serve remote:path over webdav.`),
 				ox.Banner(`
 rclone serve webdav implements a basic webdav server to serve the
@@ -5584,7 +5584,7 @@ Use "rclone help backends" for a list of supported services.`),
 					Duration(`vfs-write-wait`, `Time to wait for in-sequence write before giving error`, ox.Default("1s")),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // rclone settier
 			ox.Usage(`settier`, `Changes storage class/tier of objects in remote.`),
 			ox.Banner(`
 rclone settier changes storage tier or class at remote if supported.
@@ -5613,7 +5613,7 @@ Or just provide remote directory and all files in directory will be tiered
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone sha1sum
 			ox.Usage(`sha1sum`, `Produces an sha1sum file for all the objects in the path.`),
 			ox.Banner(`
 Produces an sha1sum file for all the objects in the path.  This
@@ -5641,7 +5641,7 @@ Use "rclone help backends" for a list of supported services.`),
 				Bool(`download`, `Download the file and hash it locally; if this flag is not specified, the hash is requested from the remote`).
 				String(`output-file`, `Output hashsums to a file rather than the terminal`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone size
 			ox.Usage(`size`, `Prints the total size and number of objects in remote:path.`),
 			ox.Banner(`Prints the total size and number of objects in remote:path.`),
 			ox.Spec(`remote:path [flags]`),
@@ -5651,7 +5651,7 @@ Use "rclone help backends" for a list of supported services.`),
 			ox.Flags().
 				Bool(`json`, `Format output as JSON`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone sync
 			ox.Usage(`sync`, `Make source and dest identical, modifying destination only.`),
 			ox.Banner(`
 Sync the source to the destination, changing the destination
@@ -5688,7 +5688,7 @@ Use "rclone help backends" for a list of supported services.`),
 			ox.Flags().
 				Bool(`create-empty-src-dirs`, `Create empty source dirs on destination after sync`),
 		),
-		ox.Sub(
+		ox.Sub( // rclone test
 			ox.Usage(`test`, `Run a test command`),
 			ox.Banner(`Rclone test is used to run test commands.
 
@@ -5704,7 +5704,7 @@ so reading their documentation first is recommended.`),
 			ox.Footer(`Use "rclone [command] --help" for more information about a command.
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
-			ox.Sub(
+			ox.Sub( // rclone test changenotify
 				ox.Usage(`changenotify`, `Log any change notify requests for the remote passed in.`),
 				ox.Banner(`Log any change notify requests for the remote passed in.`),
 				ox.Spec(`remote: [flags]`),
@@ -5714,7 +5714,7 @@ Use "rclone help backends" for a list of supported services.`),
 				ox.Flags().
 					Duration(`poll-interval`, `Time to wait between polling for changes`, ox.Default("10s")),
 			),
-			ox.Sub(
+			ox.Sub( // rclone test histogram
 				ox.Usage(`histogram`, `Makes a histogram of file name characters.`),
 				ox.Banner(`This command outputs JSON which shows the histogram of characters used
 in filenames in the remote:path specified.
@@ -5726,7 +5726,7 @@ the rclone developers when developing filename compression.`),
 Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 			),
-			ox.Sub(
+			ox.Sub( // rclone test info
 				ox.Usage(`info`, `Discovers file name or other limitations for paths.`),
 				ox.Banner(`rclone info discovers what filenames and upload methods are possible
 to write to the paths passed in and how long they can be.  It can take some
@@ -5747,7 +5747,7 @@ Use "rclone help backends" for a list of supported services.`),
 					Duration(`upload-wait`, `Wait after writing a file`).
 					String(`write-json`, `Write results to file`),
 			),
-			ox.Sub(
+			ox.Sub( // rclone test makefiles
 				ox.Usage(`makefiles`, `Make a random file hierarchy in a directory`),
 				ox.Banner(`Make a random file hierarchy in a directory`),
 				ox.Spec(`<dir> [flags]`),
@@ -5763,7 +5763,7 @@ Use "rclone help backends" for a list of supported services.`),
 					Int(`min-name-length`, `Minimum size of file names`, ox.Default("4")).
 					Int(`seed`, `Seed for the random number generator (0 for random)`, ox.Default("1")),
 			),
-			ox.Sub(
+			ox.Sub( // rclone test memory
 				ox.Usage(`memory`, `Load all the objects at remote:path into memory and report memory stats.`),
 				ox.Banner(`Load all the objects at remote:path into memory and report memory stats.`),
 				ox.Spec(`remote:path [flags]`),
@@ -5772,7 +5772,7 @@ Use "rclone help flags" for to see the global flags.
 Use "rclone help backends" for a list of supported services.`),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // rclone touch
 			ox.Usage(`touch`, `Create new file or change file modification time.`),
 			ox.Banner(`
 Set the modification time on file(s) as specified by remote:path to
@@ -5804,7 +5804,7 @@ Use "rclone help backends" for a list of supported services.`),
 				Bool(`recursive`, `Recursively touch all files`, ox.Short("R")).
 				String(`timestamp`, `Use specified time instead of the current time of day`, ox.Short("t")),
 		),
-		ox.Sub(
+		ox.Sub( // rclone tree
 			ox.Usage(`tree`, `List the contents of the remote in a tree like fashion.`),
 			ox.Banner(`
 rclone tree lists the contents of a remote in a similar way to the

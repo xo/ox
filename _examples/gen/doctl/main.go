@@ -28,7 +28,7 @@ func main() {
 			String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o")).
 			Bool(`trace`, `Show a log of network activity while performing a command`).
 			Bool(`verbose`, `Enable verbose output`, ox.Short("v")),
-		ox.Sub(
+		ox.Sub( // doctl 1-click
 			ox.Usage(`1-click`, `Display commands that pertain to 1-click applications`),
 			ox.Banner(`The commands under `+"`"+`doctl 1-click`+"`"+` are for interacting with DigitalOcean 1-Click applications.`),
 			ox.Spec(`[command]`),
@@ -47,7 +47,7 @@ func main() {
 				String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 				Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 				Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // doctl 1-click list
 				ox.Usage(`list`, `Retrieve a list of 1-Click applications`),
 				ox.Banner(`Use this command to retrieve a list of 1-Click applications. You can narrow it by type, current types: kubernetes, droplet`),
 				ox.Spec(`[flags]`),
@@ -72,7 +72,7 @@ The following example retrieves a list of 1-Click applications available for Dro
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // doctl account
 			ox.Usage(`account`, `Display commands that retrieve account details`),
 			ox.Banner(`The subcommands of `+"`"+`doctl account`+"`"+` retrieve information about DigitalOcean accounts.
 
@@ -93,7 +93,7 @@ For example, `+"`"+`doctl account get`+"`"+` retrieves account profile details, 
 				String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 				Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 				Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // doctl account get
 				ox.Usage(`get`, `Retrieve account profile details`),
 				ox.Banner(`Retrieve the following details from your account profile:
 
@@ -123,7 +123,7 @@ The following example retrieves email addresses associated with the account: doc
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl account ratelimit
 				ox.Usage(`ratelimit`, `Retrieve your API usage and the remaining quota`),
 				ox.Banner(`Retrieve the following details about your account's API usage:
 
@@ -153,7 +153,7 @@ The following example retrieves the number of API calls you have left for the ho
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // doctl apps
 			ox.Usage(`apps`, `Displays commands for working with apps`),
 			ox.Banner(`The subcommands of `+"`"+`doctl app`+"`"+` manage your App Platform apps. For documentation on app specs, see the [app spec reference](https://www.digitalocean.com/docs/app-platform/concepts/app-spec).`),
 			ox.Spec(`[command]`),
@@ -173,7 +173,7 @@ The following example retrieves the number of API calls you have left for the ho
 				String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 				Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 				Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // doctl apps console
 				ox.Usage(`console`, `Starts a console session`),
 				ox.Banner(`Instantiates a console session for a component of an app.`),
 				ox.Spec(`<app id> <component name> [flags]`),
@@ -195,7 +195,7 @@ The following example initiates a console session for the app with the ID `+"`"+
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl apps create
 				ox.Usage(`create`, `Create an app`),
 				ox.Banner(`Create an app with the given app spec.`),
 				ox.Spec(`[flags]`),
@@ -223,7 +223,7 @@ The following example creates an app in a project named `+"`"+`example-project`+
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl apps create-deployment
 				ox.Usage(`create-deployment`, `Creates a deployment`),
 				ox.Banner(`Deploys the app with the latest changes from your repository.`),
 				ox.Spec(`<app id> [flags]`),
@@ -248,7 +248,7 @@ The following example creates a deployment for an app with the ID `+"`"+`f81d4fa
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl apps delete
 				ox.Usage(`delete`, `Deletes an app`),
 				ox.Banner(`Deletes the specified app.
 
@@ -272,7 +272,7 @@ The following example deletes an app with the ID `+"`"+`f81d4fae-7dec-11d0-a765-
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl apps dev
 				ox.Usage(`dev`, `[BETA] Display commands for working with App Platform local development.`),
 				ox.Banner(`[BETA] Display commands for working with App Platform local development.
 
@@ -292,7 +292,7 @@ The following example deletes an app with the ID `+"`"+`f81d4fae-7dec-11d0-a765-
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl apps dev build
 					ox.Usage(`build`, `Build an app component`),
 					ox.Banner(`[BETA] Build an app component locally.
 
@@ -323,7 +323,7 @@ The following example deletes an app with the ID `+"`"+`f81d4fae-7dec-11d0-a765-
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl apps dev config
 					ox.Usage(`config`, `Displays commands for working with App Platform local development configuration settings.`),
 					ox.Banner(`[BETA] Displays commands for working with App Platform local development configuration settings.
 
@@ -355,7 +355,7 @@ Configuration Format:
 						String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-					ox.Sub(
+					ox.Sub( // doctl apps dev config set
 						ox.Usage(`set`, `Set a value in the local development configuration settings.`),
 						ox.Banner(`Set a value in the local development configuration settings.
 
@@ -392,7 +392,7 @@ Configuration Format:
 							Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
-					ox.Sub(
+					ox.Sub( // doctl apps dev config unset
 						ox.Usage(`unset`, `Unset a value in the local development configuration settings.`),
 						ox.Banner(`Unset a value in the local development configuration settings.
 
@@ -431,7 +431,7 @@ Configuration Format:
 					),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl apps get
 				ox.Usage(`get`, `Get an app`),
 				ox.Banner(`Get an app with the provided id.
 
@@ -454,7 +454,7 @@ Only basic information is included with the text output format. For complete app
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl apps get-deployment
 				ox.Usage(`get-deployment`, `Get a deployment`),
 				ox.Banner(`Gets information about a specific deployment for the given app, including when the app updated and what triggered the deployment (Cause).
 
@@ -479,7 +479,7 @@ The following example gets information about a deployment with the ID `+"`"+`418
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl apps list
 				ox.Usage(`list`, `Lists all apps`),
 				ox.Banner(`Lists all apps associated with your account, including their ID, spec name, creation date, and other information.
 
@@ -505,7 +505,7 @@ The following lists all apps in your account, but returns just their ID and crea
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl apps list-alerts
 				ox.Usage(`list-alerts`, `Lists alerts on an app`),
 				ox.Banner(`Lists all alerts associated to an app and its component, such as deployment failures and domain failures.`),
 				ox.Spec(`<app id> [flags]`),
@@ -528,7 +528,7 @@ The following example lists all alerts associated to an app with the ID `+"`"+`f
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl apps list-buildpacks
 				ox.Usage(`list-buildpacks`, `Lists buildpacks`),
 				ox.Banner(`Lists all buildpacks available on App Platform`),
 				ox.Spec(`[flags]`),
@@ -550,7 +550,7 @@ The following example lists all buildpacks available on App Platform and uses th
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl apps list-deployments
 				ox.Usage(`list-deployments`, `List all deployments`),
 				ox.Banner(`List all deployments for an app.
 
@@ -573,7 +573,7 @@ Only basic information is included with the text output format. For complete app
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl apps list-regions
 				ox.Usage(`list-regions`, `Lists available App Platform regions`),
 				ox.Banner(`Lists all regions supported by App Platform, including details about their current availability.`),
 				ox.Spec(`[flags]`),
@@ -595,7 +595,7 @@ The following example lists all regions supported by App Platform, including det
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl apps logs
 				ox.Usage(`logs`, `Retrieves logs`),
 				ox.Banner(`Retrieves component logs for a deployment of an app.
 
@@ -629,7 +629,7 @@ The following example retrieves the build logs for the app with the ID `+"`"+`f8
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl apps propose
 				ox.Usage(`propose`, `Proposes an app spec`),
 				ox.Banner(`Reviews and validates an app specification for a new or existing app. The request returns some information about the proposed app, including app cost and upgrade cost. If an existing app ID is specified, the app spec is treated as a proposed update to the existing app.
 
@@ -656,7 +656,7 @@ The following example proposes an app spec from the file directory `+"`"+`src/yo
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl apps restart
 				ox.Usage(`restart`, `Restarts an app`),
 				ox.Banner(`Restarts the specified app or some of its components.`),
 				ox.Spec(`<app id> [flags]`),
@@ -681,7 +681,7 @@ The following example restarts an app with the ID `+"`"+`f81d4fae-7dec-11d0-a765
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl apps spec
 				ox.Usage(`spec`, `Display commands for working with app specs`),
 				ox.Banner(`The subcommands of `+"`"+`doctl app spec`+"`"+` manage your app specs.`),
 				ox.Spec(`[command]`),
@@ -699,7 +699,7 @@ The following example restarts an app with the ID `+"`"+`f81d4fae-7dec-11d0-a765
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl apps spec get
 					ox.Usage(`get`, `Retrieve an application's spec`),
 					ox.Banner(`Use this command to retrieve the latest spec of an app.
 
@@ -721,7 +721,7 @@ Optionally, pass a deployment ID to get the spec of that specific deployment.`),
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl apps spec validate
 					ox.Usage(`validate`, `Validate an application spec`),
 					ox.Banner(`Use this command to check whether a given app spec (YAML or JSON) is valid.
 
@@ -743,7 +743,7 @@ You may pass - as the filename to read from stdin.`),
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl apps tier
 				ox.Usage(`tier`, `Display commands for working with app tiers`),
 				ox.Banner(`The subcommands of `+"`"+`doctl app tier`+"`"+` retrieve information about app tiers.`),
 				ox.Spec(`[command]`),
@@ -761,7 +761,7 @@ You may pass - as the filename to read from stdin.`),
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl apps tier instance-size
 					ox.Usage(`instance-size`, `Display commands for working with app instance sizes`),
 					ox.Banner(`The subcommands of `+"`"+`doctl app tier instance-size`+"`"+` retrieve information about app instance sizes.`),
 					ox.Spec(`[command]`),
@@ -779,7 +779,7 @@ You may pass - as the filename to read from stdin.`),
 						String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-					ox.Sub(
+					ox.Sub( // doctl apps tier instance-size get
 						ox.Usage(`get`, `Retrieve an app instance size`),
 						ox.Banner(`Use this command to retrieve information about a specific app instance size.`),
 						ox.Spec(`<instance size slug> [flags]`),
@@ -797,7 +797,7 @@ You may pass - as the filename to read from stdin.`),
 							Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
-					ox.Sub(
+					ox.Sub( // doctl apps tier instance-size list
 						ox.Usage(`list`, `List all app instance sizes`),
 						ox.Banner(`Use this command to list all the available app instance sizes.`),
 						ox.Spec(`[flags]`),
@@ -818,7 +818,7 @@ You may pass - as the filename to read from stdin.`),
 					),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl apps update
 				ox.Usage(`update`, `Updates an app`),
 				ox.Banner(`Updates the specified app with the given app spec. For more information about app specs, see the [app spec reference](https://www.digitalocean.com/docs/app-platform/concepts/app-spec)`),
 				ox.Spec(`<app id> [flags]`),
@@ -844,7 +844,7 @@ The following example updates an app with the ID `+"`"+`f81d4fae-7dec-11d0-a765-
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl apps update-alert-destinations
 				ox.Usage(`update-alert-destinations`, `Updates alert destinations`),
 				ox.Banner(`Updates alert destinations`),
 				ox.Spec(`<app id> <alert id> [flags]`),
@@ -868,7 +868,7 @@ The following example updates the alert destinations for an app with the ID `+"`
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl apps upgrade-buildpack
 				ox.Usage(`upgrade-buildpack`, `Upgrades app's buildpack`),
 				ox.Banner(`Upgrades an app's buildpack. For more information about buildpacks, see the [buildpack reference](https://docs.digitalocean.com/products/app-platform/reference/buildpacks/)`),
 				ox.Spec(`<app id> [flags]`),
@@ -894,7 +894,7 @@ The following example upgrades an app's buildpack with the ID `+"`"+`f81d4fae-7d
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // doctl compute
 			ox.Usage(`compute`, `Display commands that manage infrastructure`),
 			ox.Banner(`The subcommands under `+"`"+`doctl compute`+"`"+` are for managing DigitalOcean resources.`),
 			ox.Spec(`[command]`),
@@ -913,7 +913,7 @@ The following example upgrades an app's buildpack with the ID `+"`"+`f81d4fae-7d
 				String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 				Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 				Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // doctl compute action
 				ox.Usage(`action`, `Display commands for retrieving resource action history`),
 				ox.Banner(`The sub-commands of `+"`"+`doctl compute action`+"`"+` retrieve the history of actions taken on your resources.
 
@@ -933,7 +933,7 @@ You can retrieve information for a specific action by adding the action's ID as 
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl compute action get
 					ox.Usage(`get`, `Retrieve details about a specific action`),
 					ox.Banner(`Retrieve the following details about a specific action taken on one of your resources:
 
@@ -965,7 +965,7 @@ The following example retrieves the action's ID, status, and resource type of th
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute action list
 					ox.Usage(`list`, `Retrieve a  list of all recent actions taken on your resources`),
 					ox.Banner(`Retrieve a list of all actions taken on your resources. The following details are provided:
 
@@ -1003,7 +1003,7 @@ The following command retrieves a list of all the destroy actions taken on the a
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute action wait
 					ox.Usage(`wait`, `Block thread until an action completes`),
 					ox.Banner(`Block the current thread, returning when an action completes.
 
@@ -1030,7 +1030,7 @@ The following example waits for the action `+"`"+`123456`+"`"+` to complete befo
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl compute cdn
 				ox.Usage(`cdn`, `Display commands that manage CDNs`),
 				ox.Banner(`The subcommands of `+"`"+`doctl compute cdn`+"`"+` are for managing Content Delivery Networks (CDNs).
 
@@ -1052,7 +1052,7 @@ To use a custom subdomain to access the CDN endpoint, provide the ID of a Digita
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl compute cdn create
 					ox.Usage(`create`, `Create a CDN`),
 					ox.Banner(`Creates a Content Delivery Network (CDN) on the origin server you specify and automatically generates an endpoint. You can also use a custom subdomain you own to create an additional endpoint, which must be secured with SSL.
 
@@ -1080,7 +1080,7 @@ The following example creates a CDN for the custom domain `+"`"+`cdn.example.com
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute cdn delete
 					ox.Usage(`delete`, `Delete a CDN`),
 					ox.Banner(`Deletes the CDN specified by the ID.
 
@@ -1104,7 +1104,7 @@ The following example deletes a CDN with the ID `+"`"+`418b7972-fc67-41ea-ab4b-6
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute cdn flush
 					ox.Usage(`flush`, `Flush the cache of a CDN`),
 					ox.Banner(`Flushes the cache of a Content Delivery Network (CDN), which:
 
@@ -1139,7 +1139,7 @@ The following example flushes the cache of the `+"`"+`/path/to/assets`+"`"+` dir
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute cdn get
 					ox.Usage(`get`, `Retrieve details about a specific CDN`),
 					ox.Banner(`Lists the following details for the specified Content Delivery Network (CDNs):
 
@@ -1172,7 +1172,7 @@ The following example retrieves the origin endpoint, CDN endpoint, and certifica
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute cdn list
 					ox.Usage(`list`, `List CDNs that have already been created`),
 					ox.Banner(`Retrieves a list of your existing Content Delivery Networks (CDNs) and their following details:
 
@@ -1203,7 +1203,7 @@ The following example retrieves a list of CDNs for your account. The command use
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute cdn update
 					ox.Usage(`update`, `Update the configuration for a CDN`),
 					ox.Banner(`Updates the configuration details of an existing Content Delivery Network (CDN).`),
 					ox.Spec(`<cdn-id> [flags]`),
@@ -1230,7 +1230,7 @@ The following example updates the TTL for a CDN with the ID `+"`"+`418b7972-fc67
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl compute certificate
 				ox.Usage(`certificate`, `Display commands that manage SSL certificates and private keys`),
 				ox.Banner(`The subcommands of `+"`"+`doctl compute certificate`+"`"+` allow you to store and manage your SSL certificates, private keys, and certificate paths.
 
@@ -1250,7 +1250,7 @@ Once a certificate has been stored, it is assigned a unique certificate ID that 
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl compute certificate create
 					ox.Usage(`create`, `Create a new certificate`),
 					ox.Banner(`Creates a new Let's Encrypt certificate or adds an existing custom certificate to your team. There are two supported certificate types: Let's Encrypt certificates, and custom certificates.
 
@@ -1285,7 +1285,7 @@ To upload a custom certificate, you need to provide a certificate name, the path
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute certificate delete
 					ox.Usage(`delete`, `Delete the specified certificate`),
 					ox.Banner(`Deletes the specified certificate.
 
@@ -1309,7 +1309,7 @@ The following example deletes the certificate with the ID  `+"`"+`f81d4fae-7dec-
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute certificate get
 					ox.Usage(`get`, `Retrieve details about a certificate`),
 					ox.Banner(`This command retrieves the following details about a certificate:
 
@@ -1341,7 +1341,7 @@ The following example retrieves the ID, name, and domains associated with a cert
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute certificate list
 					ox.Usage(`list`, `Retrieve list of the account's stored certificates`),
 					ox.Banner(`This command retrieves a list of all certificates associated with the account. The following details are shown for each certificate:
 
@@ -1375,7 +1375,7 @@ The following example retrieves a list of all certificates associated with your 
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl compute domain
 				ox.Usage(`domain`, `Display commands that manage domains`),
 				ox.Banner(`Use the subcommands of `+"`"+`doctl compute domain`+"`"+` to manage domains you have purchased from a domain name registrar that you are managing through the DigitalOcean DNS interface.`),
 				ox.Spec(`[command]`),
@@ -1393,7 +1393,7 @@ The following example retrieves a list of all certificates associated with your 
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl compute domain create
 					ox.Usage(`create`, `Add a domain to your account`),
 					ox.Banner(`Adds a domain to your account that you can assign to Droplets, load balancers, and other resources.`),
 					ox.Spec(`<domain> [flags]`),
@@ -1417,7 +1417,7 @@ The following command creates a domain named example.com and adds an A record to
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute domain delete
 					ox.Usage(`delete`, `Permanently delete a domain from your account`),
 					ox.Banner(`Permanently deletes a domain from your account. You cannot undo this command once done.`),
 					ox.Spec(`<domain> [flags]`),
@@ -1439,7 +1439,7 @@ The following command deletes the domain example.com: doctl compute domain delet
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute domain get
 					ox.Usage(`get`, `Retrieve information about a domain`),
 					ox.Banner(`Retrieves information about a domain on your account.`),
 					ox.Spec(`<domain> [flags]`),
@@ -1462,7 +1462,7 @@ The following command retrieves information about the domain example.com: doctl 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute domain list
 					ox.Usage(`list`, `List all domains on your account`),
 					ox.Banner(`Retrieves a list of domains on your account.`),
 					ox.Spec(`[flags]`),
@@ -1485,7 +1485,7 @@ The following command lists all domains on your account: doctl compute domain li
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute domain records
 					ox.Usage(`records`, `Manage DNS records`),
 					ox.Banner(`Use the subcommands of `+"`"+`doctl compute domain records`+"`"+` to manage the DNS records for your domains.`),
 					ox.Spec(`[command]`),
@@ -1503,7 +1503,7 @@ The following command lists all domains on your account: doctl compute domain li
 						String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-					ox.Sub(
+					ox.Sub( // doctl compute domain records create
 						ox.Usage(`create`, `Create a DNS record`),
 						ox.Banner(`Create DNS records for a domain.`),
 						ox.Spec(`<domain> [flags]`),
@@ -1535,7 +1535,7 @@ The following command creates an A record for the domain example.com: doctl comp
 							Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
-					ox.Sub(
+					ox.Sub( // doctl compute domain records delete
 						ox.Usage(`delete`, `Delete a DNS record`),
 						ox.Banner(`Deletes DNS records for a domain.`),
 						ox.Spec(`<domain> <record-id>... [flags]`),
@@ -1557,7 +1557,7 @@ The following command deletes a DNS record with the ID `+"`"+`98858421`+"`"+` fr
 							Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
-					ox.Sub(
+					ox.Sub( // doctl compute domain records list
 						ox.Usage(`list`, `List the DNS records for a domain`),
 						ox.Banner(`Lists the DNS records for a domain.`),
 						ox.Spec(`<domain> [flags]`),
@@ -1580,7 +1580,7 @@ The following command lists the DNS records for the domain example.com. The comm
 							Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
-					ox.Sub(
+					ox.Sub( // doctl compute domain records update
 						ox.Usage(`update`, `Update a DNS record`),
 						ox.Banner(`Updates or changes the properties of DNS records for a domain.`),
 						ox.Spec(`<domain> [flags]`),
@@ -1615,7 +1615,7 @@ The following command updates the record with the ID `+"`"+`98858421`+"`"+` for 
 					),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl compute droplet
 				ox.Usage(`droplet`, `Manage virtual machines (Droplets)`),
 				ox.Banner(`A Droplet is a DigitalOcean virtual machine. Use the subcommands of `+"`"+`doctl compute droplet`+"`"+` to create, manage, and retrieve information about Droplets.`),
 				ox.Spec(`[command]`),
@@ -1634,7 +1634,7 @@ The following command updates the record with the ID `+"`"+`98858421`+"`"+` for 
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet 1-click
 					ox.Usage(`1-click`, `Display commands that pertain to Droplet 1-click applications`),
 					ox.Banner(`The commands under `+"`"+`doctl compute droplet 1-click`+"`"+` are for interacting with DigitalOcean Droplet 1-Click applications.`),
 					ox.Spec(`[command]`),
@@ -1652,7 +1652,7 @@ The following command updates the record with the ID `+"`"+`98858421`+"`"+` for 
 						String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-					ox.Sub(
+					ox.Sub( // doctl compute droplet 1-click list
 						ox.Usage(`list`, `Retrieve a list of Droplet 1-Click applications`),
 						ox.Banner(`Retrieves a list of Droplet 1-Click application slugs.
 
@@ -1678,7 +1678,7 @@ The following example retrieves a list of 1-clicks for Droplets: doctl compute d
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet actions
 					ox.Usage(`actions`, `List Droplet actions`),
 					ox.Banner(`Retrieves a list of previous actions taken on the Droplet, such as reboots, resizes, and snapshots actions.`),
 					ox.Spec(`<droplet-id> [flags]`),
@@ -1701,7 +1701,7 @@ The following example retrieves a list of actions taken on a Droplet with the ID
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet backup-policies
 					ox.Usage(`backup-policies`, `Display commands for Droplet's backup policies.`),
 					ox.Banner(`The commands under `+"`"+`doctl compute droplet backup-policies`+"`"+` are for displaying the commands for Droplet's backup policies.`),
 					ox.Spec(`[command]`),
@@ -1719,7 +1719,7 @@ The following example retrieves a list of actions taken on a Droplet with the ID
 						String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-					ox.Sub(
+					ox.Sub( // doctl compute droplet backup-policies get
 						ox.Usage(`get`, `Get droplet's backup policy`),
 						ox.Banner(`Retrieves a backup policy of a Droplet.`),
 						ox.Spec(`<droplet-id> [flags]`),
@@ -1742,7 +1742,7 @@ The following example retrieves a backup policy for a Droplet with the ID `+"`"+
 							Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
-					ox.Sub(
+					ox.Sub( // doctl compute droplet backup-policies list
 						ox.Usage(`list`, `List backup policies for all Droplets`),
 						ox.Banner(`List droplet backup policies for all existing Droplets.`),
 						ox.Spec(`[flags]`),
@@ -1763,7 +1763,7 @@ The following example list backup policies for all existing Droplets: doctl comp
 							Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
-					ox.Sub(
+					ox.Sub( // doctl compute droplet backup-policies list-supported
 						ox.Usage(`list-supported`, `List of all supported droplet backup policies`),
 						ox.Banner(`List of all supported droplet backup policies.`),
 						ox.Spec(`[flags]`),
@@ -1784,7 +1784,7 @@ The following example list all supported backup policies for Droplets: doctl com
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet backups
 					ox.Usage(`backups`, `List Droplet backups`),
 					ox.Banner(`Lists backup images for a Droplet, including each image's slug and ID.`),
 					ox.Spec(`<droplet-id> [flags]`),
@@ -1807,7 +1807,7 @@ The following example retrieves a list of backups for a Droplet with the ID `+"`
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet create
 					ox.Usage(`create`, `Create a new Droplet`),
 					ox.Banner(`Creates a new Droplet on your account. The command requires values for the `+"`"+`--size`+"`"+`, and `+"`"+`--image`+"`"+` flags.
 
@@ -1854,7 +1854,7 @@ The following example creates a Droplet named `+"`"+`example-droplet`+"`"+` with
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet delete
 					ox.Usage(`delete`, `Permanently delete a Droplet`),
 					ox.Banner(`Permanently deletes a Droplet. This is irreversible.`),
 					ox.Spec(`<droplet-id|droplet-name>... [flags]`),
@@ -1877,7 +1877,7 @@ The following example deletes a Droplet with the ID `+"`"+`386734086`+"`"+`: doc
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet get
 					ox.Usage(`get`, `Retrieve information about a Droplet`),
 					ox.Banner(`Retrieves information about a Droplet, including:
 
@@ -1916,7 +1916,7 @@ The following example retrieves information about a Droplet with the ID `+"`"+`3
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet kernels
 					ox.Usage(`kernels`, `List available Droplet kernels`),
 					ox.Banner(`Retrieves a list of all kernels available to a Droplet. This command is only available for Droplets with externally managed kernels. All Droplets created after March 2017 have internally managed kernels by default.`),
 					ox.Spec(`<droplet-id> [flags]`),
@@ -1939,7 +1939,7 @@ The following example retrieves a list of available kernels for a Droplet with t
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet list
 					ox.Usage(`list`, `List Droplets on your account`),
 					ox.Banner(`Retrieves a list of Droplets on your account, including the following information about each:
 
@@ -1980,7 +1980,7 @@ The following example retrieves a list of all Droplets in the `+"`"+`nyc1`+"`"+`
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet neighbors
 					ox.Usage(`neighbors`, `List a Droplet's neighbors on your account`),
 					ox.Banner(`Lists your Droplets that are on the same physical hardware, including the following details:
 
@@ -2018,7 +2018,7 @@ The following example retrieves a list of Droplets that are on the same physical
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet snapshots
 					ox.Usage(`snapshots`, `List all snapshots for a Droplet`),
 					ox.Banner(`Retrieves a list of snapshots created from this Droplet.`),
 					ox.Spec(`<droplet-id> [flags]`),
@@ -2041,7 +2041,7 @@ The following example retrieves a list of snapshots for a Droplet with the ID `+
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet tag
 					ox.Usage(`tag`, `Add a tag to a Droplet`),
 					ox.Banner(`Applies a tag to a Droplet. Specify the tag with the `+"`"+`--tag-name`+"`"+` flag.`),
 					ox.Spec(`<droplet-id|droplet-name> [flags]`),
@@ -2062,7 +2062,7 @@ The following example applies the tag `+"`"+`frontend`+"`"+` to a Droplet with t
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet untag
 					ox.Usage(`untag`, `Remove a tag from a Droplet`),
 					ox.Banner(`Removes a tag from a Droplet. Specify the tag with the `+"`"+`--tag-name`+"`"+` flag.`),
 					ox.Spec(`<droplet-id|droplet-name> [flags]`),
@@ -2084,7 +2084,7 @@ The following example removes the tag `+"`"+`frontend`+"`"+` from a Droplet with
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl compute droplet-action
 				ox.Usage(`droplet-action`, `Display Droplet action commands`),
 				ox.Banner(`Use the subcommands of `+"`"+`doctl compute droplet-action`+"`"+` to perform actions on Droplets.
 
@@ -2105,7 +2105,7 @@ You can use Droplet actions to perform tasks on a Droplet, such as rebooting, re
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet-action change-backup-policy
 					ox.Usage(`change-backup-policy`, `Change backup policy on a Droplet`),
 					ox.Banner(`Changes backup policy for a Droplet with enabled backups.`),
 					ox.Spec(`<droplet-id> [flags]`),
@@ -2131,7 +2131,7 @@ The following example changes backup policy on a Droplet with the ID `+"`"+`3867
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet-action change-kernel
 					ox.Usage(`change-kernel`, `Change a Droplet's kernel`),
 					ox.Banner(`Changes a Droplet's kernel. This is only available for externally managed kernels. All Droplets created after 17 March 2017 have internally managed kernels by default.
 		
@@ -2155,7 +2155,7 @@ Use the `+"`"+`doctl compute droplet kernels <droplet-id>`+"`"+` command to retr
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet-action disable-backups
 					ox.Usage(`disable-backups`, `Disable backups on a Droplet`),
 					ox.Banner(`Disables backups on a Droplet. This does not delete existing backups.`),
 					ox.Spec(`<droplet-id> [flags]`),
@@ -2178,7 +2178,7 @@ The following example disables backups on a Droplet with the ID `+"`"+`386734086
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet-action enable-backups
 					ox.Usage(`enable-backups`, `Enable backups on a Droplet`),
 					ox.Banner(`Enables backups on a Droplet. This automatically creates and stores a disk image of the Droplet. By default, backups happen daily.`),
 					ox.Spec(`<droplet-id> [flags]`),
@@ -2204,7 +2204,7 @@ The following example enables backups on a Droplet with the ID `+"`"+`386734086`
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet-action enable-ipv6
 					ox.Usage(`enable-ipv6`, `Enable IPv6 on a Droplet`),
 					ox.Banner(`Enables IPv6 networking on a Droplet. When executed, we automatically assign an IPv6 address to the Droplet. 
 
@@ -2229,7 +2229,7 @@ The following example enables IPv6 on a Droplet with the ID `+"`"+`386734086`+"`
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet-action enable-private-networking
 					ox.Usage(`enable-private-networking`, `Enable private networking on a Droplet`),
 					ox.Banner(`Enables VPC networking on a Droplet. This command adds a private IPv4 address to the Droplet that other resources inside the Droplet's VPC network can access. The Droplet is placed in the default VPC network for the region it resides in.
 
@@ -2256,7 +2256,7 @@ The following example enables private networking on a Droplet with the ID `+"`"+
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet-action get
 					ox.Usage(`get`, `Retrieve a specific Droplet action`),
 					ox.Banner(`Retrieves information about an action performed on a Droplet, including its status, type, and completion time.`),
 					ox.Spec(`<droplet-id> [flags]`),
@@ -2280,7 +2280,7 @@ The following example retrieves information about an action, with the ID `+"`"+`
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet-action password-reset
 					ox.Usage(`password-reset`, `Reset the root password for a Droplet`),
 					ox.Banner(`Initiates a root password reset on a Droplet. We provide a new password for the Droplet via the accounts email address. The password must be changed after first use. 
 
@@ -2305,7 +2305,7 @@ The following example resets the root password for a Droplet with the ID `+"`"+`
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet-action power-cycle
 					ox.Usage(`power-cycle`, `Powercycle a Droplet`),
 					ox.Banner(`Powercycles a Droplet. A powercycle action is similar to pushing the reset button on a physical machine.`),
 					ox.Spec(`<droplet-id> [flags]`),
@@ -2328,7 +2328,7 @@ The following example powercycles a Droplet with the ID `+"`"+`386734086`+"`"+`:
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet-action power-off
 					ox.Usage(`power-off`, `Power off a Droplet`),
 					ox.Banner(`Use this command to power off a Droplet.
 		
@@ -2355,7 +2355,7 @@ The following example powers off a Droplet with the ID `+"`"+`386734086`+"`"+`: 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet-action power-on
 					ox.Usage(`power-on`, `Power on a Droplet`),
 					ox.Banner(`Powers on a Droplet. This is similar to pressing the power button on a physical machine.`),
 					ox.Spec(`<droplet-id> [flags]`),
@@ -2378,7 +2378,7 @@ The following example powers on a Droplet with the ID `+"`"+`386734086`+"`"+`: d
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet-action reboot
 					ox.Usage(`reboot`, `Reboot a Droplet`),
 					ox.Banner(`Reboots a Droplet. A reboot action is an attempt to reboot the Droplet in a graceful way, similar to using the reboot command from the Droplet's console.`),
 					ox.Spec(`<droplet-id> [flags]`),
@@ -2401,7 +2401,7 @@ The following example reboots a Droplet with the ID `+"`"+`386734086`+"`"+`: doc
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet-action rebuild
 					ox.Usage(`rebuild`, `Rebuild a Droplet`),
 					ox.Banner(`Rebuilds a Droplet from an image, such as an Ubuntu base image or a backup image of the Droplet. Set the image attribute to an image ID or slug.
 
@@ -2427,7 +2427,7 @@ The following example rebuilds a Droplet with the ID `+"`"+`386734086`+"`"+` fro
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet-action rename
 					ox.Usage(`rename`, `Rename a Droplet`),
 					ox.Banner(`Renames a Droplet. When using a Fully Qualified Domain Name (FQDN) this also updates the Droplet's pointer (PTR) record.`),
 					ox.Spec(`<droplet-id> [flags]`),
@@ -2451,7 +2451,7 @@ The following example renames a Droplet with the ID `+"`"+`386734086`+"`"+` to `
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet-action resize
 					ox.Usage(`resize`, `Resize a Droplet`),
 					ox.Banner(`Resizes a Droplet to a different plan.
 
@@ -2484,7 +2484,7 @@ The following example resizes a Droplet with the ID `+"`"+`386734086`+"`"+` to a
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet-action restore
 					ox.Usage(`restore`, `Restore a Droplet from a backup`),
 					ox.Banner(`Restores a Droplet from a backup image. You must pass an image ID that is a backup of the current Droplet instance. The operation leaves any embedded SSH keys intact.
 		
@@ -2510,7 +2510,7 @@ The following example restores a Droplet with the ID `+"`"+`386734086`+"`"+` fro
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet-action shutdown
 					ox.Usage(`shutdown`, `Shut down a Droplet`),
 					ox.Banner(`Shuts down a Droplet. 
 		
@@ -2537,7 +2537,7 @@ The following example shuts down a Droplet with the ID `+"`"+`386734086`+"`"+`: 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute droplet-action snapshot
 					ox.Usage(`snapshot`, `Take a Droplet snapshot`),
 					ox.Banner(`Takes a snapshot of a Droplet. Snapshots are complete disk images that contain all of the data on a Droplet at the time of the snapshot. This can be useful for restoring and rebuilding Droplets.
 		
@@ -2562,7 +2562,7 @@ We recommend that you power off the Droplet before taking a snapshot to ensure d
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl compute firewall
 				ox.Usage(`firewall`, `Display commands to manage cloud firewalls`),
 				ox.Banner(`The sub-commands of `+"`"+`doctl compute firewall`+"`"+` manage DigitalOcean cloud firewalls.
 
@@ -2588,7 +2588,7 @@ Inbound access rules specify the protocol (TCP, UDP, or ICMP), ports, and source
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl compute firewall add-droplets
 					ox.Usage(`add-droplets`, `Add Droplets to a cloud firewall`),
 					ox.Banner(`Assigns Droplets to a cloud firewall on your account.`),
 					ox.Spec(`<firewall-id> [flags]`),
@@ -2609,7 +2609,7 @@ The following example assigns two Droplets to the cloud firewall with the ID `+"
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute firewall add-rules
 					ox.Usage(`add-rules`, `Add inbound or outbound rules to a cloud firewall`),
 					ox.Banner(`Add inbound or outbound rules to a cloud firewall.`),
 					ox.Spec(`<firewall-id> [flags]`),
@@ -2631,7 +2631,7 @@ The following example adds an inbound rule and an outbound rule to a cloud firew
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute firewall add-tags
 					ox.Usage(`add-tags`, `Add tags to a cloud firewall`),
 					ox.Banner(`Add tags to a cloud firewall. This adds all assets using that tag to the firewall.`),
 					ox.Spec(`<firewall-id> [flags]`),
@@ -2652,7 +2652,7 @@ The following example adds two tags to a cloud firewall with the ID `+"`"+`f81d4
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute firewall create
 					ox.Usage(`create`, `Create a new cloud firewall`),
 					ox.Banner(`Creates a cloud firewall. This command must contain at least one inbound or outbound access rule.`),
 					ox.Spec(`[flags]`),
@@ -2680,7 +2680,7 @@ The following example creates a cloud firewall named `+"`"+`example-firewall`+"`
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute firewall delete
 					ox.Usage(`delete`, `Permanently delete a cloud firewall`),
 					ox.Banner(`Permanently deletes a cloud firewall. This is irreversible, but does not delete any Droplets assigned to the cloud firewall.`),
 					ox.Spec(`<firewall-id>... [flags]`),
@@ -2702,7 +2702,7 @@ The following example deletes a cloud firewall with the ID `+"`"+`f81d4fae-7dec-
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute firewall get
 					ox.Usage(`get`, `Retrieve information about a cloud firewall`),
 					ox.Banner(`Retrieves information about an existing cloud firewall, including:
 
@@ -2736,7 +2736,7 @@ The following example retrieves information about the cloud firewall with the ID
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute firewall list
 					ox.Usage(`list`, `List the cloud firewalls on your account`),
 					ox.Banner(`Retrieves a list of cloud firewalls on your account.`),
 					ox.Spec(`[flags]`),
@@ -2759,7 +2759,7 @@ The following example lists all cloud firewalls on your account and uses the `+"
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute firewall list-by-droplet
 					ox.Usage(`list-by-droplet`, `List firewalls by Droplet`),
 					ox.Banner(`Lists the cloud firewalls assigned to a Droplet.`),
 					ox.Spec(`<droplet_id> [flags]`),
@@ -2781,7 +2781,7 @@ The following example lists all cloud firewalls assigned to the Droplet with the
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute firewall remove-droplets
 					ox.Usage(`remove-droplets`, `Remove Droplets from a cloud firewall`),
 					ox.Banner(`Removes Droplets from a cloud firewall.`),
 					ox.Spec(`<firewall-id> [flags]`),
@@ -2802,7 +2802,7 @@ The following example removes two Droplets from a cloud firewall with the ID `+"
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute firewall remove-rules
 					ox.Usage(`remove-rules`, `Remove inbound or outbound rules from a cloud firewall`),
 					ox.Banner(`Remove inbound or outbound rules from a cloud firewall.`),
 					ox.Spec(`<firewall-id> [flags]`),
@@ -2824,7 +2824,7 @@ The following example removes an inbound rule and an outbound rule from a cloud 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute firewall remove-tags
 					ox.Usage(`remove-tags`, `Remove tags from a cloud firewall`),
 					ox.Banner(`Removes tags from a cloud firewall. This removes all assets using that tag from the firewall.`),
 					ox.Spec(`<firewall-id> [flags]`),
@@ -2845,7 +2845,7 @@ The following example removes two tags from a cloud firewall with the ID `+"`"+`
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute firewall update
 					ox.Usage(`update`, `Update a cloud firewall's configuration`),
 					ox.Banner(`Updates the configuration of an existing cloud firewall. The request should contain a full representation of the firewall, including existing attributes. Any attributes that are not provided are reset to their default values.`),
 					ox.Spec(`<firewall-id> [flags]`),
@@ -2874,7 +2874,7 @@ The following example updates a cloud firewall named `+"`"+`example-firewall`+"`
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl compute image
 				ox.Usage(`image`, `Display commands to manage images`),
 				ox.Banner(`The sub-commands of `+"`"+`doctl compute image`+"`"+` manage images. A DigitalOcean image can be used to create a Droplet.
 
@@ -2900,7 +2900,7 @@ Currently, there are five types of images: snapshots, backups, custom images, di
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl compute image create
 					ox.Usage(`create`, `Create custom image`),
 					ox.Banner(`Creates an image in your DigitalOcean account. Specify a URL to download the image from and the region to store the image in. You can add additional metadata to the image using the optional flags.`),
 					ox.Spec(`<image-name> [flags]`),
@@ -2925,7 +2925,7 @@ The following example creates a custom image named `+"`"+`Example Image`+"`"+` f
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute image delete
 					ox.Usage(`delete`, `Permanently delete an image from your account`),
 					ox.Banner(`Permanently deletes an image from your account. This is irreversible.`),
 					ox.Spec(`<image-id> [flags]`),
@@ -2947,7 +2947,7 @@ The following example deletes an image with the ID `+"`"+`386734086`+"`"+`: doct
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute image get
 					ox.Usage(`get`, `Retrieve information about an image`),
 					ox.Banner(`Returns the following information about the specified image:
 
@@ -2977,7 +2977,7 @@ The following example retrieves information about an image with the ID `+"`"+`38
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute image list
 					ox.Usage(`list`, `List images on your account`),
 					ox.Banner(`Lists all private images on your account. To list public images, use the `+"`"+`--public`+"`"+` flag. This command returns the following information about each image:
 
@@ -3009,7 +3009,7 @@ The following example lists all private images on your account and uses the `+"`
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute image list-application
 					ox.Usage(`list-application`, `List available One-Click Apps`),
 					ox.Banner(`Lists all public one-click apps that are currently available on the DigitalOcean Marketplace. This command returns the following information about each image:
 
@@ -3040,7 +3040,7 @@ The following example lists all public One-Click Apps available from DigitalOcea
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute image list-distribution
 					ox.Usage(`list-distribution`, `List available distribution images`),
 					ox.Banner(`Lists the distribution images available from DigitalOcean. This command returns the following information about each image:
 
@@ -3071,7 +3071,7 @@ The following example lists all public distribution images available from Digita
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute image list-user
 					ox.Usage(`list-user`, `List user-created images`),
 					ox.Banner(`Use this command to list user-created images, such as snapshots or custom images that you have uploaded to your account. This command returns the following information about each image:
 
@@ -3102,7 +3102,7 @@ The following example lists all user-created images on your account and uses the
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute image update
 					ox.Usage(`update`, `Update an image's metadata`),
 					ox.Banner(`Updates an image's metadata, including its name, description, and distribution.`),
 					ox.Spec(`<image-id> [flags]`),
@@ -3126,7 +3126,7 @@ The following example updates the name of an image with the ID `+"`"+`386734086`
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl compute image-action
 				ox.Usage(`image-action`, `Display commands to perform actions on images`),
 				ox.Banner(`The sub-commands of `+"`"+`doctl compute image-action`+"`"+` can be used to perform actions on images.`),
 				ox.Spec(`[command]`),
@@ -3144,7 +3144,7 @@ The following example updates the name of an image with the ID `+"`"+`386734086`
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl compute image-action get
 					ox.Usage(`get`, `Retrieve the status of an image action`),
 					ox.Banner(`Retrieves the status of an image action, including the following details:
 
@@ -3176,7 +3176,7 @@ The following example retrieves the details for an image-action with ID 19166933
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute image-action transfer
 					ox.Usage(`transfer`, `Transfer an image to another datacenter region`),
 					ox.Banner(`Transfers an image to a different datacenter region. Also outputs the following details:
 
@@ -3210,7 +3210,7 @@ The following example transfers an image with the ID 386734086 to the region wit
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl compute load-balancer
 				ox.Usage(`load-balancer`, `Display commands to manage load balancers`),
 				ox.Banner(`The sub-commands of `+"`"+`doctl compute load-balancer`+"`"+` manage your load balancers.
 
@@ -3231,7 +3231,7 @@ With the load-balancer command, you can list, create, or delete load balancers, 
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl compute load-balancer add-droplets
 					ox.Usage(`add-droplets`, `Add Droplets to a load balancer`),
 					ox.Banner(`Use this command to add Droplets to a load balancer.`),
 					ox.Spec(`<load-balancer-id> [flags]`),
@@ -3250,7 +3250,7 @@ With the load-balancer command, you can list, create, or delete load balancers, 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute load-balancer add-forwarding-rules
 					ox.Usage(`add-forwarding-rules`, `Add forwarding rules to a load balancer`),
 					ox.Banner(`Use this command to add forwarding rules to a load balancer, specified with the `+"`"+`--forwarding-rules`+"`"+` flag. Valid rules include:
 - `+"`"+`entry_protocol`+"`"+`: The entry protocol used for traffic to the load balancer. Possible values are: `+"`"+`http`+"`"+`, `+"`"+`https`+"`"+`, `+"`"+`http2`+"`"+`, `+"`"+`http3`+"`"+`, `+"`"+`tcp`+"`"+`, or `+"`"+`udp`+"`"+`.
@@ -3275,7 +3275,7 @@ With the load-balancer command, you can list, create, or delete load balancers, 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute load-balancer create
 					ox.Usage(`create`, `Create a new load balancer`),
 					ox.Banner(`Use this command to create a new load balancer on your account. Valid forwarding rules are:
 - `+"`"+`entry_protocol`+"`"+`: The entry protocol used for traffic to the load balancer. Possible values are: `+"`"+`http`+"`"+`, `+"`"+`https`+"`"+`, `+"`"+`http2`+"`"+`, `+"`"+`http3`+"`"+`, `+"`"+`tcp`+"`"+`, or `+"`"+`udp`+"`"+`.
@@ -3326,7 +3326,7 @@ With the load-balancer command, you can list, create, or delete load balancers, 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute load-balancer delete
 					ox.Usage(`delete`, `Permanently delete a load balancer`),
 					ox.Banner(`Use this command to permanently delete the specified load balancer. This is irreversible.`),
 					ox.Spec(`<load-balancer-id> [flags]`),
@@ -3346,7 +3346,7 @@ With the load-balancer command, you can list, create, or delete load balancers, 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute load-balancer get
 					ox.Usage(`get`, `Retrieve a load balancer`),
 					ox.Banner(`Use this command to retrieve information about a load balancer instance, including:
 
@@ -3381,7 +3381,7 @@ With the load-balancer command, you can list, create, or delete load balancers, 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute load-balancer list
 					ox.Usage(`list`, `List load balancers`),
 					ox.Banner(`Use this command to get a list of the load balancers on your account, including the following information for each:
 
@@ -3416,7 +3416,7 @@ With the load-balancer command, you can list, create, or delete load balancers, 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute load-balancer purge-cache
 					ox.Usage(`purge-cache`, `Purges CDN cache for a global load balancer`),
 					ox.Banner(`Use this command to purge the CDN cache for specified global load balancer.`),
 					ox.Spec(`<load-balancer-id> [flags]`),
@@ -3435,7 +3435,7 @@ With the load-balancer command, you can list, create, or delete load balancers, 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute load-balancer remove-droplets
 					ox.Usage(`remove-droplets`, `Remove Droplets from a load balancer`),
 					ox.Banner(`Use this command to remove Droplets from a load balancer. This command does not destroy any Droplets.`),
 					ox.Spec(`<load-balancer-id> [flags]`),
@@ -3454,7 +3454,7 @@ With the load-balancer command, you can list, create, or delete load balancers, 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute load-balancer remove-forwarding-rules
 					ox.Usage(`remove-forwarding-rules`, `Remove forwarding rules from a load balancer`),
 					ox.Banner(`Use this command to remove forwarding rules from a load balancer, specified with the `+"`"+`--forwarding-rules`+"`"+` flag. Valid rules include:
 - `+"`"+`entry_protocol`+"`"+`: The entry protocol used for traffic to the load balancer. Possible values are: `+"`"+`http`+"`"+`, `+"`"+`https`+"`"+`, `+"`"+`http2`+"`"+`, `+"`"+`http3`+"`"+`, `+"`"+`tcp`+"`"+`, or `+"`"+`udp`+"`"+`.
@@ -3479,7 +3479,7 @@ With the load-balancer command, you can list, create, or delete load balancers, 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute load-balancer update
 					ox.Usage(`update`, `Update a load balancer's configuration`),
 					ox.Banner(`Use this command to update the configuration of a specified load balancer. Using all applicable flags, the command should contain a full representation of the load balancer including existing attributes, such as the load balancer's name, region, forwarding rules, and Droplet IDs. Any attribute that is not provided is reset to its default value.`),
 					ox.Spec(`<load-balancer-id> [flags]`),
@@ -3521,7 +3521,7 @@ With the load-balancer command, you can list, create, or delete load balancers, 
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl compute region
 				ox.Usage(`region`, `Display commands to list datacenter regions`),
 				ox.Banner(`The subcommands of `+"`"+`doctl compute region`+"`"+` retrieve information about DigitalOcean datacenter regions.`),
 				ox.Spec(`[command]`),
@@ -3539,7 +3539,7 @@ With the load-balancer command, you can list, create, or delete load balancers, 
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl compute region list
 					ox.Usage(`list`, `Retrieves a list of datacenter regions`),
 					ox.Banner(`List DigitalOcean datacenter regions displaying their name, slug, and availability.
 
@@ -3565,7 +3565,7 @@ The following example retrieves a list of regions and uses the --format flag to 
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl compute reserved-ip
 				ox.Usage(`reserved-ip`, `Display commands to manage reserved IP addresses`),
 				ox.Banner(`The sub-commands of `+"`"+`doctl compute reserved-ip`+"`"+` manage reserved IP addresses.
 Reserved IPs are publicly-accessible static IP addresses that you can to one of your Droplets. They can be used to create highly available setups or other configurations requiring movable addresses. Reserved IPs are bound to the regions they are created in.`),
@@ -3585,7 +3585,7 @@ Reserved IPs are publicly-accessible static IP addresses that you can to one of 
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl compute reserved-ip create
 					ox.Usage(`create`, `Create a new reserved IP address`),
 					ox.Banner(`Creates a new reserved IP address.
 
@@ -3613,7 +3613,7 @@ The following example creates a reserved IP address in the `+"`"+`nyc1`+"`"+` re
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute reserved-ip delete
 					ox.Usage(`delete`, `Permanently delete a reserved IP address`),
 					ox.Banner(`Permanently deletes a reserved IP address. This is irreversible.`),
 					ox.Spec(`<reserved-ip> [flags]`),
@@ -3635,7 +3635,7 @@ The following example deletes the reserved IP address `+"`"+`203.0.113.25`+"`"+`
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute reserved-ip get
 					ox.Usage(`get`, `Retrieve information about a reserved IP address`),
 					ox.Banner(`Retrieves detailed information about a reserved IP address, including its region and the ID of the Droplet its assigned to.`),
 					ox.Spec(`<reserved-ip> [flags]`),
@@ -3658,7 +3658,7 @@ The following example retrieves information about the reserved IP address `+"`"+
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute reserved-ip list
 					ox.Usage(`list`, `List all reserved IP addresses on your account`),
 					ox.Banner(`Retrieves a list of all the reserved IP addresses on your account.`),
 					ox.Spec(`[flags]`),
@@ -3683,7 +3683,7 @@ The following example lists all reserved IP addresses in the `+"`"+`nyc1`+"`"+` 
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl compute reserved-ip-action
 				ox.Usage(`reserved-ip-action`, `Display commands to associate reserved IP addresses with Droplets`),
 				ox.Banner(`Reserved IP actions are commands that are used to manage DigitalOcean reserved IP addresses.`),
 				ox.Spec(`[command]`),
@@ -3702,7 +3702,7 @@ The following example lists all reserved IP addresses in the `+"`"+`nyc1`+"`"+` 
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl compute reserved-ip-action assign
 					ox.Usage(`assign`, `Assign a reserved IP address to a Droplet`),
 					ox.Banner(`Assigns a reserved IP address to the specified Droplet.`),
 					ox.Spec(`<reserved-ip> <droplet-id> [flags]`),
@@ -3724,7 +3724,7 @@ The following example assigns the reserved IP address `+"`"+`203.0.113.25`+"`"+`
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute reserved-ip-action get
 					ox.Usage(`get`, `Retrieve the status of a reserved IP action`),
 					ox.Banner(`Retrieves the status of a reserved IP action. Outputs the following information:
 
@@ -3755,7 +3755,7 @@ The following example retrieves the status of an action, that has the ID `+"`"+`
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute reserved-ip-action unassign
 					ox.Usage(`unassign`, `Unassign a reserved IP address from a Droplet`),
 					ox.Banner(`Unassigns a reserved IP address from a Droplet. Due to a shortage on IPv4 addresses, unassigned reserved IP addresses remain available on your account but accumulate charges for not being assigned.`),
 					ox.Spec(`<reserved-ip> [flags]`),
@@ -3778,7 +3778,7 @@ The following example unassigns the reserved IP address `+"`"+`203.0.113.25`+"`"
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl compute size
 				ox.Usage(`size`, `List available Droplet sizes`),
 				ox.Banner(`The subcommands of `+"`"+`doctl compute size`+"`"+` retrieve information about Droplet sizes.`),
 				ox.Spec(`[command]`),
@@ -3796,7 +3796,7 @@ The following example unassigns the reserved IP address `+"`"+`203.0.113.25`+"`"
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl compute size list
 					ox.Usage(`list`, `List available Droplet sizes`),
 					ox.Banner(`Retrieves a list of slug identifiers, RAM amounts, vCPU counts, disk sizes, and pricing details for each Droplet size.
 
@@ -3822,7 +3822,7 @@ The following example retrieves a list of Droplet sizes and uses the --format fl
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl compute snapshot
 				ox.Usage(`snapshot`, `Access and manage snapshots`),
 				ox.Banner(`The subcommands of `+"`"+`doctl compute snapshot`+"`"+` allow you to manage and retrieve information about Droplet and block storage volume snapshots.`),
 				ox.Spec(`[command]`),
@@ -3841,7 +3841,7 @@ The following example retrieves a list of Droplet sizes and uses the --format fl
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl compute snapshot delete
 					ox.Usage(`delete`, `Delete a snapshot of a Droplet or volume`),
 					ox.Banner(`Deletes the specified snapshot or volume. This is irreversible.`),
 					ox.Spec(`<snapshot-id>... [flags]`),
@@ -3865,7 +3865,7 @@ The following example deletes a Droplet snapshot with ID `+"`"+`386734086`+"`"+`
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute snapshot get
 					ox.Usage(`get`, `Retrieve a Droplet or volume snapshot`),
 					ox.Banner(`Retrieves information about a Droplet or block storage volume snapshot, including:
 
@@ -3896,7 +3896,7 @@ The following example retrieves information about a Droplet snapshot with ID `+"
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute snapshot list
 					ox.Usage(`list`, `List Droplet and volume snapshots`),
 					ox.Banner(`Retrieves a list of snapshots and their information, including:
 
@@ -3930,7 +3930,7 @@ The following example lists all Droplet snapshots in the `+"`"+`nyc1`+"`"+` regi
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl compute ssh
 				ox.Usage(`ssh`, `Access a Droplet using SSH`),
 				ox.Banner(`Access a Droplet using SSH by providing its ID or name.
 
@@ -3957,7 +3957,7 @@ You may specify the user to login with by passing the `+"`"+`--ssh-user`+"`"+` f
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl compute ssh-key
 				ox.Usage(`ssh-key`, `Display commands to manage SSH keys on your account`),
 				ox.Banner(`The sub-commands of `+"`"+`doctl compute ssh-key`+"`"+` manage the SSH keys on your account.
 
@@ -3978,7 +3978,7 @@ DigitalOcean allows you to add SSH public keys to the interface so that you can 
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl compute ssh-key create
 					ox.Usage(`create`, `Create a new SSH key on your account`),
 					ox.Banner(`Use this command to add a new SSH key to your account.
 
@@ -4004,7 +4004,7 @@ Note that creating a key will not add it to any Droplets.`),
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute ssh-key delete
 					ox.Usage(`delete`, `Permanently delete an SSH key from your account`),
 					ox.Banner(`Use this command to permanently delete an SSH key from your account.
 
@@ -4026,7 +4026,7 @@ Note that this does not delete an SSH key from any Droplets.`),
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute ssh-key get
 					ox.Usage(`get`, `Retrieve information about an SSH key on your account`),
 					ox.Banner(`Use this command to get the id, fingerprint, public_key, and name of a specific SSH key on your account.`),
 					ox.Spec(`<key-id|key-fingerprint> [flags]`),
@@ -4047,7 +4047,7 @@ Note that this does not delete an SSH key from any Droplets.`),
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute ssh-key import
 					ox.Usage(`import`, `Import an SSH key from your computer to your account`),
 					ox.Banner(`Use this command to add a new SSH key to your account, using a local public key file.
 
@@ -4071,7 +4071,7 @@ Note that importing a key to your account will not add it to any Droplets`),
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute ssh-key list
 					ox.Usage(`list`, `List all SSH keys on your account`),
 					ox.Banner(`Use this command to list the id, fingerprint, public_key, and name of all SSH keys on your account.`),
 					ox.Spec(`[flags]`),
@@ -4092,7 +4092,7 @@ Note that importing a key to your account will not add it to any Droplets`),
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute ssh-key update
 					ox.Usage(`update`, `Update an SSH key's name`),
 					ox.Banner(`Use this command to update the name of an SSH key.`),
 					ox.Spec(`<key-id|key-fingerprint> [flags]`),
@@ -4115,7 +4115,7 @@ Note that importing a key to your account will not add it to any Droplets`),
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl compute tag
 				ox.Usage(`tag`, `Display commands to manage tags`),
 				ox.Banner(`The sub-commands of `+"`"+`doctl compute tag`+"`"+` manage the tags on your account.
 
@@ -4140,7 +4140,7 @@ resources attribute with information about resources that have been tagged.`),
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl compute tag apply
 					ox.Usage(`apply`, `Apply a tag to resources`),
 					ox.Banner(`Tag one or more resources. You can tag Droplets, images, volumes, volume snapshots, and database clusters.
 	
@@ -4163,7 +4163,7 @@ The following example tags two Droplet with the tag named `+"`"+`web`+"`"+`: doc
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute tag create
 					ox.Usage(`create`, `Create a tag`),
 					ox.Banner(`Creates a new tag that you can apply to resources.`),
 					ox.Spec(`<tag-name> [flags]`),
@@ -4183,7 +4183,7 @@ The following example creates a tag name `+"`"+`web`+"`"+`: doctl compute tag cr
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute tag delete
 					ox.Usage(`delete`, `Delete a tag`),
 					ox.Banner(`Deletes a tag from your account.
 
@@ -4207,7 +4207,7 @@ The following example deletes the tag named `+"`"+`web`+"`"+`: doctl compute tag
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute tag get
 					ox.Usage(`get`, `Retrieve information about a tag`),
 					ox.Banner(`Retrieves the number of resources using the tag.`),
 					ox.Spec(`<tag-name> [flags]`),
@@ -4229,7 +4229,7 @@ The following example retrieves information about the tag named `+"`"+`web`+"`"+
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute tag list
 					ox.Usage(`list`, `List all tags`),
 					ox.Banner(`Retrieves a list of all the tags in your account and how many resources are using each tag.`),
 					ox.Spec(`[flags]`),
@@ -4250,7 +4250,7 @@ The following example retrieves information about the tag named `+"`"+`web`+"`"+
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute tag remove
 					ox.Usage(`remove`, `Remove a tag from resources`),
 					ox.Banner(`Removes a tag from one or more resources. Resources must be specified as Uniform Resource Names (URNs) and has the following syntax: `+"`"+`do:<resource_type>:<identifier>`+"`"+`.`),
 					ox.Spec(`<tag-name> --resource=<urn> [--resource=<urn> ...] [flags]`),
@@ -4272,7 +4272,7 @@ The following example removes the tag named `+"`"+`web`+"`"+` from two Droplets:
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl compute volume
 				ox.Usage(`volume`, `Display commands to manage block storage volumes`),
 				ox.Banner(`The sub-commands of `+"`"+`doctl compute volume`+"`"+` manage your block storage volumes.
 
@@ -4294,7 +4294,7 @@ Volumes function as raw block devices, meaning they appear to the operating syst
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl compute volume create
 					ox.Usage(`create`, `Create a block storage volume`),
 					ox.Banner(`Creates a block storage volume on your account.
 
@@ -4328,7 +4328,7 @@ The following example creates a 4TiB volume named `+"`"+`example-volume`+"`"+` i
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute volume delete
 					ox.Usage(`delete`, `Delete a block storage volume`),
 					ox.Banner(`Deletes a block storage volume by ID, destroying all of its data and removing it from your account. This is irreversible.`),
 					ox.Spec(`<volume-id> [flags]`),
@@ -4350,7 +4350,7 @@ The following example deletes a volume with the UUID `+"`"+`f81d4fae-7dec-11d0-a
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute volume get
 					ox.Usage(`get`, `Retrieve an existing block storage volume`),
 					ox.Banner(`Retrieves information about a block storage volume.`),
 					ox.Spec(`<volume-id> [flags]`),
@@ -4373,7 +4373,7 @@ The following example retrieves information about a volume with the UUID `+"`"+`
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute volume list
 					ox.Usage(`list`, `List block storage volumes by ID`),
 					ox.Banner(`Lists all of the block storage volumes on your account.`),
 					ox.Spec(`[flags]`),
@@ -4397,7 +4397,7 @@ The following example retrieves a list of volumes on your account in the `+"`"+`
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute volume snapshot
 					ox.Usage(`snapshot`, `Create a block storage volume snapshot`),
 					ox.Banner(`Creates a snapshot of a block storage volume by ID.
 
@@ -4426,7 +4426,7 @@ The following example creates a snapshot of a volume with the UUID `+"`"+`f81d4f
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl compute volume-action
 				ox.Usage(`volume-action`, `Display commands to perform actions on a volume`),
 				ox.Banner(`Block storage volume action commands allow you to attach, detach, and resize existing volumes.`),
 				ox.Spec(`[command]`),
@@ -4444,7 +4444,7 @@ The following example creates a snapshot of a volume with the UUID `+"`"+`f81d4f
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl compute volume-action attach
 					ox.Usage(`attach`, `Attach a volume to a Droplet`),
 					ox.Banner(`Attaches a block storage volume to a Droplet.
 
@@ -4470,7 +4470,7 @@ The following example attaches a volume with the UUID `+"`"+`f81d4fae-7dec-11d0-
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute volume-action detach
 					ox.Usage(`detach`, `Detach a volume from a Droplet`),
 					ox.Banner(`Detaches a block storage volume from a Droplet.`),
 					ox.Spec(`<volume-id> <droplet-id> [flags]`),
@@ -4492,7 +4492,7 @@ The following example detaches a volume with the UUID `+"`"+`f81d4fae-7dec-11d0-
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute volume-action detach-by-droplet-id
 					ox.Usage(`detach-by-droplet-id`, `(Deprecated) Detach a volume. Use `+"`"+`detach`+"`"+` instead.`),
 					ox.Banner(`This command detaches a volume. This command is deprecated. Use `+"`"+`doctl compute volume-action detach`+"`"+` instead.`),
 					ox.Spec(`<volume-id> <droplet-id> [flags]`),
@@ -4510,7 +4510,7 @@ The following example detaches a volume with the UUID `+"`"+`f81d4fae-7dec-11d0-
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute volume-action get
 					ox.Usage(`get`, `Retrieve the status of a volume action`),
 					ox.Banner(`Retrieves the status of a volume action, including the following details:
 
@@ -4542,7 +4542,7 @@ The following example retrieves the status of an action taken on a volume with t
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute volume-action list
 					ox.Usage(`list`, `Retrieve a list of actions taken on a volume`),
 					ox.Banner(`Retrieves a list of actions taken on a volume. The following details are provided:
 
@@ -4574,7 +4574,7 @@ The following example retrieves a list of actions taken on a volume with the UUI
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl compute volume-action resize
 					ox.Usage(`resize`, `Resize the disk of a volume`),
 					ox.Banner(`Resizes a block storage volume.
 
@@ -4602,7 +4602,7 @@ The following example resizes a volume with the UUID `+"`"+`f81d4fae-7dec-11d0-a
 				),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // doctl databases
 			ox.Usage(`databases`, `Display commands that manage databases`),
 			ox.Banner(`The commands under `+"`"+`doctl databases`+"`"+` are for managing your MySQL, Redis, PostgreSQL, MongoDB, Kafka and Opensearch database services.`),
 			ox.Spec(`[command]`),
@@ -4622,7 +4622,7 @@ The following example resizes a volume with the UUID `+"`"+`f81d4fae-7dec-11d0-a
 				String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 				Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 				Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // doctl databases backups
 				ox.Usage(`backups`, `List database cluster backups`),
 				ox.Banner(`Retrieves a list of backups created for the specified database cluster.
 
@@ -4647,7 +4647,7 @@ The following example retrieves a list of backups for a database cluster with th
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl databases configuration
 				ox.Usage(`configuration`, `View the configuration of a database cluster given its ID and Engine`),
 				ox.Banner(`The subcommands of `+"`"+`doctl databases configuration`+"`"+` are used to view a database cluster's configuration.`),
 				ox.Spec(`[command]`),
@@ -4666,7 +4666,7 @@ The following example retrieves a list of backups for a database cluster with th
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl databases configuration get
 					ox.Usage(`get`, `Get a database cluster's configuration`),
 					ox.Banner(`Retrieves the advanced configuration for the specified cluster, including its backup settings, temporary file limit, and session timeout values.`),
 					ox.Spec(`<database-cluster-id> [flags]`),
@@ -4688,7 +4688,7 @@ The following example retrieves a list of backups for a database cluster with th
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases configuration update
 					ox.Usage(`update`, `Update a database cluster's configuration`),
 					ox.Banner(`Updates the specified database cluster's advanced configuration. Using this command, you can update various settings like backup times, temporary file limits, and session timeouts. Available settings vary by database engine.
 
@@ -4716,7 +4716,7 @@ The following command updates a MySQL database's time zone: doctl databases conf
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl databases connection
 				ox.Usage(`connection`, `Retrieve connection details for a database cluster`),
 				ox.Banner(`Retrieves the following connection details for a database cluster:
 
@@ -4750,7 +4750,7 @@ The following example retrieves the connection details for a database cluster wi
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl databases create
 				ox.Usage(`create`, `Create a database cluster`),
 				ox.Banner(`Creates a database cluster with the specified name.
 
@@ -4783,7 +4783,7 @@ The following example creates a database cluster named `+"`"+`example-database`+
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl databases db
 				ox.Usage(`db`, `Display commands for managing individual databases within a cluster`),
 				ox.Banner(`The subcommands under `+"`"+`doctl databases db`+"`"+` are for managing specific databases that are served by a database cluster.
 
@@ -4805,7 +4805,7 @@ You can get a list of existing database clusters and their IDs by calling:
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl databases db create
 					ox.Usage(`create`, `Create a database within a cluster`),
 					ox.Banner(`Creates a database with the specified name in the specified database cluster.
 
@@ -4830,7 +4830,7 @@ The following example creates a database named `+"`"+`example-db`+"`"+` in a dat
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases db delete
 					ox.Usage(`delete`, `Delete the specified database from the cluster`),
 					ox.Banner(`Deletes the specified database from the specified database cluster.
 
@@ -4860,7 +4860,7 @@ The following example deletes a database named `+"`"+`example-db`+"`"+` in a dat
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases db get
 					ox.Usage(`get`, `Retrieve the name of a database within a cluster`),
 					ox.Banner(`Retrieves the name of the specified database hosted in the specified database cluster.
 
@@ -4891,7 +4891,7 @@ The following example retrieves the name of a database in a database cluster wit
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases db list
 					ox.Usage(`list`, `Retrieve a list of databases within a cluster`),
 					ox.Banner(`Retrieves a list of databases being hosted in the specified database cluster.
 
@@ -4919,7 +4919,7 @@ The following example retrieves a list of databases in a database cluster with t
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl databases delete
 				ox.Usage(`delete`, `Delete a database cluster`),
 				ox.Banner(`Deletes the database cluster with the specified ID.
 
@@ -4943,7 +4943,7 @@ The following example deletes the database cluster with the ID `+"`"+`f81d4fae-7
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl databases events
 				ox.Usage(`events`, `Display commands for listing database cluster events`),
 				ox.Banner(`The subcommands under `+"`"+`doctl databases events`+"`"+` are for listing database cluster events.
 
@@ -4965,7 +4965,7 @@ You can get a list of database events by calling:
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl databases events list
 					ox.Usage(`list`, `List your database cluster events`),
 					ox.Banner(`Retrieves a list of database clusters events:
 
@@ -4993,7 +4993,7 @@ The following example retrieves a list of databases events in a database cluster
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl databases firewalls
 				ox.Usage(`firewalls`, `Display commands to manage firewall rules (called`+"`"+`trusted sources`+"`"+` in the control panel) for database clusters`),
 				ox.Banner(`The subcommands under `+"`"+`doctl databases firewalls`+"`"+` enable the management of firewalls for database clusters.`),
 				ox.Spec(`[command]`),
@@ -5012,7 +5012,7 @@ The following example retrieves a list of databases events in a database cluster
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl databases firewalls append
 					ox.Usage(`append`, `Add a database firewall rule to a given database`),
 					ox.Banner(`
 Appends a single rule to the existing firewall rules of the specified database.
@@ -5039,7 +5039,7 @@ The following example appends a firewall rule to a database cluster with the ID 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases firewalls list
 					ox.Usage(`list`, `Retrieve a list of firewall rules for a given database`),
 					ox.Banner(`
 This command lists the following details for each firewall rule in a given database:
@@ -5072,7 +5072,7 @@ The following example retrieves a list of firewall rules for a database cluster 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases firewalls remove
 					ox.Usage(`remove`, `Remove a firewall rule for a given database`),
 					ox.Banner(`
 Removes single rule from the list of firewall rules for a specified database. You can retrieve a firewall rule's UUIDs by calling:
@@ -5097,7 +5097,7 @@ The following example removes a firewall rule with the UUID `+"`"+`f81d4fae-7dec
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases firewalls replace
 					ox.Usage(`replace`, `Replaces the firewall rules for a given database. The rules passed to the `+"`"+`--rules`+"`"+` flag replace the firewall rules previously assigned to the database,`),
 					ox.Banner(`
 Replace the firewall rules for a specified database. This command requires the `+"`"+`--rule`+"`"+` flag.
@@ -5125,7 +5125,7 @@ The following example replaces the firewall rules for a database cluster, with t
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl databases fork
 				ox.Usage(`fork`, `Create a new database cluster by forking an existing database cluster.`),
 				ox.Banner(`Creates a new database cluster from an existing cluster. The forked database contains all of the data from the original database at the time the fork is created.`),
 				ox.Spec(`<name> [flags]`),
@@ -5149,7 +5149,7 @@ The following example forks a database cluster with the ID `+"`"+`f81d4fae-7dec-
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl databases get
 				ox.Usage(`get`, `Get details for a database cluster`),
 				ox.Banner(`Retrieves the following details about the specified database cluster: 
 
@@ -5187,7 +5187,7 @@ The following example retrieves the details for a database cluster with the ID `
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl databases get-ca
 				ox.Usage(`get-ca`, `Provides the CA certificate for a DigitalOcean database`),
 				ox.Banner(`Retrieves a database certificate`),
 				ox.Spec(`<database-cluster-id> [flags]`),
@@ -5211,7 +5211,7 @@ With the `+"`"+`-o json flag`+"`"+`, the certificate to connect to the database 
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl databases indexes
 				ox.Usage(`indexes`, `Display commands to manage indexes for opensearch clusters`),
 				ox.Banner(`The subcommands under `+"`"+`doctl databases indexes`+"`"+` enable the management of indexes for opensearch clusters`),
 				ox.Spec(`[command]`),
@@ -5229,7 +5229,7 @@ With the `+"`"+`-o json flag`+"`"+`, the certificate to connect to the database 
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl databases indexes delete
 					ox.Usage(`delete`, `Deletes an opensearch index by index name`),
 					ox.Banner(`Deletes an opensearch index by index name`),
 					ox.Spec(`<database-uuid> <index-name> [flags]`),
@@ -5249,7 +5249,7 @@ With the `+"`"+`-o json flag`+"`"+`, the certificate to connect to the database 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases indexes list
 					ox.Usage(`list`, `Retrieve a list of indexes for a given opensearch cluster`),
 					ox.Banner(`
 This command lists the following details for each index in an opensearch cluster:
@@ -5280,7 +5280,7 @@ This command lists the following details for each index in an opensearch cluster
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl databases list
 				ox.Usage(`list`, `List your database clusters`),
 				ox.Banner(`Retrieves a list of database clusters and their following details:
 
@@ -5312,7 +5312,7 @@ The following example lists all database associated with your account and uses t
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl databases maintenance-window
 				ox.Usage(`maintenance-window`, `Display commands for scheduling automatic maintenance on your database cluster`),
 				ox.Banner(`The `+"`"+`doctl databases maintenance-window`+"`"+` commands allow you to schedule, and check the schedule of, maintenance windows for your databases.
 
@@ -5335,7 +5335,7 @@ To install an update outside of a maintenance window, use the `+"`"+`doctl datab
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl databases maintenance-window get
 					ox.Usage(`get`, `Retrieve details about a database cluster's maintenance windows`),
 					ox.Banner(`Retrieves the following information on currently-scheduled maintenance windows for the specified database cluster:
 
@@ -5364,7 +5364,7 @@ The following example retrieves the maintenance window for a database cluster wi
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases maintenance-window install
 					ox.Usage(`install`, `Start installation of updates immediately`),
 					ox.Banner(`Starts the installation of updates for the specified database cluster immediately outside of a maintenance window.`),
 					ox.Spec(`<database-cluster-id> [flags]`),
@@ -5385,7 +5385,7 @@ The following example starts installation of updates for your databases with the
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases maintenance-window update
 					ox.Usage(`update`, `Update the maintenance window for a database cluster`),
 					ox.Banner(`Updates the maintenance window for the specified database cluster.
 
@@ -5415,7 +5415,7 @@ The following example updates the maintenance window for a database cluster with
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl databases migrate
 				ox.Usage(`migrate`, `Migrate a database cluster to a new region`),
 				ox.Banner(`Migrates the specified database cluster to a new region.`),
 				ox.Spec(`<database-cluster-id> [flags]`),
@@ -5437,7 +5437,7 @@ The following example updates the maintenance window for a database cluster with
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl databases options
 				ox.Usage(`options`, `Display available database options (regions, version, layouts, etc.) for all available database engines`),
 				ox.Banner(`The subcommands under `+"`"+`doctl databases options`+"`"+` retrieve configuration options for databases, such as available engines, engine versions and their equivalent slugs.`),
 				ox.Spec(`[command]`),
@@ -5456,7 +5456,7 @@ The following example updates the maintenance window for a database cluster with
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl databases options engines
 					ox.Usage(`engines`, `Retrieves a list of the available database engines`),
 					ox.Banner(`Lists the available database engines for DigitalOcean Managed Databases.`),
 					ox.Spec(`[flags]`),
@@ -5477,7 +5477,7 @@ The following example retrieves a list of the available database engines: doctl 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases options regions
 					ox.Usage(`regions`, `Retrieves a list of the available regions for a given database engine`),
 					ox.Banner(`Lists the available regions for a given database engine. Some engines may not be available in certain regions.`),
 					ox.Spec(`[flags]`),
@@ -5499,7 +5499,7 @@ The following example retrieves a list of the available regions for the PostgreS
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases options slugs
 					ox.Usage(`slugs`, `Retrieves a list of the available slugs for a given database engine`),
 					ox.Banner(`Lists the available slugs for a given database engine.`),
 					ox.Spec(`[flags]`),
@@ -5521,7 +5521,7 @@ The following example retrieves a list of the available slugs for the PostgreSQL
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases options versions
 					ox.Usage(`versions`, `Retrieves a list of the available versions for a given database engine`),
 					ox.Banner(`Lists the available versions for a given database engine.`),
 					ox.Spec(`[flags]`),
@@ -5544,7 +5544,7 @@ The following example retrieves a list of the available versions for the Postgre
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl databases pool
 				ox.Usage(`pool`, `Display commands for managing connection pools`),
 				ox.Banner(`The subcommands under `+"`"+`doctl databases pool`+"`"+` manage connection pools for your database cluster.
 
@@ -5570,7 +5570,7 @@ A connection pool may be useful if your database:
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl databases pool create
 					ox.Usage(`create`, `Create a connection pool for a database cluster`),
 					ox.Banner(`Creates a connection pool for the specified database cluster.
 
@@ -5614,7 +5614,7 @@ The following example creates a connection pool named `+"`"+`example-pool`+"`"+`
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases pool delete
 					ox.Usage(`delete`, `Delete a connection pool for a database`),
 					ox.Banner(`Deletes the specified connection pool for the specified database cluster.
 
@@ -5644,7 +5644,7 @@ The following example deletes a connection pool named `+"`"+`example-pool`+"`"+`
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases pool get
 					ox.Usage(`get`, `Retrieve information about a database connection pool`),
 					ox.Banner(`This command retrieves the following information about the specified connection pool for the specified database cluster:
 
@@ -5682,7 +5682,7 @@ The following example retrieves the details for a connection pool named `+"`"+`e
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases pool list
 					ox.Usage(`list`, `List connection pools for a database cluster`),
 					ox.Banner(`Lists the existing connection pools for the specified database. The command returns the following details about each connection pool:
 
@@ -5712,7 +5712,7 @@ The following example lists the connection pools for a database cluster with the
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases pool update
 					ox.Usage(`update`, `Update a connection pool for a database`),
 					ox.Banner(`Updates the specified connection pool for the specified database cluster.
 
@@ -5746,7 +5746,7 @@ The following example updates a connection pool named `+"`"+`example-pool`+"`"+`
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl databases replica
 				ox.Usage(`replica`, `Display commands to manage read-only database replicas`),
 				ox.Banner(`The subcommands under `+"`"+`doctl databases replica`+"`"+` allow you to manage read-only replicas associated with a database cluster.
 
@@ -5767,7 +5767,7 @@ In addition to primary nodes in a database cluster, you can create up to 2 read-
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl databases replica connection
 					ox.Usage(`connection`, `Retrieve information for connecting to a read-only database replica`),
 					ox.Banner(`Retrieves information for connecting to the specified read-only database replica in the specified database cluster
 
@@ -5796,7 +5796,7 @@ The following example retrieves the connection details for a read-only replica n
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases replica create
 					ox.Usage(`create`, `Create a read-only database replica`),
 					ox.Banner(`Creates a read-only database replica for the specified database cluster, giving it the specified name.
 
@@ -5824,7 +5824,7 @@ The following example creates a read-only replica named `+"`"+`example-replica`+
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases replica delete
 					ox.Usage(`delete`, `Delete a read-only database replica`),
 					ox.Banner(`Deletes the specified read-only replica for the specified database cluster.
 
@@ -5854,7 +5854,7 @@ The following example deletes a read-only replica named `+"`"+`example-replica`+
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases replica get
 					ox.Usage(`get`, `Retrieve information about a read-only database replica`),
 					ox.Banner(`Gets the following details for the specified read-only replica of the specified database cluster:
 
@@ -5891,7 +5891,7 @@ The following example retrieves the details for a read-only replica named `+"`"+
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases replica list
 					ox.Usage(`list`, `Retrieve list of read-only database replicas`),
 					ox.Banner(`Lists the following details for read-only replicas for the specified database cluster.
 
@@ -5923,7 +5923,7 @@ The following example retrieves a list of read-only replicas for a database clus
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases replica promote
 					ox.Usage(`promote`, `Promote a read-only database replica to become a primary cluster`),
 					ox.Banner(`Promotes a read-only database replica to become its own independent primary cluster. Promoted replicas no longer stay in sync with primary cluster they were forked from.
 
@@ -5953,7 +5953,7 @@ The following example promotes a read-only replica named `+"`"+`example-replica`
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl databases resize
 				ox.Usage(`resize`, `Resize a database cluster`),
 				ox.Banner(`Resizes the specified database cluster.
 
@@ -5986,7 +5986,7 @@ The following example resizes a PostgreSQL or MySQL database to have two nodes, 
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl databases sql-mode
 				ox.Usage(`sql-mode`, `Display commands to configure a MySQL database cluster's SQL modes`),
 				ox.Banner(`The subcommands of `+"`"+`doctl databases sql-mode`+"`"+` are used to view and configure a MySQL database cluster's global SQL modes. Global SQL modes affect the SQL syntax MySQL supports and the data validation checks it performs.`),
 				ox.Spec(`[command]`),
@@ -6005,7 +6005,7 @@ The following example resizes a PostgreSQL or MySQL database to have two nodes, 
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl databases sql-mode get
 					ox.Usage(`get`, `Get a MySQL database cluster's SQL modes`),
 					ox.Banner(`Displays the configured SQL modes for the specified MySQL database cluster.`),
 					ox.Spec(`<database-cluster-id> [flags]`),
@@ -6028,7 +6028,7 @@ The following example retrieves the SQL modes for a database cluster with the ID
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases sql-mode set
 					ox.Usage(`set`, `Set a MySQL database cluster's SQL modes`),
 					ox.Banner(`This command configures the SQL modes for the specified MySQL database cluster. The SQL modes should be provided as a space separated list.
 
@@ -6052,7 +6052,7 @@ The following example sets the SQL mode ALLOW_INVALID_DATES for an existing data
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl databases topics
 				ox.Usage(`topics`, `Display commands to manage topics for kafka database clusters`),
 				ox.Banner(`The subcommands under `+"`"+`doctl databases topics`+"`"+` enable the management of topics for kafka database clusters`),
 				ox.Spec(`[command]`),
@@ -6070,7 +6070,7 @@ The following example sets the SQL mode ALLOW_INVALID_DATES for an existing data
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl databases topics create
 					ox.Usage(`create`, `Creates a topic for a given kafka database`),
 					ox.Banner(`This command creates a kafka topic for the specified kafka database cluster, giving it the specified name. Example: doctl databases topics create <database-uuid> <topic-name> --replication_factor 2 --partition_count 4`),
 					ox.Spec(`<database-uuid> <topic-name> [flags]`),
@@ -6112,7 +6112,7 @@ The following example sets the SQL mode ALLOW_INVALID_DATES for an existing data
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases topics delete
 					ox.Usage(`delete`, `Deletes a kafka topic by topic name`),
 					ox.Banner(`Deletes a kafka topic by topic name`),
 					ox.Spec(`<database-uuid> <topic-name> [flags]`),
@@ -6132,7 +6132,7 @@ The following example sets the SQL mode ALLOW_INVALID_DATES for an existing data
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases topics get
 					ox.Usage(`get`, `Retrieve the configuration for a given kafka topic`),
 					ox.Banner(`
 This command lists the following details for a given topic in a kafka database cluster:
@@ -6161,7 +6161,7 @@ The details of the topic are listed in key/value pairs`),
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases topics list
 					ox.Usage(`list`, `Retrieve a list of topics for a given kafka database`),
 					ox.Banner(`
 This command lists the following details for each topic in a kafka database cluster:
@@ -6187,7 +6187,7 @@ This command lists the following details for each topic in a kafka database clus
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases topics partitions
 					ox.Usage(`partitions`, `Retrieve the partitions for a given kafka topic`),
 					ox.Banner(`
 This command lists the following details for each partition of a given topic in a kafka database cluster:
@@ -6212,7 +6212,7 @@ This command lists the following details for each partition of a given topic in 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases topics update
 					ox.Usage(`update`, `Updates a topic for a given kafka database`),
 					ox.Banner(`This command updates a kafka topic for the specified kafka database cluster. Example: doctl databases topics update <database-uuid> <topic-name>`),
 					ox.Spec(`<database-uuid> <topic-name> [flags]`),
@@ -6255,7 +6255,7 @@ This command lists the following details for each partition of a given topic in 
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl databases user
 				ox.Usage(`user`, `Display commands for managing database users`),
 				ox.Banner(`The commands under `+"`"+`doctl databases user`+"`"+` allow you to view details for, and create, database users.
 
@@ -6276,7 +6276,7 @@ Database user accounts are scoped to one database cluster, to which they have fu
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl databases user create
 					ox.Usage(`create`, `Create a database user`),
 					ox.Banner(`Creates a new user for a database. New users are given a role of `+"`"+`normal`+"`"+` and are given an automatically-generated password.
 
@@ -6302,7 +6302,7 @@ The following example creates a new user with the username `+"`"+`example-user`+
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases user delete
 					ox.Usage(`delete`, `Delete a database user`),
 					ox.Banner(`Deletes the specified database user.
 
@@ -6326,7 +6326,7 @@ The following example deletes the user with the username `+"`"+`example-user`+"`
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases user get
 					ox.Usage(`get`, `Retrieve details about a database user`),
 					ox.Banner(`Retrieves the following details about the specified user:
 
@@ -6359,7 +6359,7 @@ The following example retrieves the details for the user with the username `+"`"
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases user list
 					ox.Usage(`list`, `Retrieve list of database users`),
 					ox.Banner(`Retrieves a list of users for the specified database with the following details:
 
@@ -6390,7 +6390,7 @@ The following example retrieves a list of users for a database cluster with the 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl databases user reset
 					ox.Usage(`reset`, `Resets a user's auth`),
 					ox.Banner(`Resets the auth password or the MySQL authorization plugin for a given user and returns the user's new credentials. When resetting MySQL auth, valid values for `+"`"+`<new-auth-mode>`+"`"+` are `+"`"+`caching_sha2_password`+"`"+` and `+"`"+`mysql_native_password`+"`"+`.`),
 					ox.Spec(`<database-cluster-id> <user-name> <new-auth-mode> [flags]`),
@@ -6413,7 +6413,7 @@ The following example resets the auth plugin for the user with the username `+"`
 				),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // doctl kubernetes
 			ox.Usage(`kubernetes`, `Displays commands to manage Kubernetes clusters and configurations`),
 			ox.Banner(`The commands under `+"`"+`doctl kubernetes`+"`"+` are for managing Kubernetes clusters and viewing configuration options relating to clusters.
 
@@ -6437,7 +6437,7 @@ The commands under `+"`"+`doctl kubernetes options`+"`"+` retrieve values used w
 				String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 				Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 				Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // doctl kubernetes 1-click
 				ox.Usage(`1-click`, `Display commands that pertain to kubernetes 1-click applications`),
 				ox.Banner(`The commands under `+"`"+`doctl kubernetes 1-click`+"`"+` are for managing DigitalOcean Kubernetes 1-Click applications.`),
 				ox.Spec(`[command]`),
@@ -6455,7 +6455,7 @@ The commands under `+"`"+`doctl kubernetes options`+"`"+` retrieve values used w
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl kubernetes 1-click install
 					ox.Usage(`install`, `Install 1-click apps on a Kubernetes cluster`),
 					ox.Banner(`Installs 1-click applications on a Kubernetes cluster. Use the `+"`"+`--1-click`+"`"+` flag to specify one or multiple pieces of software to install on the cluster.`),
 					ox.Spec(`<cluster-id> [flags]`),
@@ -6479,7 +6479,7 @@ The following example installs Loki and Netdata on a Kubernetes cluster with the
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl kubernetes 1-click list
 					ox.Usage(`list`, `Retrieve a list of Kubernetes 1-Click applications`),
 					ox.Banner(`Retrieves a list of Kubernetes 1-Click applications you can install on a Kubernetes cluster.`),
 					ox.Spec(`[flags]`),
@@ -6503,7 +6503,7 @@ The following example lists all available 1-click apps for Kubernetes: doctl kub
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl kubernetes cluster
 				ox.Usage(`cluster`, `Display commands for managing Kubernetes clusters`),
 				ox.Banner(`The commands under `+"`"+`doctl kubernetes cluster`+"`"+` are for the management of Kubernetes clusters.
 
@@ -6524,7 +6524,7 @@ A typical workflow is to use `+"`"+`doctl kubernetes cluster create`+"`"+` to cr
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl kubernetes cluster create
 					ox.Usage(`create`, `Create a Kubernetes cluster`),
 					ox.Banner(`
 Creates a Kubernetes cluster given the specified options and using the specified name. Before creating the cluster, you can use `+"`"+`doctl kubernetes options`+"`"+` to see possible values for the various configuration flags.
@@ -6568,7 +6568,7 @@ The following example creates a cluster named `+"`"+`example-cluster`+"`"+` in t
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl kubernetes cluster delete
 					ox.Usage(`delete`, `Delete Kubernetes clusters`),
 					ox.Banner(`
 Deletes the specified Kubernetes clusters and the Droplets associated with them. To delete all other DigitalOcean resources created during the operation of the clusters, such as load balancers, volumes or volume snapshots, use the `+"`"+`--dangerous`+"`"+` flag.`),
@@ -6593,7 +6593,7 @@ The following example deletes a cluster named `+"`"+`example-cluster`+"`"+`: doc
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl kubernetes cluster delete-selective
 					ox.Usage(`delete-selective`, `Delete a Kubernetes cluster and selectively delete resources associated with it`),
 					ox.Banner(`
 Deletes the specified Kubernetes cluster and Droplets associated with it. It also deletes the specified associated resources. Associated resources can be load balancers, volumes and volume snapshots.`),
@@ -6620,7 +6620,7 @@ The following example deletes a cluster named `+"`"+`example-cluster`+"`"+` and 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl kubernetes cluster get
 					ox.Usage(`get`, `Retrieve details about a Kubernetes cluster`),
 					ox.Banner(`
 Retrieves the following details about a Kubernetes cluster: 
@@ -6659,7 +6659,7 @@ The following example retrieve details about a Kubernetes cluster named `+"`"+`e
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl kubernetes cluster get-upgrades
 					ox.Usage(`get-upgrades`, `Retrieve a list of available Kubernetes version upgrades`),
 					ox.Banner(`
 Retrieves a list of slugs representing Kubernetes upgrade versions you can use to upgrade the cluster. To upgrade your cluster, use the `+"`"+`doctl kubernetes cluster upgrade`+"`"+` command.`),
@@ -6681,7 +6681,7 @@ The following example retrieves a list of available Kubernetes version upgrades 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl kubernetes cluster kubeconfig
 					ox.Usage(`kubeconfig`, `Display commands for managing your local kubeconfig`),
 					ox.Banner(`The commands under `+"`"+`doctl kubernetes cluster kubeconfig`+"`"+` are used to manage Kubernetes cluster credentials on your local machine. The credentials are used as authentication contexts with `+"`"+`kubectl`+"`"+`, the Kubernetes command-line interface.`),
 					ox.Spec(`[command]`),
@@ -6700,7 +6700,7 @@ The following example retrieves a list of available Kubernetes version upgrades 
 						String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-					ox.Sub(
+					ox.Sub( // doctl kubernetes cluster kubeconfig remove
 						ox.Usage(`remove`, `Remove a cluster's credentials from your local kubeconfig`),
 						ox.Banner(`
 This command removes the specified cluster's credentials from your local kubeconfig. After running this command, you cannot use `+"`"+`kubectl`+"`"+` to interact with your cluster.`),
@@ -6722,7 +6722,7 @@ The following example removes the credentials for a cluster named `+"`"+`example
 							Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
-					ox.Sub(
+					ox.Sub( // doctl kubernetes cluster kubeconfig save
 						ox.Usage(`save`, `Save a cluster's credentials to your local kubeconfig`),
 						ox.Banner(`
 Adds the credentials for the specified cluster to your local kubeconfig. After this, your kubectl installation can directly manage the specified cluster.`),
@@ -6747,7 +6747,7 @@ The following example saves the credentials for a cluster named `+"`"+`example-c
 							Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
-					ox.Sub(
+					ox.Sub( // doctl kubernetes cluster kubeconfig show
 						ox.Usage(`show`, `Show a Kubernetes cluster's kubeconfig YAML`),
 						ox.Banner(`
 Returns the raw YAML for the specified cluster's kubeconfig.`),
@@ -6771,7 +6771,7 @@ The following example shows the kubeconfig YAML for a cluster named `+"`"+`examp
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
 				),
-				ox.Sub(
+				ox.Sub( // doctl kubernetes cluster list
 					ox.Usage(`list`, `Retrieve the list of Kubernetes clusters for your account`),
 					ox.Banner(`
 Retrieves the following details about all Kubernetes clusters that are on your account:
@@ -6802,7 +6802,7 @@ The following example retrieves the list of Kubernetes clusters for your account
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl kubernetes cluster list-associated-resources
 					ox.Usage(`list-associated-resources`, `Retrieve DigitalOcean resources associated with a Kubernetes cluster`),
 					ox.Banner(`
 Retrieves the following details for a Kubernetes cluster:
@@ -6829,7 +6829,7 @@ The following example retrieves the associated resources for a cluster named `+"
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl kubernetes cluster node-pool
 					ox.Usage(`node-pool`, `Display commands for managing node pools`),
 					ox.Banner(`The commands under `+"`"+`node-pool`+"`"+` are for managing Kubernetes cluster's node pools. You can use these commands to create or delete node pools, enable autoscaling, and more.`),
 					ox.Spec(`[command]`),
@@ -6848,7 +6848,7 @@ The following example retrieves the associated resources for a cluster named `+"
 						String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-					ox.Sub(
+					ox.Sub( // doctl kubernetes cluster node-pool create
 						ox.Usage(`create`, `Create a new node pool for a cluster`),
 						ox.Banner(`
 Creates a new node pool for the specified cluster. The command requires values for the `+"`"+`--name`+"`"+`, `+"`"+`--size`+"`"+`, and `+"`"+`--count`+"`"+` flags to create a node pool. You can also specify that you'd like to enable autoscaling and set minimum and maximum node poll sizes.`),
@@ -6879,7 +6879,7 @@ The following example creates a node pool named `+"`"+`example-pool`+"`"+` in a 
 							Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
-					ox.Sub(
+					ox.Sub( // doctl kubernetes cluster node-pool delete
 						ox.Usage(`delete`, `Delete a node pool`),
 						ox.Banner(`Deletes a node pool in a cluster, which also removes all the nodes inside that pool. You cannot reverse this action.`),
 						ox.Spec(`<cluster-id|cluster-name> <pool-id|pool-name> [flags]`),
@@ -6901,7 +6901,7 @@ The following example deletes a node pool named `+"`"+`example-pool`+"`"+` in a 
 							Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
-					ox.Sub(
+					ox.Sub( // doctl kubernetes cluster node-pool delete-node
 						ox.Usage(`delete-node`, `Delete a node`),
 						ox.Banner(`
 Deletes a node in the specified node pool. By default, this deletion happens gracefully and Kubernetes drains the node of any pods before deleting it.`),
@@ -6924,7 +6924,7 @@ The following example deletes a node named `+"`"+`example-node`+"`"+` in a node 
 							Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
-					ox.Sub(
+					ox.Sub( // doctl kubernetes cluster node-pool get
 						ox.Usage(`get`, `Retrieve information about a cluster's node pool`),
 						ox.Banner(`
 Retrieves information about the specified node pool in the specified cluster, including:
@@ -6956,7 +6956,7 @@ The following example retrieves information about a node pool named `+"`"+`examp
 							Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
-					ox.Sub(
+					ox.Sub( // doctl kubernetes cluster node-pool list
 						ox.Usage(`list`, `List a cluster's node pools`),
 						ox.Banner(`
 Retrieves information about the specified cluster's node pools, including:
@@ -6988,7 +6988,7 @@ The following example retrieves information about all node pools in a cluster na
 							Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
-					ox.Sub(
+					ox.Sub( // doctl kubernetes cluster node-pool replace-node
 						ox.Usage(`replace-node`, `Replace node with a new one`),
 						ox.Banner(`
 Deletes the specified node in the specified node pool, and then creates a new node in its place. This is useful if you suspect a node has entered an undesired state. By default, the deletion happens gracefully and Kubernetes drains the node of any pods before deleting it.`),
@@ -7011,7 +7011,7 @@ The following example replaces a node named `+"`"+`example-node`+"`"+` in a node
 							Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
-					ox.Sub(
+					ox.Sub( // doctl kubernetes cluster node-pool update
 						ox.Usage(`update`, `Update an existing node pool in a cluster`),
 						ox.Banner(`Updates a node pool in a cluster. You can update any value for which there is a flag.`),
 						ox.Spec(`<cluster-id|cluster-name> <pool-id|pool-name> [flags]`),
@@ -7041,7 +7041,7 @@ The following example updates a node pool named `+"`"+`example-pool`+"`"+` in a 
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
 				),
-				ox.Sub(
+				ox.Sub( // doctl kubernetes cluster registry
 					ox.Usage(`registry`, `Display commands for integrating clusters with docr`),
 					ox.Banner(`The commands under `+"`"+`registry`+"`"+` are for managing DOCR integration with Kubernetes clusters. You can use these commands to add or remove registry from one or more clusters.`),
 					ox.Spec(`[command]`),
@@ -7060,7 +7060,7 @@ The following example updates a node pool named `+"`"+`example-pool`+"`"+` in a 
 						String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-					ox.Sub(
+					ox.Sub( // doctl kubernetes cluster registry add
 						ox.Usage(`add`, `Add container registry support to Kubernetes clusters`),
 						ox.Banner(`
 Adds container registry support to the specified Kubernetes cluster(s).`),
@@ -7082,7 +7082,7 @@ The following example adds container registry support to a cluster named `+"`"+`
 							Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
-					ox.Sub(
+					ox.Sub( // doctl kubernetes cluster registry remove
 						ox.Usage(`remove`, `Remove container registry support from Kubernetes clusters`),
 						ox.Banner(`
 Removes container registry support from the specified Kubernetes cluster(s).`),
@@ -7105,7 +7105,7 @@ The following example removes container registry support from a cluster named `+
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
 				),
-				ox.Sub(
+				ox.Sub( // doctl kubernetes cluster update
 					ox.Usage(`update`, `Update a Kubernetes cluster's configuration`),
 					ox.Banner(`
 Updates the configuration values for a Kubernetes cluster. The cluster must be referred to by its name or ID. Use the `+"`"+`doctl kubernetes cluster list`+"`"+` command to get a list of clusters on your account.`),
@@ -7137,7 +7137,7 @@ The following example updates a cluster named `+"`"+`example-cluster`+"`"+` to e
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl kubernetes cluster upgrade
 					ox.Usage(`upgrade`, `Upgrades a cluster to a new Kubernetes version`),
 					ox.Banner(`
 
@@ -7160,7 +7160,7 @@ The following example upgrades a cluster named `+"`"+`example-cluster`+"`"+` to 
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl kubernetes options
 				ox.Usage(`options`, `List possible option values for use inside Kubernetes commands`),
 				ox.Banner(`The `+"`"+`options`+"`"+` commands are used to enumerate values for use with `+"`"+`doctl`+"`"+`'s Kubernetes commands. This is useful in certain cases where flags only accept input that is from a list of possible values, such as Kubernetes versions, datacenter regions, and machine sizes.`),
 				ox.Spec(`[command]`),
@@ -7179,7 +7179,7 @@ The following example upgrades a cluster named `+"`"+`example-cluster`+"`"+` to 
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl kubernetes options regions
 					ox.Usage(`regions`, `Lists regions that support DigitalOcean Kubernetes clusters`),
 					ox.Banner(`Lists regions that support DigitalOcean Kubernetes clusters`),
 					ox.Spec(`[flags]`),
@@ -7198,7 +7198,7 @@ The following example upgrades a cluster named `+"`"+`example-cluster`+"`"+` to 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl kubernetes options sizes
 					ox.Usage(`sizes`, `Lists machine sizes that you can use in a DigitalOcean Kubernetes cluster`),
 					ox.Banner(`Lists machine sizes that you can use in a DigitalOcean Kubernetes cluster`),
 					ox.Spec(`[flags]`),
@@ -7217,7 +7217,7 @@ The following example upgrades a cluster named `+"`"+`example-cluster`+"`"+` to 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl kubernetes options versions
 					ox.Usage(`versions`, `Lists Kubernetes versions that you can use with DigitalOcean clusters`),
 					ox.Banner(`Lists Kubernetes versions that you can use with DigitalOcean clusters`),
 					ox.Spec(`[flags]`),
@@ -7238,7 +7238,7 @@ The following example upgrades a cluster named `+"`"+`example-cluster`+"`"+` to 
 				),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // doctl monitoring
 			ox.Usage(`monitoring`, `[Beta] Display commands to manage monitoring`),
 			ox.Banner(`The sub-commands of `+"`"+`doctl monitoring`+"`"+` manage the monitoring on your account.
 
@@ -7259,7 +7259,7 @@ You can create alert policies to monitor the resource consumption of your Drople
 				String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 				Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 				Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // doctl monitoring alert
 				ox.Usage(`alert`, `Display commands for managing alert policies`),
 				ox.Banner(`The commands under `+"`"+`doctl monitoring alert`+"`"+` are for managing alert policies.
 
@@ -7282,7 +7282,7 @@ If you'd like to alert on the uptime of a specific URL or IP address, use `+"`"+
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl monitoring alert create
 					ox.Usage(`create`, `Create an alert policy`),
 					ox.Banner(`Creates a new alert policy. You can create policies that monitor various metrics of your Droplets and send you alerts when a metric exceeds a specified threshold.
 	
@@ -7317,7 +7317,7 @@ The following example creates an alert policy that sends an email to `+"`"+`admi
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl monitoring alert delete
 					ox.Usage(`delete`, `Delete an alert policy`),
 					ox.Banner(`Deletes an alert policy.`),
 					ox.Spec(`<alert-policy-uuid>... [flags]`),
@@ -7339,7 +7339,7 @@ The following example deletes an alert policy with the ID `+"`"+`f81d4fae-7dec-1
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl monitoring alert get
 					ox.Usage(`get`, `Retrieve information about an alert policy`),
 					ox.Banner(`Retrieves an alert policy and its configuration.`),
 					ox.Spec(`<alert-policy-uuid> [flags]`),
@@ -7361,7 +7361,7 @@ The following example retrieves information about a policy with the ID `+"`"+`f8
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl monitoring alert list
 					ox.Usage(`list`, `List all alert policies`),
 					ox.Banner(`Retrieves a list of all the alert policies in your account.`),
 					ox.Spec(`[flags]`),
@@ -7384,7 +7384,7 @@ The following example lists all alert policies in your account: doctl monitoring
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl monitoring alert update
 					ox.Usage(`update`, `Update an alert policy`),
 					ox.Banner(`Updates an existing alert policy.`),
 					ox.Spec(`<alert-policy-uuid>... [flags]`),
@@ -7416,7 +7416,7 @@ The following example updates an alert policy's details: doctl monitoring alert 
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl monitoring uptime
 				ox.Usage(`uptime`, `Display commands to manage uptime checks`),
 				ox.Banner(`The sub-commands of `+"`"+`doctl uptime`+"`"+` manage your uptime checks.
 
@@ -7437,7 +7437,7 @@ and alert you when they're slow, unavailable, or SSL certificates are expiring.`
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl monitoring uptime alert
 					ox.Usage(`alert`, `Display commands to manage uptime alerts`),
 					ox.Banner(`The sub-commands of `+"`"+`doctl monitoring uptime alert`+"`"+` manage your uptime alerts.
 
@@ -7461,7 +7461,7 @@ In order to set up uptime alerts, you must first set up an uptime check. Uptime 
 						String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-					ox.Sub(
+					ox.Sub( // doctl monitoring uptime alert create
 						ox.Usage(`create`, `Create an uptime alert`),
 						ox.Banner(`Creates an alert policy for an uptime check.
 	
@@ -7499,7 +7499,7 @@ The following example creates an alert for an uptime check with an ID of f81d4fa
 							Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
-					ox.Sub(
+					ox.Sub( // doctl monitoring uptime alert delete
 						ox.Usage(`delete`, `Delete an uptime alert`),
 						ox.Banner(`Deletes an uptime check on your account by ID.`),
 						ox.Spec(`<uptime-check-id> <uptime-alert-id> [flags]`),
@@ -7520,7 +7520,7 @@ The following example deletes an alert policy with the ID `+"`"+`418b7972-fc67-4
 							Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
-					ox.Sub(
+					ox.Sub( // doctl monitoring uptime alert get
 						ox.Usage(`get`, `Get uptime alert`),
 						ox.Banner(`Retrieves information about an uptime alert policy.`),
 						ox.Spec(`<uptime-check-id> <uptime-alert-id> [flags]`),
@@ -7543,7 +7543,7 @@ The following example retrieves the configuration for an alert policy with the I
 							Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
-					ox.Sub(
+					ox.Sub( // doctl monitoring uptime alert list
 						ox.Usage(`list`, `List uptime alerts`),
 						ox.Banner(`Retrieves a list of the alert policies for an uptime check.`),
 						ox.Spec(`<uptime-check-id> [flags]`),
@@ -7566,7 +7566,7 @@ The following example lists the alert policies for an uptime check with the ID `
 							Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
-					ox.Sub(
+					ox.Sub( // doctl monitoring uptime alert update
 						ox.Usage(`update`, `Update an uptime alert`),
 						ox.Banner(`Updates an uptime alert configuration.`),
 						ox.Spec(`<uptime-check-id> <uptime-alert-id> [flags]`),
@@ -7598,7 +7598,7 @@ The following example updates an alert policy with the ID `+"`"+`418b7972-fc67-4
 							Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 					),
 				),
-				ox.Sub(
+				ox.Sub( // doctl monitoring uptime create
 					ox.Usage(`create`, `Create an uptime check`),
 					ox.Banner(`Creates an uptime check on your account. Uptime checks monitor any endpoint that is accessible over HTTP, HTTPS, ping (ICMP).
 	
@@ -7627,7 +7627,7 @@ The following example creates an uptime check that monitors the URL, `+"`"+`exam
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl monitoring uptime delete
 					ox.Usage(`delete`, `Delete an uptime check`),
 					ox.Banner(`Deletes an uptime check on your account.`),
 					ox.Spec(`<uptime-check-id> [flags]`),
@@ -7648,7 +7648,7 @@ The following example deletes an uptime check with the ID `+"`"+`f81d4fae-7dec-1
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl monitoring uptime get
 					ox.Usage(`get`, `Get an uptime check`),
 					ox.Banner(`Retrieves information about an uptime check on your account.`),
 					ox.Spec(`<uptime-check-id> [flags]`),
@@ -7671,7 +7671,7 @@ The following example retrieves the ID, name, and target of an uptime check: doc
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl monitoring uptime list
 					ox.Usage(`list`, `List uptime checks`),
 					ox.Banner(`Retrieves a list of all of the uptime checks on your account.`),
 					ox.Spec(`[flags]`),
@@ -7694,7 +7694,7 @@ The following example retrieves a list of all of the uptime checks on your accou
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl monitoring uptime update
 					ox.Usage(`update`, `Update an uptime check`),
 					ox.Banner(`Updates an uptime check on your account.
 
@@ -7725,7 +7725,7 @@ The following example updates the name, target, type, and regions of an uptime c
 				),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // doctl projects
 			ox.Usage(`projects`, `Manage projects and assign resources to them`),
 			ox.Banner(`The subcommands of `+"`"+`doctl projects`+"`"+` allow you to create, manage, and assign resources to your projects.
 
@@ -7746,7 +7746,7 @@ Projects allow you to organize your DigitalOcean resources (like Droplets, Space
 				String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 				Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 				Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // doctl projects create
 				ox.Usage(`create`, `Create a new project`),
 				ox.Banner(`Creates a new project in your account.
 
@@ -7775,7 +7775,7 @@ The following example creates a project named `+"`"+`Example Project`+"`"+` with
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl projects delete
 				ox.Usage(`delete`, `Delete the specified project`),
 				ox.Banner(`Deletes a project. To be deleted, a project must not have any resources assigned to it.`),
 				ox.Spec(`<project-id> [<project-id> ...] [flags]`),
@@ -7797,7 +7797,7 @@ The following example deletes the project with the ID `+"`"+`f81d4fae-7dec-11d0-
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl projects get
 				ox.Usage(`get`, `Retrieve details for a specific project`),
 				ox.Banner(`Retrieves the following details for an existing project (use `+"`"+`default`+"`"+` as the <project-id> to retrieve details about your default project):
 
@@ -7830,7 +7830,7 @@ The following example retrieves details for a project with the ID `+"`"+`f81d4fa
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl projects list
 				ox.Usage(`list`, `List existing projects`),
 				ox.Banner(`List details for your DigitalOcean projects, including:
 
@@ -7863,7 +7863,7 @@ The following example retrieves a list of projects on your account and uses the 
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl projects resources
 				ox.Usage(`resources`, `Manage resources assigned to a project`),
 				ox.Banner(`The subcommands of `+"`"+`doctl projects resources`+"`"+` allow you to list and assign resources to your projects.`),
 				ox.Spec(`[command]`),
@@ -7881,7 +7881,7 @@ The following example retrieves a list of projects on your account and uses the 
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl projects resources assign
 					ox.Usage(`assign`, `Assign one or more resources to a project`),
 					ox.Banner(`Assign one or more resources to a project by specifying the resource's uniform resource name ("URN").
 
@@ -7907,7 +7907,7 @@ A valid URN has the format: `+"`"+`do:resource_type:resource_id`+"`"+`. For exam
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl projects resources get
 					ox.Usage(`get`, `Retrieve a resource by its URN`),
 					ox.Banner(`Retrieve information about a resource by specifying its uniform resource name ("URN"). Currently, only Droplets, floating IPs, load balancers, domains, volumes, and App Platform apps are supported.
 
@@ -7934,7 +7934,7 @@ A valid URN has the format: `+"`"+`do:resource_type:resource_id`+"`"+`. For exam
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl projects resources list
 					ox.Usage(`list`, `List resources assigned to a project`),
 					ox.Banner(`List all of the resources assigned to the specified project displaying their uniform resource names ("URNs").`),
 					ox.Spec(`<project-id> [flags]`),
@@ -7956,7 +7956,7 @@ A valid URN has the format: `+"`"+`do:resource_type:resource_id`+"`"+`. For exam
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl projects update
 				ox.Usage(`update`, `Update an existing project`),
 				ox.Banner(`Updates information about an existing project. Use `+"`"+`default`+"`"+` as the <project-id> to update your default project.`),
 				ox.Spec(`<project-id> [flags]`),
@@ -7985,7 +7985,7 @@ The following example updates the project with the ID `+"`"+`f81d4fae-7dec-11d0-
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // doctl registry
 			ox.Usage(`registry`, `Display commands for working with container registries`),
 			ox.Banner(`The subcommands of `+"`"+`doctl registry`+"`"+` create, manage, and allow access to your private container registry.`),
 			ox.Spec(`[command]`),
@@ -8005,7 +8005,7 @@ The following example updates the project with the ID `+"`"+`f81d4fae-7dec-11d0-
 				String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 				Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 				Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // doctl registry create
 				ox.Usage(`create`, `Create a private container registry`),
 				ox.Banner(`Creates a new private container registry with the provided name.`),
 				ox.Spec(`<registry-name> [flags]`),
@@ -8027,7 +8027,7 @@ The following example creates a registry named `+"`"+`example-registry`+"`"+` in
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl registry delete
 				ox.Usage(`delete`, `Delete a container registry`),
 				ox.Banner(`Permanently deletes a private container registry and all of its contents. This is irreversible.`),
 				ox.Spec(`[flags]`),
@@ -8049,7 +8049,7 @@ The following example deletes a registry named `+"`"+`example-registry`+"`"+`: d
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl registry docker-config
 				ox.Usage(`docker-config`, `Generate a Docker auth configuration for a registry`),
 				ox.Banner(`Outputs a JSON-formatted Docker configuration that you can use to configure a Docker client to authenticate with your private container registry. This configuration is useful for configuring third-party tools that need access to your registry. For configuring your local Docker client use `+"`"+`doctl registry login`+"`"+` instead, as it preserves the configuration of any other registries you have authenticated to.
 
@@ -8074,7 +8074,7 @@ The following example generates a Docker configuration for a registry named `+"`
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl registry garbage-collection
 				ox.Usage(`garbage-collection`, `Display commands for garbage collection for a container registry`),
 				ox.Banner(`The subcommands of `+"`"+`doctl registry garbage-collection`+"`"+` start a garbage collection, retrieve or cancel a currently-active garbage collection, or list past garbage collections for a specified registry.`),
 				ox.Spec(`[command]`),
@@ -8093,7 +8093,7 @@ The following example generates a Docker configuration for a registry named `+"`
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl registry garbage-collection cancel
 					ox.Usage(`cancel`, `Cancel the currently-active garbage collection for a container registry`),
 					ox.Banner(`Cancels the currently-active garbage collection for a container registry.`),
 					ox.Spec(`[flags]`),
@@ -8114,7 +8114,7 @@ The following example cancels the currently-active garbage collection for a regi
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl registry garbage-collection get-active
 					ox.Usage(`get-active`, `Retrieve information about the currently-active garbage collection for a container registry`),
 					ox.Banner(`Retrieves the currently-active garbage collection for a container registry, if any active garbage collection exists. Information included about the registry includes:
   - UUID
@@ -8144,7 +8144,7 @@ The following example retrieves the currently-active garbage collection for a re
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl registry garbage-collection list
 					ox.Usage(`list`, `Retrieve information about past garbage collections for a container registry`),
 					ox.Banner(`Retrieves a list of past garbage collections for a registry. Information about each garbage collection includes:
   - UUID
@@ -8174,7 +8174,7 @@ The following example retrieves a list of past garbage collections for a registr
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl registry garbage-collection start
 					ox.Usage(`start`, `Start garbage collection for a container registry`),
 					ox.Banner(`Starts a garbage collection on a container registry. You can only have one active garbage collection at a time for a given registry.`),
 					ox.Spec(`[flags]`),
@@ -8201,7 +8201,7 @@ The following example starts a garbage collection on a registry named `+"`"+`exa
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl registry get
 				ox.Usage(`get`, `Retrieve details about a container registry`),
 				ox.Banner(`Retrieves details about a private container registry, including its name and the endpoint used to access it.`),
 				ox.Spec(`[flags]`),
@@ -8224,7 +8224,7 @@ The following example retrieves details about a registry named `+"`"+`example-re
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl registry kubernetes-manifest
 				ox.Usage(`kubernetes-manifest`, `Generate a Kubernetes secret manifest for a registry.`),
 				ox.Banner(`Outputs a YAML-formatted Kubernetes secret manifest that can be used to grant a Kubernetes cluster pull access to your private container registry.
 
@@ -8253,7 +8253,7 @@ The following example generates a secret manifest for a registry named `+"`"+`ex
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl registry login
 				ox.Usage(`login`, `Log in Docker to a container registry`),
 				ox.Banner(`Logs Docker into Container Registry making pull and push commands to your private container registry authenticated.`),
 				ox.Spec(`[flags]`),
@@ -8276,7 +8276,7 @@ The following example logs Docker into a registry and provides Docker with read-
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl registry logout
 				ox.Usage(`logout`, `Log out Docker from a container registry`),
 				ox.Banner(`This command logs Docker out of the private container registry, revoking access to it.`),
 				ox.Spec(`[flags]`),
@@ -8295,7 +8295,7 @@ The following example logs Docker into a registry and provides Docker with read-
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl registry options
 				ox.Usage(`options`, `List available container registry options`),
 				ox.Banner(`This command lists options available when creating or updating a container registry.`),
 				ox.Spec(`[command]`),
@@ -8314,7 +8314,7 @@ The following example logs Docker into a registry and provides Docker with read-
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl registry options available-regions
 					ox.Usage(`available-regions`, `Lists available container registry regions`),
 					ox.Banner(`Lists available container registry regions`),
 					ox.Spec(`[flags]`),
@@ -8333,7 +8333,7 @@ The following example logs Docker into a registry and provides Docker with read-
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl registry options subscription-tiers
 					ox.Usage(`subscription-tiers`, `Lists available container registry subscription tiers`),
 					ox.Banner(`Lists available container registry subscription tiers`),
 					ox.Spec(`[flags]`),
@@ -8353,7 +8353,7 @@ The following example logs Docker into a registry and provides Docker with read-
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl registry repository
 				ox.Usage(`repository`, `Display commands for working with repositories in a container registry`),
 				ox.Banner(`The subcommands of `+"`"+`doctl registry repository`+"`"+` allow you to manage various properties of your repository.`),
 				ox.Spec(`[command]`),
@@ -8372,7 +8372,7 @@ The following example logs Docker into a registry and provides Docker with read-
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl registry repository delete-manifest
 					ox.Usage(`delete-manifest`, `Delete one or more container repository manifests by digest`),
 					ox.Banner(`Permanently deletes one or more repository manifests by digest.`),
 					ox.Spec(`<repository> <manifest-digest>... [flags]`),
@@ -8394,7 +8394,7 @@ The following example deletes a manifest with digest `+"`"+`sha256:1234567890abc
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl registry repository delete-tag
 					ox.Usage(`delete-tag`, `Delete one or more container repository tags`),
 					ox.Banner(`Permanently deletes one or more repository tags.`),
 					ox.Spec(`<repository> <tag>... [flags]`),
@@ -8416,7 +8416,7 @@ The following example deletes a tag named `+"`"+`web`+"`"+` from a repository na
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl registry repository list-manifests
 					ox.Usage(`list-manifests`, `List manifests for a repository in a container registry`),
 					ox.Banner(`Retrieves information about manifests in a repository, including:
   - The manifest digest
@@ -8445,7 +8445,7 @@ The following example lists manifests in a repository named `+"`"+`example-repos
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl registry repository list-tags
 					ox.Usage(`list-tags`, `List tags for a repository in a container registry`),
 					ox.Banner(`Retrieves information about tags in a repository, including:
   - The tag name
@@ -8472,7 +8472,7 @@ The following example lists tags in a repository named `+"`"+`example-repository
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl registry repository list-v2
 					ox.Usage(`list-v2`, `List repositories for a container registry`),
 					ox.Banner(`Retrieves information about repositories in a registry, including:
   - The repository name
@@ -8502,7 +8502,7 @@ The following example lists repositories in a registry named `+"`"+`example-regi
 				),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // doctl serverless
 			ox.Usage(`serverless`, `Develop, test, and deploy serverless functions`),
 			ox.Banner(`The `+"`"+`doctl serverless`+"`"+` commands provide an environment for developing, testing, and deploying serverless functions.
 One or more local file system areas are employed, along with one or more 'functions namespaces' in the cloud.
@@ -8526,7 +8526,7 @@ Other `+"`"+`doctl serverless`+"`"+` commands are used to develop, test, and dep
 				String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 				Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 				Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // doctl serverless activations
 				ox.Usage(`activations`, `Retrieve activation records`),
 				ox.Banner(`The subcommands of `+"`"+`doctl serverless activations`+"`"+` retrieve results, logs, or complete
 activation records of functions deployed to your functions namespace.`),
@@ -8546,7 +8546,7 @@ activation records of functions deployed to your functions namespace.`),
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl serverless activations get
 					ox.Usage(`get`, `Retrieve information about an activation.`),
 					ox.Banner(`Retrieve the activation record for a previously invoked function. You can limit output to the result
 or the logs.  The `+"`"+`doctl serverless activation logs`+"`"+` command has additional advanced capabilities for retrieving
@@ -8574,7 +8574,7 @@ The following example retrieves the results for the most recent activation of a 
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl serverless activations list
 					ox.Usage(`list`, `Lists activations for which records exist.`),
 					ox.Banner(`Use `+"`"+`doctl serverless activations list`+"`"+` to list the activation records that are present in the cloud for previously
 invoked functions.`),
@@ -8604,7 +8604,7 @@ The following example lists all of the activations for a function named `+"`"+`y
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl serverless activations logs
 					ox.Usage(`logs`, `Retrieve the logs for an activation.`),
 					ox.Banner(`Use `+"`"+`doctl serverless activations logs`+"`"+` to retrieve the logs portion of one or more activation records
 with various options, such as selecting by package or function, and optionally watching continuously
@@ -8631,7 +8631,7 @@ The following example retrieves the logs for the most recent activation of a fun
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl serverless activations result
 					ox.Usage(`result`, `Retrieve the output for an activation.`),
 					ox.Banner(`Retrieve just the results portion
 of one or more activation records.`),
@@ -8658,7 +8658,7 @@ The following example retrieves the results for the most recent activation of a 
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl serverless connect
 				ox.Usage(`connect`, `Connects local serverless support to a functions namespace`),
 				ox.Banner(`This command connects `+"`"+`doctl serverless`+"`"+` support to a functions namespace of your choice.
 The optional argument should be a (complete or partial) match to a namespace label or id.
@@ -8681,7 +8681,7 @@ list your namespaces.`),
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl serverless deploy
 				ox.Usage(`deploy`, `Deploy a functions project to your functions namespace`),
 				ox.Banner(`At any time you can use `+"`"+`doctl serverless deploy`+"`"+` to upload the contents of a functions project in your file system for
 testing in your serverless namespace.  The project must be organized in the fashion expected by an App Platform Functions
@@ -8713,7 +8713,7 @@ component.  The `+"`"+`doctl serverless init`+"`"+` command will create a proper
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl serverless functions
 				ox.Usage(`functions`, `Work with the functions in your namespace`),
 				ox.Banner(`The subcommands of `+"`"+`doctl serverless functions`+"`"+` manage your functions namespace, such as listing, reviewing, and invoking your functions.`),
 				ox.Spec(`[command]`),
@@ -8732,7 +8732,7 @@ component.  The `+"`"+`doctl serverless init`+"`"+` command will create a proper
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl serverless functions get
 					ox.Usage(`get`, `Retrieve the metadata or code of a deployed function`),
 					ox.Banner(`Retrieves the code or metadata of a deployed function.`),
 					ox.Spec(`<functionName> [flags]`),
@@ -8758,7 +8758,7 @@ The following example retrieves the code for a function named "example/helloWorl
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl serverless functions invoke
 					ox.Usage(`invoke`, `Invokes a function`),
 					ox.Banner(`Invokes a function in your functions namespace.
 You can provide inputs and inspect outputs.`),
@@ -8784,7 +8784,7 @@ The following example invokes a function named "example/helloWorld" with the par
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl serverless functions list
 					ox.Usage(`list`, `Lists the functions in your functions namespace`),
 					ox.Banner(`Lists the functions in your functions namespace.`),
 					ox.Spec(`[<packageName>] [flags]`),
@@ -8813,7 +8813,7 @@ The following example lists the three most recently updated functions in the `+"
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl serverless get-metadata
 				ox.Usage(`get-metadata`, `Obtain metadata of a functions project`),
 				ox.Banner(`The `+"`"+`doctl serverless get-metadata`+"`"+` command produces a JSON structure that summarizes the contents of a functions
 project (a directory you have designated for functions development).  This can be useful for feeding into other tools.`),
@@ -8835,7 +8835,7 @@ project (a directory you have designated for functions development).  This can b
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl serverless init
 				ox.Usage(`init`, `Initialize a 'functions project' directory in your local file system`),
 				ox.Banner(`The `+"`"+`doctl serverless init`+"`"+` command specifies a directory in your file system which will hold functions and
 supporting artifacts while you're developing them.  This 'functions project' can be uploaded to your functions namespace for testing.
@@ -8860,7 +8860,7 @@ to choose your sample language for `+"`"+`doctl serverless init`+"`"+`.`),
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl serverless install
 				ox.Usage(`install`, `Installs the serverless support`),
 				ox.Banner(`This command installs additional software under `+"`"+`doctl`+"`"+` needed to make the other serverless commands work.
 The install operation is long-running, and a network connection is required.`),
@@ -8879,7 +8879,7 @@ The install operation is long-running, and a network connection is required.`),
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl serverless namespaces
 				ox.Usage(`namespaces`, `Manage your functions namespaces`),
 				ox.Banner(`Functions namespaces (in the cloud) contain the result of deploying packages and functions with `+"`"+`doctl serverless deploy`+"`"+`.
 The subcommands of `+"`"+`doctl serverless namespaces`+"`"+` are used to manage multiple functions namespaces within your account.
@@ -8900,7 +8900,7 @@ Use `+"`"+`doctl serverless connect`+"`"+` with an explicit argument to connect 
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl serverless namespaces create
 					ox.Usage(`create`, `Creates a namespace`),
 					ox.Banner(``+"`"+`Use `+"`"+`doctl serverless namespaces create`+"`"+` to create a new functions namespace.
 Both a region and a label must be specified.`),
@@ -8922,7 +8922,7 @@ Both a region and a label must be specified.`),
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl serverless namespaces delete
 					ox.Usage(`delete`, `Deletes a namespace`),
 					ox.Banner(`Use `+"`"+`doctl serverless namespaces delete`+"`"+` to delete a functions namespace.
 The full label or full id of the namespace is required as an argument.
@@ -8944,7 +8944,7 @@ You are prompted for confirmation unless `+"`"+`--force`+"`"+` is specified.`),
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl serverless namespaces list
 					ox.Usage(`list`, `Lists your namespaces`),
 					ox.Banner(`Use `+"`"+`doctl serverless namespaces list`+"`"+` to list your functions namespaces.`),
 					ox.Spec(`[flags]`),
@@ -8965,7 +8965,7 @@ You are prompted for confirmation unless `+"`"+`--force`+"`"+` is specified.`),
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl serverless namespaces list-regions
 					ox.Usage(`list-regions`, `Lists the accepted 'region' values`),
 					ox.Banner(`Use `+"`"+`doctl serverless namespaces list-regions`+"`"+` to list the values that are accepted
 in the `+"`"+`--region`+"`"+` flag of `+"`"+`doctl serverless namespaces create`+"`"+`.`),
@@ -8985,7 +8985,7 @@ in the `+"`"+`--region`+"`"+` flag of `+"`"+`doctl serverless namespaces create`
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl serverless status
 				ox.Usage(`status`, `Provide information about serverless support`),
 				ox.Banner(`This command reports the status of serverless support and some details concerning its connected functions namespace.
 With the `+"`"+`--languages flag, it will report the supported languages.
@@ -9006,7 +9006,7 @@ With the `+"`"+`--version flag, it will show just version information about the 
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl serverless undeploy
 				ox.Usage(`undeploy`, `Removes resources from your functions namespace`),
 				ox.Banner(`This command removes functions, entire packages, or all functions and packages, from your function
 namespace.  In general, deploying new content does not remove old content although it may overwrite it.
@@ -9031,7 +9031,7 @@ the entire packages are removed.`),
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl serverless uninstall
 				ox.Usage(`uninstall`, `Removes the serverless support`),
 				ox.Banner(`Removes serverless support from `+"`"+`doctl`+"`"+``),
 				ox.Spec(`[flags]`),
@@ -9049,7 +9049,7 @@ the entire packages are removed.`),
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl serverless upgrade
 				ox.Usage(`upgrade`, `Upgrades serverless support to match this version of doctl`),
 				ox.Banner(`This command upgrades the serverless support software under `+"`"+`doctl`+"`"+` by installing over the existing version.
 The install operation is long-running, and a network connection is required.`),
@@ -9068,7 +9068,7 @@ The install operation is long-running, and a network connection is required.`),
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl serverless watch
 				ox.Usage(`watch`, `Watch a functions project directory, deploying incrementally on change`),
 				ox.Banner(`Type `+"`"+`doctl serverless watch <directory>`+"`"+` in a separate terminal window.  It will run until interrupted.
 It will watch the directory (which should be one you initialized for serverless development) and will deploy
@@ -9100,7 +9100,7 @@ the contents to the cloud incrementally as it detects changes.`),
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // doctl vpcs
 			ox.Usage(`vpcs`, `Display commands that manage VPCs`),
 			ox.Banner(`The commands under `+"`"+`doctl vpcs`+"`"+` are for managing your VPC networks.
 
@@ -9121,7 +9121,7 @@ With the VPC commands, you can list, create, or delete VPCs, and manage their co
 				String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 				Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 				Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // doctl vpcs create
 				ox.Usage(`create`, `Create a new VPC network`),
 				ox.Banner(`Use this command to create a new VPC network on your account.`),
 				ox.Spec(`[flags]`),
@@ -9146,7 +9146,7 @@ The following example creates a VPC network named `+"`"+`example-vpc`+"`"+` in t
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl vpcs delete
 				ox.Usage(`delete`, `Permanently delete a VPC network`),
 				ox.Banner(`Permanently deletes the specified VPC. This is irreversible.
 		
@@ -9170,7 +9170,7 @@ The following example deletes the VPC network with the ID `+"`"+`f81d4fae-7dec-1
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl vpcs get
 				ox.Usage(`get`, `Retrieve a VPC network`),
 				ox.Banner(`Retrieve information about a VPC network, including:
 
@@ -9202,7 +9202,7 @@ The following example retrieves information about a VPC network with the ID `+"`
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl vpcs list
 				ox.Usage(`list`, `List VPC networks`),
 				ox.Banner(`Retrieves a list of the VPCs on your account, including the following information for each:
 
@@ -9234,7 +9234,7 @@ The following example lists the VPCs on your account and uses the --format flag 
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl vpcs peerings
 				ox.Usage(`peerings`, `Display commands that manage VPC Peerings`),
 				ox.Banner(`The commands under `+"`"+`doctl vpcs peerings`+"`"+` are for managing your VPC Peerings.
 With the VPC Peerings commands, you can get, list, create, update, or delete VPC Peerings, and manage their configuration details.`),
@@ -9253,7 +9253,7 @@ With the VPC Peerings commands, you can get, list, create, update, or delete VPC
 					String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-				ox.Sub(
+				ox.Sub( // doctl vpcs peerings create
 					ox.Usage(`create`, `Create a new VPC Peering`),
 					ox.Banner(`Use this command to create a new VPC Peering on your account.`),
 					ox.Spec(`[flags]`),
@@ -9276,7 +9276,7 @@ The following example creates a VPC Peering named `+"`"+`example-peering-name`+"
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl vpcs peerings delete
 					ox.Usage(`delete`, `Permanently delete a VPC Peering`),
 					ox.Banner(`Permanently deletes the specified VPC Peering. This is irreversible.`),
 					ox.Spec(`<peering-id> [flags]`),
@@ -9299,7 +9299,7 @@ The following example deletes the VPC Peering with the ID `+"`"+`f81d4fae-7dec-1
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl vpcs peerings get
 					ox.Usage(`get`, `Retrieves a VPC Peering`),
 					ox.Banner(`Retrieves information about a VPC Peering, including:
 - The VPC Peering ID
@@ -9327,7 +9327,7 @@ The following example retrieves information about a VPC Peering with the ID `+"`
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl vpcs peerings list
 					ox.Usage(`list`, `List VPC Peerings`),
 					ox.Banner(`Retrieves a list of the VPC Peerings on your account, including the following information for each:
 - The VPC Peering ID
@@ -9356,7 +9356,7 @@ The following example lists the VPC Peerings on your account : doctl vpcs peerin
 						Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
-				ox.Sub(
+				ox.Sub( // doctl vpcs peerings update
 					ox.Usage(`update`, `Update a VPC Peering's name`),
 					ox.Banner(`Use this command to update the name of a VPC Peering`),
 					ox.Spec(`<peering-id> [flags]`),
@@ -9379,7 +9379,7 @@ The following example updates the name of a VPC Peering with the ID `+"`"+`f81d4
 						Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 				),
 			),
-			ox.Sub(
+			ox.Sub( // doctl vpcs update
 				ox.Usage(`update`, `Update a VPC network's configuration`),
 				ox.Banner(`Updates a VPC network's configuration. You can update its name, description, and default state.`),
 				ox.Spec(`<vpc-id> [flags]`),
@@ -9404,7 +9404,7 @@ The following example updates the name of a VPC network with the ID `+"`"+`f81d4
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // doctl auth
 			ox.Usage(`auth`, `Display commands for authenticating doctl with an account`),
 			ox.Banner(`The `+"`"+`doctl auth`+"`"+` commands allow you to authenticate doctl for use with your DigitalOcean account using tokens that you generate in the control panel at https://cloud.digitalocean.com/account/api/tokens.
 
@@ -9429,7 +9429,7 @@ To remove accounts from the configuration file, run `+"`"+`doctl auth remove --c
 				String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 				Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 				Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // doctl auth init
 				ox.Usage(`init`, `Initialize doctl to use a specific account`),
 				ox.Banner(`This command allows you to initialize doctl with a token that allows it to query and manage your account details and resources.
 
@@ -9458,7 +9458,7 @@ The following example initializes doctl with a token for a single account with t
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl auth list
 				ox.Usage(`list`, `List available authentication contexts`),
 				ox.Banner(`List named authentication contexts that you created with `+"`"+`doctl auth init`+"`"+`.
 
@@ -9484,7 +9484,7 @@ The following example lists the available contexts with the `+"`"+`--format`+"`"
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl auth remove
 				ox.Usage(`remove`, `Remove authentication contexts`),
 				ox.Banner(`This command allows you to remove authentication contexts you've already created.
 
@@ -9508,7 +9508,7 @@ The following example removes the context `+"`"+`your-team`+"`"+`: doctl auth re
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl auth switch
 				ox.Usage(`switch`, `Switch between authentication contexts`),
 				ox.Banner(`This command allows you to switch between authentication contexts you've already created.
 
@@ -9533,7 +9533,7 @@ The following example switches to the context `+"`"+`your-team`+"`"+`: doctl aut
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // doctl balance
 			ox.Usage(`balance`, `Display commands for retrieving your account balance`),
 			ox.Banner(`The subcommands of `+"`"+`doctl balance`+"`"+` retrieve information about your account balance.`),
 			ox.Spec(`[command]`),
@@ -9552,7 +9552,7 @@ The following example switches to the context `+"`"+`your-team`+"`"+`: doctl aut
 				String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 				Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 				Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // doctl balance get
 				ox.Usage(`get`, `Retrieve your account balance`),
 				ox.Banner(`This command retrieves the following details about your account balance:
 
@@ -9582,7 +9582,7 @@ The following example uses the `+"`"+`--format`+"`"+` flag to display only your 
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // doctl billing-history
 			ox.Usage(`billing-history`, `Display commands for retrieving your billing history`),
 			ox.Banner(`The subcommands of `+"`"+`doctl billing-history`+"`"+` are used to access the billing history for your DigitalOcean account.`),
 			ox.Spec(`[command]`),
@@ -9602,7 +9602,7 @@ The following example uses the `+"`"+`--format`+"`"+` flag to display only your 
 				String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 				Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 				Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // doctl billing-history list
 				ox.Usage(`list`, `Retrieve a paginated billing history for a user`),
 				ox.Banner(`This command retrieves the following details for each event in your billing history:
 - The date of the event
@@ -9632,7 +9632,7 @@ The following example uses the `+"`"+`--format`+"`"+` flag to display only the d
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // doctl invoice
 			ox.Usage(`invoice`, `Display commands for retrieving invoices for your account`),
 			ox.Banner(`The subcommands of `+"`"+`doctl invoice`+"`"+` retrieve details about invoices for your account.`),
 			ox.Spec(`[command]`),
@@ -9651,7 +9651,7 @@ The following example uses the `+"`"+`--format`+"`"+` flag to display only the d
 				String(`output`, `Desired output format [text|json]`, ox.Default("text"), ox.Short("o"), ox.Section(0)).
 				Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 				Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // doctl invoice csv
 				ox.Usage(`csv`, `Downloads a CSV file of a specific invoice to you local machine`),
 				ox.Banner(`Downloads a CSV-formatted file of a specific invoice to your local machine.
 
@@ -9674,7 +9674,7 @@ The following example downloads a CSV summary of an invoice with the ID `+"`"+`f
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl invoice get
 				ox.Usage(`get`, `Retrieve a list of all the items on an invoice`),
 				ox.Banner(`Retrieves an itemized list of resources and their costs on the specified invoice, including each resource's:
 - ID
@@ -9711,7 +9711,7 @@ The following example retrieves details about an invoice with the ID `+"`"+`f81d
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl invoice list
 				ox.Usage(`list`, `List all of the invoices for your account`),
 				ox.Banner(`Lists all of the invoices on your account including the UUID, amount in USD, and time period for each.`),
 				ox.Spec(`[flags]`),
@@ -9734,7 +9734,7 @@ The following example lists all of the invoices on your account and uses the `+"
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl invoice pdf
 				ox.Usage(`pdf`, `Downloads a PDF file of a specific invoice to your local machine`),
 				ox.Banner(`This command downloads a PDF summary of a specific invoice to the provided location.
 
@@ -9757,7 +9757,7 @@ The following example downloads a PDF summary of an invoice with the ID `+"`"+`f
 					Bool(`trace`, `Show a log of network activity while performing a command`, ox.Section(0)).
 					Bool(`verbose`, `Enable verbose output`, ox.Short("v"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // doctl invoice summary
 				ox.Usage(`summary`, `Get a summary of an invoice`),
 				ox.Banner(`Retrieves a summary of an invoice, including the following details:
 

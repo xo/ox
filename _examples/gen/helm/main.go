@@ -84,7 +84,7 @@ By default, the default directories depend on the Operating System. The defaults
 			String(`registry-config`, `path to the registry config file`, ox.Default("$APPCONFIG/registry/config.json")).
 			String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository")).
 			String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml")),
-		ox.Sub(
+		ox.Sub( // helm create
 			ox.Usage(`create`, `create a new chart with the given name`),
 			ox.Banner(`
 This command creates a chart directory along with the common files and
@@ -128,7 +128,7 @@ will be overwritten, but other files will be left alone.`),
 				String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 				String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // helm dependency
 			ox.Usage(`dependency`, `manage a chart's dependencies`),
 			ox.Banner(`
 Manage the dependencies of a chart.
@@ -199,7 +199,7 @@ for this case.`),
 				String(`registry-config`, `path to the registry config file`, ox.Default("$APPCONFIG/registry/config.json"), ox.Section(0)).
 				String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 				String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // helm dependency build
 				ox.Usage(`build`, `rebuild the charts/ directory based on the Chart.lock file`),
 				ox.Banner(`
 Build out the charts/ directory from the Chart.lock file.
@@ -242,7 +242,7 @@ of 'helm dependency update'.`),
 					String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // helm dependency list
 				ox.Usage(`list`, `list the dependencies for the given chart`),
 				ox.Banner(`
 List all of the dependencies declared in a chart.
@@ -275,7 +275,7 @@ This will produce an error if the chart cannot be loaded.`),
 					String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // helm dependency update
 				ox.Usage(`update`, `update charts/ based on the contents of Chart.yaml`),
 				ox.Banner(`
 Update the on-disk dependencies to mirror Chart.yaml.
@@ -324,7 +324,7 @@ in the Chart.yaml file, but (b) at the wrong version.`),
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // helm env
 			ox.Usage(`env`, `helm client environment information`),
 			ox.Banner(`
 Env prints out all the environment information in use by Helm.`),
@@ -350,7 +350,7 @@ Env prints out all the environment information in use by Helm.`),
 				String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 				String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // helm get
 			ox.Usage(`get`, `download extended information of a named release`),
 			ox.Banner(`
 This command consists of multiple subcommands which can be used to
@@ -383,7 +383,7 @@ get extended information about the release, including:
 				String(`registry-config`, `path to the registry config file`, ox.Default("$APPCONFIG/registry/config.json"), ox.Section(0)).
 				String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 				String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // helm get all
 				ox.Usage(`all`, `download all information for a named release`),
 				ox.Banner(`
 This command prints a human readable collection of information about the
@@ -412,7 +412,7 @@ notes, hooks, supplied values, and generated manifest file of the given release.
 					String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // helm get hooks
 				ox.Usage(`hooks`, `download all hooks for a named release`),
 				ox.Banner(`
 This command downloads hooks for a given release.
@@ -441,7 +441,7 @@ Hooks are formatted in YAML and separated by the YAML '---\n' separator.`),
 					String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // helm get manifest
 				ox.Usage(`manifest`, `download the manifest for a named release`),
 				ox.Banner(`
 This command fetches the generated manifest for a given release.
@@ -472,7 +472,7 @@ charts, those resources will also be included in the manifest.`),
 					String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // helm get metadata
 				ox.Usage(`metadata`, `This command fetches metadata for a given release`),
 				ox.Banner(`This command fetches metadata for a given release`),
 				ox.Spec(`RELEASE_NAME [flags]`),
@@ -499,7 +499,7 @@ charts, those resources will also be included in the manifest.`),
 					String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // helm get notes
 				ox.Usage(`notes`, `download the notes for a named release`),
 				ox.Banner(`
 This command shows notes provided by the chart of a named release.`),
@@ -526,7 +526,7 @@ This command shows notes provided by the chart of a named release.`),
 					String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // helm get values
 				ox.Usage(`values`, `download the values file for a named release`),
 				ox.Banner(`
 This command downloads a values file for a given release.`),
@@ -556,7 +556,7 @@ This command downloads a values file for a given release.`),
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // helm history
 			ox.Usage(`history`, `fetch release history`),
 			ox.Banner(`
 History prints historical revisions for a given release.
@@ -597,7 +597,7 @@ The historical release set is printed as a formatted table, e.g:
 				String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 				String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // helm install
 			ox.Usage(`install`, `install a chart`),
 			ox.Banner(`
 This command installs a chart archive.
@@ -746,7 +746,7 @@ charts in a repository, use 'helm search'.`),
 				String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 				String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // helm lint
 			ox.Usage(`lint`, `examine a chart for possible issues`),
 			ox.Banner(`
 This command takes a path to a chart and runs a series of tests to verify that
@@ -788,7 +788,7 @@ or recommendation, it will emit [WARNING] messages.`),
 				String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 				String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // helm list
 			ox.Usage(`list`, `list releases`),
 			ox.Banner(`
 This command lists all of the releases for a specified namespace (uses current namespace context if namespace not specified).
@@ -856,7 +856,7 @@ flag with the '--offset' flag allows you to page through results.`),
 				String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 				String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // helm package
 			ox.Usage(`package`, `package a chart directory into a chart archive`),
 			ox.Banner(`
 This command packages a chart into a versioned chart archive file. If a path
@@ -908,7 +908,7 @@ unless your environment is otherwise configured.`),
 				String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 				String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // helm plugin
 			ox.Usage(`plugin`, `install, list, or uninstall Helm plugins`),
 			ox.Banner(`
 Manage client-side Helm plugins.`),
@@ -934,7 +934,7 @@ Manage client-side Helm plugins.`),
 				String(`registry-config`, `path to the registry config file`, ox.Default("$APPCONFIG/registry/config.json"), ox.Section(0)).
 				String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 				String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // helm plugin install
 				ox.Usage(`install`, `install a Helm plugin`),
 				ox.Banner(`
 This command allows you to install a plugin from a url to a VCS repo or a local path.`),
@@ -961,7 +961,7 @@ This command allows you to install a plugin from a url to a VCS repo or a local 
 					String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // helm plugin list
 				ox.Usage(`list`, `list installed Helm plugins`),
 				ox.Banner(`list installed Helm plugins`),
 				ox.Spec(`[flags]`),
@@ -987,7 +987,7 @@ This command allows you to install a plugin from a url to a VCS repo or a local 
 					String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // helm plugin uninstall
 				ox.Usage(`uninstall`, `uninstall one or more Helm plugins`),
 				ox.Banner(`uninstall one or more Helm plugins`),
 				ox.Spec(`<plugin>... [flags]`),
@@ -1013,7 +1013,7 @@ This command allows you to install a plugin from a url to a VCS repo or a local 
 					String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // helm plugin update
 				ox.Usage(`update`, `update one or more Helm plugins`),
 				ox.Banner(`update one or more Helm plugins`),
 				ox.Spec(`<plugin>... [flags]`),
@@ -1040,7 +1040,7 @@ This command allows you to install a plugin from a url to a VCS repo or a local 
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // helm pull
 			ox.Usage(`pull`, `download a chart from a repository and (optionally) unpack it in local directory`),
 			ox.Banner(`
 Retrieve a package from a package repository, and download it locally.
@@ -1094,7 +1094,7 @@ result in an error, and the chart will not be saved locally.`),
 				String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 				String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // helm push
 			ox.Usage(`push`, `push a chart to remote`),
 			ox.Banner(`
 Upload a chart to a registry.
@@ -1130,7 +1130,7 @@ it will also be uploaded.`),
 				String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 				String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // helm registry
 			ox.Usage(`registry`, `login to or logout from a registry`),
 			ox.Banner(`
 This command consists of multiple subcommands to interact with registries.`),
@@ -1156,7 +1156,7 @@ This command consists of multiple subcommands to interact with registries.`),
 				String(`registry-config`, `path to the registry config file`, ox.Default("$APPCONFIG/registry/config.json"), ox.Section(0)).
 				String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 				String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // helm registry login
 				ox.Usage(`login`, `login to a registry`),
 				ox.Banner(`
 Authenticate to a remote registry.`),
@@ -1189,7 +1189,7 @@ Authenticate to a remote registry.`),
 					String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // helm registry logout
 				ox.Usage(`logout`, `logout from a registry`),
 				ox.Banner(`
 Remove credentials stored for a remote registry.`),
@@ -1216,7 +1216,7 @@ Remove credentials stored for a remote registry.`),
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // helm repo
 			ox.Usage(`repo`, `add, list, remove, update, and index chart repositories`),
 			ox.Banner(`
 This command consists of multiple subcommands to interact with chart repositories.
@@ -1244,7 +1244,7 @@ It can be used to add, remove, list, and index chart repositories.`),
 				String(`registry-config`, `path to the registry config file`, ox.Default("$APPCONFIG/registry/config.json"), ox.Section(0)).
 				String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 				String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // helm repo add
 				ox.Usage(`add`, `add a chart repository`),
 				ox.Banner(`add a chart repository`),
 				ox.Spec(`[NAME] [URL] [flags]`),
@@ -1280,7 +1280,7 @@ It can be used to add, remove, list, and index chart repositories.`),
 					String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // helm repo index
 				ox.Usage(`index`, `generate an index file given a directory containing packaged charts`),
 				ox.Banner(`
 Read the current directory, generate an index file based on the charts found
@@ -1318,7 +1318,7 @@ existing charts.`),
 					String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // helm repo list
 				ox.Usage(`list`, `list chart repositories`),
 				ox.Banner(`list chart repositories`),
 				ox.Spec(`[flags]`),
@@ -1345,7 +1345,7 @@ existing charts.`),
 					String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // helm repo remove
 				ox.Usage(`remove`, `remove one or more chart repositories`),
 				ox.Banner(`remove one or more chart repositories`),
 				ox.Spec(`[REPO1 [REPO2 ...]] [flags]`),
@@ -1371,7 +1371,7 @@ existing charts.`),
 					String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // helm repo update
 				ox.Usage(`update`, `update information of available charts locally from chart repositories`),
 				ox.Banner(`
 Update gets the latest information about charts from the respective chart repositories.
@@ -1405,7 +1405,7 @@ To update all the repositories, use 'helm repo update'.`),
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // helm rollback
 			ox.Usage(`rollback`, `roll back a release to a previous revision`),
 			ox.Banner(`
 This command rolls back a release to a previous revision.
@@ -1446,7 +1446,7 @@ To see revision numbers, run 'helm history RELEASE'.`),
 				String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 				String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // helm search
 			ox.Usage(`search`, `search for a keyword in charts`),
 			ox.Banner(`
 Search provides the ability to search for Helm charts in the various places
@@ -1474,7 +1474,7 @@ Use search subcommands to search different locations for charts.`),
 				String(`registry-config`, `path to the registry config file`, ox.Default("$APPCONFIG/registry/config.json"), ox.Section(0)).
 				String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 				String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // helm search hub
 				ox.Usage(`hub`, `search for charts in the Artifact Hub or your own hub instance`),
 				ox.Banner(`
 Search for Helm charts in the Artifact Hub or your own hub instance.
@@ -1521,7 +1521,7 @@ are not supported. For API details, see https://github.com/helm/monocular`),
 					String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // helm search repo
 				ox.Usage(`repo`, `search repositories for a keyword in charts`),
 				ox.Banner(`
 Search reads through all of the repositories configured on the system, and
@@ -1573,7 +1573,7 @@ Repositories are managed with 'helm repo' commands.`),
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // helm show
 			ox.Usage(`show`, `show information of a chart`),
 			ox.Banner(`
 This command consists of multiple subcommands to display information about a chart`),
@@ -1600,7 +1600,7 @@ This command consists of multiple subcommands to display information about a cha
 				String(`registry-config`, `path to the registry config file`, ox.Default("$APPCONFIG/registry/config.json"), ox.Section(0)).
 				String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 				String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
-			ox.Sub(
+			ox.Sub( // helm show all
 				ox.Usage(`all`, `show all information of the chart`),
 				ox.Banner(`
 This command inspects a chart (directory, file, or URL) and displays all its content
@@ -1639,7 +1639,7 @@ This command inspects a chart (directory, file, or URL) and displays all its con
 					String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // helm show chart
 				ox.Usage(`chart`, `show the chart's definition`),
 				ox.Banner(`
 This command inspects a chart (directory, file, or URL) and displays the contents
@@ -1678,7 +1678,7 @@ of the Chart.yaml file`),
 					String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // helm show crds
 				ox.Usage(`crds`, `show the chart's CRDs`),
 				ox.Banner(`
 This command inspects a chart (directory, file, or URL) and displays the contents
@@ -1717,7 +1717,7 @@ of the CustomResourceDefinition files`),
 					String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // helm show readme
 				ox.Usage(`readme`, `show the chart's README`),
 				ox.Banner(`
 This command inspects a chart (directory, file, or URL) and displays the contents
@@ -1756,7 +1756,7 @@ of the README file`),
 					String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
-			ox.Sub(
+			ox.Sub( // helm show values
 				ox.Usage(`values`, `show the chart's values`),
 				ox.Banner(`
 This command inspects a chart (directory, file, or URL) and displays the contents
@@ -1797,7 +1797,7 @@ of the values.yaml file`),
 					String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 			),
 		),
-		ox.Sub(
+		ox.Sub( // helm status
 			ox.Usage(`status`, `display the status of the named release`),
 			ox.Banner(`
 This command shows the status of a named release.
@@ -1834,7 +1834,7 @@ The status consists of:
 				String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 				String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // helm template
 			ox.Usage(`template`, `locally render templates`),
 			ox.Banner(`
 Render chart templates locally and display the output.
@@ -1913,7 +1913,7 @@ faked locally. Additionally, none of the server-side testing of chart validity
 				String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 				String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // helm test
 			ox.Usage(`test`, `run tests for a release`),
 			ox.Banner(`
 The test command runs the tests for a release.
@@ -1946,7 +1946,7 @@ The tests to be run are defined in the chart that was installed.`),
 				String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 				String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // helm uninstall
 			ox.Usage(`uninstall`, `uninstall a release`),
 			ox.Banner(`
 This command takes a release name and uninstalls the release.
@@ -1987,7 +1987,7 @@ uninstalling them.`),
 				String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 				String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // helm upgrade
 			ox.Usage(`upgrade`, `upgrade a release`),
 			ox.Banner(`
 This command upgrades a release to a new version of a chart.
@@ -2093,7 +2093,7 @@ which can contain sensitive values. To hide Kubernetes Secrets use the
 				String(`repository-cache`, `path to the directory containing cached repository indexes`, ox.Default("$APPCACHE/repository"), ox.Section(0)).
 				String(`repository-config`, `path to the file containing repository names and URLs`, ox.Default("$APPCONFIG/repositories.yaml"), ox.Section(0)),
 		),
-		ox.Sub(
+		ox.Sub( // helm verify
 			ox.Usage(`verify`, `verify that a chart at the given path has been signed and is valid`),
 			ox.Banner(`
 Verify that the given chart has a valid provenance file.
