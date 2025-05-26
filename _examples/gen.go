@@ -181,7 +181,7 @@ func (args *Args) writeCommand(w io.Writer, cmd *command, indent int) error {
 		fmt.Fprintf(w, ",\n")
 	}
 	for _, c := range cmd.commands {
-		fmt.Fprintf(w, "%sox.Sub( // %s\n", padding, strings.Join(c.path(), " "))
+		fmt.Fprintf(w, "%sox.Sub( // %s\n", padding, strings.Join(c.names(), " "))
 		if err := args.writeCommand(w, c, indent+1); err != nil {
 			return err
 		}
@@ -238,15 +238,6 @@ type command struct {
 	sections        []string
 	commands        []*command
 	flags           []flag
-}
-
-func (cmd *command) path() []string {
-	v := []string{cmd.name}
-	for c := cmd.parent; c != nil; c = c.parent {
-		v = append(v, c.name)
-	}
-	slices.Reverse(v)
-	return v
 }
 
 func (cmd *command) parse(ctx context.Context) error {
