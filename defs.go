@@ -683,7 +683,7 @@ func NewStringWriter(w io.Writer) StringWriter {
 	return &stringWriter{w: w}
 }
 
-// fileWriter wraps writing to a file.
+// fileWriter wraps writing to a [os.File].
 type fileWriter struct {
 	w *os.File
 	b bool
@@ -703,11 +703,13 @@ func (w *fileWriter) Len() int {
 	return 0
 }
 
+// stringWriter waps a [io.Writer] with WriteString.
 type stringWriter struct {
 	w io.Writer
 	b bool
 }
 
+// WriteString satisfies the [StringWriter] interface.
 func (w *stringWriter) WriteString(s string) (int, error) {
 	w.b = w.b || s != ""
 	return w.w.Write([]byte(s))
