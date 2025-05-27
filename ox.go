@@ -40,7 +40,7 @@ var (
 	DefaultWrapWidth = 95
 	// DefaultWrap wraps sections of text (separated by "\n\n") using [Wrap].
 	DefaultWrap = func(s string, wrapWidth, prefixWidth int) string {
-		sb := new(strings.Builder)
+		var sb strings.Builder
 		for i, line := range strings.Split(s, "\n\n") {
 			if i != 0 {
 				_, _ = sb.WriteString("\n\n")
@@ -223,8 +223,20 @@ var (
 	DefaultSizePrec = -2
 	// DefaultRatePrec is the default [Rate] display precision.
 	DefaultRatePrec = -2
-	// DefaultRateUnit is the default [Rate] unit.
+	// DefaultRateUnit is the default [Rate] unit used to display the rate, if
+	// none is specified or when precision is negative.
 	DefaultRateUnit = time.Second
+	// DefaultMaxPathLinks are the max symlinks to follow in [Path].
+	DefaultMaxPathLinks = 16
+	// DefaultGetwd is the func used to read the working directory by [Path].
+	// Normally [os.Getwd].
+	DefaultGetwd = os.Getwd
+	// DefaultLstat is the func used to lstat a path by [Path]. Normally
+	// [os.Lstat].
+	DefaultLstat = os.Lstat
+	// DefaultReadlink is the func used to read a link by [Path]. Normally
+	// [os.Readlink].
+	DefaultReadlink = os.Readlink
 )
 
 // Run creates and builds the execution [Context] based on the passed
@@ -274,7 +286,7 @@ func RunContext(ctx context.Context, opts ...Option) {
 	}
 }
 
-// Context is a [Run]/[RunContext] execution context.
+// Context is the execution (run) context used by [Run]/[RunContext].
 type Context struct {
 	// Exit is the exit func.
 	Exit func(int)

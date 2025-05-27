@@ -95,6 +95,15 @@ func (typ Type) String() string {
 	return string(typ)
 }
 
+// Formatter returns the value format string for the type.
+func (typ Type) Formatter() string {
+	switch typ {
+	case BytesT, StringT, RunesT, ByteT, RuneT:
+		return `%q`
+	}
+	return `%v`
+}
+
 // New creates a new [Value] for the registered type.
 func (typ Type) New() (Value, error) {
 	var v Value

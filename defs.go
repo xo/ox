@@ -1,7 +1,9 @@
 package ox
 
 import (
+	"bytes"
 	"context"
+	"embed"
 	"fmt"
 	"io"
 	"io/fs"
@@ -13,6 +15,14 @@ import (
 
 	"github.com/xo/ox/text"
 )
+
+// SectionWriter extends the [io.StringWriter] interface with a length method,
+// allowing both [strings.Builder] and [bytes.Buffer] to be used when
+// generating help output.
+type SectionWriter interface {
+	io.StringWriter
+	Len() int
+}
 
 // AddHelpFlag recursively adds a `--help` flag for all commands in the command
 // tree, copying the command's [CommandHelp.Sort], [CommandHelp.CommandSort],
@@ -316,8 +326,8 @@ func (help *CommandHelp) SetContext(ctx *Context) {
 
 // WriteTo satisfies the [io.WriterTo] interface.
 func (help *CommandHelp) WriteTo(w io.Writer) (int64, error) {
-	sb := new(strings.Builder)
-	for _, f := range []func(*strings.Builder){
+	var buf bytes.Buffer
+	for _, f := range []func(SectionWriter){
 		help.AddBanner,
 		help.AddUsage,
 		help.AddAliases,
@@ -326,14 +336,14 @@ func (help *CommandHelp) WriteTo(w io.Writer) (int64, error) {
 		help.AddFlags,
 		help.AddFooter,
 	} {
-		f(sb)
+		f(&buf)
 	}
-	n, err := w.Write(append([]byte(sb.String()), '\n'))
-	return int64(n), err
+	_ = buf.WriteByte('\n')
+	return buf.WriteTo(w)
 }
 
 // AddBanner adds the command's banner.
-func (help *CommandHelp) AddBanner(sb *strings.Builder) {
+func (help *CommandHelp) AddBanner(w SectionWriter) {
 	if help.NoBanner {
 		return
 	}
@@ -344,19 +354,19 @@ func (help *CommandHelp) AddBanner(sb *strings.Builder) {
 	if strings.TrimSpace(banner) == "" {
 		return
 	}
-	addBreak(sb)
-	_, _ = sb.WriteString(strings.TrimSpace(banner))
+	addBreak(w)
+	_, _ = w.WriteString(strings.TrimSpace(banner))
 }
 
 // AddUsage adds the command's usage.
-func (help *CommandHelp) AddUsage(sb *strings.Builder) {
+func (help *CommandHelp) AddUsage(w SectionWriter) {
 	if help.NoUsage {
 		return
 	}
-	addBreak(sb)
-	_, _ = sb.WriteString(text.Usage)
-	_, _ = sb.WriteString(":\n  ")
-	_, _ = sb.WriteString(strings.Join(help.Command.Tree(), " "))
+	addBreak(w)
+	_, _ = w.WriteString(text.Usage)
+	_, _ = w.WriteString(":\n  ")
+	_, _ = w.WriteString(strings.Join(help.Command.Tree(), " "))
 	if help.NoSpec {
 		return
 	}
@@ -373,35 +383,35 @@ func (help *CommandHelp) AddUsage(sb *strings.Builder) {
 		spec = strings.Join(append(v, text.CommandArgsSpec), " ")
 	}
 	if strings.TrimSpace(spec) != "" {
-		_, _ = sb.WriteString(" ")
-		_, _ = sb.WriteString(spec)
+		_, _ = w.WriteString(" ")
+		_, _ = w.WriteString(spec)
 	}
 }
 
 // AddAliases adds the command's aliases.
-func (help *CommandHelp) AddAliases(sb *strings.Builder) {
+func (help *CommandHelp) AddAliases(w SectionWriter) {
 	if help.NoAliases || len(help.Command.Aliases) == 0 {
 		return
 	}
-	addBreak(sb)
-	_, _ = sb.WriteString(text.Aliases)
-	_, _ = sb.WriteString(":\n  ")
-	_, _ = sb.WriteString(strings.Join(prepend(help.Command.Aliases, help.Command.Name), ", "))
+	addBreak(w)
+	_, _ = w.WriteString(text.Aliases)
+	_, _ = w.WriteString(":\n  ")
+	_, _ = w.WriteString(strings.Join(prepend(help.Command.Aliases, help.Command.Name), ", "))
 }
 
 // AddExample adds the command's example.
-func (help *CommandHelp) AddExample(sb *strings.Builder) {
+func (help *CommandHelp) AddExample(w SectionWriter) {
 	if help.NoExample || strings.TrimSpace(help.Example) == "" {
 		return
 	}
-	addBreak(sb)
-	_, _ = sb.WriteString(text.Examples)
-	_, _ = sb.WriteString(":\n")
-	_, _ = sb.WriteString(help.Example)
+	addBreak(w)
+	_, _ = w.WriteString(text.Examples)
+	_, _ = w.WriteString(":\n")
+	_, _ = w.WriteString(help.Example)
 }
 
 // AddCommands adds the command's sub commands.
-func (help *CommandHelp) AddCommands(sb *strings.Builder) {
+func (help *CommandHelp) AddCommands(w SectionWriter) {
 	if help.NoCommands || len(help.Command.Commands) == 0 {
 		return
 	}
@@ -435,26 +445,26 @@ func (help *CommandHelp) AddCommands(sb *strings.Builder) {
 		}
 		i++
 	}
-	addBreak(sb)
+	addBreak(w)
 	// write commands
 	for j, section := range slices.Sorted(maps.Keys(indexes)) {
 		if j != 0 {
-			_, _ = sb.WriteString("\n\n")
+			_, _ = w.WriteString("\n\n")
 		}
-		_, _ = sb.WriteString(sections[section])
-		_, _ = sb.WriteString(":")
+		_, _ = w.WriteString(sections[section])
+		_, _ = w.WriteString(":")
 		for _, i := range indexes[section] {
 			c := commands[i]
-			_, _ = sb.WriteString("\n  ")
-			_, _ = sb.WriteString(c.Name)
-			_, _ = sb.WriteString(strings.Repeat(" ", width-len(c.Name)+2))
-			_, _ = sb.WriteString(DefaultWrap(c.Usage, DefaultWrapWidth, width+4))
+			_, _ = w.WriteString("\n  ")
+			_, _ = w.WriteString(c.Name)
+			_, _ = w.WriteString(strings.Repeat(" ", width-len(c.Name)+2))
+			_, _ = w.WriteString(DefaultWrap(c.Usage, DefaultWrapWidth, width+4))
 		}
 	}
 }
 
 // AddFlags adds the command's flags.
-func (help *CommandHelp) AddFlags(sb *strings.Builder) {
+func (help *CommandHelp) AddFlags(w SectionWriter) {
 	if help.NoFlags || help.Command.Flags == nil || len(help.Command.Flags.Flags) == 0 {
 		return
 	}
@@ -495,41 +505,41 @@ func (help *CommandHelp) AddFlags(sb *strings.Builder) {
 	if hasShort {
 		offset = 10
 	}
-	addBreak(sb)
+	addBreak(w)
 	// write flags
 	for j, section := range slices.Sorted(maps.Keys(indexes)) {
 		if j != 0 {
-			_, _ = sb.WriteString("\n\n")
+			_, _ = w.WriteString("\n\n")
 		}
-		_, _ = sb.WriteString(sections[section])
-		_, _ = sb.WriteString(":")
+		_, _ = w.WriteString(sections[section])
+		_, _ = w.WriteString(":")
 		for _, i := range indexes[section] {
-			_, _ = sb.WriteString("\n  ")
+			_, _ = w.WriteString("\n  ")
 			g := flags[i]
 			switch {
 			case hasShort && g.Short == "":
-				_, _ = sb.WriteString("    ")
+				_, _ = w.WriteString("    ")
 			case hasShort:
-				_, _ = sb.WriteString("-")
-				_, _ = sb.WriteString(g.Short)
-				_, _ = sb.WriteString(", ")
+				_, _ = w.WriteString("-")
+				_, _ = w.WriteString(g.Short)
+				_, _ = w.WriteString(", ")
 			}
-			_, _ = sb.WriteString("--")
-			_, _ = sb.WriteString(specs[i])
-			_, _ = sb.WriteString(strings.Repeat(" ", width-len(specs[i])+2))
+			_, _ = w.WriteString("--")
+			_, _ = w.WriteString(specs[i])
+			_, _ = w.WriteString(strings.Repeat(" ", width-len(specs[i])+2))
 			usage := g.Usage
 			if g.Def != nil && g.Type != HookT && !g.NoArg {
 				if def, err := help.Context.Expand(g.Def); err == nil {
 					usage += " " + fmt.Sprintf(text.FlagDefault, def)
 				}
 			}
-			_, _ = sb.WriteString(DefaultWrap(usage, DefaultWrapWidth, width+offset))
+			_, _ = w.WriteString(DefaultWrap(usage, DefaultWrapWidth, width+offset))
 		}
 	}
 }
 
 // AddFooter adds the command's footer.
-func (help *CommandHelp) AddFooter(sb *strings.Builder) {
+func (help *CommandHelp) AddFooter(w SectionWriter) {
 	if help.NoFooter {
 		return
 	}
@@ -540,14 +550,14 @@ func (help *CommandHelp) AddFooter(sb *strings.Builder) {
 	if strings.TrimSpace(footer) == "" {
 		return
 	}
-	addBreak(sb)
-	_, _ = sb.WriteString(footer)
+	addBreak(w)
+	_, _ = w.WriteString(footer)
 }
 
 // addBreak conditionally adds a section break.
-func addBreak(sb *strings.Builder) {
-	if sb.Len() != 0 {
-		_, _ = sb.WriteString("\n\n")
+func addBreak(w SectionWriter) {
+	if w.Len() != 0 {
+		_, _ = w.WriteString("\n\n")
 	}
 }
 
@@ -624,13 +634,13 @@ const (
 
 // String satisfies the [fmt.Stringer] interface.
 func (dir CompDirective) String() string {
-	sb := new(strings.Builder)
-	has(sb, dir, CompError, "CompError")
-	has(sb, dir, CompNoSpace, "CompNoSpace")
-	has(sb, dir, CompNoFileComp, "CompNoFileComp")
-	has(sb, dir, CompFilterFileExt, "CompFilterFileExt")
-	has(sb, dir, CompFilterDirs, "CompFilterDirs")
-	has(sb, dir, CompKeepOrder, "CompKeepOrder")
+	var sb strings.Builder
+	has(&sb, dir, CompError, "CompError")
+	has(&sb, dir, CompNoSpace, "CompNoSpace")
+	has(&sb, dir, CompNoFileComp, "CompNoFileComp")
+	has(&sb, dir, CompFilterFileExt, "CompFilterFileExt")
+	has(&sb, dir, CompFilterDirs, "CompFilterDirs")
+	has(&sb, dir, CompKeepOrder, "CompKeepOrder")
 	if s := sb.String(); s != "" {
 		return s
 	}
@@ -657,11 +667,16 @@ func NewCompletion(name, usage string, dist int) Completion {
 }
 
 // has builds a string for a.
-func has[T inti | uinti](sb *strings.Builder, a, b T, s string) {
+func has[T inti | uinti](w SectionWriter, a, b T, s string) {
 	if a&b != 0 {
-		if sb.Len() != 0 {
-			sb.WriteString("|")
+		if w.Len() != 0 {
+			w.WriteString("|")
 		}
-		sb.WriteString(s)
+		w.WriteString(s)
 	}
 }
+
+// templates are the embedded completion templates.
+//
+//go:embed comp/*
+var templates embed.FS
