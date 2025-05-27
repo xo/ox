@@ -27,8 +27,8 @@ import (
 var (
 	// DefaultContext is the default [context.Context].
 	DefaultContext = context.Background()
-	// DefaultStructTagName is the default struct tag name used in [FromFlags]
-	// and related func's.
+	// DefaultStructTagName is the default struct tag name used in
+	// [From]/[FlagsFrom] and other funcs.
 	DefaultStructTagName = "ox"
 	// DefaultLayout is the default timestamp layout used for formatting and
 	// parsing [Time] values.
