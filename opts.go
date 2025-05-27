@@ -205,9 +205,6 @@ func VersionString(version string) CommandOption {
 			cmd.Version = version
 			return nil
 		},
-		post: func(*Command) error {
-			return nil
-		},
 	}
 }
 
