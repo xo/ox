@@ -91,9 +91,9 @@ var (
 	DefaultVersionMapper = func(name, ver string) (string, string) {
 		if name == "" {
 			name = filepath.Base(os.Args[0])
-		}
-		if runtime.GOOS == "windows" && strings.HasSuffix(strings.ToLower(name), ".exe") {
-			name = name[:len(name)-4]
+			if runtime.GOOS == "windows" && strings.HasSuffix(strings.ToLower(name), ".exe") {
+				name = name[:len(name)-4]
+			}
 		}
 		if DefaultVersionTrimPrefix && regexp.MustCompile(`^v[0-9]+\.`).MatchString(ver) {
 			ver = strings.TrimPrefix(ver, "v")
