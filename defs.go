@@ -64,8 +64,7 @@ func NewVersion(cmd *Command, opts ...Option) error {
 		Special(special),
 		Exec(func(ctx context.Context) error {
 			c, _ := Ctx(ctx)
-			_ = DefaultVersion(c)
-			return ErrExit
+			return DefaultVersion(c)
 		}),
 	)...)
 }

@@ -84,7 +84,7 @@ var (
 		if w == nil {
 			w = os.Stdout
 		}
-		fmt.Fprintln(w, name, ver)
+		_, _ = fmt.Fprintln(w, name, ver)
 		return ErrExit
 	}
 	// DefaultVersionMapper maps the passed name, version.
