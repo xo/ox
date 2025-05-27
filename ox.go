@@ -58,14 +58,20 @@ var (
 	DefaultFlagNameMapper = func(s string) string {
 		return strings.ReplaceAll(strcase.CamelToSnake(s), "_", "-")
 	}
-	// DefaultVersionString is the default version string.
-	DefaultVersionString = "0.0.0-dev"
 	// DefaultVersionTrimPrefix is used by [DefaultVersionMapper] to trim the
 	// `v` prefix on build version.
 	DefaultVersionTrimPrefix = true
 	// DefaultVersion is the default version func.
 	DefaultVersion = func(ctx *Context) error {
-		ver := BuildVersion()
+		var ver string
+		switch {
+		case ctx.Exec != nil && ctx.Exec.Version != "":
+			ver = ctx.Exec.Version
+		case ctx.Root != nil && ctx.Root.Version != "":
+			ver = ctx.Root.Version
+		default:
+			ver = BuildVersion()
+		}
 		var name string
 		if ctx != nil && ctx.Root != nil {
 			name = ctx.Root.Name
@@ -713,8 +719,8 @@ func Ldist[T []E, E cmp.Ordered](a, b T) int {
 
 // BuildVersion returns the Go build version, or [DefaultVersionString].
 func BuildVersion() string {
-	ver := DefaultVersionString
-	if info, ok := debug.ReadBuildInfo(); ok && ver == "0.0.0-dev" {
+	ver := "(devel)"
+	if info, ok := debug.ReadBuildInfo(); ok {
 		mod := &info.Main
 		if mod.Replace != nil {
 			mod = mod.Replace

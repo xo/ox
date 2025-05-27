@@ -53,6 +53,8 @@ type Command struct {
 	Deprecated bool
 	// Special is the special value.
 	Special string
+	// Version is the version string.
+	Version string
 }
 
 // NewCommand creates a new command.

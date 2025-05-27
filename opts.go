@@ -196,6 +196,21 @@ func Version() CommandOption {
 	}
 }
 
+// VersionString is a [Command] option to set the version displayed for the
+// command.
+func VersionString(version string) CommandOption {
+	return option{
+		name: "VersionString",
+		cmd: func(cmd *Command) error {
+			cmd.Version = version
+			return nil
+		},
+		post: func(*Command) error {
+			return nil
+		},
+	}
+}
+
 // Help is a [Command]/[Flag] option to add help output to a root command. By default,
 // it adds a `--help` flag to all commands in the command tree. The root
 // command will have a `help` sub command added if there are any other defined
