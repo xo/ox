@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/fs"
 	"maps"
+	"os"
 	"path/filepath"
 	"slices"
 	"sort"
@@ -15,14 +16,6 @@ import (
 
 	"github.com/xo/ox/text"
 )
-
-// StringWriter extends the [io.StringWriter] interface with a Len() method,
-// allowing both [strings.Builder] and [bytes.Buffer] to be used when
-// generating help output.
-type StringWriter interface {
-	io.StringWriter
-	Len() int
-}
 
 // AddHelpFlag recursively adds a `--help` flag for all commands in the command
 // tree, copying the command's [CommandHelp.Sort], [CommandHelp.CommandSort],
@@ -325,7 +318,7 @@ func (help *CommandHelp) SetContext(ctx *Context) {
 
 // WriteTo satisfies the [io.WriterTo] interface.
 func (help *CommandHelp) WriteTo(w io.Writer) (int64, error) {
-	var buf bytes.Buffer
+	wr := NewStringWriter(w)
 	for _, f := range []func(StringWriter){
 		help.AddBanner,
 		help.AddUsage,
@@ -335,10 +328,10 @@ func (help *CommandHelp) WriteTo(w io.Writer) (int64, error) {
 		help.AddFlags,
 		help.AddFooter,
 	} {
-		f(&buf)
+		f(wr)
 	}
-	_ = buf.WriteByte('\n')
-	return buf.WriteTo(w)
+	_, _ = wr.WriteString("\n")
+	return int64(wr.Len()), nil
 }
 
 // AddBanner adds the command's banner.
@@ -663,6 +656,69 @@ func NewCompletion(name, usage string, dist int) Completion {
 		Usage: strings.TrimSpace(usage),
 		Dist:  dist,
 	}
+}
+
+// StringWriter extends the [io.StringWriter] interface with a Len() method,
+// allowing both [strings.Builder] and [bytes.Buffer] to be used when
+// generating help output.
+type StringWriter interface {
+	io.StringWriter
+	Len() int
+}
+
+// NewStringWriter converts a writer to a [StringWriter], or wraps the writer
+// when necessary. Wraps (or directly returns) [os.File], [strings.Builder],
+// [bytes.Buffer], or other [io.Writer].
+func NewStringWriter(w io.Writer) StringWriter {
+	switch x := w.(type) {
+	case *os.File:
+		return &fileWriter{w: x}
+	case *strings.Builder:
+		return x
+	case *bytes.Buffer:
+		return x
+	case StringWriter:
+		return x
+	}
+	return &stringWriter{w: w}
+}
+
+// fileWriter wraps writing to a file.
+type fileWriter struct {
+	w *os.File
+	n bool
+}
+
+// WriteString satisfies the [StringWriter] interface.
+func (w *fileWriter) WriteString(s string) (int, error) {
+	w.n = w.n || s != ""
+	return w.w.WriteString(s)
+}
+
+// Len satisfies the [StringWriter] interface.
+func (w *fileWriter) Len() int {
+	if w.n {
+		return 1
+	}
+	return 0
+}
+
+type stringWriter struct {
+	w io.Writer
+	n bool
+}
+
+func (w *stringWriter) WriteString(s string) (int, error) {
+	w.n = w.n || s != ""
+	return w.w.Write([]byte(s))
+}
+
+// Len satisfies the [StringWriter] interface.
+func (w *stringWriter) Len() int {
+	if w.n {
+		return 1
+	}
+	return 0
 }
 
 // has builds a string for a.
