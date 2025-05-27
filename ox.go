@@ -63,18 +63,18 @@ var (
 	DefaultVersionTrimPrefix = true
 	// DefaultVersion is the default version func.
 	DefaultVersion = func(ctx *Context) error {
-		var ver string
-		switch {
-		case ctx.Exec != nil && ctx.Exec.Version != "":
-			ver = ctx.Exec.Version
-		case ctx.Root != nil && ctx.Root.Version != "":
-			ver = ctx.Root.Version
-		default:
-			ver = BuildVersion()
-		}
 		var name string
 		if ctx != nil && ctx.Root != nil {
 			name = ctx.Root.Name
+		}
+		var ver string
+		switch {
+		case ctx != nil && ctx.Exec != nil && ctx.Exec.Version != "":
+			ver = ctx.Exec.Version
+		case ctx != nil && ctx.Root != nil && ctx.Root.Version != "":
+			ver = ctx.Root.Version
+		default:
+			ver = BuildVersion()
 		}
 		name, ver = DefaultVersionMapper(name, ver)
 		var w io.Writer
@@ -91,6 +91,9 @@ var (
 	DefaultVersionMapper = func(name, ver string) (string, string) {
 		if name == "" {
 			name = filepath.Base(os.Args[0])
+		}
+		if runtime.GOOS == "windows" && strings.HasSuffix(strings.ToLower(name), ".exe") {
+			name = name[:len(name)-4]
 		}
 		if DefaultVersionTrimPrefix && regexp.MustCompile(`^v[0-9]+\.`).MatchString(ver) {
 			ver = strings.TrimPrefix(ver, "v")
