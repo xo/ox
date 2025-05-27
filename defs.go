@@ -686,18 +686,18 @@ func NewStringWriter(w io.Writer) StringWriter {
 // fileWriter wraps writing to a file.
 type fileWriter struct {
 	w *os.File
-	n bool
+	b bool
 }
 
 // WriteString satisfies the [StringWriter] interface.
 func (w *fileWriter) WriteString(s string) (int, error) {
-	w.n = w.n || s != ""
+	w.b = w.b || s != ""
 	return w.w.WriteString(s)
 }
 
 // Len satisfies the [StringWriter] interface.
 func (w *fileWriter) Len() int {
-	if w.n {
+	if w.b {
 		return 1
 	}
 	return 0
@@ -705,17 +705,17 @@ func (w *fileWriter) Len() int {
 
 type stringWriter struct {
 	w io.Writer
-	n bool
+	b bool
 }
 
 func (w *stringWriter) WriteString(s string) (int, error) {
-	w.n = w.n || s != ""
+	w.b = w.b || s != ""
 	return w.w.Write([]byte(s))
 }
 
 // Len satisfies the [StringWriter] interface.
 func (w *stringWriter) Len() int {
-	if w.n {
+	if w.b {
 		return 1
 	}
 	return 0
