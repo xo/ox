@@ -38,17 +38,16 @@ var (
 	DefaultStripGoTestFlags = true
 	// DefaultWrapWidth is the default wrap width.
 	DefaultWrapWidth = 95
-	// DefaultWrap wraps sections of text (separated by "\n\n") using [Wrap].
-	DefaultWrap = func(s string, wrapWidth, prefixWidth int) string {
-		var sb strings.Builder
+	// DefaultWrapTo wraps a line of text, split into sections by "\n\n", using
+	// [Wrap], emitting the output to a writer.
+	DefaultWrapTo = func(w io.StringWriter, s string, wrapWidth, prefixWidth int) {
 		for i, line := range strings.Split(s, "\n\n") {
 			if i != 0 {
-				_, _ = sb.WriteString("\n\n")
-				_, _ = sb.WriteString(strings.Repeat(" ", prefixWidth))
+				_, _ = w.WriteString("\n\n")
+				_, _ = w.WriteString(strings.Repeat(" ", prefixWidth))
 			}
-			_, _ = sb.WriteString(Wrap(line, wrapWidth, prefixWidth))
+			_, _ = w.WriteString(Wrap(line, wrapWidth, prefixWidth))
 		}
-		return sb.String()
 	}
 	// DefaultWidth returns the width of a string used by [Wrap].
 	DefaultWidth = func(s string) int {

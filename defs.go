@@ -16,10 +16,10 @@ import (
 	"github.com/xo/ox/text"
 )
 
-// SectionWriter extends the [io.StringWriter] interface with a length method,
+// StringWriter extends the [io.StringWriter] interface with a Len() method,
 // allowing both [strings.Builder] and [bytes.Buffer] to be used when
 // generating help output.
-type SectionWriter interface {
+type StringWriter interface {
 	io.StringWriter
 	Len() int
 }
@@ -326,7 +326,7 @@ func (help *CommandHelp) SetContext(ctx *Context) {
 // WriteTo satisfies the [io.WriterTo] interface.
 func (help *CommandHelp) WriteTo(w io.Writer) (int64, error) {
 	var buf bytes.Buffer
-	for _, f := range []func(SectionWriter){
+	for _, f := range []func(StringWriter){
 		help.AddBanner,
 		help.AddUsage,
 		help.AddAliases,
@@ -342,7 +342,7 @@ func (help *CommandHelp) WriteTo(w io.Writer) (int64, error) {
 }
 
 // AddBanner adds the command's banner.
-func (help *CommandHelp) AddBanner(w SectionWriter) {
+func (help *CommandHelp) AddBanner(w StringWriter) {
 	if help.NoBanner {
 		return
 	}
@@ -358,7 +358,7 @@ func (help *CommandHelp) AddBanner(w SectionWriter) {
 }
 
 // AddUsage adds the command's usage.
-func (help *CommandHelp) AddUsage(w SectionWriter) {
+func (help *CommandHelp) AddUsage(w StringWriter) {
 	if help.NoUsage {
 		return
 	}
@@ -388,7 +388,7 @@ func (help *CommandHelp) AddUsage(w SectionWriter) {
 }
 
 // AddAliases adds the command's aliases.
-func (help *CommandHelp) AddAliases(w SectionWriter) {
+func (help *CommandHelp) AddAliases(w StringWriter) {
 	if help.NoAliases || len(help.Command.Aliases) == 0 {
 		return
 	}
@@ -399,7 +399,7 @@ func (help *CommandHelp) AddAliases(w SectionWriter) {
 }
 
 // AddExample adds the command's example.
-func (help *CommandHelp) AddExample(w SectionWriter) {
+func (help *CommandHelp) AddExample(w StringWriter) {
 	if help.NoExample || strings.TrimSpace(help.Example) == "" {
 		return
 	}
@@ -410,7 +410,7 @@ func (help *CommandHelp) AddExample(w SectionWriter) {
 }
 
 // AddCommands adds the command's sub commands.
-func (help *CommandHelp) AddCommands(w SectionWriter) {
+func (help *CommandHelp) AddCommands(w StringWriter) {
 	if help.NoCommands || len(help.Command.Commands) == 0 {
 		return
 	}
@@ -457,13 +457,13 @@ func (help *CommandHelp) AddCommands(w SectionWriter) {
 			_, _ = w.WriteString("\n  ")
 			_, _ = w.WriteString(c.Name)
 			_, _ = w.WriteString(strings.Repeat(" ", width-len(c.Name)+2))
-			_, _ = w.WriteString(DefaultWrap(c.Usage, DefaultWrapWidth, width+4))
+			DefaultWrapTo(w, c.Usage, DefaultWrapWidth, width+4)
 		}
 	}
 }
 
 // AddFlags adds the command's flags.
-func (help *CommandHelp) AddFlags(w SectionWriter) {
+func (help *CommandHelp) AddFlags(w StringWriter) {
 	if help.NoFlags || help.Command.Flags == nil || len(help.Command.Flags.Flags) == 0 {
 		return
 	}
@@ -532,13 +532,13 @@ func (help *CommandHelp) AddFlags(w SectionWriter) {
 					usage += " " + fmt.Sprintf(text.FlagDefault, def)
 				}
 			}
-			_, _ = w.WriteString(DefaultWrap(usage, DefaultWrapWidth, width+offset))
+			DefaultWrapTo(w, usage, DefaultWrapWidth, width+offset)
 		}
 	}
 }
 
 // AddFooter adds the command's footer.
-func (help *CommandHelp) AddFooter(w SectionWriter) {
+func (help *CommandHelp) AddFooter(w StringWriter) {
 	if help.NoFooter {
 		return
 	}
@@ -554,7 +554,7 @@ func (help *CommandHelp) AddFooter(w SectionWriter) {
 }
 
 // addBreak conditionally adds a section break.
-func addBreak(w SectionWriter) {
+func addBreak(w StringWriter) {
 	if w.Len() != 0 {
 		_, _ = w.WriteString("\n\n")
 	}
@@ -666,7 +666,7 @@ func NewCompletion(name, usage string, dist int) Completion {
 }
 
 // has builds a string for a.
-func has[T inti | uinti](w SectionWriter, a, b T, s string) {
+func has[T inti | uinti](w StringWriter, a, b T, s string) {
 	if a&b != 0 {
 		if w.Len() != 0 {
 			w.WriteString("|")
