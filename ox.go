@@ -211,12 +211,12 @@ var (
 		return ErrExit
 	}
 	// DefaultLoader is the default config loader.
-	DefaultLoader = func(ctx *Context, typ, key string) (string, bool, error) {
+	DefaultLoader = func(ctx *Context, typ, key string) (any, bool, error) {
 		if loader, ok := loaders[typ]; ok {
-			s, err := loader(ctx, key)
-			return s, true, err
+			v, err := loader(ctx, key)
+			return v, true, err
 		}
-		return "", false, nil
+		return nil, false, nil
 	}
 	// DefaultStripTestFlags strips flags starting with `-test.` from args.
 	DefaultStripTestFlags = func(args []string) []string {
@@ -312,7 +312,7 @@ type Context struct {
 	// Comp is the completion func.
 	Comp func(*Context) error
 	// Loader is the config loader func.
-	Loader func(*Context, string, string) (string, bool, error)
+	Loader func(*Context, string, string) (any, bool, error)
 	// Stdin is the standard in to use, normally [os.Stdin].
 	Stdin io.Reader
 	// Stdout is the standard out to use, normally [os.Stdout].
@@ -515,18 +515,22 @@ func (ctx *Context) Expand(v any) (any, error) {
 		if m[4] != -1 {
 			key = string(b[m[4]:m[5]])
 		}
-		switch str, ok, err := ctx.ExpandKey(typ, key); {
+		switch z, ok, err := ctx.ExpandKey(typ, key); {
 		case err != nil:
 			return nil, err
 		case ok:
+			str, err := asString[string](z)
+			if err != nil {
+				return nil, err
+			}
 			b = slices.Replace(b, m[0], m[1], []byte(str)...)
 		}
 	}
 	return string(b), nil
 }
 
-// ExpandKey expands a key.
-func (ctx *Context) ExpandKey(typ, key string) (string, bool, error) {
+// ExpandKey expands a config key, using the context's Loader.
+func (ctx *Context) ExpandKey(typ, key string) (any, bool, error) {
 	if ctx.Override != nil {
 		if s, ok := ctx.Override(typ, key); ok {
 			return s, true, nil
@@ -577,7 +581,7 @@ func (ctx *Context) ExpandKey(typ, key string) (string, bool, error) {
 	case "OS":
 		return runtime.GOOS, true, nil
 	default:
-		return DefaultLoader(ctx, typ, key)
+		return ctx.Loader(ctx, typ, key)
 	}
 	s, err := f()
 	if err != nil {

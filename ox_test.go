@@ -99,12 +99,14 @@ func TestContextExpand(t *testing.T) {
 		{`$MY_OVERRIDE{foo}`, `bar`, nil},
 		{`$HOME/$USER/$APPNAME`, os.Getenv("HOME") + "/" + os.Getenv("USER") + "/" + root.Name, nil},
 		{`$HOME$USER$APPNAME`, os.Getenv("HOME") + os.Getenv("USER") + root.Name, nil},
+		{`//$OS//`, "//" + runtime.GOOS + "//", nil},
 	}
 	for i, test := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			t.Logf("test: %q", test.v)
 			ctx := &Context{
-				Root: root,
+				Root:   root,
+				Loader: DefaultLoader,
 				Override: func(typ, key string) (string, bool) {
 					if typ == "MY_OVERRIDE" {
 						switch strings.ToLower(key) {
