@@ -3,6 +3,10 @@ package ox
 import (
 	"bytes"
 	"context"
+	"errors"
+	"os"
+	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"testing"
@@ -53,6 +57,78 @@ Did you mean this?
 			}
 			if s := strings.TrimSuffix(c.Stderr.(*bytes.Buffer).String(), "\n"); s != test.exp {
 				t.Errorf("\nexpected:\n%s\ngot:\n%s", test.exp, s)
+			}
+		})
+	}
+}
+
+func TestContextExpand(t *testing.T) {
+	root := &Command{
+		Name: "myApp",
+	}
+	configDir, err := userConfigDir()
+	if err != nil {
+		t.Fatalf("expected no error, got: %v", err)
+	}
+	cacheDir, err := userCacheDir()
+	if err != nil {
+		t.Fatalf("expected no error, got: %v", err)
+	}
+	tests := []struct {
+		v   string
+		exp string
+		err error
+	}{
+		{``, ``, nil},
+		{`a`, `a`, nil},
+		{`$ABC`, `$ABC`, nil},
+		{`$HOME`, os.Getenv(`HOME`), nil},
+		{`$USER`, os.Getenv(`USER`), nil},
+		{`$APPNAME`, root.Name, nil},
+		{`$CONFIG`, configDir, nil},
+		{`$APPCONFIG`, filepath.Join(configDir, root.Name), nil},
+		{`$CACHE`, cacheDir, nil},
+		{`$APPCACHE`, filepath.Join(cacheDir, root.Name), nil},
+		{`$NUMCPU`, strconv.Itoa(runtime.NumCPU()), nil},
+		{`$NUMCPU2`, strconv.Itoa(runtime.NumCPU() + 2), nil},
+		{`$NUMCPU2X`, strconv.Itoa(runtime.NumCPU() * 2), nil},
+		{`$ARCH`, runtime.GOARCH, nil},
+		{`$OS`, runtime.GOOS, nil},
+		{`$ENV{HOME}`, os.Getenv(`HOME`), nil},
+		{`$ENV{NOT_DEFINED}`, ``, nil},
+		{`$MY_OVERRIDE{foo}`, `bar`, nil},
+		{`$HOME/$USER/$APPNAME`, os.Getenv("HOME") + "/" + os.Getenv("USER") + "/" + root.Name, nil},
+		{`$HOME$USER$APPNAME`, os.Getenv("HOME") + os.Getenv("USER") + root.Name, nil},
+	}
+	for i, test := range tests {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			t.Logf("test: %q", test.v)
+			ctx := &Context{
+				Root: root,
+				Override: func(typ, key string) (string, bool) {
+					if typ == "MY_OVERRIDE" {
+						switch strings.ToLower(key) {
+						case "foo":
+							return "bar", true
+						}
+					}
+					return "", false
+				},
+			}
+			v, err := ctx.Expand(test.v)
+			switch {
+			case err != nil && !errors.Is(err, test.err):
+				t.Fatalf("expected error %v, got: %v", test.err, err)
+			case err == nil && test.err != nil:
+				t.Fatalf("expected error %v, got nil", test.err)
+			}
+			t.Logf("v: %v (%T)", v, v)
+			s, ok := v.(string)
+			if !ok {
+				t.Fatalf("expected string, got: %T", v)
+			}
+			if s != test.exp {
+				t.Errorf("expected %q, got: %q", test.exp, s)
 			}
 		})
 	}

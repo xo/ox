@@ -71,13 +71,28 @@ func Args(args ...string) ContextOption {
 	}
 }
 
-// Override is a [Run]/[RunContext]/[Context] option to override expansion
-// variables.
-func Override(override map[string]string) ContextOption {
+// OverrideMap is a [Run]/[RunContext]/[Context] option to set a override
+// expansion func.
+func Override(override func(string, string) (string, bool)) ContextOption {
 	return option{
 		name: "Override",
 		ctx: func(ctx *Context) error {
 			ctx.Override = override
+			return nil
+		},
+	}
+}
+
+// OverrideMap is a [Run]/[RunContext]/[Context] option to override expansion
+// variables using a map.
+func OverrideMap(override map[string]string) ContextOption {
+	return option{
+		name: "OverrideMap",
+		ctx: func(ctx *Context) error {
+			ctx.Override = func(name string, _ string) (string, bool) {
+				s, ok := override[name]
+				return s, ok
+			}
 			return nil
 		},
 	}

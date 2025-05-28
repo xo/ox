@@ -166,9 +166,9 @@ Report bugs to <pgsql-bugs@lists.postgresql.org>.
 PostgreSQL home page: <https://www.postgresql.org/>`),
 		),
 		ox.From(&args),
-		// this is used to override the expansion parameters
-		ox.Override(map[string]string{
-			"$USER": "fuser",
+		// override replacement key expansion
+		ox.OverrideMap(map[string]string{
+			"USER": "fuser",
 		}),
 	)
 	// Output:

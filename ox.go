@@ -16,6 +16,7 @@ import (
 	"regexp"
 	"runtime"
 	"runtime/debug"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -316,8 +317,8 @@ type Context struct {
 	Continue func(*Command, error) bool
 	// Handler is the func used to handle errors within [Run]/[RunContext].
 	Handler func(error) bool
-	// Override are overriding expansions.
-	Override map[string]string
+	// Override override expansion keys.
+	Override func(string, string) (string, bool)
 	// Root is the root command created within [Run]/[RunContext].
 	Root *Command
 	// Exec is the exec target, determined by the Root's definition and after
@@ -490,23 +491,41 @@ func (ctx *Context) Populate(cmd *Command, all, overwrite bool) error {
 //	$OS - the value of [runtime.GOOS] (ex: windows)
 //	$ENV{KEY} - the environment value for $KEY
 //	$CONFIG_TYPE{KEY} - the registered config file loader type and key value, for example: `$YAML{my_key}`, `$TOML{my_key}`
-//
-// TODO: finish implementation for $CONFIG_TYPE, expand anywhere in string
 func (ctx *Context) Expand(v any) (any, error) {
 	s, ok := v.(string)
 	if !ok {
 		return v, nil
 	}
+	b := []byte(s)
+	matches := keyRE.FindAllSubmatchIndex(b, -1)
+	slices.Reverse(matches)
+	for _, m := range matches {
+		typ, key := string(b[m[2]:m[3]]), ""
+		if m[4] != -1 {
+			key = string(b[m[4]:m[5]])
+		}
+		switch str, ok, err := ctx.ExpandKey(typ, key); {
+		case err != nil:
+			return nil, err
+		case ok:
+			b = slices.Replace(b, m[0], m[1], []byte(str)...)
+		}
+	}
+	return string(b), nil
+}
+
+// ExpandKey expands a key.
+func (ctx *Context) ExpandKey(typ, key string) (string, bool, error) {
 	if ctx.Override != nil {
-		if s, ok := ctx.Override[s]; ok {
-			return s, nil
+		if s, ok := ctx.Override(typ, key); ok {
+			return s, true, nil
 		}
 	}
 	var f func() (string, error)
-	switch s {
-	case "$HOME":
+	switch typ {
+	case "HOME":
 		f = userHomeDir
-	case "$USER":
+	case "USER":
 		f = func() (string, error) {
 			u, err := user.Current()
 			if err != nil {
@@ -514,11 +533,11 @@ func (ctx *Context) Expand(v any) (any, error) {
 			}
 			return u.Username, nil
 		}
-	case "$APPNAME":
-		return ctx.Root.Name, nil
-	case "$CONFIG":
+	case "APPNAME":
+		return ctx.Root.Name, true, nil
+	case "CONFIG":
 		f = userConfigDir
-	case "$APPCONFIG":
+	case "APPCONFIG":
 		f = func() (string, error) {
 			dir, err := userConfigDir()
 			if err != nil {
@@ -526,9 +545,9 @@ func (ctx *Context) Expand(v any) (any, error) {
 			}
 			return filepath.Join(dir, ctx.Root.Name), nil
 		}
-	case "$CACHE":
+	case "CACHE":
 		f = userCacheDir
-	case "$APPCACHE":
+	case "APPCACHE":
 		f = func() (string, error) {
 			dir, err := userCacheDir()
 			if err != nil {
@@ -536,24 +555,24 @@ func (ctx *Context) Expand(v any) (any, error) {
 			}
 			return filepath.Join(dir, ctx.Root.Name), nil
 		}
-	case "$NUMCPU":
-		return strconv.Itoa(runtime.NumCPU()), nil
-	case "$NUMCPU2":
-		return strconv.Itoa(runtime.NumCPU() + 2), nil
-	case "$NUMCPU2X":
-		return strconv.Itoa(runtime.NumCPU() * 2), nil
-	case "$ARCH":
-		return runtime.GOARCH, nil
-	case "$OS":
-		return runtime.GOOS, nil
+	case "NUMCPU":
+		return strconv.Itoa(runtime.NumCPU()), true, nil
+	case "NUMCPU2":
+		return strconv.Itoa(runtime.NumCPU() + 2), true, nil
+	case "NUMCPU2X":
+		return strconv.Itoa(runtime.NumCPU() * 2), true, nil
+	case "ARCH":
+		return runtime.GOARCH, true, nil
+	case "OS":
+		return runtime.GOOS, true, nil
 	default:
-		return s, nil
+		return "", false, nil
 	}
 	s, err := f()
 	if err != nil {
-		return "", fmt.Errorf("expand %q: %w", v, err)
+		return "", false, fmt.Errorf("expand $%q: %w", typ, err)
 	}
-	return s, nil
+	return s, true, nil
 }
 
 // contextKey is the context key type.
@@ -733,6 +752,9 @@ func BuildVersion() string {
 	}
 	return ver
 }
+
+// keyRE matches keys used by [Context.Expand].
+var keyRE = regexp.MustCompile(`\$([A-Z][A-Z0-9_]{1,32})(?:\{([^}]{1,128})\})?`)
 
 // prepend is a generic prepend.
 func prepend[S ~[]E, E any](v S, s ...E) S {
