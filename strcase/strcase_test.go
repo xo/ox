@@ -195,3 +195,75 @@ func TestSnakeToCamelIdentifier(t *testing.T) {
 		})
 	}
 }
+
+func TestToSnake(t *testing.T) {
+	tests := []struct {
+		s, exp string
+	}{
+		{"", ""},
+		{"0", ""},
+		{"_", ""},
+		{"x_", "x"},
+		{"_x", "x"},
+		{"_x_", "x"},
+		{"a_really_long_name", "a_really_long_name"},
+		{"a_really__long_name", "a_really_long_name"},
+		{"something_id", "something_id"},
+		{"something_ids", "something_ids"},
+		{"acl", "acl"},
+		{"acl_", "acl"},
+		{"_acl", "acl"},
+		{"_acl_", "acl"},
+		{"_a_c_l_", "a_c_l"},
+		{"gpu_info", "gpu_info"},
+		{"gpu_______info", "gpu_info"},
+		{"GPU_info", "gpu_info"},
+		{"gPU_info", "gpu_info"},
+		{"g_p_u_info", "g_p_u_info"},
+		{"uuid_id_uuid", "uuid_id_uuid"},
+		{"sample_id_ids", "sample_id_ids"},
+	}
+	for _, test := range tests {
+		t.Run(test.s, func(t *testing.T) {
+			if v := ToSnake(test.s); v != test.exp {
+				t.Errorf("ToSnake(%q) expected %q, got: %q", test.s, test.exp, v)
+			}
+		})
+	}
+}
+
+func TestToKebab(t *testing.T) {
+	tests := []struct {
+		s, exp string
+	}{
+		{"", ""},
+		{"0", ""},
+		{"_", ""},
+		{"x_", "x"},
+		{"_x", "x"},
+		{"_x_", "x"},
+		{"a_really_long_name", "a-really-long-name"},
+		{"a_really__long_name", "a-really-long-name"},
+		{"something_id", "something-id"},
+		{"something_ids", "something-ids"},
+		{"acl", "acl"},
+		{"acl_", "acl"},
+		{"_acl", "acl"},
+		{"_acl_", "acl"},
+		{"_a_c_l_", "a-c-l"},
+		{"gpu_info", "gpu-info"},
+		{"gpu_______info", "gpu-info"},
+		{"GPU_info", "gpu-info"},
+		{"gPU_info", "gpu-info"},
+		{"g_p_u_info", "g-p-u-info"},
+		{"uuid_id_uuid", "uuid-id-uuid"},
+		{"sample_id_ids", "sample-id-ids"},
+	}
+	for _, test := range tests {
+		t.Run(test.s, func(t *testing.T) {
+			if v := ToKebab(test.s); v != test.exp {
+				t.Errorf("ToKebab(%q) expected %q, got: %q", test.s, test.exp, v)
+			}
+		})
+	}
+}

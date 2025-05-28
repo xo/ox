@@ -25,8 +25,8 @@ func New(initialisms ...string) (*Initialisms, error) {
 	return ini, nil
 }
 
-// NewDefaultInitialisms creates a set of known, common initialisms.
-func NewDefaultInitialisms() (*Initialisms, error) {
+// NewDefaults creates a default set of known, common initialisms.
+func NewDefaults() (*Initialisms, error) {
 	ini, err := New(CommonInitialisms()...)
 	if err != nil {
 		return nil, err

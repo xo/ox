@@ -1,22 +1,23 @@
 // Package strcase provides methods to convert CamelCase to and from snake_case.
 //
-// Correctly recognizes common (Go idiomatic) initialisms (HTTP, XML, etc) and
-// provides a mechanism to override/set recognized initialisms.
+// Correctly recognizes common (Go idiomatic) initialisms (HTTP, XML, etc) with
+// the ability to define/override/add initialisms.
 package strcase
 
 import (
+	"regexp"
 	"strings"
 	"unicode"
 )
 
-// DefaultInitialisms is the set of default (common) initialisms used by the
-// package level conversions funcs.
-var DefaultInitialisms *Initialisms
+// Defaults is the set of default (common) initialisms used by the package
+// level conversions funcs.
+var Defaults *Initialisms
 
 func init() {
 	// initialize common default initialisms
 	var err error
-	if DefaultInitialisms, err = NewDefaultInitialisms(); err != nil {
+	if Defaults, err = NewDefaults(); err != nil {
 		panic(err)
 	}
 }
@@ -24,47 +25,47 @@ func init() {
 // CamelToSnake converts name from camel case ("AnIdentifier") to snake case
 // ("an_identifier").
 func CamelToSnake(name string) string {
-	return DefaultInitialisms.CamelToSnake(name)
+	return Defaults.CamelToSnake(name)
 }
 
 // CamelToSnakeIdentifier converts name from camel case to a snake case
 // identifier.
 func CamelToSnakeIdentifier(name string) string {
-	return DefaultInitialisms.CamelToSnakeIdentifier(name)
+	return Defaults.CamelToSnakeIdentifier(name)
 }
 
 // SnakeToCamel converts name to CamelCase.
 func SnakeToCamel(name string) string {
-	return DefaultInitialisms.SnakeToCamel(name)
+	return Defaults.SnakeToCamel(name)
 }
 
 // SnakeToCamelIdentifier converts name to its CamelCase identifier (first
 // letter is capitalized).
 func SnakeToCamelIdentifier(name string) string {
-	return DefaultInitialisms.SnakeToCamelIdentifier(name)
+	return Defaults.SnakeToCamelIdentifier(name)
 }
 
 // ForceCamelIdentifier forces name to its CamelCase specific to Go
 // ("AnIdentifier").
 func ForceCamelIdentifier(name string) string {
-	return DefaultInitialisms.ForceCamelIdentifier(name)
+	return Defaults.ForceCamelIdentifier(name)
 }
 
 // ForceLowerCamelIdentifier forces the first portion of an identifier to be
 // lower case ("anIdentifier").
 func ForceLowerCamelIdentifier(name string) string {
-	return DefaultInitialisms.ForceLowerCamelIdentifier(name)
+	return Defaults.ForceLowerCamelIdentifier(name)
 }
 
-// IsInitialism indicates whether or not s is a registered initialism.
+// IsInitialism returns true when s is a registered default initialism.
 func IsInitialism(s string) bool {
-	return DefaultInitialisms.Is(s)
+	return Defaults.Is(s)
 }
 
 // ToIdentifier cleans s so that it is usable as an identifier.
 //
-// Substitutes invalid characters with an underscore, removes any leading
-// numbers/underscores, and removes trailing underscores.
+// Substitutes invalid characters with an underscore, removing leading
+// numbers/underscores and trailing underscores.
 //
 // Additionally collapses multiple underscores to a single underscore.
 //
@@ -73,14 +74,26 @@ func ToIdentifier(s string) string {
 	return toIdent(s, '_')
 }
 
-// ToKebab changes s to kebab case.
+// ToSnake cleans s to snake_case.
 //
-// Substitutes invalid characters with a hyphen, removes any leading
-// numbers/hyphens, and removes trailing hyphens.
+// Substitutes invalid characters with an underscore, removing leading
+// numbers/underscores and trailing underscores.
+//
+// Additionally collapses multiple underscores to a single underscore.
+//
+// Converts entire string to lower case.
+func ToSnake(s string) string {
+	return strings.ToLower(toIdent(s, '_'))
+}
+
+// ToKebab changes s to kebab-case.
+//
+// Substitutes invalid characters with a hyphen, removing leading
+// numbers/hyphens and trailing hyphens.
 //
 // Additionally collapses multiple hyphens to a single hyphen.
 //
-// Converts the string to lower case.
+// Converts entire string to lower case.
 func ToKebab(s string) string {
 	return strings.ToLower(toIdent(s, '-'))
 }
@@ -161,27 +174,29 @@ func CommonPlurals() []string {
 }
 
 // toIdent converts s to a identifier.
-func toIdent(s string, c rune) string {
-	// replace bad chars with c, and compact multiple c to single
-	s = sub(strings.TrimSpace(s), c)
+func toIdent(s string, repl rune) string {
+	// replace bad chars with c
+	s = sub(strings.TrimSpace(s), repl)
+	// compact multiple c to single c
+	s = regexp.MustCompile(string(repl)+`{2,}`).ReplaceAllString(s, string(repl))
 	// remove leading numbers and c
 	s = strings.TrimLeftFunc(s, func(r rune) bool {
-		return unicode.IsNumber(r) || c == r
+		return unicode.IsNumber(r) || r == repl
 	})
 	// remove trailing c
 	s = strings.TrimRightFunc(s, func(r rune) bool {
-		return c == r
+		return r == repl
 	})
 	return s
 }
 
 // sub substitutes underscrose in place of runes that are invalid for
 // Go identifiers.
-func sub(s string, c rune) string {
+func sub(s string, repl rune) string {
 	r := []rune(s)
 	for i, ch := range r {
-		if !isIdentifierChar(ch) {
-			r[i] = c
+		if !isIdentifierChar(ch, repl) {
+			r[i] = repl
 		}
 	}
 	return string(r)
@@ -190,7 +205,7 @@ func sub(s string, c rune) string {
 // isIdentifierChar determines if ch is a valid character for a Go identifier.
 //
 // See: go/src/go/scanner/scanner.go.
-func isIdentifierChar(ch rune) bool {
-	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_' || ch >= 0x80 && unicode.IsLetter(ch) ||
+func isIdentifierChar(ch, repl rune) bool {
+	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == repl || ch >= 0x80 && unicode.IsLetter(ch) ||
 		'0' <= ch && ch <= '9' || ch >= 0x80 && unicode.IsDigit(ch)
 }
