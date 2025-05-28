@@ -1,36 +1,23 @@
 package ox
 
 import (
-	"context"
-	"io"
+	"os"
 )
 
 // ConfigLoader is the interface for configuration decoders.
-type ConfigLoader interface {
-	Load(context.Context, io.Reader) (ConfigValueDecoder, error)
-}
+type ConfigLoader interface{}
 
-// configTypes
-var configTypes map[string]func(...any) (ConfigLoader, error)
+// loaders are config loaders.
+var loaders map[string]func(*Context, string) (string, error)
 
 func init() {
-	configTypes = make(map[string]func(...any) (ConfigLoader, error))
-	configs = make(map[string][]ConfigValueDecoder)
+	loaders = make(map[string]func(*Context, string) (string, error))
+	RegisterConfigLoader("ENV", func(_ *Context, key string) (string, error) {
+		return os.Getenv(key), nil
+	})
 }
 
 // RegisterConfigLoader registers a config file type.
-func RegisterConfigLoader(typ string, handler func(...any) (ConfigLoader, error)) {
-	configTypes[typ] = handler
-}
-
-// ConfigGetter
-type ConfigValueDecoder interface {
-	Decode(string, any) error
-}
-
-var configs map[string][]ConfigValueDecoder
-
-// RegisterConfig
-func RegisterConfig(typ string, h ConfigValueDecoder) {
-	configs[typ] = append(configs[typ], h)
+func RegisterConfigLoader(typ string, f func(*Context, string) (string, error)) {
+	loaders[typ] = f
 }

@@ -210,6 +210,14 @@ var (
 		_, _ = fmt.Fprintf(ctx.Stderr, "COMP ENDED: %s\n", dir)
 		return ErrExit
 	}
+	// DefaultLoader is the default config loader.
+	DefaultLoader = func(ctx *Context, typ, key string) (string, bool, error) {
+		if loader, ok := loaders[typ]; ok {
+			s, err := loader(ctx, key)
+			return s, true, err
+		}
+		return "", false, nil
+	}
 	// DefaultStripTestFlags strips flags starting with `-test.` from args.
 	DefaultStripTestFlags = func(args []string) []string {
 		if !DefaultStripGoTestFlags {
@@ -303,6 +311,8 @@ type Context struct {
 	Panic func(any)
 	// Comp is the completion func.
 	Comp func(*Context) error
+	// Loader is the config loader func.
+	Loader func(*Context, string, string) (string, bool, error)
 	// Stdin is the standard in to use, normally [os.Stdin].
 	Stdin io.Reader
 	// Stdout is the standard out to use, normally [os.Stdout].
@@ -337,6 +347,7 @@ func NewContext(opts ...Option) (*Context, error) {
 			panic(v)
 		},
 		Comp:   DefaultComp,
+		Loader: DefaultLoader,
 		Stdin:  os.Stdin,
 		Stdout: os.Stdout,
 		Stderr: os.Stderr,
@@ -566,7 +577,7 @@ func (ctx *Context) ExpandKey(typ, key string) (string, bool, error) {
 	case "OS":
 		return runtime.GOOS, true, nil
 	default:
-		return "", false, nil
+		return DefaultLoader(ctx, typ, key)
 	}
 	s, err := f()
 	if err != nil {
