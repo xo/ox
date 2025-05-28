@@ -529,7 +529,9 @@ func (ctx *Context) Expand(v any) (any, error) {
 	return string(b), nil
 }
 
-// ExpandKey expands a config key, using the context's Loader.
+// ExpandKey expands a config key, using the context Loader.
+//
+// See [Expand] for more information.
 func (ctx *Context) ExpandKey(typ, key string) (any, bool, error) {
 	if ctx.Override != nil {
 		if s, ok := ctx.Override(typ, key); ok {
@@ -581,13 +583,24 @@ func (ctx *Context) ExpandKey(typ, key string) (any, bool, error) {
 	case "OS":
 		return runtime.GOOS, true, nil
 	default:
-		return ctx.Loader(ctx, typ, key)
+		if ctx.Loader != nil {
+			return ctx.Loader(ctx, typ, key)
+		}
+		return nil, false, nil
 	}
 	s, err := f()
 	if err != nil {
-		return "", false, fmt.Errorf("expand $%q: %w", typ, err)
+		return "", false, fmt.Errorf("expand $%q: %w", keyname(typ, key), err)
 	}
 	return s, true, nil
+}
+
+// keyname returns the key name.
+func keyname(typ, key string) string {
+	if key != "" {
+		return typ + "{" + key + "}"
+	}
+	return typ
 }
 
 // contextKey is the context key type.
