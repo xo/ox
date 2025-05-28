@@ -590,7 +590,7 @@ func (ctx *Context) ExpandKey(typ, key string) (any, bool, error) {
 	}
 	s, err := f()
 	if err != nil {
-		return "", false, fmt.Errorf("expand $%q: %w", keyname(typ, key), err)
+		return "", false, fmt.Errorf("expand $%s: %w", keyname(typ, key), err)
 	}
 	return s, true, nil
 }
