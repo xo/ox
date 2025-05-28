@@ -583,10 +583,14 @@ func (ctx *Context) ExpandKey(typ, key string) (any, bool, error) {
 	case "OS":
 		return runtime.GOOS, true, nil
 	default:
-		if ctx.Loader != nil {
-			return ctx.Loader(ctx, typ, key)
+		if ctx.Loader == nil {
+			return nil, false, nil
 		}
-		return nil, false, nil
+		v, ok, err := ctx.Loader(ctx, typ, key)
+		if err != nil {
+			return "", false, fmt.Errorf("expand $%s: %w", keyname(typ, key), err)
+		}
+		return v, ok, nil
 	}
 	s, err := f()
 	if err != nil {
