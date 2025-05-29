@@ -178,7 +178,7 @@ func toIdent(s string, repl rune) string {
 	// replace bad chars with c
 	s = sub(strings.TrimSpace(s), repl)
 	// compact multiple c to single c
-	s = regexp.MustCompile(string(repl)+`{2,}`).ReplaceAllString(s, string(repl))
+	s = regexp.MustCompile(`\Q`+string(repl)+`\E{2,}`).ReplaceAllString(s, string(repl))
 	// remove leading numbers and c
 	s = strings.TrimLeftFunc(s, func(r rune) bool {
 		return unicode.IsNumber(r) || r == repl
@@ -190,8 +190,7 @@ func toIdent(s string, repl rune) string {
 	return s
 }
 
-// sub substitutes underscrose in place of runes that are invalid for
-// Go identifiers.
+// sub substitutes all non-valid identifier characters in s with repl.
 func sub(s string, repl rune) string {
 	r := []rune(s)
 	for i, ch := range r {
