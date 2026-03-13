@@ -104,18 +104,18 @@ func (ini *Initialisms) CamelToSnakeIdentifier(name string) string {
 
 // SnakeToCamel converts name to CamelCase.
 func (ini *Initialisms) SnakeToCamel(name string) string {
-	var s string
+	var s strings.Builder
 	for word := range strings.SplitSeq(name, "_") {
 		if word == "" {
 			continue
 		}
 		if u, ok := ini.known[strings.ToUpper(word)]; ok {
-			s += u
+			s.WriteString(u)
 		} else {
-			s += strings.ToUpper(word[:1]) + strings.ToLower(word[1:])
+			s.WriteString(strings.ToUpper(word[:1]) + strings.ToLower(word[1:]))
 		}
 	}
-	return s
+	return s.String()
 }
 
 // SnakeToCamelIdentifier converts name to its CamelCase identifier (first

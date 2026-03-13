@@ -1045,8 +1045,8 @@ func isField(v reflect.Value) bool {
 	if kind != reflect.Struct {
 		return false
 	}
-	for i := range typ.NumField() {
-		if _, ok := typ.Field(i).Tag.Lookup(DefaultStructTagName); ok {
+	for field := range typ.Fields() {
+		if _, ok := field.Tag.Lookup(DefaultStructTagName); ok {
 			return false
 		}
 	}

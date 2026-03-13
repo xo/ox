@@ -266,29 +266,29 @@ func parseSize(s string) (int64, error) {
 	switch strings.ToLower(s) {
 	case "", "b":
 		return B, nil
-	case "kb":
+	case "kb", "k":
 		return KB, nil
-	case "mb":
+	case "mb", "m":
 		return MB, nil
-	case "gb":
+	case "gb", "g":
 		return GB, nil
-	case "tb":
+	case "tb", "t":
 		return TB, nil
 	case "pb":
 		return PB, nil
 	case "eb":
 		return EB, nil
-	case "kib":
+	case "kib", "ki":
 		return KiB, nil
-	case "mib":
+	case "mib", "mi":
 		return MiB, nil
-	case "gib":
+	case "gib", "gi":
 		return GiB, nil
-	case "tib":
+	case "tib", "ti":
 		return TiB, nil
-	case "pib":
+	case "pib", "pi":
 		return PiB, nil
-	case "eib":
+	case "eib", "ei":
 		return EiB, nil
 	}
 	return 0, fmt.Errorf("%w %q", ErrUnknownSize, s)

@@ -5,7 +5,7 @@ import (
 )
 
 // ConfigLoader is the interface for configuration decoders.
-type ConfigLoader interface{}
+type ConfigLoader any
 
 // loaders are config loaders.
 var loaders map[string]func(*Context, string) (string, error)

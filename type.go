@@ -426,4 +426,4 @@ func reflectType(refType reflect.Type) Type {
 	return ""
 }
 
-var timeType = reflect.TypeOf(time.Time{})
+var timeType = reflect.TypeFor[time.Time]()
