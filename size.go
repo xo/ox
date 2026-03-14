@@ -67,7 +67,8 @@ func ParseRate(s string) (Rate, error) {
 //
 //	d/D - size in bytes (ex: 12345678)
 //	f/F - size in best fitting *B/*iB (ex: 999 B, 1.1 KiB) and always with a space
-//	z/Z - size in best fitting *B/*iB
+//	z/Z - size in best fitting *B/*iB (ex: 999 B, 1.1 KiB)
+//	e/E - size in best fitting */*i (ex: 12.5G, 11.1Gi)
 //	k/K - size in KB/KiB (ex: 0.9 kB, 2.3 KiB)
 //	m/M - size in MB/MiB (ex: 1.2345 MB)
 //	g/G - size in GB/GiB (ex: 1 GiB)
@@ -104,6 +105,12 @@ func AppendSize(b []byte, size int64, verb rune, prec int, space bool) []byte {
 		neg, sz, unit = bestSize(size, true)
 	case 'Z':
 		neg, sz, unit = bestSize(size, false)
+	case 'e':
+		neg, sz, unit = bestSize(size, true)
+		unit = unit[:len(unit)-1]
+	case 'E':
+		neg, sz, unit = bestSize(size, false)
+		unit = unit[:len(unit)-1]
 	case 'f', 's', 'v':
 		neg, sz, unit = bestSize(size, true)
 		prec, space = DefaultSizePrec, true
