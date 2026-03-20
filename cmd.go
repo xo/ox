@@ -1045,7 +1045,7 @@ func isField(v reflect.Value) bool {
 	if kind != reflect.Struct {
 		return false
 	}
-	for field := range typ.Fields() {
+	for field := range fields(typ) {
 		if _, ok := field.Tag.Lookup(DefaultStructTagName); ok {
 			return false
 		}
@@ -1141,4 +1141,22 @@ func maxDist(cmd *Command) int {
 		return help.MaxDist
 	}
 	return DefaultMaxDist
+}
+
+// fields is an iterator for reflect struct fields. Cribbed from the go1.26.1
+// source tree.
+//
+// TODO: remove this after tinygo supports go1.26+, and change fields() call to
+// TODO: t.Fields().
+func fields(t reflect.Type) iter.Seq[reflect.StructField] {
+	if t.Kind() != reflect.Struct {
+		panic("reflect: Fields of non-struct type " + t.String())
+	}
+	return func(yield func(reflect.StructField) bool) {
+		for i := range t.NumField() {
+			if !yield(t.Field(i)) {
+				return
+			}
+		}
+	}
 }
