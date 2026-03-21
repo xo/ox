@@ -1,8 +1,6 @@
 module github.com/xo/ox
 
-go 1.24.2
-
-toolchain go1.24.13
+go 1.25
 
 require (
 	github.com/goccy/go-yaml v1.19.2
