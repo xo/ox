@@ -30,6 +30,10 @@
 /_examples/gen/psql/psql.exe
 /_examples/gen/rclone/rclone
 /_examples/gen/rclone/rclone.exe
+/_examples/gen/talosctl/talosctl
+/_examples/gen/talosctl/talosctl.exe
+/_examples/gen/omnictl/omnictl
+/_examples/gen/omnictl/omnictl.exe
 
 *.txt
 *.log

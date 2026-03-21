@@ -11,13 +11,10 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/user"
 	"path/filepath"
 	"regexp"
 	"runtime"
 	"runtime/debug"
-	"slices"
-	"strconv"
 	"strings"
 	"time"
 
@@ -127,9 +124,9 @@ var (
 				if ctx.Stderr != nil {
 					w = ctx.Stderr
 				}
-				fmt.Fprintf(w, text.ErrorMessage, err)
+				_, _ = fmt.Fprintf(w, text.ErrorMessage, err)
 				if v, ok := err.(interface{ ErrorDetails() string }); ok {
-					fmt.Fprint(w, v.ErrorDetails())
+					_, _ = fmt.Fprint(w, v.ErrorDetails())
 				}
 				code := 1
 				if v, ok := err.(interface{ ErrorCode() int }); ok {
@@ -209,14 +206,6 @@ var (
 		_, _ = fmt.Fprintf(ctx.Stdout, ":%d\n", dir)
 		_, _ = fmt.Fprintf(ctx.Stderr, "COMP ENDED: %s\n", dir)
 		return ErrExit
-	}
-	// DefaultLoader is the default config loader.
-	DefaultLoader = func(ctx *Context, typ, key string) (any, bool, error) {
-		if loader, ok := loaders[typ]; ok {
-			v, err := loader(ctx, key)
-			return v, true, err
-		}
-		return nil, false, nil
 	}
 	// DefaultStripTestFlags strips flags starting with `-test.` from args.
 	DefaultStripTestFlags = func(args []string) []string {
@@ -311,8 +300,6 @@ type Context struct {
 	Panic func(any)
 	// Comp is the completion func.
 	Comp func(*Context) error
-	// Loader is the config loader func.
-	Loader func(*Context, string, string) (any, bool, error)
 	// Stdin is the standard in to use, normally [os.Stdin].
 	Stdin io.Reader
 	// Stdout is the standard out to use, normally [os.Stdout].
@@ -328,7 +315,7 @@ type Context struct {
 	// Handler is the func used to handle errors within [Run]/[RunContext].
 	Handler func(error) bool
 	// Override override expansion keys.
-	Override func(string, string) (string, bool)
+	Override func(string, string) (any, bool, error)
 	// Root is the root command created within [Run]/[RunContext].
 	Root *Command
 	// Exec is the exec target, determined by the Root's definition and after
@@ -337,6 +324,12 @@ type Context struct {
 	// Vars are the variables parsed from the flag definitions of the Root
 	// command and its sub-commands.
 	Vars Vars
+	// Interpolate interpolates variables based on the context.
+	Interpolate func(*Context, any) (any, error)
+	// Lookup retrieves config variables based on the context.
+	Lookup func(*Context, string, string) (any, error)
+	// Loader is the config loader func.
+	Loader func(*Context, string, string) (any, bool, error)
 }
 
 // NewContext creates a new run context.
@@ -346,12 +339,14 @@ func NewContext(opts ...Option) (*Context, error) {
 		Panic: func(v any) {
 			panic(v)
 		},
-		Comp:   DefaultComp,
-		Loader: DefaultLoader,
-		Stdin:  os.Stdin,
-		Stdout: os.Stdout,
-		Stderr: os.Stderr,
-		Args:   DefaultStripTestFlags(os.Args[1:]),
+		Comp:        DefaultComp,
+		Stdin:       os.Stdin,
+		Stdout:      os.Stdout,
+		Stderr:      os.Stderr,
+		Args:        DefaultStripTestFlags(os.Args[1:]),
+		Interpolate: DefaultInterpolate,
+		Lookup:      DefaultLookup,
+		Loader:      DefaultLoader,
 	}
 	ctx.Continue = DefaultContinueHandler(ctx)
 	ctx.Handler = DefaultErrorHandler(ctx)
@@ -397,7 +392,7 @@ func (ctx *Context) Comps() ([]Completion, CompDirective, error) {
 		Panic:  func(any) {},
 		Exit:   func(int) {},
 		Continue: func(cmd *Command, err error) bool {
-			fmt.Fprintf(ctx.Stderr, "COMP CONTINUE ERR: %v\n", err)
+			_, _ = fmt.Fprintf(ctx.Stderr, "COMP CONTINUE ERR: %v\n", err)
 			switch {
 			case errors.Is(err, ErrUnknownFlag),
 				errors.Is(err, ErrMissingArgument),
@@ -409,12 +404,12 @@ func (ctx *Context) Comps() ([]Completion, CompDirective, error) {
 		Args: ctx.Args[1:n],
 		Vars: make(Vars),
 	}
-	fmt.Fprintf(ctx.Stderr, "COMP ARGS: %v -- %s\n", ctx.Args[1:n], ctx.Args[n])
+	_, _ = fmt.Fprintf(ctx.Stderr, "COMP ARGS: %v -- %s\n", ctx.Args[1:n], ctx.Args[n])
 	if err := c.Parse(); err != nil {
-		fmt.Fprintf(ctx.Stderr, "COMP PARSE ERR: %v\n", err)
+		_, _ = fmt.Fprintf(ctx.Stderr, "COMP PARSE ERR: %v\n", err)
 		return nil, CompError, err
 	}
-	fmt.Fprintf(ctx.Stderr, "COMP COMMAND: %s\n", c.Exec.Name)
+	_, _ = fmt.Fprintf(ctx.Stderr, "COMP COMMAND: %s\n", c.Exec.Name)
 	var comps []Completion
 	var dir CompDirective
 	// TODO: expose flags to allow hidden/deprecated
@@ -477,7 +472,9 @@ func (ctx *Context) Populate(cmd *Command, all, overwrite bool) error {
 			if err != nil {
 				return fmt.Errorf("populate %s: cannot expand %v (%T): %w", g.Name, g.Def, g.Def, err)
 			}
-			value, _ = asString[string](v)
+			if value, err = asString[string](v); err != nil {
+				return fmt.Errorf("populate %s: cannot expand %v (%T): %w", g.Name, g.Def, g.Def, err)
+			}
 		}
 		if err := ctx.Vars.Set(ctx, g, value, false); err != nil {
 			return fmt.Errorf("populate %s: %w", g.Name, err)
@@ -486,125 +483,12 @@ func (ctx *Context) Populate(cmd *Command, all, overwrite bool) error {
 	return nil
 }
 
-// Expand expands variables in v, where any variable can be the following:
-//
-//	$HOME - the current user's home directory (ex: ~/)
-//	$USER - the current user's user name (ex: user)
-//	$APPNAME - the root command's name (ex: appName)
-//	$CONFIG - the current user's config directory (ex: ~/.config)
-//	$APPCONFIG - the current user's config directory, with the root command's name added as a subdir (ex: ~/.config/appName)
-//	$CACHE - the current user's cache directory (ex: ~/.cache)
-//	$APPCACHE - the current user's cache directory, with the root command's name added as a subdir (ex: ~/.cache/appName)
-//	$NUMCPU - the value of [runtime.NumCPU] (ex: 4)
-//	$NUMCPU2 - the value of [runtime.NumCPU], plus 2 (ex: 6)
-//	$NUMCPU2X - the value of [runtime.NumCPU], times 2 (ex: 8)
-//	$ARCH - the value of [runtime.GOARCH] (ex: amd64)
-//	$OS - the value of [runtime.GOOS] (ex: windows)
-//	$ENV{KEY} - the environment value for $KEY
-//	$CONFIG_TYPE{KEY} - the registered config file loader type and key value, for example: `$YAML{my_key}`, `$TOML{my_key}`
+// Expand expands a variable using [Context.Interpolate].
 func (ctx *Context) Expand(v any) (any, error) {
-	s, ok := v.(string)
-	if !ok {
-		return v, nil
+	if ctx.Interpolate != nil {
+		return ctx.Interpolate(ctx, v)
 	}
-	b := []byte(s)
-	matches := keyRE.FindAllSubmatchIndex(b, -1)
-	slices.Reverse(matches)
-	for _, m := range matches {
-		typ, key := string(b[m[2]:m[3]]), ""
-		if m[4] != -1 {
-			key = string(b[m[4]:m[5]])
-		}
-		switch z, ok, err := ctx.ExpandKey(typ, key); {
-		case err != nil:
-			return nil, err
-		case ok:
-			str, err := asString[string](z)
-			if err != nil {
-				return nil, err
-			}
-			b = slices.Replace(b, m[0], m[1], []byte(str)...)
-		}
-	}
-	return string(b), nil
-}
-
-// ExpandKey expands a config key, using the context Loader.
-//
-// See [Expand] for more information.
-func (ctx *Context) ExpandKey(typ, key string) (any, bool, error) {
-	if ctx.Override != nil {
-		if s, ok := ctx.Override(typ, key); ok {
-			return s, true, nil
-		}
-	}
-	var f func() (string, error)
-	switch typ {
-	case "HOME":
-		f = userHomeDir
-	case "USER":
-		f = func() (string, error) {
-			u, err := user.Current()
-			if err != nil {
-				return "", err
-			}
-			return u.Username, nil
-		}
-	case "APPNAME":
-		return ctx.Root.Name, true, nil
-	case "CONFIG":
-		f = userConfigDir
-	case "APPCONFIG":
-		f = func() (string, error) {
-			dir, err := userConfigDir()
-			if err != nil {
-				return "", err
-			}
-			return filepath.Join(dir, ctx.Root.Name), nil
-		}
-	case "CACHE":
-		f = userCacheDir
-	case "APPCACHE":
-		f = func() (string, error) {
-			dir, err := userCacheDir()
-			if err != nil {
-				return "", err
-			}
-			return filepath.Join(dir, ctx.Root.Name), nil
-		}
-	case "NUMCPU":
-		return strconv.Itoa(runtime.NumCPU()), true, nil
-	case "NUMCPU2":
-		return strconv.Itoa(runtime.NumCPU() + 2), true, nil
-	case "NUMCPU2X":
-		return strconv.Itoa(runtime.NumCPU() * 2), true, nil
-	case "ARCH":
-		return runtime.GOARCH, true, nil
-	case "OS":
-		return runtime.GOOS, true, nil
-	default:
-		if ctx.Loader == nil {
-			return nil, false, nil
-		}
-		v, ok, err := ctx.Loader(ctx, typ, key)
-		if err != nil {
-			return "", false, fmt.Errorf("expand $%s: %w", keyname(typ, key), err)
-		}
-		return v, ok, nil
-	}
-	s, err := f()
-	if err != nil {
-		return "", false, fmt.Errorf("expand $%s: %w", keyname(typ, key), err)
-	}
-	return s, true, nil
-}
-
-// keyname returns the key name.
-func keyname(typ, key string) string {
-	if key != "" {
-		return typ + "{" + key + "}"
-	}
-	return typ
+	return v, nil
 }
 
 // contextKey is the context key type.
@@ -675,6 +559,10 @@ const (
 	ErrUnknownCommand Error = "unknown command"
 	// ErrUnknownFlag is the unknown flag error.
 	ErrUnknownFlag Error = "unknown flag"
+	// ErrUnknownLoader is the unknown loader error.
+	ErrUnknownLoader Error = "unknown loader"
+	// ErrUnknownKey is the unknown key error.
+	ErrUnknownKey Error = "unknown key"
 	// ErrMissingArgument is the missing argument error.
 	ErrMissingArgument Error = "missing argument"
 	// ErrInvalidType is the invalid type error.
@@ -693,8 +581,14 @@ const (
 	ErrInvalidArg Error = "invalid arg"
 	// ErrInvalidConversion is the invalid conversion error.
 	ErrInvalidConversion Error = "invalid conversion"
+	// ErrInvalidOp is the invalid op error.
+	ErrInvalidOp Error = "invalid op"
+	// ErrInvalidFilter is the invalid filter error.
+	ErrInvalidFilter Error = "invalid filter"
 	// ErrTypeMismatch is the type mismatch error.
 	ErrTypeMismatch Error = "type mismatch"
+	// ErrNotImplemented is the not implemented error.
+	ErrNotImplemented Error = "not implemented"
 	// ErrExit is the exit error.
 	ErrExit Error = "exit"
 )
@@ -784,9 +678,6 @@ func BuildVersion() string {
 	}
 	return ver
 }
-
-// keyRE matches keys used by [Context.Expand].
-var keyRE = regexp.MustCompile(`\$([A-Z][A-Z0-9_]{1,32})(?:\{([^}]{1,128})\})?`)
 
 // prepend is a generic prepend.
 func prepend[S ~[]E, E any](v S, s ...E) S {

@@ -1,6 +1,6 @@
 // Command gen parses and generates xo/ox style run entries for well-known,
 // commmon commands `docker`, `doctl`, `gh`, `helm`, `hugo`, `kubectl`,
-// `podman`, `psql`, `rclone`, `du`, `cp`, `tar`.
+// `podman`, `psql`, `rclone`, `talosctl`, `omnictl`, `du`, `cp`, `tar`.
 //
 // Generates the xo/ox API calls based on the command's `<command> help ...`
 // output.
@@ -33,6 +33,7 @@ var defaultCommands = []string{
 	`podman`,
 	`psql`,
 	`rclone`,
+	`talosctl`,
 }
 
 const banner = "" +
@@ -49,9 +50,11 @@ func main() {
 		commands += "`" + s
 	}
 	commands += "`"
+	var sb strings.Builder
+	ox.DefaultWrapTo(&sb, fmt.Sprintf(banner, commands), 80, 0)
 	ox.RunContext(
 		context.Background(),
-		ox.Defaults(ox.Banner(ox.DefaultWrap(fmt.Sprintf(banner, commands), 80, 0))),
+		ox.Defaults(ox.Banner(sb.String())),
 		ox.From(args),
 		ox.Exec(run(args)),
 	)
@@ -386,7 +389,7 @@ func (cmd *command) addFlag(sect, name, short, typstr, desc string) {
 			"$USER",
 			"$APPNAME",
 		} {
-			val, err := c.Expand(s)
+			val, err := c.Interpolate(s)
 			if err != nil {
 				panic(err)
 			}
@@ -673,6 +676,8 @@ func (cmd *command) logUnknownFlagType(sect, name, typstr, desc string) {
 		panic(err)
 	}
 	defer f.Close()
+	var sb strings.Builder
+	ox.DefaultWrapTo(&sb, desc, ox.DefaultWrapWidth, 2)
 	fmt.Fprintf(
 		f,
 		"----------\ncmnd: %s --help\nsect: %q\nflag: %s\ntype: %q\ndesc:\n\n  %s\n\n",
@@ -680,7 +685,7 @@ func (cmd *command) logUnknownFlagType(sect, name, typstr, desc string) {
 		sect,
 		name,
 		unquote(typstr),
-		ox.DefaultWrap(desc, ox.DefaultWrapWidth, 2),
+		sb.String(),
 	)
 }
 
@@ -815,7 +820,7 @@ func (cmd *command) firstSection(buf []byte) (string, int) {
 	}
 	var re *regexp.Regexp
 	switch cmd.app {
-	case "helm", "doctl", "hugo", "podman", "psql", "rclone":
+	case "helm", "doctl", "hugo", "podman", "psql", "rclone", "talosctl", "omnictl":
 		re = regexp.MustCompile(`(?m)^(Usage):\n`)
 	default:
 		re = cmd.sectRE()

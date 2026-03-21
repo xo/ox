@@ -71,9 +71,33 @@ func Args(args ...string) ContextOption {
 	}
 }
 
+// Interpolate is a [Run]/[RunContext]/[Context] option to set a interpolation
+// func.
+func Interpolate(interpolate func(*Context, any) (any, error)) ContextOption {
+	return option{
+		name: "Interpolate",
+		ctx: func(ctx *Context) error {
+			ctx.Interpolate = interpolate
+			return nil
+		},
+	}
+}
+
+// Interpolate is a [Run]/[RunContext]/[Context] option to set a interpolation
+// func.
+func Lookup(lookup func(*Context, string, string) (any, error)) ContextOption {
+	return option{
+		name: "Lookup",
+		ctx: func(ctx *Context) error {
+			ctx.Lookup = lookup
+			return nil
+		},
+	}
+}
+
 // OverrideMap is a [Run]/[RunContext]/[Context] option to set a override
 // expansion func.
-func Override(override func(string, string) (string, bool)) ContextOption {
+func Override(override func(string, string) (any, bool, error)) ContextOption {
 	return option{
 		name: "Override",
 		ctx: func(ctx *Context) error {
@@ -89,9 +113,12 @@ func OverrideMap(override map[string]string) ContextOption {
 	return option{
 		name: "OverrideMap",
 		ctx: func(ctx *Context) error {
-			ctx.Override = func(name string, _ string) (string, bool) {
-				s, ok := override[name]
-				return s, ok
+			ctx.Override = func(typ string, key string) (any, bool, error) {
+				if typ != "" {
+					key = strings.ToLower(typ) + "::" + key
+				}
+				s, ok := override[key]
+				return s, ok, nil
 			}
 			return nil
 		},
@@ -522,14 +549,15 @@ func BindSet[T *E, E any](v T, set *bool) FlagOption {
 // For example:
 //
 //	ox.Default("$USER") - expands to "ken" if the user running the application is "ken"
-//	ox.Default("$HOME") - expands to /home/$USER on most Unix systems
-//	ox.Default("$CACHE") - expands to /home/$USER/.cache on most Unix systems
-//	ox.Default("$APPCACHE") - expands to /home/$USER/.cache/myApp if the root command's name is "myApp" on most Unix systems
+//	ox.Default("$HOME") - expands to /home/$USER
+//	ox.Default("$CACHE") - expands to /home/$USER/.cache
+//	ox.Default("$APPCACHE") - expands to /home/$USER/.cache/myApp if the root command's name is "myApp"
+//	ox.Default("~/.${APPNAME|lower}rc") - expands to ~/.myapprc if the root command's name is "myApp"
 //	ox.Default("$ENV{MY_VAR}") - expands to value of the environment var $MY_VAR
 //	ox.Default("$CFG{yaml::a.b.c}") - expands to the registered YAML config file's key of a.b.c
 //	ox.Default("$CFG{a.b.c}") - expands to the first registered config file that returns a non-nil value and nil error for key a.b.c
 //
-// See [Context.Expand] for more expansion details.
+// See [Context.Interpolate] for further details.
 func Default(def any) FlagOption {
 	return option{
 		name: "Default",

@@ -767,7 +767,7 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 //	split - set a split separator for slice/array/map values
 //	set - binds the flag's set value to a bool field in the *struct of the name
 //
-// The `default:` option will be expanded by [Context.Expand] when the
+// The `default:` option will be processed by [Context.Interpolate] when the
 // command's flags are populated.
 //
 // The tag name (`ox`) can be changed by setting the [DefaultStructTagName] variable
@@ -1118,12 +1118,13 @@ func allowed(s string, allowed []any) string {
 	return sb.String()
 }
 
-// peek peeks at the next rune in r.
-func peek(r []rune, i, n int) rune {
+// peek peeks at the next item in v.
+func peek[S []T, T any](v S, i, n int) T {
 	if i < n {
-		return r[i]
+		return v[i]
 	}
-	return 0
+	var z T
+	return z
 }
 
 // prev returns the n-1 element in s.

@@ -6,19 +6,21 @@ import (
 	"io"
 
 	"github.com/pelletier/go-toml/v2"
-	"github.com/xo/ox"
 )
 
 func init() {
-	ox.RegisterConfigFileType("toml", func(opts ...any) (ox.ConfigDecoder, error) {
-		d := new(decoder)
-		for _, opt := range opts {
-			if o, ok := opt.(func(*toml.Decoder)); ok {
-				d.opts = append(d.opts, o)
-			}
-		}
-		return d, nil
-	})
+	/*
+		ox.RegisterConfigLoader("toml", func(opts ...any) (ox.ConfigLoader, error) {
+				d := new(decoder)
+				for _, opt := range opts {
+					if o, ok := opt.(func(*toml.Decoder)); ok {
+						d.opts = append(d.opts, o)
+					}
+				}
+				return d, nil
+			return nil, nil
+		})
+	*/
 }
 
 type decoder struct {

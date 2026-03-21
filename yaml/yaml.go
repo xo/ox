@@ -5,27 +5,26 @@ import (
 	"sync"
 
 	"github.com/goccy/go-yaml"
-	"github.com/xo/ox"
 )
 
 func init() {
-	ox.RegisterConfigLoader("yaml", func(opts ...any) (ox.ConfigLoader, error) {
-		/*
-			d := new(decoder)
-			for _, opt := range opts {
-				switch v := opt.(type) {
-				case func(*decoder) error:
-					if err := v(d); err != nil {
-						return nil, err
+	/*
+		ox.RegisterConfigLoader("yaml", func(opts ...any) (ox.ConfigLoader, error) {
+				d := new(decoder)
+				for _, opt := range opts {
+					switch v := opt.(type) {
+					case func(*decoder) error:
+						if err := v(d); err != nil {
+							return nil, err
+						}
+					case yaml.DecodeOption:
+						d.opts = append(d.opts, v)
 					}
-				case yaml.DecodeOption:
-					d.opts = append(d.opts, v)
 				}
-			}
-			return d, nil
-		*/
-		return nil, nil
-	})
+				return d, nil
+			return nil, nil
+		})
+	*/
 }
 
 type decoder struct {

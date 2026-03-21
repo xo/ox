@@ -281,9 +281,9 @@ func parseSize(s string) (int64, error) {
 		return GB, nil
 	case "tb", "t":
 		return TB, nil
-	case "pb":
+	case "pb", "p":
 		return PB, nil
-	case "eb":
+	case "eb", "e":
 		return EB, nil
 	case "kib", "ki":
 		return KiB, nil
