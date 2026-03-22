@@ -6,11 +6,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: stable
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Test
         run: |
           go test -v ./...
@@ -21,9 +21,9 @@ jobs:
       - name: Install TinyGo
         uses: acifani/setup-tinygo@v2
         with:
-          tinygo-version: "0.34.0"
+          tinygo-version: "0.40.1"
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Test
         run: |
           tinygo test -v ./...
