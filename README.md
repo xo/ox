@@ -90,15 +90,13 @@ The following applications make use of the `xo/ox` package for command-line
 parsing:
 
 - [`usql`][usql] - a universal command-line interface for SQL databases
-- [`xo`][xo] - a templated code generator for databases
+- [`dbtpl`][dbtpl] - a templated code generator for databases
 - [`iv`][iv] - a command-line terminal graphics image viewer
-- [`fv`][fv] - a command-line terminal graphics font viewer
 - [`wallgrab`][wallgrab] - a Apple Aerial wallpaper downloader
 
 [usql]: https://github.com/xo/usql
-[xo]: https://github.com/xo/xo
+[dbtpl]: https://github.com/xo/dbtpl
 [iv]: https://github.com/xo/iv
-[fv]: https://github.com/xo/fv
 [wallgrab]: https://github.com/kenshaw/wallgrab
 
 ## About
