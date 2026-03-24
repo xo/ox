@@ -30,7 +30,6 @@ func TestInterpolateVar(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected no error, got: %v", err)
 	}
-	user, pwd, configDir, cacheDir = user, pwd, configDir, cacheDir
 	tests := []struct {
 		v   string
 		exp string
@@ -150,6 +149,7 @@ func TestInterpolateVar(t *testing.T) {
 		{`${A/long/\{\{foo\}\}}`, `a really {{foo}} long string`},
 		{`${a.string}`, `foo`},
 		{`$TEST{a.string|upper}`, `FOO`},
+		{`$ENV{a.string}`, ``},
 		{`${test::a.string|upper}`, `FOO`},
 		{`${test::a.string|upper#F}`, `OO`},
 		{`${test::a.string|upper#F |lower}`, `FOO`}, // prefix is 'F |lower'
