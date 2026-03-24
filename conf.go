@@ -11,42 +11,6 @@ import (
 	"strings"
 )
 
-// ConfigLoader is the interface for configuration decoders.
-type ConfigLoader any
-
-var (
-	// loaders are config loaders.
-	loaders map[string]func(*Context, string) (any, bool, error)
-	// loaderOrder is the order that loaders were registered.
-	loaderOrder []string
-)
-
-func init() {
-	loaders = make(map[string]func(*Context, string) (any, bool, error))
-	RegisterConfigLoader("", DefaultKeyLoader)
-	RegisterConfigLoader("env", DefaultEnvLoader)
-}
-
-// RegisterConfigLoader registers a config file type.
-func RegisterConfigLoader(typ string, f func(*Context, string) (any, bool, error)) {
-	typ = strings.ToLower(typ)
-	loaders[typ] = f
-	if !slices.Contains(loaderOrder, typ) {
-		loaderOrder = append(loaderOrder, typ)
-	}
-}
-
-// ForceLoaderOrder forces the loader order.
-func ForceLoaderOrder(order []string) {
-	loaderOrder = loaderOrder[:0]
-	for _, typ := range order {
-		typ = strings.ToLower(typ)
-		if !slices.Contains(loaderOrder, typ) {
-			loaderOrder = append(loaderOrder, typ)
-		}
-	}
-}
-
 // DefaultLoader is the default config loader.
 var DefaultLoader = func(ctx *Context, typ, key string) (any, bool, error) {
 	// forced type, only check specific
@@ -153,4 +117,36 @@ var DefaultKeyLoader = func(ctx *Context, key string) (any, bool, error) {
 var DefaultEnvLoader = func(_ *Context, key string) (any, bool, error) {
 	s, ok := os.LookupEnv(key)
 	return s, ok, nil
+}
+
+var (
+	// loaders are config loaders.
+	loaders map[string]func(*Context, string) (any, bool, error)
+	// loaderOrder is the order that loaders were registered.
+	loaderOrder []string
+)
+
+func init() {
+	loaders = make(map[string]func(*Context, string) (any, bool, error))
+	RegisterConfigLoader("", DefaultKeyLoader)
+	RegisterConfigLoader("env", DefaultEnvLoader)
+}
+
+// RegisterConfigLoader registers a config file type.
+func RegisterConfigLoader(typ string, f func(*Context, string) (any, bool, error)) {
+	typ = strings.ToLower(typ)
+	loaders[typ] = f
+	if !slices.Contains(loaderOrder, typ) {
+		loaderOrder = append(loaderOrder, typ)
+	}
+}
+
+// RegisterLoaderOrder sets the loader order.
+func RegisterLoaderOrder(order ...string) {
+	loaderOrder = loaderOrder[:0]
+	for _, typ := range order {
+		if typ = strings.ToLower(typ); !slices.Contains(loaderOrder, typ) {
+			loaderOrder = append(loaderOrder, typ)
+		}
+	}
 }
