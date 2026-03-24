@@ -133,7 +133,9 @@ func TestInterpolateVar(t *testing.T) {
 		{`${HOME:1:-2}`, home[1 : len(home)-2]},
 		{`${HOME:1:-2|upper}`, strings.ToUpper(home[1 : len(home)-2])},
 		{`${HOME|base}`, filepath.Base(home)},
+		{`${HOME| base }`, filepath.Base(home)},
 		{`${HOME|dir}`, filepath.Dir(home)},
+		{`${HOME| dir }`, filepath.Dir(home)},
 		{`${VERSION#v}`, `0.1.0`},
 		{`${HOME#/home}`, strings.TrimPrefix(home, "/home")},
 		{`${HOME%/` + user + `}`, strings.TrimSuffix(home, "/"+user)},
@@ -153,6 +155,10 @@ func TestInterpolateVar(t *testing.T) {
 		{`${test::a.string|upper#F |lower}`, `FOO`}, // prefix is 'F |lower'
 		{`${test::a.string|upper%O}`, `FO`},
 		{`${test::a.string|upper%O|lower}`, `FOO`}, // suffix is 'O|lower'
+		{`${a.rate}`, `1 MiB/s`},
+		{`${a.rate@%d}`, `1048576/s`},
+		{`${a.rate@%e}`, `1Mi/s`},
+		{`${a.addrport}`, `2.3.4.5:6789`},
 	}
 	m := make(map[string]bool)
 	for i, test := range tests {

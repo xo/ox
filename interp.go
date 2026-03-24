@@ -132,6 +132,10 @@ var (
 			return s, nil
 		},
 	}
+	// DefaultOpFormatFunc is the default op format func used by [InterpolateVar].
+	DefaultOpFormatFunc = func(format string, v any) (any, error) {
+		return fmt.Sprintf(format, v), nil
+	}
 	// DefaultFilters are default filters used by [InterpolateVar].
 	DefaultFilters = map[string]func(string) string{
 		"lower": strings.ToLower,
@@ -285,23 +289,28 @@ func lookup(ctx *Context, typ, key string, transform bool) (string, error) {
 	case err != nil:
 		return "", err
 	}
+	if transform && len(ops) != 0 {
+		return apply(v, ops)
+	}
 	s, err := asString[string](v)
 	if err != nil {
 		return "", err
-	}
-	if transform && len(ops) != 0 {
-		return apply(s, ops)
 	}
 	return s, nil
 }
 
 // apply applies the string ops to the string.
-func apply(s, ops string) (string, error) {
+func apply(v any, ops string) (string, error) {
 	var op, str string
 	for ops != "" {
 		op, str, ops = readOp(ops)
 		// fmt.Fprintf(os.Stderr, "  op: %q str: %q ops: %q\n", op, str, ops)
 		switch f, ok := DefaultOps[op]; {
+		case op == "@":
+			var err error
+			if v, err = DefaultOpFormatFunc(str, v); err != nil {
+				return "", err
+			}
 		case !ok && len(op) == 2:
 			if f, ok = DefaultOps[op[:1]]; !ok {
 				return "", fmt.Errorf("%w: %w %q", ErrNotImplemented, ErrInvalidOp, op)
@@ -310,11 +319,18 @@ func apply(s, ops string) (string, error) {
 		case !ok:
 			return "", fmt.Errorf("%w: %w %q", ErrNotImplemented, ErrInvalidOp, op)
 		default:
-			var err error
-			if s, err = f(s, str); err != nil {
+			s, err := asString[string](v)
+			if err != nil {
+				return "", err
+			}
+			if v, err = f(s, str); err != nil {
 				return "", err
 			}
 		}
+	}
+	s, err := asString[string](v)
+	if err != nil {
+		return "", err
 	}
 	return s, nil
 }
@@ -395,7 +411,7 @@ func readOp(ops string) (string, string, string) {
 		op += string(ops[0])
 		ops = ops[1:]
 	}
-	if f != '%' && f != '#' && f != '^' {
+	if f != '%' && f != '#' && f != '^' && f != '@' {
 		if i := opIndex(ops, f); i != -1 {
 			return op, ops[:i], ops[i:]
 		}
@@ -424,7 +440,7 @@ func opIndex(ops string, op rune) int {
 // isOp returns true if r is an allowed op character.
 func isOp(r rune) bool {
 	switch r {
-	case '#', '%', '^', ':', '/', '|':
+	case '#', '%', '^', ':', '/', '|', '@':
 		return true
 	}
 	return false
@@ -432,11 +448,11 @@ func isOp(r rune) bool {
 
 // isOpSecond returns true if r is an allowed second op character.
 func isOpSecond(r, f rune) bool {
-	if (f == '#' || f == '%' || f == '^') && f != r {
+	if (f == '#' || f == '%' || f == '^' || f == '@') && f != r {
 		return false
 	}
 	switch r {
-	case '#', '%', '^', ':', '/', '|', '?', '=', '+', '-':
+	case '#', '%', '^', ':', '/', '|', '@', '?', '=', '+', '-':
 		return true
 	}
 	return false
