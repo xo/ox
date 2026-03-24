@@ -7,6 +7,7 @@ import (
 	"crypto/sha512"
 	"errors"
 	"fmt"
+	"path/filepath"
 	"regexp"
 	"slices"
 	"strconv"
@@ -45,59 +46,66 @@ var (
 		"#": func(s, v string) (string, error) {
 			return strings.TrimPrefix(s, v), nil
 		},
-		"##": func(s, v string) (string, error) {
-			return "", ErrNotImplemented
-		},
 		// suffix trim
 		"%": func(s, v string) (string, error) {
 			return strings.TrimSuffix(s, v), nil
 		},
-		"%%": func(s, v string) (string, error) {
-			return "", ErrNotImplemented
-		},
-		"^": func(s, _ string) (string, error) {
-			return s, nil
-		},
-		"^^": func(s, _ string) (string, error) {
-			return "", ErrNotImplemented
-		},
 		// replace one
 		"/": func(s, v string) (string, error) {
-			v, t, ok := strings.Cut(v, "/")
+			str, rep, ok := strings.Cut(v, "/")
 			if !ok {
-				return "", fmt.Errorf("missing /")
+				return "", fmt.Errorf("%w %q: missing /", ErrInvalidOp, v)
 			}
-			re, err := regexp.Compile(v)
+			re, err := regexp.Compile(str)
 			if err != nil {
-				return "", err
+				return "", fmt.Errorf("%w invalid regexp %q: %w", ErrInvalidOp, str, err)
 			}
-			r := []rune(s)
 			if m := re.FindStringIndex(s); m != nil {
-				r = slices.Replace(r, m[0], m[1], []rune(t)...)
+				return string(slices.Replace([]byte(s), m[0], m[1], []byte(rep)...)), nil
 			}
-			return string(r), nil
+			return s, nil
 		},
 		// replace all
 		"//": func(s, v string) (string, error) {
-			v, t, ok := strings.Cut(v, "/")
+			str, rep, ok := strings.Cut(v, "/")
 			if !ok {
-				return "", fmt.Errorf("missing /")
+				return "", fmt.Errorf("%w %q: missing /", ErrInvalidOp, v)
 			}
-			re, err := regexp.Compile(v)
+			re, err := regexp.Compile(str)
 			if err != nil {
-				return "", err
+				return "", fmt.Errorf("%w invalid regexp %q: %w", ErrInvalidOp, str, err)
 			}
-			return re.ReplaceAllString(s, t), nil
+			return re.ReplaceAllString(s, rep), nil
 		},
 		// substring
-		":": func(s, v string) (string, error) {
-			start, n := 0, len(s)
-			end, ok := parseInt(v)
-			switch {
-			case !ok, n < end:
-				return "", fmt.Errorf("invalid index %q", v)
-			case end < 0:
-				end = len(s) + end
+		":": func(s, idx string) (string, error) {
+			start, end, single, v := 0, len(s), true, idx
+			if i := strings.Index(v, ":"); i != -1 {
+				switch i, ok := parseInt(v[i+1:]); {
+				case !ok:
+					return "", fmt.Errorf("%w index %q", ErrInvalidOp, idx)
+				case 0 <= i:
+					end = i
+				default:
+					end = end + i
+				}
+				single, v = false, v[:i]
+			}
+			switch i, ok := parseInt(v); {
+			case !ok:
+				return "", fmt.Errorf("%w index %q", ErrInvalidOp, idx)
+			case !single && 0 <= i:
+				start = i
+			case !single:
+				start = len(s) + i
+			case single && 0 <= i:
+				start = i
+			case single:
+				start = len(s) + i
+			}
+			switch { // indices check
+			case len(s) < end, end < start, start < 0:
+				return "", fmt.Errorf("%w index %q", ErrInvalidOp, idx)
 			}
 			return s[start:end], nil
 		},
@@ -108,19 +116,9 @@ var (
 			}
 			return s, nil
 		},
-		//
-		":=": func(s, v string) (string, error) {
-			return "", ErrNotImplemented
-		},
-		":?": func(s, v string) (string, error) {
-			return "", ErrNotImplemented
-		},
-		":+": func(s, v string) (string, error) {
-			return "", ErrNotImplemented
-		},
 		// apply filter
 		"|": func(s, v string) (string, error) {
-			f, ok := DefaultFilters[v]
+			f, ok := DefaultFilters[strings.TrimSpace(v)]
 			if !ok {
 				return "", fmt.Errorf("%w: %q", ErrInvalidFilter, v)
 			}
@@ -143,21 +141,23 @@ var (
 		"ident": strcase.ToIdentifier,
 		"kebab": strcase.ToKebab,
 		"trim":  strings.TrimSpace,
+		"base":  filepath.Base,
+		"dir":   filepath.Dir,
 		"md5": func(s string) string {
 			b := md5.Sum([]byte(s))
-			return string(b[:])
+			return fmt.Sprintf("%x", string(b[:]))
 		},
 		"sha1": func(s string) string {
 			b := sha1.Sum([]byte(s))
-			return string(b[:])
+			return fmt.Sprintf("%x", string(b[:]))
 		},
 		"sha256": func(s string) string {
 			b := sha256.Sum256([]byte(s))
-			return string(b[:])
+			return fmt.Sprintf("%x", string(b[:]))
 		},
 		"sha512": func(s string) string {
 			b := sha512.Sum512([]byte(s))
-			return string(b[:])
+			return fmt.Sprintf("%x", string(b[:]))
 		},
 	}
 )
@@ -212,12 +212,14 @@ var (
 //	ident - ident case
 //	kebab - kebab case
 //	trim - trim space
+//	base - file path base
+//	dir - file path dir
 //	md5 - md5 hash
 //	sha1 - sha1 hash
 //	sha256 - sha256 hash
 //	sha512 - sha512 hash
 //
-// Built-in Bash style string variable operators (see [DefaultOps]):
+// Built-in Bash-like string variable operators (see [DefaultOps]):
 //
 //	#, ##, %, %%, /, //, ^, ^^, :
 //
@@ -231,7 +233,6 @@ var (
 //	${VERSION#v}
 //	${MY_VALUE//foo/bar||default_value|upper}
 //	${env::MY_VALUE%foo|upper}
-//	${yaml::a.key:?yaml a.key not defined!}
 func InterpolateVar(ctx *Context, v any) (any, error) {
 	str, ok := v.(string)
 	if !ok || str == "" {
@@ -253,6 +254,7 @@ func InterpolateVar(ctx *Context, v any) (any, error) {
 		}
 		// read var
 		typ, key, transform, end := readVar(r, i, n)
+		// fmt.Fprintf(os.Stderr, "type: %q key: %q, transform: %t end: %d\n", typ, key, transform, end)
 		if end == -1 || (typ == "" && key == "") {
 			_ = sb.WriteByte('$')
 			continue
@@ -297,30 +299,24 @@ func lookup(ctx *Context, typ, key string, transform bool) (string, error) {
 func apply(s, ops string) (string, error) {
 	var op, str string
 	for ops != "" {
-		op, str, ops = opNext(ops)
-		f, ok := DefaultOps[op]
-		if !ok {
-			return "", fmt.Errorf("%w %q", ErrInvalidOp, op)
-		}
-		var err error
-		if s, err = f(s, str); err != nil {
-			return "", err
+		op, str, ops = readOp(ops)
+		// fmt.Fprintf(os.Stderr, "  op: %q str: %q ops: %q\n", op, str, ops)
+		switch f, ok := DefaultOps[op]; {
+		case !ok && len(op) == 2:
+			if f, ok = DefaultOps[op[:1]]; !ok {
+				return "", fmt.Errorf("%w: %w %q", ErrNotImplemented, ErrInvalidOp, op)
+			}
+			op, str = op[:1], op[1:]+str
+		case !ok:
+			return "", fmt.Errorf("%w: %w %q", ErrNotImplemented, ErrInvalidOp, op)
+		default:
+			var err error
+			if s, err = f(s, str); err != nil {
+				return "", err
+			}
 		}
 	}
 	return s, nil
-}
-
-// opNext reads the next op from ops.
-func opNext(ops string) (string, string, string) {
-	op, ops := ops[0:1], ops[1:]
-	if len(ops) != 0 && isOp(rune(ops[0])) {
-		op += string(ops[0])
-		ops = ops[1:]
-	}
-	if i := strings.IndexFunc(ops, isOp); i != -1 {
-		return op, ops[:i], ops[i:]
-	}
-	return op, ops, ""
 }
 
 // readVar reads a var in r.
@@ -379,7 +375,10 @@ func readBracket(r []rune, i, n int) (string, int) {
 			return "", -1
 		case prev != '\\' && c == '}':
 			return string(v), i + 1
-		case c != '\\', prev == '\\':
+		case prev == '\\':
+			prev = c
+			fallthrough
+		case c != '\\':
 			v = append(v, r[i])
 		default:
 			prev = c
@@ -388,10 +387,56 @@ func readBracket(r []rune, i, n int) (string, int) {
 	return "", -1
 }
 
+// readOp reads the next op from ops.
+func readOp(ops string) (string, string, string) {
+	op, ops := ops[0:1], ops[1:]
+	f := rune(op[0])
+	if len(ops) != 0 && isOpSecond(rune(ops[0]), f) {
+		op += string(ops[0])
+		ops = ops[1:]
+	}
+	if f != '%' && f != '#' && f != '^' {
+		if i := opIndex(ops, f); i != -1 {
+			return op, ops[:i], ops[i:]
+		}
+	}
+	return op, ops, ""
+}
+
+// opIndex returns the index for the next op. For '/' and ':' continues to the
+// next op.
+func opIndex(ops string, op rune) int {
+	if i := strings.IndexFunc(ops, isOp); i != -1 {
+		switch c := rune(ops[i]); {
+		case
+			op == '/' && op == c,
+			op == ':' && op == c:
+			if j := strings.IndexFunc(ops[i+1:], isOp); j != -1 {
+				return i + j + 1
+			}
+		default:
+			return i
+		}
+	}
+	return -1
+}
+
 // isOp returns true if r is an allowed op character.
 func isOp(r rune) bool {
 	switch r {
-	case '#', '%', '^', ':', '/', '|', '?', '=', '+':
+	case '#', '%', '^', ':', '/', '|':
+		return true
+	}
+	return false
+}
+
+// isOpSecond returns true if r is an allowed second op character.
+func isOpSecond(r, f rune) bool {
+	if (f == '#' || f == '%' || f == '^') && f != r {
+		return false
+	}
+	switch r {
+	case '#', '%', '^', ':', '/', '|', '?', '=', '+', '-':
 		return true
 	}
 	return false
