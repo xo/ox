@@ -381,12 +381,15 @@ func readType(r []rune, i, n int) (string, int) {
 	return string(r[start:i]), i
 }
 
-// readBracket reads until the first unescaped $ or }.
+// readBracket reads until the first unescaped '$' or '}', or breaks when a
+// newline ('\n', '\r') is encountered.
 func readBracket(r []rune, i, n int) (string, int) {
 	var v []rune
 	var c, prev rune
 	for ; i < n; i++ {
 		switch c = r[i]; {
+		case c == '\n', c == '\r':
+			return "", -1
 		case prev != '\\' && c == '$':
 			return "", -1
 		case prev != '\\' && c == '}':
