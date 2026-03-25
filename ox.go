@@ -131,6 +131,8 @@ var (
 				code := 1
 				if v, ok := err.(interface{ ErrorCode() int }); ok {
 					code = v.ErrorCode()
+				} else if v, ok := err.(interface{ ExitCode() int }); ok {
+					code = v.ExitCode()
 				}
 				ctx.Exit(code)
 			case ctx.OnErr == OnErrPanic:
@@ -583,6 +585,8 @@ const (
 	ErrInvalidConversion Error = "invalid conversion"
 	// ErrInvalidOp is the invalid op error.
 	ErrInvalidOp Error = "invalid op"
+	// ErrInvalidKey is the invalid key error.
+	ErrInvalidKey Error = "invalid key"
 	// ErrInvalidFilter is the invalid filter error.
 	ErrInvalidFilter Error = "invalid filter"
 	// ErrTypeMismatch is the type mismatch error.

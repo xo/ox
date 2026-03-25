@@ -183,6 +183,7 @@ var (
 //	${TYPE::KEY||default|filter}
 //	${KEY%str}
 //	${KEY%%str}
+//	${KEY@str}
 //	${KEY^str}
 //	${KEY^^str}
 //	${KEY/str/rep}
@@ -227,14 +228,21 @@ var (
 //
 //	#, ##, %, %%, /, //, ^, ^^, :
 //
+// A special Go formatting operator, @, is also provided that applies Go's
+// standard formatting. That is, a key such as `${KEY@%f}` will be interpolated
+// as the equivalent of `fmt.Sprintf("%f", <key value>)`.
+//
 // Interpolation examples:
 //
 //	$APPNAME
+//	${APPNAME|upper}
 //	$ENV{MY_VALUE|lower||default_value}
 //	${env::MY_VALUE|lower||default_value}
 //	$YAML{a.key.path|upper}
 //	${yaml::a.key.path||default_value|upper}
-//	${VERSION#v}
+//	${\$.store.book[*].author}
+//	${APPVERSION#v}
+//	${my_rate@%e}
 //	${MY_VALUE//foo/bar||default_value|upper}
 //	${env::MY_VALUE%foo|upper}
 func InterpolateVar(ctx *Context, v any) (any, error) {

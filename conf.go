@@ -13,7 +13,7 @@ import (
 
 // DefaultLoader is the default config loader.
 var DefaultLoader = func(ctx *Context, typ, key string) (any, bool, error) {
-	// forced type, only check specific
+	// forced type, check only one
 	if typ != "" {
 		if loader, ok := loaders[strings.ToLower(typ)]; ok {
 			return loader(ctx, key)
@@ -24,7 +24,7 @@ var DefaultLoader = func(ctx *Context, typ, key string) (any, bool, error) {
 	for _, typ := range loaderOrder {
 		if loader, ok := loaders[typ]; ok {
 			switch v, ok, err := loader(ctx, key); {
-			case errors.Is(err, ErrUnknownKey):
+			case errors.Is(err, ErrUnknownKey), errors.Is(err, ErrInvalidKey):
 				continue
 			case err != nil:
 				return nil, false, err

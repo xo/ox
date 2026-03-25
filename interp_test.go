@@ -159,6 +159,11 @@ func TestInterpolateVar(t *testing.T) {
 		{`${a.rate@%d}`, `1048576/s`},
 		{`${a.rate@%e}`, `1Mi/s`},
 		{`${a.addrport}`, `2.3.4.5:6789`},
+		{`${yaml::\$.store.book}`, `author:john price:10,author:ken price:12`},
+		{`${yaml::\$.store.book[*].author}`, `stephen king,neal stephenson`},
+		{`${yaml::\$\.store\.book\[\*\]\.author}`, `stephen king,neal stephenson`},
+		{`${\$.store.book[*].author}`, `stephen king,neal stephenson`},
+		{`${\$.store.book}`, `author:john price:10,author:ken price:12`},
 	}
 	m := make(map[string]bool)
 	for i, test := range tests {
@@ -188,6 +193,22 @@ func TestInterpolateVar(t *testing.T) {
 						return longstr, true, nil
 					case key == "VERSION":
 						return "v0.1.0", true, nil
+					case typ == "", typ == "yaml":
+						switch key {
+						case "$.store.book[*].author":
+							return []string{"stephen king", "neal stephenson"}, true, nil
+						case "$.store.book":
+							return []map[string]any{
+								{
+									"author": "john",
+									"price":  10,
+								},
+								{
+									"author": "ken",
+									"price":  12,
+								},
+							}, true, nil
+						}
 					}
 					return "", false, nil
 				},
