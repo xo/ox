@@ -264,8 +264,8 @@ func InterpolateVar(ctx *Context, v any) (any, error) {
 			continue
 		}
 		// fmt.Fprintf(os.Stderr, "captured: %q type: %q key: %q trans: %t\n", string(r[i:end]), typ, key, transform)
-		switch s, err := lookup(ctx, typ, key, transform); {
-		case err == nil:
+		switch s, err := lookup(ctx, typ, key, transform); err {
+		case nil:
 			_, _ = sb.WriteString(s)
 		default:
 			_, _ = sb.WriteString(string(r[i:end]))
@@ -282,6 +282,7 @@ func lookup(ctx *Context, typ, key string, transform bool) (string, error) {
 	if i := strings.IndexFunc(key, isOp); i != -1 && transform {
 		key, ops = key[:i], key[i:]
 	}
+	// lookup
 	v, err := ctx.Lookup(ctx, typ, key)
 	switch {
 	case errors.Is(err, ErrUnknownKey), v == nil:
@@ -289,9 +290,13 @@ func lookup(ctx *Context, typ, key string, transform bool) (string, error) {
 	case err != nil:
 		return "", err
 	}
+	// apply transforms
 	if transform && len(ops) != 0 {
-		return apply(v, ops)
+		if v, err = apply(v, ops); err != nil {
+			return "", err
+		}
 	}
+	// convert
 	s, err := asString[string](v)
 	if err != nil {
 		return "", err
@@ -300,7 +305,7 @@ func lookup(ctx *Context, typ, key string, transform bool) (string, error) {
 }
 
 // apply applies the string ops to the string.
-func apply(v any, ops string) (string, error) {
+func apply(v any, ops string) (any, error) {
 	var op, str string
 	for ops != "" {
 		op, str, ops = readOp(ops)
@@ -309,30 +314,26 @@ func apply(v any, ops string) (string, error) {
 		case op == "@":
 			var err error
 			if v, err = DefaultOpFormatFunc(str, v); err != nil {
-				return "", err
+				return nil, err
 			}
 		case !ok && len(op) == 2:
 			if f, ok = DefaultOps[op[:1]]; !ok {
-				return "", fmt.Errorf("%w: %w %q", ErrNotImplemented, ErrInvalidOp, op)
+				return nil, fmt.Errorf("%w: %w %q", ErrNotImplemented, ErrInvalidOp, op)
 			}
 			op, str = op[:1], op[1:]+str
 		case !ok:
-			return "", fmt.Errorf("%w: %w %q", ErrNotImplemented, ErrInvalidOp, op)
+			return nil, fmt.Errorf("%w: %w %q", ErrNotImplemented, ErrInvalidOp, op)
 		default:
 			s, err := asString[string](v)
 			if err != nil {
-				return "", err
+				return nil, err
 			}
 			if v, err = f(s, str); err != nil {
-				return "", err
+				return nil, err
 			}
 		}
 	}
-	s, err := asString[string](v)
-	if err != nil {
-		return "", err
-	}
-	return s, nil
+	return v, nil
 }
 
 // readVar reads a var in r.
