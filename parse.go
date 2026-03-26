@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// Parse parses the args into context.
+// Parse parses flags and args into context.
 func Parse(ctx *Context, cmd *Command, args []string) (*Command, []string, error) {
 	var v []string
 	var s string
