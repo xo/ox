@@ -41,7 +41,7 @@
 - Non-standard types:
   - `ox.Size` - a byte size (`15 MiB`, `1 GB`, ...)
   - `ox.Rate` - a byte rate (`15 MiB/s`, `1 GB/h`, ...)
-- Support for compound types of all above (slices/maps):
+- Support for aggregate types of above (slices/arrays/maps):
   - `[]int`, `[][]byte`, `[]string`, `[]float64`, `[]*big.Int`, etc.
   - `map[string]string`, `map[int]string`, `map[float64]*url.URL`, etc.
 - Additional type support:
