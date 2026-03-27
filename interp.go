@@ -275,8 +275,9 @@ func InterpolateVar(ctx *Context, v any) (any, error) {
 		s, err := lookup(ctx, typ, key, bracket)
 		switch {
 		case errors.Is(err, ErrUnknownKey):
+			// empty string
 		case err != nil:
-			_, _ = fmt.Fprintf(&sb, "!(ERROR: %s: %v)", formatKey(typ, key, extent, bracket), err)
+			formatVarError(&sb, typ, key, extent, bracket, err)
 		default:
 			_, _ = sb.WriteString(s)
 		}
@@ -285,28 +286,27 @@ func InterpolateVar(ctx *Context, v any) (any, error) {
 	return sb.String(), nil
 }
 
-// formatKey formats a key for error display.
-func formatKey(typ, key string, extent, bracket bool) string {
-	var sb strings.Builder
-	_ = sb.WriteByte('$')
-	switch {
-	case extent && !bracket && typ != "":
-		sb.WriteString(typ)
-	case extent && !bracket:
-		sb.WriteString(key)
+// formatVarError formats a var error to the string builder.
+func formatVarError(sb *strings.Builder, typ, key string, extent, bracket bool, err error) {
+	_, _ = sb.WriteString("!(ERROR: $")
+	if !extent {
+		sb.WriteByte('{')
+	}
+	sb.WriteString(typ)
+	if extent && bracket && typ != "" {
+		sb.WriteByte('{')
+	}
+	if typ != "" && !extent {
+		sb.WriteString("::")
+	}
+	sb.WriteString(key)
+	if extent && bracket && typ == "" {
+		sb.WriteByte('{')
 	}
 	if bracket {
-		_ = sb.WriteByte('{')
-		switch {
-		case !extent && typ != "":
-			_, _ = fmt.Fprintf(&sb, "%s::", typ)
-		}
+		sb.WriteByte('}')
 	}
-	_, _ = sb.WriteString(key)
-	if bracket {
-		_ = sb.WriteByte('}')
-	}
-	return sb.String()
+	_, _ = fmt.Fprintf(sb, ": %v)", err)
 }
 
 // lookup retrieves a type/key from the context, and transforms it if
@@ -397,7 +397,7 @@ func readVar(r []rune, i, n int) (string, string, bool, bool, int) {
 	case typ == "" && key == "":
 		return "", "", false, false, n
 	case key == "":
-		typ, key, bracket = "", typ, false
+		typ, key = "", typ
 	}
 	return typ, key, extent, bracket, min(i, n)
 }

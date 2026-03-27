@@ -1,6 +1,7 @@
 package ox
 
 import (
+	"errors"
 	"net/netip"
 	"os"
 	"path/filepath"
@@ -61,6 +62,9 @@ func TestInterpolateVar(t *testing.T) {
 		{` {${A\}} `, ` { `},  // bad substitution
 		{` {${A\\}} `, ` { `}, // bad substitution
 		{` {${\\}} `, ` { `},  // bad substitution
+		{`${||foo}`, `foo`},
+		{`${|upper}`, ``},
+		{`$A{|upper}`, strings.ToUpper(longstr)},
 		{`$PWD`, pwd},
 		{`$HOME`, home},
 		{`$USER`, user},
@@ -119,6 +123,10 @@ func TestInterpolateVar(t *testing.T) {
 		{`${undef||a|sha1|md5}`, `77de54ccf56eb6f7dbf99e4d3be949ab`},
 		{`${undef||a|sha1|md5|sha256}`, `03fe963498c652c72bf590b3baa2a327ac8976989a6f024994f923a221ffc931`},
 		{`${undef||a|sha1|md5|sha512}`, `1e7ecf724efcf303623dde1b992b9dc107cb9e77cff0acd8d1bd238713be182282e84daa511a6c3b6f083662c5395bfa8793319dd0c6d8fef2999a532a64cb5e`},
+		{`${||a|sha1}`, `86f7e437faa5a7fce15d1ddcb9eaeaea377667b8`},
+		{`${||a|sha1|md5}`, `77de54ccf56eb6f7dbf99e4d3be949ab`},
+		{`${||a|sha1|md5|sha256}`, `03fe963498c652c72bf590b3baa2a327ac8976989a6f024994f923a221ffc931`},
+		{`${||a|sha1|md5|sha512}`, `1e7ecf724efcf303623dde1b992b9dc107cb9e77cff0acd8d1bd238713be182282e84daa511a6c3b6f083662c5395bfa8793319dd0c6d8fef2999a532a64cb5e`},
 		{`${HOME|kebab}`, strcase.ToKebab(home)},
 		{`${A|camel}`, strcase.ForceCamelIdentifier(longstr)},
 		{`${A|snake}`, strcase.ToSnake(longstr)},
@@ -174,6 +182,15 @@ func TestInterpolateVar(t *testing.T) {
 		{`${yaml::\$.bad.key}`, `!(ERROR: ${yaml::$.bad.key}: invalid conversion: index 0: invalid value of type map[string]interface {})`},
 		{`${yaml::\$.store.book}`, `author=jon,price=10`},
 		{`${\$....}`, ``},
+		{`$ERRORKEY`, `!(ERROR: $ERRORKEY: invalid)`},
+		{`$ERRORKEY{}`, `!(ERROR: $ERRORKEY{}: invalid)`},
+		{`$ERRORKEY{||default}`, `!(ERROR: $ERRORKEY{||default}: invalid)`},
+		{`$YAML{ERRORKEY}`, `!(ERROR: $YAML{ERRORKEY}: invalid)`},
+		{`${ERRORKEY}`, `!(ERROR: ${ERRORKEY}: invalid)`},
+		{`${ERRORKEY||default}`, `!(ERROR: ${ERRORKEY||default}: invalid)`},
+		{`${yaml::ERRORKEY}`, `!(ERROR: ${yaml::ERRORKEY}: invalid)`},
+		{`${yaml::ERRORKEY||default}`, `!(ERROR: ${yaml::ERRORKEY||default}: invalid)`},
+		{`${yaml::ERRORKEY||default@%d}`, `!(ERROR: ${yaml::ERRORKEY||default@%d}: invalid)`},
 		{`${yaml::\$....}`, `!(ERROR: ${yaml::$....}: invalid key)`},
 	}
 	m := make(map[string]bool)
@@ -204,6 +221,8 @@ func TestInterpolateVar(t *testing.T) {
 						return longstr, true, nil
 					case key == "VERSION":
 						return "v0.1.0", true, nil
+					case typ == "ERRORKEY", key == "ERRORKEY":
+						return "", false, errors.New("invalid")
 					case typ == "", typ == "yaml":
 						switch {
 						case typ == "yaml" && key == "$....":
@@ -243,7 +262,7 @@ func TestInterpolateVar(t *testing.T) {
 				t.Fatalf("expected string, got: %T", v)
 			}
 			if s != test.exp {
-				t.Errorf("expected %q, got: %q", test.exp, s)
+				t.Errorf("expected\n%q\ngot:\n%q", test.exp, s)
 			}
 		})
 	}
