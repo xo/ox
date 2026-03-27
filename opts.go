@@ -250,10 +250,12 @@ func VersionString(version string) CommandOption {
 	}
 }
 
-// Help is a [Command]/[Flag] option to add help output to a root command. By default,
-// it adds a `--help` flag to all commands in the command tree. The root
-// command will have a `help` sub command added if there are any other defined
-// sub commands.
+// Help is a [Command]/[Flag] option to add help output to a root command. By
+// default, adds a `--help` flag to all commands in the command tree including
+// the root command.
+//
+// Additionalyl, a `help` subcommand will be added to the root command if the
+// root command has at least one other subcommand not named `help`.
 func Help(opts ...Option) CommandFlagOption {
 	return option{
 		name: "Help",
