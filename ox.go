@@ -711,7 +711,7 @@ func prepend[S ~[]E, E any](v S, s ...E) S {
 //
 // TODO: remove when tinygo supports go1.26.
 func asExitError(err error) (*exec.ExitError, bool) {
-	if e := (*(exec.ExitError))(nil); errors.As(err, &e) {
+	if e := (*exec.ExitError)(nil); errors.As(err, &e) {
 		return e, true
 	}
 	return nil, false
