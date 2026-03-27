@@ -3,6 +3,8 @@ package ox
 import (
 	"bytes"
 	"context"
+	"fmt"
+	"os/exec"
 	"strconv"
 	"strings"
 	"testing"
@@ -112,6 +114,38 @@ func TestLdist(t *testing.T) {
 	}
 }
 
+func TestEmitExitError(t *testing.T) {
+	code := new(int)
+	c := testContext(t, code)
+	c.Exec = testExitError(t)
+	c.EmitExecExitError = true
+	err := c.Run(context.Background())
+	if err == nil {
+		t.Fatal("expected non-nil error")
+	}
+	switch ok := c.Handler(err); {
+	case !ok:
+		t.Errorf("expected to continue")
+	case *code == 0, *code == 1:
+		t.Errorf("expected error code != 0 and error code != 1, got: %d", *code)
+	}
+	t.Logf("err: %v, code: %d", err, *code)
+	stdout, ok := c.Stdout.(*bytes.Buffer)
+	if !ok {
+		t.Fatal("expected *bytes.Buffer")
+	}
+	if s := stdout.String(); s != "" {
+		t.Errorf("expected no output, got: %q", s)
+	}
+	stderr, ok := c.Stderr.(*bytes.Buffer)
+	if !ok {
+		t.Fatal("expected *bytes.Buffer")
+	}
+	if s, exp := stderr.String(), "error: (my error): exit status 2: expr: division by zero\n"; s != exp {
+		t.Errorf("expected %q, got: %q", exp, s)
+	}
+}
+
 func testContext(t *testing.T, code *int, args ...string) *Context {
 	t.Helper()
 	cmd := testCommand(t)
@@ -124,6 +158,7 @@ func testContext(t *testing.T, code *int, args ...string) *Context {
 			t.Fatalf("context panic: %v", v)
 		},
 		Root:   cmd,
+		Stdout: new(bytes.Buffer),
 		Stderr: new(bytes.Buffer),
 		Args:   args,
 		Vars:   make(Vars),
@@ -133,4 +168,25 @@ func testContext(t *testing.T, code *int, args ...string) *Context {
 		t.Fatalf("expected no error, got: %v", err)
 	}
 	return c
+}
+
+// testExitError is a command that when executed always returns [exec.ExitError].
+func testExitError(t *testing.T) *Command {
+	t.Helper()
+	cmd, err := NewCommand(Exec(func(ctx context.Context) error {
+		c := exec.CommandContext(ctx, "expr", "1", "/", "0")
+		buf, err := c.Output()
+		t.Logf("command output %q", string(buf))
+		if err != nil {
+			t.Logf("error: %v (%T)", err, err)
+			if e, ok := err.(*exec.ExitError); ok {
+				t.Logf("  exec.ExitError.Stderr: %q", string(e.Stderr))
+			}
+		}
+		return fmt.Errorf("(my error): %w", err)
+	}))
+	if err != nil {
+		t.Fatalf("expected no error, got: %v", err)
+	}
+	return cmd
 }

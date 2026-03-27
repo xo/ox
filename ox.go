@@ -5,18 +5,21 @@ package ox
 //go:generate stringer -type OnErr
 
 import (
+	"bytes"
 	"cmp"
 	"context"
 	"errors"
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"runtime"
 	"runtime/debug"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/xo/ox/strcase"
 	"github.com/xo/ox/text"
@@ -111,6 +114,9 @@ var (
 			return err == nil || onErr == OnErrContinue
 		}
 	}
+	// DefaultEmitExecExitError toggles emitting captured stderr output from
+	// [os.ExitError] to the [Context.Stderr].
+	DefaultEmitExecExitError = false
 	// DefaultErrorHandler is the default error handler used by
 	// [Run]/[RunContext].
 	DefaultErrorHandler = func(ctx *Context) func(error) bool {
@@ -124,15 +130,25 @@ var (
 				if ctx.Stderr != nil {
 					w = ctx.Stderr
 				}
-				_, _ = fmt.Fprintf(w, text.ErrorMessage, err)
-				if v, ok := err.(interface{ ErrorDetails() string }); ok {
-					_, _ = fmt.Fprint(w, v.ErrorDetails())
-				}
+				// error code
 				code := 1
 				if v, ok := err.(interface{ ErrorCode() int }); ok {
 					code = v.ErrorCode()
-				} else if v, ok := err.(interface{ ExitCode() int }); ok {
-					code = v.ExitCode()
+				}
+				// build error message
+				var sb strings.Builder
+				_, _ = sb.WriteString(strings.TrimRightFunc(err.Error(), unicode.IsSpace))
+				if e, ok := asExitError(err); ok && ctx.EmitExecExitError && len(e.Stderr) != 0 {
+					code = e.ExitCode()
+					if b := bytes.TrimRightFunc(e.Stderr, unicode.IsSpace); len(b) != 0 {
+						sb.WriteString(": ")
+						sb.Write(b)
+					}
+				}
+				// emit error message
+				_, _ = fmt.Fprintf(w, text.ErrorMessage, sb.String())
+				if v, ok := err.(interface{ ErrorDetails() string }); ok {
+					_, _ = fmt.Fprint(w, v.ErrorDetails())
 				}
 				ctx.Exit(code)
 			case ctx.OnErr == OnErrPanic:
@@ -310,6 +326,8 @@ type Context struct {
 	Stderr io.Writer
 	// Args are the arguments to parse, normally [os.Args][1:].
 	Args []string
+	// EmitExecExitError toggles emitting
+	EmitExecExitError bool
 	// OnErr is the on error handling. Used by the default Handle func.
 	OnErr OnErr
 	// Continue is the func used to decide if it should continue on an error.
@@ -341,14 +359,15 @@ func NewContext(opts ...Option) (*Context, error) {
 		Panic: func(v any) {
 			panic(v)
 		},
-		Comp:        DefaultComp,
-		Stdin:       os.Stdin,
-		Stdout:      os.Stdout,
-		Stderr:      os.Stderr,
-		Args:        DefaultStripTestFlags(os.Args[1:]),
-		Interpolate: DefaultInterpolate,
-		Lookup:      DefaultLookup,
-		Loader:      DefaultLoader,
+		Comp:              DefaultComp,
+		Stdin:             os.Stdin,
+		Stdout:            os.Stdout,
+		Stderr:            os.Stderr,
+		Args:              DefaultStripTestFlags(os.Args[1:]),
+		EmitExecExitError: DefaultEmitExecExitError,
+		Interpolate:       DefaultInterpolate,
+		Lookup:            DefaultLookup,
+		Loader:            DefaultLoader,
 	}
 	ctx.Continue = DefaultContinueHandler(ctx)
 	ctx.Handler = DefaultErrorHandler(ctx)
@@ -686,4 +705,14 @@ func BuildVersion() string {
 // prepend is a generic prepend.
 func prepend[S ~[]E, E any](v S, s ...E) S {
 	return append(s, v...)
+}
+
+// asExitError is a standin for Go 1.26's errors.AsType.
+//
+// TODO: remove when tinygo supports go1.26.
+func asExitError(err error) (*exec.ExitError, bool) {
+	if e := (*(exec.ExitError))(nil); errors.As(err, &e) {
+		return e, true
+	}
+	return nil, false
 }
