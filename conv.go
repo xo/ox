@@ -265,7 +265,7 @@ func marshalSlice[T stringi](v reflect.Value) (T, error) {
 		s, err := asString[string](v.Index(i).Interface())
 		if err != nil {
 			var z T
-			return z, fmt.Errorf("%w: slice index %d: %w", ErrInvalidConversion, i, err)
+			return z, fmt.Errorf("%w: index %d: %w of type %T", ErrInvalidConversion, i, err, v.Index(i).Interface())
 		}
 		_, _ = sb.WriteString(s)
 	}

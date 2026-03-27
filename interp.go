@@ -265,24 +265,48 @@ func InterpolateVar(ctx *Context, v any) (any, error) {
 			continue
 		}
 		// read var
-		typ, key, transform, end := readVar(r, i, n)
+		typ, key, extent, bracket, end := readVar(r, i, n)
 		// fmt.Fprintf(os.Stderr, "type: %q key: %q, transform: %t end: %d\n", typ, key, transform, end)
 		if end == -1 || (typ == "" && key == "") {
 			_ = sb.WriteByte('$')
 			continue
 		}
 		// fmt.Fprintf(os.Stderr, "captured: %q type: %q key: %q trans: %t\n", string(r[i:end]), typ, key, transform)
-		s, err := lookup(ctx, typ, key, transform)
+		s, err := lookup(ctx, typ, key, bracket)
 		switch {
 		case errors.Is(err, ErrUnknownKey):
 		case err != nil:
-			_, _ = fmt.Fprintf(&sb, "(ERROR:%s %v %q)", typ, err, key)
+			_, _ = fmt.Fprintf(&sb, "(ERROR: %s: %v)", formatKey(typ, key, extent, bracket), err)
 		default:
 			_, _ = sb.WriteString(s)
 		}
 		i = end - 1
 	}
 	return sb.String(), nil
+}
+
+// formatKey formats a key for error display.
+func formatKey(typ, key string, extent, bracket bool) string {
+	var sb strings.Builder
+	_ = sb.WriteByte('$')
+	switch {
+	case extent && !bracket && typ != "":
+		sb.WriteString(typ)
+	case extent && !bracket:
+		sb.WriteString(key)
+	}
+	if bracket {
+		_ = sb.WriteByte('{')
+		switch {
+		case !extent && typ != "":
+			_, _ = fmt.Fprintf(&sb, "%s::", typ)
+		}
+	}
+	_, _ = sb.WriteString(key)
+	if bracket {
+		_ = sb.WriteByte('}')
+	}
+	return sb.String()
 }
 
 // lookup retrieves a type/key from the context, and transforms it if
@@ -342,14 +366,16 @@ func apply(v any, ops string) (any, error) {
 }
 
 // readVar reads a var in r.
-func readVar(r []rune, i, n int) (string, string, bool, int) {
+func readVar(r []rune, i, n int) (string, string, bool, bool, int) {
 	// fmt.Fprintf(os.Stderr, "readvar: %q\n", string(r[i:n]))
 	var typ, key string
+	var extent bool
 	c := peek(r, i+1, n)
 	switch {
 	case 'A' <= c && c <= 'Z':
 		typ, i = readType(r, i+1, n)
 		c = peek(r, i, n)
+		extent = true
 	case c == '{':
 		i++
 	}
@@ -357,7 +383,7 @@ func readVar(r []rune, i, n int) (string, string, bool, int) {
 	if c == '{' {
 		// open bracket
 		if key, i = readBracket(r, i+1, n); i == -1 {
-			return "", "", false, -1
+			return "", "", false, false, -1
 		}
 		bracket = true
 	}
@@ -369,11 +395,11 @@ func readVar(r []rune, i, n int) (string, string, bool, int) {
 	}
 	switch {
 	case typ == "" && key == "":
-		return "", "", false, n
+		return "", "", false, false, n
 	case key == "":
 		typ, key, bracket = "", typ, false
 	}
-	return typ, key, bracket, min(i, n)
+	return typ, key, extent, bracket, min(i, n)
 }
 
 // readType reads a variable type between '$' and '{'.

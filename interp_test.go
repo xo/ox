@@ -164,13 +164,17 @@ func TestInterpolateVar(t *testing.T) {
 		{`${a.rate@%d}`, `1048576/s`},
 		{`${a.rate@%e}`, `1Mi/s`},
 		{`${a.addrport}`, `2.3.4.5:6789`},
-		{`${\$.store.book[*].author}`, `stephen king,neal stephenson`},
-		{`${yaml::\$.store.book[*].author}`, `stephen king,neal stephenson`},
-		{`${yaml::\$\.store\.book\[\*\]\.author}`, `stephen king,neal stephenson`},
-		{`${\$.store.book}`, `author=john,price=10`},
-		{`${yaml::\$.store.book}`, `author=john,price=10`},
+		{`${\$.store.book[*].author}`, `jon,ken`},
+		{`${yaml::\$.store.book[*].author}`, `jon,ken`},
+		{`${yaml::\$\.store\.book\[\*\]\.author}`, `jon,ken`},
+		{`${\$.store.book[*].price}`, `10,15.5`},
+		{`${yaml::\$.store.book[*].price}`, `10,15.5`},
+		{`${\$.store.book}`, `author=jon,price=10`},
+		{`${\$.bad.key}`, `(ERROR: ${$.bad.key}: invalid conversion: index 0: invalid value of type map[string]interface {})`},
+		{`${yaml::\$.bad.key}`, `(ERROR: ${yaml::$.bad.key}: invalid conversion: index 0: invalid value of type map[string]interface {})`},
+		{`${yaml::\$.store.book}`, `author=jon,price=10`},
 		{`${\$....}`, ``},
-		{`${yaml::\$....}`, `(ERROR:yaml invalid key "$....")`},
+		{`${yaml::\$....}`, `(ERROR: ${yaml::$....}: invalid key)`},
 	}
 	m := make(map[string]bool)
 	for i, test := range tests {
@@ -205,11 +209,24 @@ func TestInterpolateVar(t *testing.T) {
 						case typ == "yaml" && key == "$....":
 							return nil, false, ErrInvalidKey
 						case key == "$.store.book[*].author":
-							return []string{"stephen king", "neal stephenson"}, true, nil
+							return []string{"jon", "ken"}, true, nil
+						case key == "$.store.book[*].price":
+							return []any{10, 15.5}, true, nil
 						case key == "$.store.book":
 							return map[string]any{
-								"author": "john",
+								"author": "jon",
 								"price":  10,
+							}, true, nil
+						case key == "$.bad.key":
+							return []map[string]any{
+								{
+									"author": "jon",
+									"price":  10,
+								},
+								{
+									"author": "ken",
+									"price":  15.5,
+								},
 							}, true, nil
 						}
 					}
