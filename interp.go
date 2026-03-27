@@ -276,7 +276,7 @@ func InterpolateVar(ctx *Context, v any) (any, error) {
 		switch {
 		case errors.Is(err, ErrUnknownKey):
 		case err != nil:
-			_, _ = fmt.Fprintf(&sb, "(ERROR: %s: %v)", formatKey(typ, key, extent, bracket), err)
+			_, _ = fmt.Fprintf(&sb, "!(ERROR: %s: %v)", formatKey(typ, key, extent, bracket), err)
 		default:
 			_, _ = sb.WriteString(s)
 		}

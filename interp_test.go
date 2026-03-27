@@ -170,11 +170,11 @@ func TestInterpolateVar(t *testing.T) {
 		{`${\$.store.book[*].price}`, `10,15.5`},
 		{`${yaml::\$.store.book[*].price}`, `10,15.5`},
 		{`${\$.store.book}`, `author=jon,price=10`},
-		{`${\$.bad.key}`, `(ERROR: ${$.bad.key}: invalid conversion: index 0: invalid value of type map[string]interface {})`},
-		{`${yaml::\$.bad.key}`, `(ERROR: ${yaml::$.bad.key}: invalid conversion: index 0: invalid value of type map[string]interface {})`},
+		{`${\$.bad.key}`, `!(ERROR: ${$.bad.key}: invalid conversion: index 0: invalid value of type map[string]interface {})`},
+		{`${yaml::\$.bad.key}`, `!(ERROR: ${yaml::$.bad.key}: invalid conversion: index 0: invalid value of type map[string]interface {})`},
 		{`${yaml::\$.store.book}`, `author=jon,price=10`},
 		{`${\$....}`, ``},
-		{`${yaml::\$....}`, `(ERROR: ${yaml::$....}: invalid key)`},
+		{`${yaml::\$....}`, `!(ERROR: ${yaml::$....}: invalid key)`},
 	}
 	m := make(map[string]bool)
 	for i, test := range tests {
