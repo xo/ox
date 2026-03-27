@@ -7,6 +7,8 @@ import (
 	"reflect"
 )
 
+const isTinyGo = false
+
 func overflowComplex(v reflect.Value, c complex128) bool {
 	return v.OverflowComplex(c)
 }

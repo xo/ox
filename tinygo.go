@@ -11,6 +11,8 @@ import (
 	"runtime"
 )
 
+const isTinyGo = true
+
 func overflowComplex(v reflect.Value, c complex128) bool {
 	// tinygo doesn't have reflect.Value.OverflowComplex
 	return true

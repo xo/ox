@@ -115,6 +115,10 @@ func TestLdist(t *testing.T) {
 }
 
 func TestEmitExitError(t *testing.T) {
+	if isTinyGo {
+		t.Log("skipping: tinygo incompatible")
+		return
+	}
 	code := new(int)
 	c := testContext(t, code)
 	c.Exec = testExitError(t)
