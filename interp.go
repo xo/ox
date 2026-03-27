@@ -290,21 +290,21 @@ func InterpolateVar(ctx *Context, v any) (any, error) {
 func formatVarError(sb *strings.Builder, typ, key string, extent, bracket bool, err error) {
 	_, _ = sb.WriteString("!(ERROR: $")
 	if !extent {
-		sb.WriteByte('{')
+		_ = sb.WriteByte('{')
 	}
-	sb.WriteString(typ)
+	_, _ = sb.WriteString(typ)
 	if extent && bracket && typ != "" {
-		sb.WriteByte('{')
+		_ = sb.WriteByte('{')
 	}
 	if typ != "" && !extent {
-		sb.WriteString("::")
+		_, _ = sb.WriteString("::")
 	}
-	sb.WriteString(key)
+	_, _ = sb.WriteString(key)
 	if extent && bracket && typ == "" {
-		sb.WriteByte('{')
+		_ = sb.WriteByte('{')
 	}
 	if bracket {
-		sb.WriteByte('}')
+		_ = sb.WriteByte('}')
 	}
 	_, _ = fmt.Fprintf(sb, ": %v)", err)
 }
