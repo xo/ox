@@ -272,11 +272,13 @@ func InterpolateVar(ctx *Context, v any) (any, error) {
 			continue
 		}
 		// fmt.Fprintf(os.Stderr, "captured: %q type: %q key: %q trans: %t\n", string(r[i:end]), typ, key, transform)
-		switch s, err := lookup(ctx, typ, key, transform); err {
-		case nil:
-			_, _ = sb.WriteString(s)
+		s, err := lookup(ctx, typ, key, transform)
+		switch {
+		case errors.Is(err, ErrUnknownKey):
+		case err != nil:
+			_, _ = fmt.Fprintf(&sb, "(ERROR:%s %v %q)", typ, err, key)
 		default:
-			_, _ = sb.WriteString(string(r[i:end]))
+			_, _ = sb.WriteString(s)
 		}
 		i = end - 1
 	}
@@ -293,7 +295,7 @@ func lookup(ctx *Context, typ, key string, transform bool) (string, error) {
 	// lookup
 	v, err := ctx.Lookup(ctx, typ, key)
 	switch {
-	case errors.Is(err, ErrUnknownKey), v == nil:
+	case errors.Is(err, ErrUnknownKey):
 		v = ""
 	case err != nil:
 		return "", err
@@ -304,12 +306,7 @@ func lookup(ctx *Context, typ, key string, transform bool) (string, error) {
 			return "", err
 		}
 	}
-	// convert
-	s, err := asString[string](v)
-	if err != nil {
-		return "", err
-	}
-	return s, nil
+	return marshal[string](v)
 }
 
 // apply applies the string ops to the string.

@@ -2,8 +2,11 @@ package ox
 
 import (
 	"cmp"
+	"errors"
 	"fmt"
+	"maps"
 	"reflect"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -151,6 +154,8 @@ func as[T any](val any, layout string) (any, error) {
 // asString converts the value to a string.
 func asString[T stringi](val any) (T, error) {
 	switch v := val.(type) {
+	case nil:
+		return T(""), nil
 	case string:
 		return T(v), nil
 	case []byte:
@@ -219,6 +224,96 @@ func asString[T stringi](val any) (T, error) {
 	}
 	var res T
 	return res, ErrInvalidValue
+}
+
+// marshal marshals val to a string representation.
+//
+// Does not do recursive marshaling.
+func marshal[T stringi](val any) (T, error) {
+	switch v, err := asString[T](val); {
+	case err == nil:
+		return v, nil
+	case !errors.Is(err, ErrInvalidValue):
+		return v, err
+	}
+	v := reflect.ValueOf(val)
+	// dereference
+	switch v.Kind() {
+	case reflect.Interface, reflect.Pointer:
+		v = v.Elem()
+	}
+	// marshal
+	switch v.Kind() {
+	case reflect.Slice:
+		return marshalSlice[T](v)
+	case reflect.Map:
+		return marshalMap[T](v)
+	case reflect.Struct:
+		return marshalStruct[T](v)
+	}
+	var z T
+	return z, fmt.Errorf("%w: %T", ErrInvalidConversion, z)
+}
+
+// marshalSlice marshals a slice into a simple text form.
+func marshalSlice[T stringi](v reflect.Value) (T, error) {
+	var sb strings.Builder
+	for i := range v.Len() {
+		if i != 0 {
+			_ = sb.WriteByte(',')
+		}
+		s, err := asString[string](v.Index(i).Interface())
+		if err != nil {
+			var z T
+			return z, fmt.Errorf("%w: slice index %d: %w", ErrInvalidConversion, i, err)
+		}
+		_, _ = sb.WriteString(s)
+	}
+	return asString[T](sb.String())
+}
+
+// marshalMap marshals a map into a simple text form.
+func marshalMap[T stringi](v reflect.Value) (T, error) {
+	m := make(map[string]string)
+	for it := v.MapRange(); it.Next(); {
+		mk, err := asString[string](it.Key().Interface())
+		if err != nil {
+			var z T
+			return z, fmt.Errorf("%w: map key %q: %w", ErrInvalidConversion, it.Key().Interface(), err)
+		}
+		mv, err := asString[string](it.Value().Interface())
+		if err != nil {
+			var z T
+			return z, fmt.Errorf("%w: map key %q: %w: %w", ErrInvalidConversion, mk, ErrInvalidValue, err)
+		}
+		m[mk] = mv
+	}
+	var sb strings.Builder
+	for i, k := range slices.Sorted(maps.Keys(m)) {
+		if i != 0 {
+			sb.WriteByte(',')
+		}
+		_, _ = fmt.Fprintf(&sb, "%s=%s", k, m[k])
+	}
+	return asString[T](sb.String())
+}
+
+// marshalStruct marshals a struct into a simple text form.
+func marshalStruct[T stringi](v reflect.Value) (T, error) {
+	var sb strings.Builder
+	for i := range v.NumField() {
+		if i != 0 {
+			sb.WriteByte(',')
+		}
+		f := v.Field(i)
+		s, err := asString[string](f.Interface())
+		if err != nil {
+			var z T
+			return z, fmt.Errorf("%w struct field %s: %w", ErrInvalidConversion, f.Type().Name(), err)
+		}
+		_, _ = fmt.Fprintf(&sb, "%s=%s", f.Type().Name(), s)
+	}
+	return asString[T](sb.String())
 }
 
 // asBool converts the value to a bool.

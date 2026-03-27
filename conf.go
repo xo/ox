@@ -115,8 +115,10 @@ var DefaultKeyLoader = func(ctx *Context, key string) (any, bool, error) {
 
 // DefaultEnvLoader is the default environment config key loader.
 var DefaultEnvLoader = func(_ *Context, key string) (any, bool, error) {
-	s, ok := os.LookupEnv(key)
-	return s, ok, nil
+	if s, ok := os.LookupEnv(key); ok {
+		return s, true, nil
+	}
+	return "", false, ErrUnknownKey
 }
 
 var (

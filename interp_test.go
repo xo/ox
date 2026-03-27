@@ -95,6 +95,10 @@ func TestInterpolateVar(t *testing.T) {
 		{`${UNDEFINED||a}`, `a`},
 		{`$ENV{HOME||a}`, home},
 		{`${env::HOME||a}`, home},
+		{`${__undef__||a}`, `a`},
+		{`${__undef__||a|upper}`, `A`},
+		{`${__undef__||a||b}`, `a`},
+		{`${__undef__||a||b|upper}`, `A`},
 		{`${env::__undef__||a}`, `a`},
 		{`${env::__undef__||a|upper}`, `A`},
 		{`${env::__undef__||a||b}`, `a`},
@@ -105,6 +109,7 @@ func TestInterpolateVar(t *testing.T) {
 		{`$$ENV{HOME}`, `$` + home},
 		{`$$ENV{HOME}_`, `$` + home + `_`},
 		{`$MO_999_`, `COW GOES MOO`},
+		{`$MO_999__`, ``},
 		{`${MO_999_}`, `COW GOES MOO`},
 		{`${_MO_999_}`, ``},
 		{`${_MO_999_`, `${_MO_999_`},
@@ -159,11 +164,13 @@ func TestInterpolateVar(t *testing.T) {
 		{`${a.rate@%d}`, `1048576/s`},
 		{`${a.rate@%e}`, `1Mi/s`},
 		{`${a.addrport}`, `2.3.4.5:6789`},
-		{`${yaml::\$.store.book}`, `author:john price:10,author:ken price:12`},
+		{`${\$.store.book[*].author}`, `stephen king,neal stephenson`},
 		{`${yaml::\$.store.book[*].author}`, `stephen king,neal stephenson`},
 		{`${yaml::\$\.store\.book\[\*\]\.author}`, `stephen king,neal stephenson`},
-		{`${\$.store.book[*].author}`, `stephen king,neal stephenson`},
-		{`${\$.store.book}`, `author:john price:10,author:ken price:12`},
+		{`${\$.store.book}`, `author=john,price=10`},
+		{`${yaml::\$.store.book}`, `author=john,price=10`},
+		{`${\$....}`, ``},
+		{`${yaml::\$....}`, `(ERROR:yaml invalid key "$....")`},
 	}
 	m := make(map[string]bool)
 	for i, test := range tests {
@@ -194,19 +201,15 @@ func TestInterpolateVar(t *testing.T) {
 					case key == "VERSION":
 						return "v0.1.0", true, nil
 					case typ == "", typ == "yaml":
-						switch key {
-						case "$.store.book[*].author":
+						switch {
+						case typ == "yaml" && key == "$....":
+							return nil, false, ErrInvalidKey
+						case key == "$.store.book[*].author":
 							return []string{"stephen king", "neal stephenson"}, true, nil
-						case "$.store.book":
-							return []map[string]any{
-								{
-									"author": "john",
-									"price":  10,
-								},
-								{
-									"author": "ken",
-									"price":  12,
-								},
+						case key == "$.store.book":
+							return map[string]any{
+								"author": "john",
+								"price":  10,
 							}, true, nil
 						}
 					}

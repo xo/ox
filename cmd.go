@@ -909,10 +909,10 @@ func appendFlags(flags []*Flag, v reflect.Value, parents []string) ([]*Flag, err
 		isField := isField(field)
 		switch name, kind := tags[0], f.Type.Kind(); {
 		case !isField && kind == reflect.Pointer && f.Type.Elem().Kind() == reflect.Struct: // *struct
-			switch {
-			case name == "-":
+			switch name {
+			case "-":
 				continue
-			case name == "":
+			case "":
 				name = f.Name
 			}
 			if field.IsNil() {
@@ -923,10 +923,10 @@ func appendFlags(flags []*Flag, v reflect.Value, parents []string) ([]*Flag, err
 				return nil, err
 			}
 		case !isField && kind == reflect.Struct: // struct
-			switch {
-			case name == "-":
+			switch name {
+			case "-":
 				continue
-			case name == "":
+			case "":
 				name = f.Name
 			}
 			var err error

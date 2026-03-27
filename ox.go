@@ -263,23 +263,6 @@ var (
 	DefaultReadlink = os.Readlink
 )
 
-// Run creates and builds the execution [Context] based on the passed
-// [Option]s. Accepts any [ContextOption], [CommandOption] or
-// [CommandFlagOption]. After building a execution [Context] and root
-// [Command], either [os.Args] or the provided [Args] will be [Parse]'d and
-// validated.
-//
-// After args have been parsed and validated, [Context] will have its
-// [Context.Exec] set to either the root command, or to the user's requested
-// command. The determined [Command.Exec] will be executed, or if it was not
-// set, then the [Command.Help]'s will be written to the [Context.Stdout].
-//
-// See [RunContext] to pass a [context.Context] to the executed command, or set
-// the [DefaultContext].
-func Run(opts ...Option) {
-	RunContext(DefaultContext, opts...)
-}
-
 // RunContext creates a [Context] and builds a execution [Context] and root
 // [Command] based on the passed options. Accepts any [ContextOption],
 // [CommandOption] or [CommandFlagOption]. After building a execution [Context]
@@ -308,6 +291,39 @@ func RunContext(ctx context.Context, opts ...Option) {
 	if err = c.Run(ctx); err != nil && c.Handler(err) {
 		return
 	}
+}
+
+// Run creates and builds the execution [Context] based on the passed
+// [Option]s. Accepts any [ContextOption], [CommandOption] or
+// [CommandFlagOption]. After building a execution [Context] and root
+// [Command], either [os.Args] or the provided [Args] will be [Parse]'d and
+// validated.
+//
+// After args have been parsed and validated, [Context] will have its
+// [Context.Exec] set to either the root command, or to the user's requested
+// command. The determined [Command.Exec] will be executed, or if it was not
+// set, then the [Command.Help]'s will be written to the [Context.Stdout].
+//
+// See [RunContext] to pass a [context.Context] to the executed command, or set
+// the [DefaultContext].
+func Run(opts ...Option) {
+	RunContext(DefaultContext, opts...)
+}
+
+// RunAppContext
+func RunAppContext[T *E, E any](ctx context.Context, v T, opts ...Option) {
+	/*
+	   o, err := NewApp(v)
+	   if err != nil && c.Handler(err) {
+	           return
+	   }
+	   RunContext(ctx, prepend(opts, o...)...)
+	*/
+}
+
+// RunApp
+func RunApp[T *E, E any](ctx context.Context, v T, opts ...Option) {
+	RunAppContext(DefaultContext, v, opts...)
 }
 
 // Context is the execution (run) context used by [Run]/[RunContext].
