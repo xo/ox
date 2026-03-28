@@ -6,6 +6,20 @@ import (
 	"path/filepath"
 )
 
+var (
+	// DefaultMaxPathLinks are the max symlinks to follow in [Path].
+	DefaultMaxPathLinks = 16
+	// DefaultGetwd is the func used to read the working directory by [Path].
+	// Normally [os.Getwd].
+	DefaultGetwd = os.Getwd
+	// DefaultLstat is the func used to lstat a path by [Path]. Normally
+	// [os.Lstat].
+	DefaultLstat = os.Lstat
+	// DefaultReadlink is the func used to read a link by [Path]. Normally
+	// [os.Readlink].
+	DefaultReadlink = os.Readlink
+)
+
 // Path resolves a path to a fully qualified ("real") path on disk.
 func Path(path string) (string, error) {
 	switch {
