@@ -10,14 +10,19 @@ import (
 )
 
 func init() {
-	ox.RegisterConfigLoader("yaml", LoadKey)
+	ox.RegisterConfigLoader(ox.YAMLT, loadKey, "yaml", "yml")
 }
 
 // DefaultDecoder is the default yaml decoder.
 var DefaultDecoder = new(decoder)
 
-// LoadKey loads a key from a yaml file.
-func LoadKey(ctx *ox.Context, key string) (any, bool, error) {
+// loadKey loads a key from a yaml file.
+func loadKey(ctx *ox.Context, key string) (any, bool, error) {
+	path, err := yaml.PathString(key)
+	if err != nil {
+		return nil, false, fmt.Errorf("%w: %w", ox.ErrInvalidKey, err)
+	}
+	//ctx.Config(ox.YAMLT)
 	/*
 		v, err := ctx.Load(
 			DefaultDecoder,
@@ -28,10 +33,6 @@ func LoadKey(ctx *ox.Context, key string) (any, bool, error) {
 			return nil, false, err
 		}
 	*/
-	path, err := yaml.PathString(key)
-	if err != nil {
-		return nil, false, fmt.Errorf("%w: %w", ox.ErrInvalidKey, err)
-	}
 	path = path
 	return "", false, nil
 }
