@@ -20,8 +20,8 @@ var (
 	DefaultReadlink = os.Readlink
 )
 
-// Path resolves a path to a fully qualified ("real") path on disk.
-func Path(path string) (string, error) {
+// Realpath resolves a path to a fully qualified ("real") path on disk.
+func Realpath(path string) (string, error) {
 	switch {
 	case len(path) == 0:
 		return "", os.ErrInvalid
