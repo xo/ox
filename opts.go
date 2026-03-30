@@ -250,6 +250,21 @@ func VersionString(version string) CommandOption {
 	}
 }
 
+// AppNameVersion is a [Command] option to set the root app name and version.
+// Mostly used with [RunApp]/[RunAppContext].
+func AppNameVersion(name, version string) CommandOption {
+	return option{
+		name: "AppNameVersion",
+		cmd: func(cmd *Command) error {
+			if cmd.Parent != nil {
+				return ErrCanOnlyBeUsedWithRootCommand
+			}
+			cmd.Name, cmd.Version = name, version
+			return nil
+		},
+	}
+}
+
 // Help is a [Command]/[Flag] option to add help output to a root command. By
 // default, adds a `--help` flag to all commands in the command tree including
 // the root command.

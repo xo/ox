@@ -1,6 +1,8 @@
 /ox.test
 /ox.test.exe
 
+/_examples/app/app
+/_examples/app/app.exe
 /_examples/context/context
 /_examples/context/context.exe
 /_examples/bind/bind
