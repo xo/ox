@@ -19,7 +19,7 @@ import (
 
 var (
 	// DefaultLookup retrieves keys from the [Context]'s config loaders.
-	DefaultLookup = func(ctx *Context, typ, key string) (any, error) {
+	DefaultLookup = func(ctx *Context, typ ConfigType, key string) (any, error) {
 		if ctx.Override != nil {
 			switch v, ok, err := ctx.Override(typ, key); {
 			case err != nil:
@@ -272,7 +272,7 @@ func InterpolateVar(ctx *Context, v any) (any, error) {
 			continue
 		}
 		// fmt.Fprintf(os.Stderr, "captured: %q type: %q key: %q trans: %t\n", string(r[i:end]), typ, key, transform)
-		s, err := lookup(ctx, typ, key, bracket)
+		s, err := lookup(ctx, ConfigType(strings.ToLower(typ)), key, bracket)
 		switch {
 		case errors.Is(err, ErrUnknownKey):
 			// empty string
@@ -311,7 +311,7 @@ func formatVarError(sb *strings.Builder, typ, key string, extent, bracket bool, 
 
 // lookup retrieves a type/key from the context, and transforms it if
 // applicable.
-func lookup(ctx *Context, typ, key string, transform bool) (string, error) {
+func lookup(ctx *Context, typ ConfigType, key string, transform bool) (string, error) {
 	var ops string
 	if i := strings.IndexFunc(key, isOp); i != -1 && transform {
 		key, ops = key[:i], key[i:]

@@ -206,9 +206,9 @@ func TestInterpolateVar(t *testing.T) {
 				Root:   root,
 				Lookup: DefaultLookup,
 				Loader: DefaultLoader,
-				Override: func(typ, key string) (any, bool, error) {
+				Override: func(typ ConfigType, key string) (any, bool, error) {
 					switch {
-					case typ == "MY_OVERRIDE", key == "MY_OVERRIDE":
+					case typ == "my_override", key == "MY_OVERRIDE":
 						switch strings.ToLower(key) {
 						case "foo":
 							return "bar", true, nil
@@ -216,13 +216,13 @@ func TestInterpolateVar(t *testing.T) {
 							return "", true, nil
 						}
 						return "override", true, nil
-					case typ == "MO_999_", key == "MO_999_":
+					case typ == "mo_999_", key == "MO_999_":
 						return "COW GOES MOO", true, nil
-					case typ == "A", key == "A":
+					case typ == "a", key == "A":
 						return longstr, true, nil
 					case key == "VERSION":
 						return "v0.1.0", true, nil
-					case typ == "ERRORKEY", key == "ERRORKEY":
+					case typ == "errorkey", key == "ERRORKEY":
 						return "", false, errors.New("invalid")
 					case typ == "", typ == "yaml":
 						switch {

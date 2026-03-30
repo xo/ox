@@ -85,7 +85,7 @@ func Interpolate(interpolate func(*Context, any) (any, error)) ContextOption {
 
 // Interpolate is a [Run]/[RunContext]/[Context] option to set a interpolation
 // func.
-func Lookup(lookup func(*Context, string, string) (any, error)) ContextOption {
+func Lookup(lookup func(*Context, ConfigType, string) (any, error)) ContextOption {
 	return option{
 		name: "Lookup",
 		ctx: func(ctx *Context) error {
@@ -97,7 +97,7 @@ func Lookup(lookup func(*Context, string, string) (any, error)) ContextOption {
 
 // OverrideMap is a [Run]/[RunContext]/[Context] option to set a override
 // expansion func.
-func Override(override func(string, string) (any, bool, error)) ContextOption {
+func Override(override func(ConfigType, string) (any, bool, error)) ContextOption {
 	return option{
 		name: "Override",
 		ctx: func(ctx *Context) error {
@@ -113,9 +113,9 @@ func OverrideMap(override map[string]string) ContextOption {
 	return option{
 		name: "OverrideMap",
 		ctx: func(ctx *Context) error {
-			ctx.Override = func(typ string, key string) (any, bool, error) {
+			ctx.Override = func(typ ConfigType, key string) (any, bool, error) {
 				if typ != "" {
-					key = strings.ToLower(typ) + "::" + key
+					key = strings.ToUpper(string(typ)) + "::" + key
 				}
 				s, ok := override[key]
 				return s, ok, nil

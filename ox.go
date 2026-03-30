@@ -340,7 +340,7 @@ type Context struct {
 	// Handler is the func used to handle errors within [Run]/[RunContext].
 	Handler func(error) bool
 	// Override override expansion keys.
-	Override func(string, string) (any, bool, error)
+	Override func(ConfigType, string) (any, bool, error)
 	// Root is the root command created within [Run]/[RunContext].
 	Root *Command
 	// Exec is the exec target, determined by the Root's definition and after
@@ -352,9 +352,9 @@ type Context struct {
 	// Interpolate interpolates variables based on the context.
 	Interpolate func(*Context, any) (any, error)
 	// Lookup retrieves config variables based on the context.
-	Lookup func(*Context, string, string) (any, error)
+	Lookup func(*Context, ConfigType, string) (any, error)
 	// Loader is the config loader func.
-	Loader func(*Context, string, string) (any, bool, error)
+	Loader func(*Context, ConfigType, string) (any, bool, error)
 }
 
 // NewContext creates a new run context.

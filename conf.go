@@ -8,14 +8,26 @@ import (
 	"runtime"
 	"slices"
 	"strconv"
-	"strings"
+)
+
+// ConfigType is a config type.
+type ConfigType string
+
+// Config types.
+const (
+	AnyT  ConfigType = ""
+	EnvT  ConfigType = "env"
+	JSONT ConfigType = "json"
+	YAMLT ConfigType = "yaml"
+	HCLT  ConfigType = "hcl"
+	TOMLT ConfigType = "toml"
 )
 
 // DefaultLoader is the default config loader.
-var DefaultLoader = func(ctx *Context, typ, key string) (any, bool, error) {
+var DefaultLoader = func(ctx *Context, typ ConfigType, key string) (any, bool, error) {
 	// forced type, check only one
 	if typ != "" {
-		if loader, ok := loaders[strings.ToLower(typ)]; ok {
+		if loader, ok := loaders[typ]; ok {
 			return loader(ctx, key)
 		}
 		return nil, false, ErrUnknownLoader
@@ -123,20 +135,19 @@ var DefaultEnvLoader = func(_ *Context, key string) (any, bool, error) {
 
 var (
 	// loaders are config loaders.
-	loaders map[string]func(*Context, string) (any, bool, error)
+	loaders map[ConfigType]func(*Context, string) (any, bool, error)
 	// loaderOrder is the order that loaders were registered.
-	loaderOrder []string
+	loaderOrder []ConfigType
 )
 
 func init() {
-	loaders = make(map[string]func(*Context, string) (any, bool, error))
-	RegisterConfigLoader("", DefaultKeyLoader)
-	RegisterConfigLoader("env", DefaultEnvLoader)
+	loaders = make(map[ConfigType]func(*Context, string) (any, bool, error))
+	RegisterConfigLoader(AnyT, DefaultKeyLoader)
+	RegisterConfigLoader(EnvT, DefaultEnvLoader)
 }
 
 // RegisterConfigLoader registers a config file type.
-func RegisterConfigLoader(typ string, f func(*Context, string) (any, bool, error)) {
-	typ = strings.ToLower(typ)
+func RegisterConfigLoader(typ ConfigType, f func(*Context, string) (any, bool, error), extensions ...string) {
 	loaders[typ] = f
 	if !slices.Contains(loaderOrder, typ) {
 		loaderOrder = append(loaderOrder, typ)
@@ -144,10 +155,10 @@ func RegisterConfigLoader(typ string, f func(*Context, string) (any, bool, error
 }
 
 // RegisterLoaderOrder sets the loader order.
-func RegisterLoaderOrder(order ...string) {
+func RegisterLoaderOrder(order ...ConfigType) {
 	loaderOrder = loaderOrder[:0]
 	for _, typ := range order {
-		if typ = strings.ToLower(typ); !slices.Contains(loaderOrder, typ) {
+		if !slices.Contains(loaderOrder, typ) {
 			loaderOrder = append(loaderOrder, typ)
 		}
 	}
