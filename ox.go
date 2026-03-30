@@ -301,13 +301,11 @@ func Run(opts ...Option) {
 
 // RunAppContext
 func RunAppContext[T *E, E any](ctx context.Context, v T, opts ...Option) {
-	/*
-	   o, err := NewApp(v)
-	   if err != nil && c.Handler(err) {
-	           return
-	   }
-	   RunContext(ctx, prepend(opts, o...)...)
-	*/
+	c, o, err := NewApp(v)
+	if err != nil && c.Handler(err) {
+		return
+	}
+	RunContext(ctx, prepend(opts, o...)...)
 }
 
 // RunApp
@@ -515,6 +513,20 @@ func (ctx *Context) Expand(v any) (any, error) {
 		return ctx.Interpolate(ctx, v)
 	}
 	return v, nil
+}
+
+// NewApp creates a execution context and a app command tree by parsing the doc
+// comment of v.
+func NewApp[T *E, E any](v T) (*Context, []Option, error) {
+	c, err := NewContext()
+	if err != nil {
+		return nil, nil, err
+	}
+	opts, err := ParseCommand(v)
+	if err != nil {
+		return c, nil, err
+	}
+	return c, opts, nil
 }
 
 // contextKey is the context key type.

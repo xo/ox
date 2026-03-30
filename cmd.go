@@ -18,6 +18,22 @@ import (
 	"github.com/xo/ox/text"
 )
 
+// ParseCommand parses a command's doc comment with reflect, building
+func ParseCommand(v any) ([]Option, error) {
+	var opts []Option
+	// build sub commands
+	if c, ok := v.(interface{ Sub() []any }); ok {
+		for _, s := range c.Sub() {
+			o, err := ParseCommand(s)
+			if err != nil {
+				return nil, err
+			}
+			opts = append(opts, Sub(o...))
+		}
+	}
+	return opts, nil
+}
+
 // Command is a command.
 type Command struct {
 	// Parent is the command's parent.
