@@ -224,20 +224,23 @@ func TestInterpolateVar(t *testing.T) {
 						return "v0.1.0", true, nil
 					case typ == "errorkey", key == "ERRORKEY":
 						return "", false, errors.New("invalid")
-					case typ == "", typ == "yaml":
-						switch {
-						case typ == "yaml" && key == "$....":
+					case typ == AnyT, typ == YAMLT:
+						switch key {
+						case "$....":
+							if typ == AnyT {
+								return nil, false, ErrUnknownKey
+							}
 							return nil, false, ErrInvalidKey
-						case key == "$.store.book[*].author":
+						case "$.store.book[*].author":
 							return []string{"jon", "ken"}, true, nil
-						case key == "$.store.book[*].price":
+						case "$.store.book[*].price":
 							return []any{10, 15.5}, true, nil
-						case key == "$.store.book":
+						case "$.store.book":
 							return map[string]any{
 								"author": "jon",
 								"price":  10,
 							}, true, nil
-						case key == "$.bad.key":
+						case "$.bad.key":
 							return []map[string]any{
 								{
 									"author": "jon",
