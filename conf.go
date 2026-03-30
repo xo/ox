@@ -146,16 +146,16 @@ func init() {
 	RegisterConfigLoader(EnvT, DefaultEnvLoader)
 }
 
-// RegisterConfigLoader registers a config file type.
-func RegisterConfigLoader(typ ConfigType, f func(*Context, string) (any, bool, error), extensions ...string) {
-	loaders[typ] = f
+// RegisterConfigLoader registers a config loader.
+func RegisterConfigLoader(typ ConfigType, loader func(*Context, string) (any, bool, error), extensions ...string) {
+	loaders[typ] = loader
 	if !slices.Contains(loaderOrder, typ) {
 		loaderOrder = append(loaderOrder, typ)
 	}
 }
 
-// RegisterLoaderOrder sets the loader order.
-func RegisterLoaderOrder(order ...ConfigType) {
+// RegisterConfigLoaderOrder sets the loader order.
+func RegisterConfigLoaderOrder(order ...ConfigType) {
 	loaderOrder = loaderOrder[:0]
 	for _, typ := range order {
 		if !slices.Contains(loaderOrder, typ) {
