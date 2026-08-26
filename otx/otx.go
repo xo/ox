@@ -13,7 +13,7 @@ import (
 	"github.com/xo/ox"
 )
 
-// Vars returns all variables from the context.
+// Vars returns the map of all variables from the context.
 func Vars(ctx context.Context) (ox.Vars, bool) {
 	if c, ok := ox.Ctx(ctx); ok && c != nil {
 		return c.Vars, true
@@ -21,9 +21,9 @@ func Vars(ctx context.Context) (ox.Vars, bool) {
 	return nil, false
 }
 
-// Any returns a variable, its set status, and if it was defined from the
-// context.
-func Any(ctx context.Context, name string) (ox.Value, bool) {
+// Value returns a named variable value from the context, and whether or not it
+// was set.
+func Value(ctx context.Context, name string) (ox.Value, bool) {
 	if vars, ok := Vars(ctx); ok {
 		if val, ok := vars[name]; ok {
 			return val, true
@@ -34,7 +34,7 @@ func Any(ctx context.Context, name string) (ox.Value, bool) {
 
 // Get returns a variable.
 func Get[T any](ctx context.Context, name string) T {
-	if val, ok := Any(ctx, name); ok {
+	if val, ok := Value(ctx, name); ok {
 		if v, err := ox.As[T](val); err == nil {
 			return v
 		}
@@ -45,7 +45,7 @@ func Get[T any](ctx context.Context, name string) T {
 
 // Slice returns the slice variable from the context as a slice of type E.
 func Slice[E any](ctx context.Context, name string) []E {
-	if val, ok := Any(ctx, name); ok {
+	if val, ok := Value(ctx, name); ok {
 		if v, err := ox.AsSlice[E](val); err == nil {
 			return v
 		}
@@ -55,7 +55,7 @@ func Slice[E any](ctx context.Context, name string) []E {
 
 // Map returns the map variable from the context.
 func Map[K cmp.Ordered, T any](ctx context.Context, name string) map[K]T {
-	if val, ok := Any(ctx, name); ok {
+	if val, ok := Value(ctx, name); ok {
 		if m, err := ox.AsMap[K, T](val); err == nil {
 			return m
 		}
@@ -112,6 +112,11 @@ func Int32(ctx context.Context, name string) int32 {
 // Int16 returns the int16 variable from the context.
 func Int16(ctx context.Context, name string) int16 {
 	return Get[int16](ctx, name)
+}
+
+// Int8 returns the int8 variable from the context.
+func Int8(ctx context.Context, name string) int8 {
+	return Get[int8](ctx, name)
 }
 
 // Int returns the int variable from the context.
