@@ -204,11 +204,11 @@ func init() {
 	RegisterTextType(func() (*netip.Prefix, error) {
 		return new(netip.Prefix), nil
 	})
-	RegisterTextType(func() (*uuid.UUID, error) {
-		return new(uuid.UUID), nil
-	})
 	RegisterTextType(func() (*regexp.Regexp, error) {
 		return new(regexp.Regexp), nil
+	})
+	RegisterTextType(func() (*uuid.UUID, error) {
+		return new(uuid.UUID), nil
 	})
 	// register binary marshal types
 	RegisterBinaryType(func() (*url.URL, error) {

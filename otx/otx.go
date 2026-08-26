@@ -8,6 +8,7 @@ import (
 	"net/netip"
 	"net/url"
 	"time"
+	"uuid"
 
 	"github.com/xo/ox"
 )
@@ -196,6 +197,11 @@ func Duration(ctx context.Context, name string) time.Duration {
 // URL returns the [url.URL] variable from the context.
 func URL(ctx context.Context, name string) *url.URL {
 	return Get[*url.URL](ctx, name)
+}
+
+// UUID returns the [uuid.UUID] variable from the context.
+func UUID(ctx context.Context, name string) *uuid.UUID {
+	return Get[*uuid.UUID](ctx, name)
 }
 
 // Addr returns the [netip.Addr] variable from the context.
