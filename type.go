@@ -60,8 +60,8 @@ const (
 	CIDRT     Type = "cidr"
 	RegexpT   Type = "regexp"
 	URLT      Type = "url"
+	UUIDT     Type = "uuid"
 
-	UUIDT  Type = "uuid"
 	ColorT Type = "color"
 	GlobT  Type = "glob"
 
@@ -327,12 +327,12 @@ func typeRef(val any) Type {
 		return AddrPortT
 	case *netip.Prefix:
 		return CIDRT
-	case *uuid.UUID:
-		return UUIDT
 	case *regexp.Regexp:
 		return RegexpT
 	case *url.URL:
 		return URLT
+	case *uuid.UUID:
+		return UUIDT
 	}
 	typ := reflect.TypeOf(val)
 	if typ != nil {
@@ -347,6 +347,12 @@ func typeRef(val any) Type {
 
 // defaultType returns the type, map key type, and element type of v.
 func defaultType(refType reflect.Type) (Type, Type, Type, error) {
+	switch refType {
+	case timeType:
+		return TimestampT, StringT, StringT, nil
+	case uuidType:
+		return UUIDT, StringT, StringT, nil
+	}
 	switch refType.Kind() {
 	case reflect.String:
 		return StringT, StringT, StringT, nil
@@ -399,9 +405,6 @@ func defaultType(refType reflect.Type) (Type, Type, Type, error) {
 			}
 		}
 	}
-	if refType == timeType {
-		return TimestampT, StringT, StringT, nil
-	}
 	return "", "", "", ErrInvalidType
 }
 
@@ -421,12 +424,12 @@ func reflectType(refType reflect.Type) Type {
 		return AddrPortT
 	case "*netip.Prefix":
 		return CIDRT
-	case "*uuid.UUID":
-		return UUIDT
 	case "*regexp.Regexp":
 		return RegexpT
 	case "*url.URL":
 		return URLT
+	case "*uuid.UUID":
+		return UUIDT
 	}
 	if typ, ok := reflectTypes[s]; ok {
 		return typ
@@ -434,4 +437,7 @@ func reflectType(refType reflect.Type) Type {
 	return ""
 }
 
-var timeType = reflect.TypeFor[time.Time]()
+var (
+	timeType = reflect.TypeFor[time.Time]()
+	uuidType = reflect.TypeFor[uuid.UUID]()
+)
