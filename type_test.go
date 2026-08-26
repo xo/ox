@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"testing"
 	"time"
+	"uuid"
 )
 
 func TestTypeNew(t *testing.T) {
@@ -344,6 +345,19 @@ func typeTests(t *testing.T) []typeTest {
 			},
 		},
 		{
+			UUIDT, []test{
+				//{"", uuid.Nil},
+				//{"00000000-0000-0000-0000-000000000000", uuid.Nil},
+				//{"00000000000000000000000000000000", uuid.Nil},
+				{"f47ac10b-58cc-0372-8567-0e02b2c3d479", mustUUID(t, "f47ac10b-58cc-0372-8567-0e02b2c3d479")},
+				{"f47ac10b-58cc-1372-8567-0e02b2c3d479", mustUUID(t, "f47ac10b-58cc-1372-8567-0e02b2c3d479")},
+				{"f47ac10b-58cc-2372-8567-0e02b2c3d479", mustUUID(t, "f47ac10b-58cc-2372-8567-0e02b2c3d479")},
+				{"f47ac10b58cc337285670e02b2c3d479", mustUUID(t, "f47ac10b-58cc-3372-8567-0e02b2c3d479")},
+				{"f47ac10b-58cc-4372-8567-0e02b2c3d479", mustUUID(t, "f47ac10b-58cc-4372-8567-0e02b2c3d479")},
+				{":", ErrInvalidValue},
+			},
+		},
+		{
 			SizeT, []test{
 				{"", "0 B"},
 				{"1", "1 B"},
@@ -413,6 +427,15 @@ func mustTime(t *testing.T, s, layout string) FormattedTime {
 func mustURL(t *testing.T, s string) *url.URL {
 	t.Helper()
 	u, err := url.Parse(s)
+	if err != nil {
+		t.Fatalf("expected no error, got: %v", err)
+	}
+	return u
+}
+
+func mustUUID(t *testing.T, s string) uuid.UUID {
+	t.Helper()
+	u, err := uuid.Parse(s)
 	if err != nil {
 		t.Fatalf("expected no error, got: %v", err)
 	}

@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"regexp"
 	"time"
+	"uuid"
 )
 
 // Type is a variable type.
@@ -203,6 +204,9 @@ func init() {
 	RegisterTextType(func() (*netip.Prefix, error) {
 		return new(netip.Prefix), nil
 	})
+	RegisterTextType(func() (*uuid.UUID, error) {
+		return new(uuid.UUID), nil
+	})
 	RegisterTextType(func() (*regexp.Regexp, error) {
 		return new(regexp.Regexp), nil
 	})
@@ -323,6 +327,8 @@ func typeRef(val any) Type {
 		return AddrPortT
 	case *netip.Prefix:
 		return CIDRT
+	case *uuid.UUID:
+		return UUIDT
 	case *regexp.Regexp:
 		return RegexpT
 	case *url.URL:
@@ -415,6 +421,8 @@ func reflectType(refType reflect.Type) Type {
 		return AddrPortT
 	case "*netip.Prefix":
 		return CIDRT
+	case "*uuid.UUID":
+		return UUIDT
 	case "*regexp.Regexp":
 		return RegexpT
 	case "*url.URL":

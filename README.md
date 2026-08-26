@@ -38,6 +38,7 @@
   - `*big.Int`, `*big.Float`, `*big.Rat`
   - `*url.URL`, `*regexp.Regexp`
   - `*netip.Addr`, `*netip.AddrPort`, `*netip.Prefix`
+  - `*uuid.UUID`
 - Non-standard types:
   - `ox.Size` - a byte size (`15 MiB`, `1 GB`, ...)
   - `ox.Rate` - a byte rate (`15 MiB/s`, `1 GB/h`, ...)
@@ -53,7 +54,6 @@
   - `ox.PathT` / `type:path` - a file system path
   - `ox.HookT` - argument `func` hook, for hooking flags
 - Optional, common types, available with optional import:
-  - `*github.com/google/uuid.UUID` - standard UUID's
   - `*github.com/kenshaw/colors.Color` - named and css style colors (`white`, `black`, `#ffffff`, `RGBA(...)`, ...)
   - `*github.com/kenshaw/glob.Glob` - a file path globbing type
 - Registerable user defined types, which work with all API styles
@@ -117,8 +117,8 @@ user can manually build commands and flags however they see fit.
 
 Wherever a non-standard package has been used, such as for the [YAML][yaml],
 [TOML][toml], or [HCL][hcl] loaders, or for the built-in support for
-[colors](color), [globs](glob), and [UUIDs](uuid), the external dependencies
-are optional, requiring a import of a `xo/ox` subpackage, for example:
+[colors](color), and [globs](glob), the external dependencies are optional,
+requiring a import of a `xo/ox` subpackage, for example:
 
 ```go
 import (
@@ -133,7 +133,6 @@ import (
   // well-known types
   _ "github.com/xo/ox/color"
   _ "github.com/xo/ox/glob"
-  _ "github.com/xo/ox/uuid"
 )
 ```
 

@@ -1,10 +1,8 @@
 github.com/goccy/go-yaml v1.19.2 h1:PmFC1S6h8ljIz6gMRBopkjP1TVT7xuwrButHID66PoM=
 github.com/goccy/go-yaml v1.19.2/go.mod h1:XBurs7gK8ATbW4ZPGKgcbrY1Br56PdM69F7LkFRi1kA=
-github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
-github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/kenshaw/colors v0.2.4 h1:PB89i8kIX5+vpnJYq8G51IKJNDvdiEVBZKsO3/ETGDc=
 github.com/kenshaw/colors v0.2.4/go.mod h1:Aok7+9KpR+qEwgCxDEoLBS6IGFhY1iRJIzbcv5ijewI=
 github.com/kenshaw/glob v0.1.1 h1:y7FSU+/aKf5+rm+jTchCNxrmom9snEgQrU4woq4IPSc=
 github.com/kenshaw/glob v0.1.1/go.mod h1:vuRxRIlDPSfYGjm3enW+F32FsxFu0LR1joP86Z992mM=
-github.com/pelletier/go-toml/v2 v2.4.0 h1:Mwu0mAkUKbittDs3/ADDWXqMmq3EOK2VHiuCkV00Row=
-github.com/pelletier/go-toml/v2 v2.4.0/go.mod h1:2gIqNv+qfxSVS7cM2xJQKtLSTLUE9V8t9Stt+h56mCY=
+github.com/pelletier/go-toml/v2 v2.4.3 h1:GTRvJQutkOSftxIFD5xw9aepkYNuPWmVJpffdDPYVpY=
+github.com/pelletier/go-toml/v2 v2.4.3/go.mod h1:2gIqNv+qfxSVS7cM2xJQKtLSTLUE9V8t9Stt+h56mCY=
