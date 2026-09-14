@@ -20,20 +20,20 @@ func UserStateDir(appName string) (string, error) {
 		if localAppData := os.Getenv("LOCALAPPDATA"); localAppData != "" {
 			return filepath.Join(localAppData, appName), nil
 		}
-		dir, err := os.UserHomeDir()
+		dir, err := userHomeDir()
 		if err != nil {
 			return "", err
 		}
 		return filepath.Join(dir, "AppData", "Local", appName), nil
 	case "darwin":
-		dir, err := os.UserHomeDir()
+		dir, err := userHomeDir()
 		if err != nil {
 			return "", err
 		}
 		return filepath.Join(dir, "Library", "Application Support", appName), nil
 	}
 	// Linux, FreeBSD, OpenBSD, etc.
-	dir, err := os.UserHomeDir()
+	dir, err := userHomeDir()
 	if err != nil {
 		return "", err
 	}
