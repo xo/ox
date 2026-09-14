@@ -6,36 +6,36 @@ import (
 	"runtime"
 )
 
-// UserStateDir returns the application's state directory.
+// UserStateDir returns the user's state directory.
 //
-// Linux/BSD: $XDG_STATE_HOME/appName or ~/.local/state/appName
-// macOS:     $XDG_STATE_HOME/appName, or ~/Library/Application Support/appName
-// Windows:   %LOCALAPPDATA%\appName or %USERPROFILE%\AppData\Local\appName
-func UserStateDir(appName string) (string, error) {
+// Linux/BSD: $XDG_STATE_HOME or ~/.local/state
+// macOS:     $XDG_STATE_HOME, or ~/Library/Application Support
+// Windows:   %LOCALAPPDATA% or %USERPROFILE%\AppData\Local
+func UserStateDir() (string, error) {
 	if dir := os.Getenv("XDG_STATE_HOME"); dir != "" {
-		return filepath.Join(dir, appName), nil
+		return dir, nil
 	}
 	switch runtime.GOOS {
 	case "windows":
-		if localAppData := os.Getenv("LOCALAPPDATA"); localAppData != "" {
-			return filepath.Join(localAppData, appName), nil
+		if dir := os.Getenv("LOCALAPPDATA"); dir != "" {
+			return dir, nil
 		}
 		dir, err := userHomeDir()
 		if err != nil {
 			return "", err
 		}
-		return filepath.Join(dir, "AppData", "Local", appName), nil
+		return filepath.Join(dir, "AppData", "Local"), nil
 	case "darwin":
 		dir, err := userHomeDir()
 		if err != nil {
 			return "", err
 		}
-		return filepath.Join(dir, "Library", "Application Support", appName), nil
+		return filepath.Join(dir, "Library", "Application Support"), nil
 	}
 	// Linux, FreeBSD, OpenBSD, etc.
 	dir, err := userHomeDir()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(dir, ".local", "state", appName), nil
+	return filepath.Join(dir, ".local", "state"), nil
 }

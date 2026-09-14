@@ -60,7 +60,9 @@ var DefaultLoader = func(ctx *Context, typ ConfigType, key string) (any, bool, e
 //	$CONFIG - the current user's config directory, taken from [os.UserConfigDir] (ex: ~/.config)
 //	$APPCONFIG - the current user's config directory, with the root command's name added as a subdir (ex: ~/.config/appName)
 //	$CACHE - the current user's cache directory, taken from [os.UserCacheDir] (ex: ~/.cache)
+//	$STATE - the current user's state directory, taken from [os.UserStateDir] (ex: ~/.local/state)
 //	$APPCACHE - the current user's cache directory, with the root command's name added as a subdir (ex: ~/.cache/appName)
+//	$APPSTATE - the current user's state directory, with the root command's name added as a subdir (ex: ~/.local/state/appName)
 //	$NUMCPU - the value of [runtime.NumCPU] (ex: 4)
 //	$NUMCPU2 - the value of [runtime.NumCPU], plus 2 (ex: 6)
 //	$NUMCPU2X - the value of [runtime.NumCPU], times 2 (ex: 8)
@@ -97,9 +99,19 @@ var DefaultKeyLoader = func(ctx *Context, key string) (any, bool, error) {
 		}
 	case "CACHE":
 		f = userCacheDir
+	case "STATE":
+		f = UserStateDir
 	case "APPCACHE":
 		f = func() (string, error) {
 			dir, err := userCacheDir()
+			if err != nil {
+				return "", err
+			}
+			return filepath.Join(dir, ctx.Root.Name), nil
+		}
+	case "APPSTATE":
+		f = func() (string, error) {
+			dir, err := UserStateDir()
 			if err != nil {
 				return "", err
 			}

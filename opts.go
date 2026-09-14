@@ -559,7 +559,9 @@ func BindSet[T *E, E any](v T, set *bool) FlagOption {
 //	$HOME - the current user's home directory
 //	$USER - the current user's user name
 //	$CACHE - the current user's cache directory
+//	$STATE - the current user's state directory
 //	$APPCACHE - the current user's cache directory, with the root command's name added as a subdir
+//	$APPSTATE - the current user's state directory, with the root command's name added as a subdir
 //	$ENV{KEY} - the environment value for $KEY
 //	$CFG{[TYPE::]KEY} - the registered config file loader type and key value
 //
@@ -568,7 +570,9 @@ func BindSet[T *E, E any](v T, set *bool) FlagOption {
 //	ox.Default("$USER") - expands to "ken" if the user running the application is "ken"
 //	ox.Default("$HOME") - expands to /home/$USER
 //	ox.Default("$CACHE") - expands to /home/$USER/.cache
+//	ox.Default("$STATE") - expands to /home/$USER/.local/state
 //	ox.Default("$APPCACHE") - expands to /home/$USER/.cache/myApp if the root command's name is "myApp"
+//	ox.Default("$APPSTATE") - expands to /home/$USER/.local/state/myApp if the root command's name is "myApp"
 //	ox.Default("~/.${APPNAME|lower}rc") - expands to ~/.myapprc if the root command's name is "myApp"
 //	ox.Default("$ENV{MY_VAR}") - expands to value of the environment var $MY_VAR
 //	ox.Default("$CFG{yaml::a.b.c}") - expands to the registered YAML config file's key of a.b.c

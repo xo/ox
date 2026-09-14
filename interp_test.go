@@ -31,6 +31,10 @@ func TestInterpolateVar(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected no error, got: %v", err)
 	}
+	stateDir, err := UserStateDir()
+	if err != nil {
+		t.Fatalf("expected no error, got: %v", err)
+	}
 	tests := []struct {
 		v   string
 		exp string
@@ -72,7 +76,9 @@ func TestInterpolateVar(t *testing.T) {
 		{`$CONFIG`, configDir},
 		{`$APPCONFIG`, filepath.Join(configDir, root.Name)},
 		{`$CACHE`, cacheDir},
+		{`$STATE`, stateDir},
 		{`$APPCACHE`, filepath.Join(cacheDir, root.Name)},
+		{`$APPSTATE`, filepath.Join(stateDir, root.Name)},
 		{`$NUMCPU`, strconv.Itoa(runtime.NumCPU())},
 		{`$NUMCPU2`, strconv.Itoa(runtime.NumCPU() + 2)},
 		{`$NUMCPU2X`, strconv.Itoa(runtime.NumCPU() * 2)},
