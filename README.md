@@ -2,12 +2,13 @@
 
 `xo/ox` is a Go and TinyGo package for command-line argument and flag parsing.
 
-[Using][] | [Example][] | [Applications][] | [About][] | [License][]
+[Using][] | [Example][] | [Applications][] | [About][] | [Documents][] | [License][]
 
 [Using]: #using "Using"
 [Example]: #example "Example"
 [Applications]: #applications "Applications"
 [About]: #about "About"
+[Documents]: #documents "Documents"
 [License]: #license "License"
 
 [![Unit Tests][ox-ci-status]][ox-ci]
@@ -180,6 +181,15 @@ Articles:
 - [Matt Turner, Choosing a Go CLI Library][mtgocli]
 
 [mtgocli]: https://mt165.co.uk/blog/golang-cli-library/
+
+## Documents
+
+| Document | Holds |
+| --- | --- |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | What a change must do, and the commands to run before a pull request |
+| [docs/PLAN.md](docs/PLAN.md) | The plan, each decision that shapes `ox` and the reason for it, and the open questions |
+| [docs/BACKLOG.md](docs/BACKLOG.md) | Known faults and work that is not done |
+| [AGENTS.md](AGENTS.md) | The rules for a coding agent. `CLAUDE.md` imports it |
 
 ## License
 

@@ -329,7 +329,8 @@ type Context struct {
 	Stderr io.Writer
 	// Args are the arguments to parse, normally [os.Args][1:].
 	Args []string
-	// EmitExecExitError toggles emitting
+	// EmitExecExitError toggles emitting captured stderr output from
+	// [os.ExitError] to [Context.Stderr].
 	EmitExecExitError bool
 	// OnErr is the on error handling. Used by the default Handle func.
 	OnErr OnErr
