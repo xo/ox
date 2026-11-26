@@ -354,6 +354,11 @@ type Context struct {
 	Lookup func(*Context, ConfigType, string) (any, error)
 	// Loader is the config loader func.
 	Loader func(*Context, ConfigType, string) (any, bool, error)
+
+	// files are the config files that were read.
+	files []configFile
+	// loaded is true when the config files were read.
+	loaded bool
 }
 
 // NewContext creates a new run context.
@@ -390,17 +395,20 @@ func NewContext(opts ...Option) (*Context, error) {
 	return ctx, nil
 }
 
-// Parse parses the context args.
+// Parse parses the context args, then fills each flag that the args did not
+// set, with [Context.Fill].
 func (ctx *Context) Parse() error {
 	if ctx.Root.Comp && len(ctx.Args) != 0 && strings.HasPrefix(ctx.Args[0], DefaultCompName) {
 		return ctx.Comp(ctx)
 	}
 	var err error
-	if err = ctx.Populate(ctx.Root, false, false); err != nil {
-		return newCommandError(ctx.Root.Name, err)
+	if ctx.Exec, ctx.Args, err = Parse(ctx, ctx.Root, ctx.Args); err != nil {
+		return err
 	}
-	ctx.Exec, ctx.Args, err = Parse(ctx, ctx.Root, ctx.Args)
-	return err
+	if err := ctx.Fill(ctx.Exec); err != nil {
+		return newCommandError(ctx.Exec.Name, err)
+	}
+	return nil
 }
 
 // Comps returns the completions for the context.
@@ -430,10 +438,14 @@ func (ctx *Context) Comps() ([]Completion, CompDirective, error) {
 		Vars: make(Vars),
 	}
 	_, _ = fmt.Fprintf(ctx.Stderr, "COMP ARGS: %v -- %s\n", ctx.Args[1:n], ctx.Args[n])
-	if err := c.Parse(); err != nil {
+	var err error
+	if c.Exec, c.Args, err = Parse(c, c.Root, c.Args); err != nil {
 		_, _ = fmt.Fprintf(ctx.Stderr, "COMP PARSE ERR: %v\n", err)
 		return nil, CompError, err
 	}
+	// a value from the environment or a config file is a help, and its
+	// error is not
+	_ = c.Fill(c.Exec)
 	_, _ = fmt.Fprintf(ctx.Stderr, "COMP COMMAND: %s\n", c.Exec.Name)
 	var comps []Completion
 	var dir CompDirective
@@ -630,6 +642,8 @@ const (
 	ErrTypeMismatch Error = "type mismatch"
 	// ErrNotImplemented is the not implemented error.
 	ErrNotImplemented Error = "not implemented"
+	// ErrConfigNotFound is the config not found error.
+	ErrConfigNotFound Error = "config not found"
 	// ErrExit is the exit error.
 	ErrExit Error = "exit"
 )

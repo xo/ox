@@ -1,7 +1,7 @@
 # Plan
 
 This file holds the plan for `ox`, then every decision that shapes it, then
-the open questions for Ken. The index of the decisions comes first, so that a
+the open questions for the maintainers. The index of the decisions comes first, so that a
 reader can find a decision by its number.
 
 | Decision | Title | Status |
@@ -18,15 +18,28 @@ reader can find a decision by its number.
 | [D10](#d10-only-a-root-that-has-sub-commands-gets-a-help-command-and-a-version-command-decided) | Only a root that has sub commands gets a help command and a version command | Decided |
 | [D11](#d11-an-unknown-command-gets-a-suggestion-within-a-levenshtein-distance-of-2-decided) | An unknown command gets a suggestion within a Levenshtein distance of 2 | Decided |
 | [D12](#d12-golangci-lint-enables-every-linter-and-disables-a-list-decided) | golangci-lint enables every linter and disables a list | Decided |
-| [D13](#d13-the-examples-include-command-trees-generated-from-the-help-of-real-tools-decided) | The examples include command trees generated from the help of real tools | Decided |
+| [D13](#d13-the-examples-include-command-trees-generated-from-the-help-of-real-tools-decided-amended-by-d31) | The examples include command trees generated from the help of real tools | Decided. Amended by D31 |
 | [D14](#d14-a-default-value-is-expanded-with-bash-like-interpolation-decided) | A default value is expanded with bash-like interpolation | Decided |
 | [D15](#d15-an-unknown-key-expands-to-nothing-and-a-failed-lookup-writes-its-error-into-the-value-decided) | An unknown key expands to nothing, and a failed lookup writes its error into the value | Decided |
 | [D16](#d16-a-config-loader-is-registered-for-a-configtype-decided) | A config loader is registered for a ConfigType | Decided |
-| [D17](#d17-the-go-directive-stays-at-a-release-that-the-pinned-tinygo-can-build-decided) | The go directive stays at a release that the pinned TinyGo can build | Decided |
+| [D17](#d17-the-go-directive-stays-at-a-release-that-the-pinned-tinygo-can-build-decided-amended-by-d24) | The go directive stays at a release that the pinned TinyGo can build | Decided. Amended by D24 |
 | [D18](#d18-ox-makes-no-promise-of-backward-compatibility-decided) | ox makes no promise of backward compatibility | Decided |
 | [D19](#d19-the-substring-operator-takes-an-end-index-and-not-a-length-proposed) | The substring operator takes an end index and not a length | Proposed |
-| [D20](#d20-an-app-builds-its-command-tree-from-the-doc-comment-of-a-struct-proposed) | An app builds its command tree from the doc comment of a struct | Proposed |
+| [D20](#d20-an-app-builds-its-command-tree-from-the-doc-comment-of-a-struct-proposed-amended-by-d30) | An app builds its command tree from the doc comment of a struct | Proposed. Amended by D30 |
 | [D21](#d21-ox-is-set-up-for-coding-agents-as-every-xo-repository-is-decided) | ox is set up for coding agents as every xo repository is | Decided |
+| [D22](#d22-ox-is-the-command-line-package-for-the-maintainers-programs-and-usql-moves-to-it-decided) | ox is the command-line package for the maintainers' programs, and usql moves to it | Decided |
+| [D23](#d23-a-tool-imports-the-completion-scripts-from-each-cobra-release-decided) | A tool imports the completion scripts from each cobra release | Decided |
+| [D24](#d24-ox-supports-the-newest-go-release-and-the-two-before-it-decided-amends-d17) | ox supports the newest Go release and the two before it | Decided. Amends D17 |
+| [D25](#d25-the-github-project-takes-discussions-and-not-issues-or-pull-requests-decided) | The GitHub project takes discussions, and not issues or pull requests | Decided |
+| [D26](#d26-a-path-flag-is-a-patht-a-filet-or-a-dirt-decided) | A path flag is a PathT, a FileT or a DirT | Decided |
+| [D27](#d27-ox-completes-flag-values-and-positional-arguments-as-cobra-does-decided) | ox completes flag values and positional arguments as cobra does | Decided |
+| [D28](#d28-one-compfunc-completes-a-flag-or-an-argument-proposed) | One CompFunc completes a flag or an argument | Proposed |
+| [D29](#d29-a-program-can-make-its-help-look-like-psqls-help-decided) | A program can make its help look like psql's help | Decided |
+| [D30](#d30-appfrom-builds-a-program-from-a-struct-and-its-doc-comments-decided-amends-d20) | AppFrom builds a program from a struct and its doc comments | Decided. Amends D20 |
+| [D31](#d31-an-importer-writes-ox-programs-from-the-interface-of-well-known-programs-decided-amends-d13) | An importer writes ox programs from the interface of well-known programs | Decided. Amends D13 |
+| [D32](#d32-ox-has-many-examples-for-coding-agents-decided) | ox has many examples for coding agents | Decided |
+| [D33](#d33-each-sub-package-with-a-dependency-is-a-module-of-its-own-and-test-is-a-module-decided) | Each sub package with a dependency is a module of its own, and test is a module | Decided |
+| [D34](#d34-a-flag-takes-its-value-from-the-command-line-the-environment-the-config-files-or-its-default-proposed) | A flag takes its value from the command line, the environment, the config files or its default | Proposed |
 
 ## Purpose
 
@@ -42,35 +55,48 @@ defaults that a caller can change. It is not meant to support every use case.
 
 ## Current state
 
-This section is at `eae81b9` (2026-09-14).
+This section is at `bb2641a` (2026-09-27), with the changes staged on
+2026-11-26, which split the modules and add config loading.
 
 1. The root package imports the standard library and two of its own
    subpackages, `strcase` and `text`. See D1.
-2. Flag parsing, the type system, help, version, completion and suggestions
-   work, and the tests cover them. `go test ./...` and `tinygo test ./...` pass
-   in CI.
-3. Config file loading is not finished. The `yaml` loader returns no value
-   for any key, and the `toml` package registers no loader. There is no `hcl`
-   package, and the README names one. See B6 and B7 in
-   [BACKLOG.md](BACKLOG.md).
-4. The app style of D20 is a sketch. `UserConfigFile` does nothing. See B5.
-5. The repository has no tag. `dbtpl` requires the pseudo-version for
-   `2d66424` (2026-06-22), which is older than the move to Go 1.27 in D17.
-6. `golangci-lint` reports 263 findings on main, and no CI job runs it. See
+2. Flag parsing, the type system, help, version, the completion of command
+   and flag names, and suggestions work, and the tests cover them.
+   `go test ./...` and `tinygo test ./...` pass in CI.
+3. Completion does not complete flag values or positional arguments. See
+   B31.
+4. Config files of JSON, YAML and TOML, and the environment, fill the flags
+   (D34). The tests in `conf_test.go` and in the `test` module cover each
+   format and the order of the sources. An `hcl` module does not exist. See
+   B7.
+5. The app style of D20 is a sketch. D30 replaces it with `AppFrom`.
+6. The repository is six modules (D33): the root, which requires nothing,
+   `color`, `glob`, `toml`, `yaml` and `test`. None has a tag, and `go.mod`
+   declares `go 1.27`. Every module passes `go vet`. See B22 and B30.
+7. `golangci-lint` reports 263 findings on main, and no CI job runs it. See
    D12 and B16.
+8. `dbtpl`, `iv` and `wallgrab` use `ox`. `usql` still uses `cobra`, and it
+   moves when priority 1 of [BACKLOG.md](BACKLOG.md) is done. See D22.
 
 ## Direction
 
-The direction comes from the README, the code and `notes.txt`, a file of
-Ken's that git ignores. Ken has not written it down as a plan, so each item
-is a direction and not a decision.
+A maintainer set this direction on 2026-11-26. [BACKLOG.md](BACKLOG.md) holds
+each item in order of importance, and [DESIGN.md](DESIGN.md) holds the design
+of each part.
 
-1. Finish config loading: the `yaml`, `toml` and `hcl` loaders, config files
-   that a command reads from the user's directories, and the app style.
-2. Finish the bash-like operators that the `InterpolateVar` comment lists.
-   See B1 and B2.
-3. Finish completion for flags. See B9.
-4. Add the types that `notes.txt` lists. See B19.
+1. Move `usql` to `ox`. That is priority 1 of the backlog: a release that
+   builds with Go 1.25 to 1.27 (D24), value completion at parity with cobra
+   (D27), help that looks like psql's help (D29), environment variables,
+   hidden aliases, and a run that returns its error.
+2. Show the structure of `usql` on `ox` in a sample, `_examples/usql`, which
+   the `usql` session reviews before `usql` moves. See B42.
+3. Add the path types of D26 and the completion API of D28.
+4. Add `AppFrom`, which builds a program from a struct and its doc comments
+   (D30).
+5. Replace `_examples/gen.go` with an importer that reads well-known
+   programs and writes each style of `ox` program (D31).
+6. Write many more examples for coding agents (D32).
+7. Then finish config loading, and the bash-like operators of D14.
 
 ## Decisions
 
@@ -80,13 +106,13 @@ decision changes one, the older entry keeps its text, and its heading names
 the decision that changed it.
 
 Each heading ends with a status. `Decided` means that the history shows that
-Ken chose it. `Proposed` means that the code does it, and no record shows that
-Ken chose it. A proposed decision is also an open question at the end of this
+a maintainer chose it. `Proposed` means that the code does it, and no record shows that
+a maintainer chose it. A proposed decision is also an open question at the end of this
 file. `Amends D3` and `Amended by D7` name the other decision, and both
 decisions carry the link.
 
 D1 to D20 were written on 2026-09-27 from the history of the repository, from
-`61d64ed` (2024-11-19) to `eae81b9` (2026-09-14). Ken wrote every commit. No
+`61d64ed` (2024-11-19) to `eae81b9` (2026-09-14). One maintainer wrote every commit. No
 commit message has a body, so a reason comes from the README, a code comment
 or the code. If none of them gives a reason, the entry says "Reason not
 recorded". A line number is at `eae81b9`.
@@ -282,7 +308,7 @@ Commits: `615436e` (2024-12-04), `cd71c50` (2024-12-07), `5ea04fb`
 Reason not recorded. The disabled list matches the code: D8 needs package
 level variables, and the code discards write errors with `_, _ =`.
 
-### D13. The examples include command trees generated from the help of real tools. Decided.
+### D13. The examples include command trees generated from the help of real tools. Decided. Amended by D31.
 
 Commits: `dc5247a` (2024-12-21), `4b2a76f` (2024-12-22), `e83cd7d`
 (2024-12-24), `a7bcbd9` (2025-05-16), and the other commits that change the
@@ -350,7 +376,7 @@ subpackage registers `YAMLT`. `ConfigType` also names `JSONT`, `HCLT` and
 Reason, from the README: "Enable registration for config file loaders, types
 with minimal hassle".
 
-### D17. The go directive stays at a release that the pinned TinyGo can build. Decided.
+### D17. The go directive stays at a release that the pinned TinyGo can build. Decided. Amended by D24.
 
 Commits: `55bbf56` (2025-05-08), `0a943b5` (2026-03-05), `9c1faab`
 (2026-03-20), `c0d24d5` (2026-03-21), `25b315d` (2026-08-26).
@@ -366,7 +392,7 @@ See D2.
 
 ### D18. ox makes no promise of backward compatibility. Decided.
 
-Ken said that no `xo` project makes a promise about its API. tblfmt D37
+A maintainer said that no `xo` project makes a promise about its API. tblfmt D37
 records it on 2026-09-27. `ox` has no tag, and `30e013b` (2026-03-30), "Rename
 Path -> Realpath", is one of the renames that the history holds.
 
@@ -384,10 +410,10 @@ expression `s[1:2]`. A negative number counts from the end in both, so
 `TestInterpolate` gives the same result in bash and in `ox`. `notes.txt`
 describes the operator as `${VAR:offset:length}`.
 
-The code does it, and no record shows that Ken chose the difference from
-bash. This is open question 1.
+The code does it, and no record shows that a maintainer chose the difference from
+bash. This is open question 10.
 
-### D20. An app builds its command tree from the doc comment of a struct. Proposed.
+### D20. An app builds its command tree from the doc comment of a struct. Proposed. Amended by D30.
 
 Commits: `49a01e6` (2026-03-27), `2e2b6f4` (2026-03-30), `23b1eda`
 (2026-03-30), `739fd0c` (2026-03-30).
@@ -402,7 +428,7 @@ This is a sketch and not a finished decision. This is open question 2.
 
 ### D21. ox is set up for coding agents as every xo repository is. Decided.
 
-Ken decided on 2026-09-27 that every repository in the `xo` namespace is set
+A maintainer decided on 2026-09-27 that every repository in the `xo` namespace is set
 up for coding agents the same way. dbmeta D110 is the standard. This entry
 records what `ox` adopted.
 
@@ -437,27 +463,225 @@ A Windows checkout writes a symbolic link as a small text file. Claude Code
 then finds a file where it expects a folder, and it loads no skill and says
 nothing. That is why the skills and `CLAUDE.md` are ordinary files.
 
-## Open questions for Ken
+### D22. ox is the command-line package for the maintainers' programs, and usql moves to it. Decided.
 
-An open question is not a decision. When Ken answers one, the answer becomes
-a decision above, and the question goes.
+A maintainer said on 2026-10-15 that `usql`, `iv` and `wallgrab` are all projects that
+use `ox`, among many others. `usql` has not moved to `ox` yet.
 
-1. The substring operator takes an end index, and bash takes a length. Is the
+On that date:
+
+1. `dbtpl` requires `ox` at `2d66424` (2026-06-22).
+2. `iv`, at `github.com/kenshaw/iv`, requires `ox` at `bb2641a` (2026-09-27).
+3. `wallgrab`, at `github.com/kenshaw/wallgrab`, requires `ox` at `6fcd48b`
+   (2026-08-26).
+4. `usql` requires `cobra` v1.10.2 and not `ox`.
+
+The README keeps `usql` in its list of applications. The README linked `iv`
+to `github.com/xo/iv`, which does not exist, and now links to
+`github.com/kenshaw/iv`.
+
+This answers what was open question 4.
+
+### D23. A tool imports the completion scripts from each cobra release. Decided.
+
+A maintainer said on 2026-10-15 that the import of the cobra completion
+scripts must be done regularly, and that it was done by hand before. The
+maintainer asked for the import to be done again, and for the steps to be
+written down.
+
+`_tools/cobraimport` reads the script templates from a cobra release and
+converts them for `ox`. Then it makes the ox edits. It downloads cobra with
+`go mod download`, so `ox` does not require cobra (D1). It is in `_tools/`
+and not in `comp/`, because `defs.go` embeds every file in `comp/`.
+[COBRA-IMPORT.md](COBRA-IMPORT.md) holds the steps, the edits and the tests.
+
+No commit message named the cobra version of the first import. The scripts
+that `d1583b0` (2024-12-06) added match cobra v1.8.1 apart from the ox edits.
+They match each cobra commit from v1.8.0 to `3a5efae` (2024-10-16) equally,
+and `5a138f1` (2024-11-04), which changed the PowerShell script, matches
+less well. The local cobra checkout is at `0745e55` (2024-12-28), which is
+later than the import.
+
+The first run imported cobra v1.10.2. Bash and PowerShell changed, and zsh
+did not. It also corrected the fish template, which had `%[1]s` and `%[2]s`
+swapped since the first import. A program with a `-` or a `:` in its name
+got fish completion under the wrong name.
+
+### D24. ox supports the newest Go release and the two before it. Decided. Amends D17.
+
+A maintainer decided on 2026-11-26 that `ox` targets Go 1.25 and later, uses
+the features of Go 1.27, and trails the newest Go release by two releases.
+So `go.mod` declares `go 1.25` while Go 1.27 is the newest release, and it
+moves to `go 1.26` when Go 1.28 comes out.
+
+A feature that only a newer release has goes in a file with a build
+constraint for that release, such as `//go:build go1.27`. The only one
+today is the standard `uuid` package. This changes rule 2 of `AGENTS.md`,
+which allowed no build constraint other than `tinygo`. D17 still holds: the
+pinned TinyGo must build the minimum release. [DESIGN.md](DESIGN.md) has
+the measurements, and B30 has the work. How to read "uses the features of
+Go 1.27" is an open question below.
+
+### D25. The GitHub project takes discussions, and not issues or pull requests. Decided.
+
+A maintainer asked on 2026-11-26 that issues and pull requests be turned off
+and discussions turned on. That was done the same day. The project also got
+19 topics, so that it is easy to find. Two flagship models, GPT-6 Astra and
+Gemini 3.1 Pro, each ranked 20 topics, and the topics are the ones that both
+named. `yaml` and `toml` were left out, because config loading is not
+finished (B6). The next ones that one model named took their place:
+
+`go`, `golang`, `cli`, `command-line`, `command-line-interface`,
+`command-line-parser`, `cli-library`, `flags`, `flag-parser`,
+`argument-parser`, `tinygo`, `shell-completion`, `autocomplete`,
+`subcommands`, `configuration`, `generics`, `posix`, `struct-tags` and
+`args`.
+
+Later on 2026-11-26, config loading worked (D34), so `yaml` and `toml` were
+added, as both models had ranked them. GitHub allows 20 topics, so `args`
+went, which only one model named, last. A fresh ranking was asked for, and
+the model service failed to answer three times, so this follows the first
+ranking. The topics are now the 17 that both models named, and
+`subcommands`, `autocomplete` and `struct-tags`.
+
+`CONTRIBUTING.md` now sends a person to the discussions.
+
+### D26. A path flag is a PathT, a FileT or a DirT. Decided.
+
+A maintainer agreed on 2026-10-15 to three path types: `PathT` for any path,
+`FileT` for a file that exists, and `DirT` for a directory that exists. How
+a path is resolved or shown is an option on each, and not a type of its
+own: `Abs`, `Real` and `Home`. `Ext` narrows file completion, and
+`NotExist` makes a path that must not exist yet. A maintainer's notes named
+six types, `Dir`, `File`, `Path`, `Realdir`, `Realfile` and `Realpath`. With
+the resolution as an option, three types give the same choices.
+[DESIGN.md](DESIGN.md) has the table. Questions 1 to 6 of D28 are about
+these types.
+
+### D27. ox completes flag values and positional arguments as cobra does. Decided.
+
+A maintainer asked on 2026-10-15 that `ox` complete flag values, with file
+and directory completion for a path, and asked on 2026-11-26 that `ox`
+support everything that the scripts of cobra support for positional
+arguments. The scripts in `comp/` already do this. `ox` must give them the
+completions and the directives. [DESIGN.md](DESIGN.md) maps each feature of
+cobra to `ox`, and B31 has the faults that a probe found.
+
+### D28. One CompFunc completes a flag or an argument. Proposed.
+
+The API that D27 needs. One option, `CompFunc`, works on a command and on a
+flag, and a directive, `CompNoFilter`, turns off the prefix match that `ox`
+does now that the scripts do not. [DESIGN.md](DESIGN.md) has the signature
+and 12 questions, each with a recommendation. A maintainer must answer them
+before the work starts. This is open question 3 below.
+
+### D29. A program can make its help look like psql's help. Decided.
+
+A maintainer asked on 2026-11-26 that `usql --help` on `ox` look as close to
+`psql --help` as it can. `ox` already writes psql's sections. A diff of a
+copy of psql's options against psql 18.7 found six differences that `ox`
+must remove, and one fault where a hook loses its placeholder. They are B32
+and B33. The `usql` session proposed its own layout, which a maintainer of
+`usql` must confirm. [DESIGN.md](DESIGN.md) has both.
+
+### D30. AppFrom builds a program from a struct and its doc comments. Decided. Amends D20.
+
+A maintainer decided on 2026-11-26 that a program can pass a pointer to a
+struct to `ox.AppFrom`. The doc comments of the struct and of its fields
+give the usage and the help, the fields give the flags, an interface that the
+struct has gives the sub commands, and an `Exec` method gives the exec
+func. This is the direction of D20, which was a sketch. Go keeps no doc
+comment in a program, so how `AppFrom` gets them, and what the interface is
+called, are open questions below. [DESIGN.md](DESIGN.md) has the design.
+
+### D31. An importer writes ox programs from the interface of well-known programs. Decided. Amends D13.
+
+A maintainer asked on 2026-11-26 that `ox` read the command-line interface of
+well-known programs, written in Go or not, and write `ox` programs from it in
+each style: built by hand, reflection, and app. The importer replaces
+`_examples/gen.go` (D13) and lives in `_tools/oximport`. A program built with
+cobra answers `__complete`, which gives its commands, flags and allowed
+values more exactly than its help, so the importer reads both.
+[DESIGN.md](DESIGN.md) has the design, and B39 and B40 have the work.
+
+### D32. ox has many examples for coding agents. Decided.
+
+A maintainer asked on 2026-11-26 for many more examples for coding agents,
+in particular for the escaping of a comma in the description of a struct
+tag. `docs/EXAMPLES.md` will hold them by task, and each will also be an
+`Example` func, so that `go test` proves it. [DESIGN.md](DESIGN.md) has the
+first set and the escaping rules, which a probe measured. B41 has the work.
+
+### D33. Each sub package with a dependency is a module of its own, and test is a module. Decided.
+
+A maintainer decided on 2026-11-26 that `ox` adds a `test` package with its
+own `go.mod`, and that each sub package that needs another dependency gets
+its own `go.mod` and its own tags. So `color`, `glob`, `yaml` and `toml`
+become modules, tagged such as `yaml/v0.1.0`, and the root module requires
+nothing. This changes how D1 is held, and not what it says: a program that
+imports only `ox` still gets no other module. [DESIGN.md](DESIGN.md) has the
+layout, the CI and the order of tagging, which two flagship models reviewed.
+
+### D34. A flag takes its value from the command line, the environment, the config files or its default. Proposed.
+
+A maintainer asked on 2026-11-26 that config loading work properly. This
+answers what was open question 11. The design in [DESIGN.md](DESIGN.md) went
+to Gemini 3.1 Pro and GPT-6 Astra before any code was written, and it
+follows their review: one `Config` interface for a file, `ConfigFiles`,
+`ConfigFlag`, `EnvPrefix`, `EnvVar`, `NoEnv` and `NoConfig`, flat keys by flag
+name, a value from a file that assigns and does not append, and a default
+that is expanded only when it wins. No maintainer has chosen the names or
+the rules, so this is proposed. Open question 1 asks a maintainer to
+confirm it. It replaces the stub `UserConfigFile`, and amends nothing that
+was decided, because D16 decides only that a loader is registered for a
+`ConfigType`.
+
+## Open questions for the maintainers
+
+An open question is not a decision. When a maintainer answers one, the
+answer becomes a decision above, and the question goes. Each question has a
+recommendation.
+
+1. D34 is proposed. Recommended: confirm the names and rules in
+   [DESIGN.md](DESIGN.md), as two flagship models reviewed them. In
+   particular, must `Value.WasSet` stay true only for the command line, and
+   is a key the flat name of the flag?
+2. D24 says that `ox` uses the features of Go 1.27 and declares `go 1.25`.
+   Recommended: code that needs a newer release goes in a file with a build
+   constraint such as `//go:build go1.27`, as B30 plans for `uuid`. Is that
+   what "uses the features of Go 1.27" means?
+3. D28 has 12 questions about the path types and the completion API, in
+   [DESIGN.md](DESIGN.md). Recommended: the answer that each one gives.
+   They block B31, B35 and B37.
+4. How does `AppFrom` get the doc comments (D30)? Recommended: a
+   `go generate` tool from `ox` writes them into the program, because it
+   works with TinyGo and links no parser. The other way embeds the source and
+   parses it when the program starts.
+5. What does the interface for the sub commands of `AppFrom` call its
+   method? Recommended: `Commands() []any`, because `Sub` is already an
+   option. The sketch of D20 uses `Sub() []any`. Is the exec method
+   `Exec(ctx context.Context, args []string) error`?
+6. What are the run func that returns its error and the usage string called
+   (B28)? Recommended: `ox.RunError(ctx, opts...) error`, and
+   `Command.UsageString() string`.
+7. Does psql's layout of help, with the descriptions after 27 characters and
+   a long option on its own line, become the default for every program, or
+   does a program ask for it, such as with `HelpColumn(27)`? Recommended: a
+   program asks for it, so that `dbtpl`, `iv` and `wallgrab` do not change.
+8. When does `ox` get its first tag? Recommended: `v0.1.0` when B30
+   is done, so that `usql` can require a release that builds with Go 1.25.
+9. Issues and pull requests are off (D25). How does a change from a person
+   outside the project arrive? Recommended: the person opens a discussion,
+   and a maintainer makes the change. `CONTRIBUTING.md` says so now.
+10. The substring operator takes an end index, and bash takes a length. Is the
    difference deliberate, or does `ox` follow bash? See D19.
-2. Is the app style of D20 the direction, and what must it do before it is
-   finished? `RunApp` ignores its `context.Context`. See B3.
-3. The README says that `ox` loads HCL, and imports `github.com/xo/ox/hcl` in
-   its example. There is no such package. Does an `hcl` loader come, or does
-   the README change? See B7.
-4. The README lists `usql` as a program that uses `ox`. `usql` requires
-   `cobra` and not `ox`. `dbtpl` requires `ox`. Is `usql` going to move to
-   `ox`, or does the line go? See B17.
-5. `ox` has no tag, and `dbtpl` requires a pseudo-version from before D17.
-   Does `ox` get tagged releases?
-6. No CI job runs `golangci-lint`, and main has 263 findings. Must CI run it,
-   and must the disabled list follow the renamed linters? See B16.
-7. `_examples/gen.go` does not build, and no CI job builds the examples. Must
-   CI build them? See B14.
-8. The repository tests in `repo_test.go` do not run under TinyGo, because a
-   build constraint keeps them out. TinyGo 0.42.0 was not available here to
-   find out whether they run there. Is that the right choice? See D2 and D21.
+11. The README says that `ox` loads HCL, and imports `github.com/xo/ox/hcl`
+    in its example. There is no such package. Does an `hcl` loader come, or
+    does the README change? See B7.
+12. No CI job runs `golangci-lint`, and main has 263 findings. Must CI run it,
+    and must the disabled list follow the renamed linters? See B16.
+13. No CI job builds the examples. Must CI build them, and the programs that
+    the importer writes? See B14 and B39.
+14. The repository tests in `repo_test.go` do not run under TinyGo, because a
+    build constraint keeps them out. Is that the right choice? See D2 and
+    D21.

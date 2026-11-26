@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"maps"
 	"slices"
+	"strconv"
 	"strings"
 )
 
@@ -22,9 +23,6 @@ func Parse(ctx *Context, cmd *Command, args []string) (*Command, []string, error
 				c = cmd.Command(s)
 			}
 			if c != nil {
-				if err := ctx.Populate(c, false, false); err != nil {
-					return nil, nil, newCommandError(c.Name, err)
-				}
 				cmd = c
 			} else {
 				v = append(v, s)
@@ -130,6 +128,41 @@ func (vars Vars) String() string {
 
 // Set sets a variable in the vars.
 func (vars Vars) Set(ctx *Context, g *Flag, s string, set bool) error {
+	return vars.set(ctx, g, s, set, true)
+}
+
+// fill sets a flag from a value that is not from the command line, such as
+// a value from the environment, a config file or a default. It assigns the
+// value: a slice gets only the elements of val, and a count gets the number
+// in val, where the command line adds one for each use.
+func (vars Vars) fill(ctx *Context, g *Flag, val any) error {
+	strs, split, err := fillValues(g, val)
+	if err != nil {
+		return err
+	}
+	delete(vars, g.Name)
+	if g.Type == CountT {
+		n, err := strconv.ParseUint(strs[0], 10, 16)
+		if err != nil {
+			return fmt.Errorf("%w: count %q: %w", ErrInvalidValue, strs[0], err)
+		}
+		for range n {
+			if err := vars.set(ctx, g, "", false, true); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	for _, s := range strs {
+		if err := vars.set(ctx, g, s, false, split); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// set sets a flag. When split is false, a slice or a map takes s whole.
+func (vars Vars) set(ctx *Context, g *Flag, s string, set, split bool) error {
 	name := g.Name
 	if name == "" {
 		return ErrInvalidFlagName
@@ -144,6 +177,9 @@ func (vars Vars) Set(ctx *Context, g *Flag, s string, set bool) error {
 		setValid(v, g.Validate)
 		setSplit(v, g.Split)
 	}
+	if !split {
+		noSplit(v)
+	}
 	// set
 	if err := v.Set(s); err != nil {
 		return err
@@ -152,6 +188,9 @@ func (vars Vars) Set(ctx *Context, g *Flag, s string, set bool) error {
 	// bind
 	for i, bind := range g.Binds {
 		setSplit(bind, g.Split)
+		if !split {
+			noSplit(bind)
+		}
 		if err := bind.Bind(s); err != nil {
 			return fmt.Errorf("bind %d (%s): cannot set %q: %w", i, bind, s, err)
 		}
@@ -171,7 +210,14 @@ func setValid(v any, valid func(any) error) {
 	}
 }
 
-// setSplit sets the split func on v.
+// noSplit turns off the split of a slice or a map value.
+func noSplit(v any) {
+	if z, ok := v.(interface{ SetSplit(func(string) []string) }); ok {
+		z.SetSplit(nil)
+	}
+}
+
+// setSplit sets the split func of a slice or a map value.
 func setSplit(v any, split string) {
 	if split == "" {
 		return

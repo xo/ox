@@ -17,7 +17,7 @@ func main() {
 		ox.Exec(run),
 		ox.Usage("context", "a context demo of the ox api"),
 		ox.Defaults(),
-		ox.UserConfigFile(),
+		ox.ConfigFiles("$APPCONFIG/config.json"),
 		ox.Flags().
 			Var("param-a", "parameter a", ox.Short("a"), ox.Key("", "param-a"), ox.Key("yaml", "my_param_a"), ox.Key("toml", "paramA")).
 			Int("param-b", "parameter b", ox.Short("b"), ox.Default(125)).

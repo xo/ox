@@ -13,7 +13,11 @@ jobs:
         uses: actions/checkout@v7
       - name: Test
         run: |
-          go test -v ./...
+          # each module tests against the root in the same commit
+          go work init . ./color ./glob ./toml ./yaml ./test
+          for mod in . color glob toml yaml test; do
+            (cd $mod && go test -v ./...)
+          done
   test-tinygo:
     name: Test TinyGo
     runs-on: ubuntu-latest

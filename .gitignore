@@ -48,3 +48,7 @@
 # The Claude Code permissions of one person. A setting that belongs to the
 # project goes in .claude/settings.json, which is committed.
 /.claude/settings.local.json
+
+# Each developer makes a workspace of the modules: see CONTRIBUTING.md.
+/go.work
+/go.work.sum

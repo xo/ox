@@ -16,18 +16,34 @@ loader that needs another module goes in a subpackage, such as `color` or
 
 `ox` makes no promise of backward compatibility. A change can rename or
 remove an exported identifier when that makes the code better. `dbtpl`
-requires `ox`, so name each such change in the pull request. See D18.
+requires `ox`, so name each such change in its commit message. See D18.
 
 [docs/PLAN.md](docs/PLAN.md) holds each decision and the reason for it, and
 the questions that are still open. [docs/BACKLOG.md](docs/BACKLOG.md) holds
-the known faults and the work that is not done.
+the known faults and the work that is not done, in order of importance.
+[docs/DESIGN.md](docs/DESIGN.md) holds the design of the planned work.
 
-## Before you open a pull request
+## How to ask for a change
 
-Run these in the repository root. Each must pass:
+Issues and pull requests are turned off for `ox` on GitHub. To report a
+fault or to ask for a change, open a discussion at
+<https://github.com/xo/ox/discussions>. A maintainer answers it, and makes
+the change. See D25.
+
+## Before you stage a change
+
+`ox` is six modules: the root, `color`, `glob`, `toml`, `yaml` and `test`.
+Make a workspace of them once, in the repository root. Git ignores it:
 
 ```sh
-gofmt -l . && go test -race -count=1 ./...
+go work init . ./color ./glob ./toml ./yaml ./test
+```
+
+A maintainer runs these in the repository root. Each must pass:
+
+```sh
+gofmt -l .
+for mod in . color glob toml yaml test; do (cd $mod && go vet ./... && go test -race -count=1 ./...); done
 golangci-lint run --new-from-rev=HEAD ./...
 ```
 

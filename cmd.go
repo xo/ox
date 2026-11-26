@@ -71,6 +71,14 @@ type Command struct {
 	Special string
 	// Version is the version string.
 	Version string
+	// ConfigFiles are the config files to read, in order. Each path is
+	// interpolated. Only the root command reads them.
+	ConfigFiles []string
+	// ConfigRequired makes it an error when no config file exists.
+	ConfigRequired bool
+	// EnvPrefix is the prefix of the environment variables that fill the
+	// flags, such as "APP" for APP_LOG_LEVEL.
+	EnvPrefix string
 }
 
 // NewCommand creates a new command.
@@ -707,6 +715,15 @@ type Flag struct {
 	Valid []func(any) error
 	// Allowed are the allowed values.
 	Allowed []any
+	// EnvVar is the environment variable that fills the flag, whatever the
+	// prefix of the root command.
+	EnvVar string
+	// NoEnv keeps the flag out of the environment.
+	NoEnv bool
+	// NoConfig keeps the flag out of the config files.
+	NoConfig bool
+	// ConfigFile indicates that the flag names the config file.
+	ConfigFile bool
 }
 
 // NewFlag creates a new command-line flag.
@@ -1031,6 +1048,14 @@ func buildFlagOpts(parent, value reflect.Value, tags []string) ([]Option, error)
 				return nil, fmt.Errorf("%w: section %s: %w", ErrInvalidConversion, val, err)
 			}
 			opts = append(opts, Section(section))
+		case "config":
+			opts = append(opts, ConfigFlag())
+		case "env":
+			opts = append(opts, EnvVar(val))
+		case "noenv":
+			opts = append(opts, NoEnv())
+		case "noconfig":
+			opts = append(opts, NoConfig())
 		case "hidden":
 			opts = append(opts, Hidden(true))
 		case "deprecated":

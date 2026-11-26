@@ -168,6 +168,23 @@ func TestTheRootHoldsFourDocuments(t *testing.T) {
 	}
 }
 
+// TestTheRootModuleRequiresNothing makes sure that the root go.mod has no
+// require and no replace. A program that imports only ox gets no other
+// module, and a sub package that needs one is a module of its own (D1, D33).
+func TestTheRootModuleRequiresNothing(t *testing.T) {
+	t.Parallel()
+	for line := range strings.Lines(read(t, "go.mod")) {
+		if f := strings.Fields(line); len(f) != 0 && (f[0] == "require" || f[0] == "replace") {
+			t.Errorf("go.mod has %q. Put a dependency in a sub module of its own. See D33", strings.TrimSpace(line))
+		}
+	}
+	for _, mod := range []string{"color", "glob", "toml", "yaml", "test"} {
+		if !strings.HasPrefix(read(t, filepath.Join(mod, "go.mod")), "module github.com/xo/ox/"+mod+"\n") {
+			t.Errorf("%s/go.mod must declare the module github.com/xo/ox/%s. See D33", mod, mod)
+		}
+	}
+}
+
 // decision is one decision in docs/PLAN.md.
 type decision struct {
 	num     int

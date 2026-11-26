@@ -4,15 +4,15 @@
 builds a tree of commands and sub commands, converts each flag value to a Go
 type, and writes the help, the version and the shell completion for the tree.
 A flag default can hold variables, such as `$HOME/.${APPNAME|lower}rc`, and
-`ox` expands them from the environment and from config loaders. `dbtpl` is a
-consumer.
+`ox` expands them from the environment and from config loaders. `dbtpl`,
+`iv` and `wallgrab` use `ox`, and `usql` moves to it. See D22.
 
 ## Standing rules
 
 These hold in every `xo` repository, for every coding agent. dbmeta D110
 records them.
 
-1. Stage changes for review. Commit and push only when Ken says so.
+1. Stage changes for review. Commit and push only when a maintainer says so.
 2. Load the simple-english skill before you write any text that a person
    reads: project documentation, a code comment, an error message or a
    commit message.
@@ -27,8 +27,12 @@ every other agent read the same rules. Edit this file, not that one.
 | If you are | Read |
 | --- | --- |
 | asking why something is the way it is | the index at the top of [docs/PLAN.md](docs/PLAN.md) |
-| looking for work that is known and not done | [docs/BACKLOG.md](docs/BACKLOG.md) |
-| deciding what to work on next | "Direction" and "Open questions for Ken" in [docs/PLAN.md](docs/PLAN.md) |
+| looking for work that is known and not done | [docs/BACKLOG.md](docs/BACKLOG.md), in order of importance |
+| designing or building planned work | [docs/DESIGN.md](docs/DESIGN.md), the section that the backlog item names |
+| writing a struct tag for `From` | "Escaping in a struct tag" in [docs/DESIGN.md](docs/DESIGN.md) |
+| changing config loading or the environment | D34, then "Configuration" in [docs/DESIGN.md](docs/DESIGN.md) and `conf.go` |
+| adding a module or a dependency | D33, then "Modules" in [docs/DESIGN.md](docs/DESIGN.md) |
+| deciding what to work on next | "Direction" and "Open questions for the maintainers" in [docs/PLAN.md](docs/PLAN.md) |
 | adding an import outside the standard library | rule 1 below, and D1 |
 | changing code that TinyGo builds | rule 2 below, D2 and D17 |
 | adding a default or a string that `ox` writes | rule 3 below, and D8 |
@@ -36,6 +40,7 @@ every other agent read the same rules. Edit this file, not that one.
 | adding an option | D5, then an option in `opts.go` |
 | changing interpolation | D14, D15 and D19, then B1 and B2 in [docs/BACKLOG.md](docs/BACKLOG.md) |
 | changing help, version or completion | D9 and D10, then `defs.go` and `comp/` |
+| importing the completion scripts of cobra again | [docs/COBRA-IMPORT.md](docs/COBRA-IMPORT.md), every step in order |
 | adding or changing a test | "Tests" below |
 | answering a lint finding | "Linting" below |
 | writing a document, a code comment, an error message or a commit message | the `simple-english` skill. Load it first. See "Writing documentation" below |
@@ -46,7 +51,7 @@ every other agent read the same rules. Edit this file, not that one.
 `CONTRIBUTING.md` holds the same rules for a person, and it is shorter.
 
 A document that is not in that table does not exist. If you cannot find where
-something is written down, it is not written down. Ask Ken. Do not decide it
+something is written down, it is not written down. Ask a maintainer. Do not decide it
 yourself, and do not write it as though it were settled.
 
 A number such as D3 or B5 names a decision in `docs/PLAN.md` or an item in
@@ -55,11 +60,13 @@ that repository, such as dbmeta D110 or tblfmt D37.
 
 ## Rules from the decisions
 
-1. The root package imports the standard library and its own `strcase` and
-   `text` packages, and nothing else. A type or a loader that needs another
-   module goes in a subpackage that registers itself from `init`, such as
-   `color`, `glob` and `yaml`. A caller turns it on with a blank import. See
-   D1.
+1. The root module requires nothing, and the root package imports the
+   standard library and its own `strcase` and `text` packages, and nothing
+   else. A type or a loader that needs another module goes in a sub package
+   that is a module of its own, such as `color`, `glob`, `yaml` and `toml`,
+   and registers itself from `init`. A caller turns it on with a blank
+   import. `TestTheRootModuleRequiresNothing` fails on a `require` in the
+   root `go.mod`. See D1 and D33.
 2. `ox` builds with TinyGo. CI runs `tinygo test -v ./...` with TinyGo 0.42.0.
    Code that differs between the compilers goes in `go.go`, behind
    `//go:build !tinygo`, and in `tinygo.go`, behind `//go:build tinygo`. Use
@@ -90,7 +97,9 @@ that repository, such as dbmeta D110 or tblfmt D37.
 - `defs.go` holds help, version and completion, with `CommandHelp`, and
   embeds `comp/`.
 - `interp.go` holds `InterpolateVar`, its operators and its filters. `conf.go`
-  holds the config loaders and `DefaultKeyLoader`.
+  holds the config loaders, `DefaultKeyLoader`, the config file formats,
+  `MapConfig`, and `Context.Fill`, which gives each flag its value from the
+  environment, the config files or its default. See D34.
 - `misc.go` holds `UserStateDir`. `go.go` and `tinygo.go` hold the code that
   differs between the compilers. `onerr_string.go` is written by `stringer`,
   from the `go:generate` line in `ox.go`.
@@ -98,10 +107,22 @@ that repository, such as dbmeta D110 or tblfmt D37.
   `context.Context`, such as `otx.Get[T]`. See D7.
 - `strcase/` changes the case of identifiers. `text/` holds the strings that
   `ox` writes.
-- `color/`, `glob/`, `yaml/` and `toml/` are the optional subpackages of D1.
-  `yaml` and `toml` are not finished. See B6.
-- `comp/` holds the completion scripts, which started as the scripts of
-  `cobra`. `LICENSE.completions.txt` holds their license. See D9.
+- `color/`, `glob/`, `yaml/` and `toml/` are modules of their own, each with
+  its own `go.mod` and its own tags, such as `yaml/v0.1.0`. `yaml` and
+  `toml` register their config file formats. See D1 and D33.
+- `test/` is a module that nothing imports. It holds the tests that need
+  more than one module, such as a config file of each format read end to
+  end. Its `go.mod` replaces each module with its folder in the repository.
+- No `go.work` is committed. Make one in the root, which `.gitignore`
+  ignores: `go work init . ./color ./glob ./toml ./yaml ./test`. A sub
+  module requires a root version from after the split of D33, so it builds
+  without a workspace only after a maintainer pushes that commit.
+- `comp/` holds the completion scripts, which come from the scripts of
+  `cobra`. `LICENSE.completions.txt` holds their license. Do not edit a
+  script by hand. Change the importer and import again. See D9, D23 and
+  `docs/COBRA-IMPORT.md`.
+- `_tools/cobraimport` imports the completion scripts from a cobra release.
+  `go test ./...` does not build `_tools/`.
 - `_examples/` holds example programs, one directory each.
   `_examples/gen.go` writes the programs in `_examples/gen/` from the help of
   real tools. `go test ./...` does not build `_examples/`. See D13 and B14.
@@ -110,17 +131,18 @@ that repository, such as dbmeta D110 or tblfmt D37.
 
 ## Tests
 
-Run these in the repository root:
+`go test ./...` in the root does not reach the other modules. Run each
+module, with the workspace above:
 
 ```sh
-go test -race -count=1 ./...
+for mod in . color glob toml yaml test; do (cd $mod && go test -race -count=1 ./...); done
 tinygo test -v ./...
 ```
 
-CI runs `go test -v ./...` with the stable Go release, and
-`tinygo test -v ./...` with TinyGo 0.42.0, both on `ubuntu-latest`. A local
-TinyGo older than 0.42.0 refuses the module, because `go.mod` declares Go
-1.27.
+CI makes the same workspace and runs `go test -v ./...` in each module with
+the stable Go release, and `tinygo test -v ./...` in the root module with
+TinyGo 0.42.0, both on `ubuntu-latest`. A local TinyGo older than 0.42.0
+refuses the module, because `go.mod` declares Go 1.27.
 
 The tests of the package are in `package ox`, so they reach unexported
 names. `example_test.go` is in `package ox_test`, and its examples are the
@@ -198,16 +220,16 @@ golangci-lint run --new-from-rev=HEAD ./...
 
 ## Before you stage
 
-Standing rule 1 applies. Stage the change with `git add`, and give Ken a
-proposed commit message. Do not tag. All of these must pass first:
+Standing rule 1 applies. Stage the change with `git add`, and give a
+maintainer a proposed commit message. Do not tag. All of these must pass first:
 
 ```sh
-gofmt -l . && go test -race -count=1 ./...
+gofmt -l .
+for mod in . color glob toml yaml test; do (cd $mod && go vet ./... && go test -race -count=1 ./...); done
 golangci-lint run --new-from-rev=HEAD ./...
 ```
 
-`gofmt -l .` must print nothing. `go vet ./...` fails on main with two
-self-assignments, so it is not in the list until B15 is done.
+`gofmt -l .` must print nothing.
 
 ## Writing documentation
 
@@ -219,8 +241,8 @@ the table at the top of this file and to the list in `README.md`.
 A decision goes in `docs/PLAN.md` and nowhere else. `ox` is a small library,
 so its decisions stay in that one file (dbmeta D111). Give the decision the
 next number and a heading such as `### D22. Title. Decided.` The status is
-`Decided` only when Ken chose it. If you do not know whether Ken chose it,
-write `Proposed` and ask him. If a decision changes an earlier one, write
+`Decided` only when a maintainer chose it. If you do not know whether a
+maintainer chose it, write `Proposed` and ask a maintainer. If a decision changes an earlier one, write
 `Amends D3` in its heading, and write `Amended by D22` in the heading of D3.
 Add a row to the index at the top: the number with a link to the heading,
 the title, and the status. `TestTheDecisionIndexIsComplete` prints the row

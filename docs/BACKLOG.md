@@ -1,25 +1,313 @@
 # Backlog
 
-The work in `ox` that is known and not done: the faults, the `TODO`
-comments, and the features that the README or Ken's notes name and the code
-does not have. A decision about any item goes in [PLAN.md](PLAN.md). When an
-item is done, remove it here and name it in the commit message.
+The work in `ox` that is known and not done, ordered by importance. A
+decision about any item goes in [PLAN.md](PLAN.md), and the design of the
+planned work is in [DESIGN.md](DESIGN.md). When an item is done, remove it
+here and name it in the commit message.
 
-B1 to B21 were collected on 2026-09-27. Their line numbers are at `eae81b9`,
-and they can move. Each item names where it came from:
+The number of an item never changes, so the order of the numbers is not the
+order of importance. B1 to B21 were collected on 2026-09-27, B22 to B29 on
+2026-11-09, and B30 to B45 on 2026-11-26. A line number is at `eae81b9` for
+B1 to B21, and at `bb2641a` after that. Each item names where it came from:
 
 1. Probe: a small program ran `ox` and showed the fault.
 2. Read: the fault comes from reading the code, and no program ran it.
 3. TODO: a `TODO` comment in the code.
 4. Lint: a finding of `go vet` or `golangci-lint`.
 5. README, or `notes.txt`: the text names something that the code does not
-   do. `notes.txt` is a file of Ken's in the repository folder. Git ignores
-   it, because `.gitignore` ignores `*.txt`.
+   do. `notes.txt` is a maintainer's file in the repository folder. Git
+   ignores it, because `.gitignore` ignores `*.txt`.
+6. A session: another session asked for it, such as the `usql` session.
 
-The repository has no open issue and no pull request, open or closed, so no
-item came from GitHub.
+Issues and pull requests are off on GitHub (D25), so no item comes from
+there.
 
-## Faults in interpolation
+Eleven items closed on 2026-11-26. The split into modules of D33 and the
+config loading of D34 closed B5, B6, B8, B23, B44 and B45. Every module
+passes `go vet`, which closed B15. B29 closed, because a maintainer asked
+that config loading work properly (D34). B31 replaces B9. B23 holds what B24
+asked, because `usql` uses its only annotation to keep an option out of the
+environment. B27 closed, because the `usql` session confirmed that a flag of
+type `HookT` and `NoArg` cover its custom value types.
+
+## Priority 1: needed before usql moves, or wrong today
+
+The `usql` session said on 2026-11-26 that a maintainer decided that `usql`
+moves from `cobra` to `ox` now (D22). The `usql` session built a prototype with every option of `usql` on
+`bb2641a` and the staged changes, and sent its list in this order. It writes
+its side against a local checkout. Tell the session named `usql` when each
+item lands, with its API names.
+
+The prototype found that these work today, with no change to `ox`:
+
+1. A `HookT` flag with a `func(string)` default appends in the order of the
+   command line. A probe on 2026-11-09 gave `[set=A=1 pset=x=2 set=B=3]`
+   for `-v A=1 -P x=2 --set B=3`, and `-F` can append two entries.
+2. Combined short options, such as `-Aq` and `-zX`, and `-vA=1` and `-F=,`.
+3. `NoArg(true, "")` switches, and `NoArg(true, true)` for an optional
+   bool. `--no-init=maybe` fails.
+4. Aliases, `--`, and `ValidArgs(0, 1)`, which refuses a second argument.
+5. A hidden flag with `Short("h")` and a hook that fails, so that psql's
+   `-h` stops at once.
+6. Help sections, `Spec`, `Banner` and `Footer`.
+7. Help and version flags that the program defines with
+   `Special("hook:help")` or `Special("hook:version")`, its own short name,
+   usage and section, together with the `Help()` and `Version()` options. A
+   probe found that `-V` fails with "missing argument" without `Version()`.
+8. A root command with no sub commands gets the hidden flags
+   `--completion-script-bash`, `--completion-script-zsh`,
+   `--completion-script-fish`, `--completion-script-powershell` and
+   `--no-descriptions` from `Comp()`, and no `completion` sub command. So a
+   positional argument named `completion` stays a DSN. These are the names
+   that `usql` uses with `cobra`.
+9. The usage as text, and a run that returns its error. See B28.
+
+### B33. A flag of type `HookT` loses its placeholder in help.
+
+- Where: `Flag.SpecString` in `cmd.go:811-823`.
+- Plain description: `SpecString` returns only the name when the type is
+  `HookT`, so `Spec("NAME=VALUE")` is not shown, and `-v, --set NAME=VALUE`
+  is written as `-v, --set`. `usql` builds 21 options as hooks. Before
+  2026-11-26 this backlog said that `Spec` gives each hook its placeholder.
+  That holds for parsing, and not for help.
+- Found: Read, on 2026-11-26.
+
+### B32. Help cannot look like psql's help.
+
+- Plain description: a diff of `_examples/gen/psql --help` against psql 18.7
+  found these differences, which D29 asks `ox` to remove:
+  1. The built-in `--help` and `--version` go in a "Flags:" section of their
+     own. A program can move them today, and no document says how: define
+     a flag with `Special("hook:help")` or `Special("hook:version")`, its
+     own short name, usage and `Section`, and pass `Help()` and `Version()`.
+     The `usql` prototype and a probe both did it on 2026-11-26. `ox` gives
+     `--help` the short name `-h` unless the program defines `-h` itself,
+     and psql's `-h` is the host.
+  2. The descriptions start after the longest option, after 33 characters for
+     psql's options. psql starts them after 27, and puts a longer option on
+     its own line.
+  3. A line break in a description is lost. psql keeps it.
+  4. Aliases are not written. See B25.
+  5. An optional value, such as `--help[=options]`, cannot be shown, and
+     neither can the values of that option, such as `--help=commands`.
+  6. The default text cannot be turned off for one flag. psql and `usql`
+     write their defaults by hand.
+  7. `ox` wraps a long description at `DefaultWrapWidth`, which is 95. psql
+     never wraps a description. It keeps each one on one line, or breaks it
+     where the usage text has a line break.
+  [DESIGN.md](DESIGN.md) has the layout that the `usql` session asked for.
+- Found: Probe, and the prototype of the `usql` session, on 2026-11-26.
+
+### B25. Completion does not offer hidden options.
+
+- Plain description: `Context.Comps` passes `hidden = false`, so a hidden
+  flag is never completed. `usql` hides a few options, such as `--no-psqlrc`
+  and `--variable`, from help and wants them completed. Cobra does not
+  complete a hidden flag, so `usql` un-hides them while it writes a
+  completion script. `usql` also needs the value completion of B31 and the
+  end of the debug lines of B20.
+- On 2026-11-26 the `usql` session made this exact. While it completes,
+  `usql` shows the hidden aliases `--no-psqlrc`, `--no-usqlrc`, `--var` and
+  `--variable`, and keeps `--no-rc` hidden. In help, `-v` shows `--variable`
+  and hides `--var`. So `ox` needs an alias that help hides and completion
+  offers, such as `HiddenAliases(...)`, and help that writes the aliases
+  that are not hidden, as psql does. `ox` writes no aliases in help today.
+- Found: the `usql` session, item 4. Read: `ox.go:441`.
+
+### B20. Completion writes debug lines to standard error.
+
+- Where: `ox.go:225`, `ox.go:420`, `ox.go:432`, `ox.go:434` and `ox.go:437`.
+- Text: `COMP ENDED: %s`, `COMP CONTINUE ERR: %v`, `COMP ARGS: %v -- %s`,
+  `COMP PARSE ERR: %v` and `COMP COMMAND: %s`.
+- Plain description: every completion request writes these lines. The
+  scripts in `comp/` discard standard error, so a shell does not show them.
+  A person who runs `__complete` by hand sees them.
+- Found: Read. It is not known whether they stay on purpose.
+
+### B30. ox requires Go 1.27, and D24 makes the minimum Go 1.25.
+
+- Plain description: `go.mod` declares `go 1.27`. A build with Go 1.25 and
+  with Go 1.26 fails on one import, the standard `uuid` package, in
+  `type.go`, `otx/otx.go` and `type_test.go`. Move each use to a file with
+  `//go:build go1.27`, declare `go 1.25`, and add Go 1.25, 1.26 and 1.27 to
+  the CI job beside TinyGo 0.42.0. Change rule 2 in `AGENTS.md` to allow a
+  Go release constraint. [DESIGN.md](DESIGN.md) has the details.
+- Found: a build with `GOTOOLCHAIN=go1.25.0` and `go1.26.0` in a copy of the
+  repository, on 2026-11-26.
+
+### B22. ox has no tagged release.
+
+- Plain description: `usql` must require a release, not a pseudo-version.
+  `go vet ./...` passed in every module on 2026-11-26. D33 adds a tag for
+  each module, in the order that [DESIGN.md](DESIGN.md) gives. Open
+  question 8 in [PLAN.md](PLAN.md) asks when the first tag is.
+- Found: the `usql` session, item 1.
+
+### B31. Completion does not complete flag values or positional arguments.
+
+- Where: `Context.Comps` in `ox.go:440-453`.
+- Text: `// TODO: expose flags to allow hidden/deprecated`,
+  `// TODO: logic incorrect; need to strip the -/-- and = from the flag`,
+  and `// TODO: handle completion for flags with completion definitions`.
+- Plain description: a probe program measured each case on 2026-10-15.
+  These are wrong or missing today:
+  1. The value after a flag, as in `--config `, `-c ` or `-vc `, offers
+     command names with file completion off. The flag lookup keeps the
+     dashes, so it never finds the flag.
+  2. `--config=` offers `--config` again, and `--config=fo` offers nothing.
+     The scripts add the `--config=` prefix back themselves, so `ox` must
+     not add it.
+  3. The allowed values of `Valid(...)` are not offered.
+  4. The values of `ValidArgs` are not offered.
+  5. A path type gives no file or directory completion. See B35.
+  The API for a completion func is B37. D27 decides the parity with cobra,
+  and [DESIGN.md](DESIGN.md) has the measurements for each shell.
+- Found: TODO, and Probe. This replaces B9.
+
+### B34. A parse error must be easy to tell apart.
+
+- Plain description: `usql` prints a hint after a parse error, and finds one
+  with `errors.Is`. Its prototype found on 2026-11-26 that the parse errors
+  wrap `ErrUnknownFlag`, `ErrMissingArgument`, `ErrInvalidArgCount` and
+  `ErrInvalidValue`. Keep these stable, add a test that holds each one, and
+  list them in the documentation of `Parse`. D18 allows a rename, and a
+  rename of one of these breaks `usql`.
+- Found: the `usql` session, on 2026-11-26.
+
+### B26. The `Hook` option does not work.
+
+- Where: `Hook` at `opts.go:694`, and `newHook` at `value.go:579`.
+- Plain description: `Hook` stores a `func(context.Context) error`, and
+  `newHook` has no case for that type. A flag built with `Hook` fails with
+  `invalid value: invalid hook func func(context.Context) error`. The flag
+  also takes an argument, so a bare `--flag` fails with `missing argument`.
+  A flag of type `HookT` with a `func(string)` default works.
+- Found: Probe, on 2026-11-09.
+
+## Priority 2: the planned direction
+
+### B28. Run does not return its error, and there is no usage string.
+
+- Plain description:
+  1. `Run` and `RunContext` handle the error themselves and exit. `usql`
+     needs a run func that returns the error, so that it chooses the exit
+     status and the message. `NewContext`, `Context.Parse`,
+     `Context.Validate` and `Context.Run` each return an error, so a caller
+     can call them in turn today, but no one func does it.
+  2. `usql` prints the usage inside `\? options` and needs a `Usage()
+     string` helper. `CommandHelp.WriteTo` writes the help to an
+     `io.Writer`, so a `strings.Builder` works today.
+  3. Help has no section that describes the positional arguments, such as
+     `[DSN]`. `Spec` changes only the spec line. On 2026-11-26 the `usql`
+     session said that it no longer needs this, because its "Connection
+     options" section can say what a DSN is. It stays here for other
+     programs, at a lower priority.
+- On 2026-11-26 the `usql` prototype did both without a change to `ox`: it
+  calls `NewContext`, its own `Context.Handler`, `Parse`, `Validate` and
+  `Run` in turn, and it writes `cmd.HelpContext(ctx)` to a
+  `strings.Builder`. A run func and a usage string are easier to find, and
+  they no longer block `usql`.
+- Found: the `usql` session, item 6.
+
+### B35. The path types of D26 do not exist.
+
+- Plain description: add `FileT` and `DirT` beside `PathT`, and the options
+  `Abs`, `Real`, `Home`, `Ext` and `NotExist`. [DESIGN.md](DESIGN.md) has the
+  table, and questions 1 to 6 there are still open.
+- Found: D26.
+
+### B37. There is no completion func for a flag or for arguments.
+
+- Plain description: cobra has `ValidArgsFunction` and
+  `RegisterFlagCompletionFunc`. D28 proposes one option, `CompFunc`, for
+  both, and a directive, `CompNoFilter`. [DESIGN.md](DESIGN.md) has the
+  signature and the questions.
+- Found: D27.
+
+### B38. Completion fails after a bad value, and after `--`.
+
+- Plain description: three cases that a probe found on 2026-10-15:
+  1. After a bad value, as in `--format bad sh`, completion prints nothing,
+     because `Comps` returns the parse error.
+  2. After `--`, completion offers command names.
+  3. A deprecated flag is offered. Cobra does not offer one.
+- Found: Probe.
+
+### B36. `AppFrom` does not exist.
+
+- Plain description: D30 plans `ox.AppFrom(*T)`, which reads the usage, the
+  flags and the sub commands from a struct and its doc comments. It replaces
+  the sketch of D20: `RunApp`, `RunAppContext`, `NewApp` and
+  `ParseCommand`, with the faults of B3 and B4. How `AppFrom` gets the doc
+  comments is an open question in [PLAN.md](PLAN.md).
+- Found: D30.
+
+### B39. The importer must replace `_examples/gen.go`.
+
+- Plain description: D31 plans `_tools/oximport`. It reads a cobra program
+  through `__complete` and its help, and every other program through its
+  help, and it writes the hand-built, reflection and app styles. It keeps
+  the help that it read in `testdata/import/`, so that its tests run without
+  the programs. [DESIGN.md](DESIGN.md) has the design. B14 holds the
+  faults of the old generator.
+- Found: D31.
+
+### B40. The old generator misreads psql's help.
+
+- Plain description: the program that `_examples/gen.go` wrote for psql
+  lost `-V`, `-1`, `-z`, `-0`, `--help=commands` and `--help=variables`. It
+  read `-v, --set=, --variable=NAME=VALUE` as a flag `set` with the usage
+  `--variable=NAME=VALUE`, and it changed "home page:" in the footer to
+  "home page -". The importer of B39 must read each of these right. Each
+  lost option is one whose description goes on the next line, or whose
+  short name is followed by text, such as `-1 ("one")`.
+- Found: Probe, a diff against psql 18.7 on 2026-11-26.
+
+### B14. `_examples/gen.go` does not build, and CI builds no example.
+
+- Where: `_examples/gen.go:392`.
+- Text: `not enough arguments in call to c.Interpolate`
+- Plain description: the signature of `Context.Interpolate` changed, and
+  the generator did not follow. `go test ./...` skips a directory that starts
+  with `_`, so CI does not build the examples. Every other example and every
+  generated program in `_examples/gen/` passes `go vet`.
+- Found: Lint: `go vet _examples/gen.go`. See D13, and open question 13 in
+  [PLAN.md](PLAN.md).
+
+### B41. There are few examples for a coding agent.
+
+- Plain description: D32 plans `docs/EXAMPLES.md`, with an `Example` func
+  in a test for each example, so that `go test` proves it. The first set,
+  and the escaping rules of a struct tag, are in [DESIGN.md](DESIGN.md).
+  Today the escaping of a comma in a tag is in one test only, and no
+  document has it.
+- Found: a maintainer, on 2026-11-26.
+
+### B42. There is no sample of usql built with ox.
+
+- Plain description: `_examples/usql` will hold every option of `usql`,
+  built as `usql` will build it on `ox`, with a test that compares its help
+  with a golden file. It needs B25, B28, B32 and B33 first. The
+  `usql` session reviews it before `usql` moves. [DESIGN.md](DESIGN.md) has
+  its structure and the list of options from `usql`.
+- Found: a maintainer, on 2026-11-26.
+
+### B16. `golangci-lint` reports 263 findings on main, and no CI job runs it.
+
+- Where: `.golangci.yml`.
+- Plain description: the linter renamed `exhaustruct` to `exhaustruct_v5`
+  and `wsl` to `wsl_v5`, so two disable lines no longer match. The two names
+  give 98 of the findings. Most of the rest are style. These look like real
+  faults or real questions:
+  1. The findings of B1, B3 and B13.
+  2. `recvcheck`: `Rate` in `size.go:193` and `FormattedTime` in
+     `value.go:655` mix pointer and value receivers.
+  3. `gosec` G115: `conv.go:560`, `587` and `614` convert a `uint64` to an
+     `int64` with no bound.
+  4. `errorlint`: `ox_test.go:186` uses a type assertion on an error.
+  5. `wastedassign`: `size.go:80` and `strcase/initialisms.go:81`.
+- Found: Lint, with golangci-lint 2.13.3. See D12, and open question 12 in
+  [PLAN.md](PLAN.md).
 
 ### B1. The operators `##` and `%%` return the value unchanged.
 
@@ -48,7 +336,15 @@ item came from GitHub.
   in, and `notes.txt` item 1 lists all four as the bash case operators. The
   `|upper` and `|lower` filters already do the whole string.
 
-## Faults in the app style and the config loaders
+## Priority 3: config loading and smaller faults
+
+### B7. There is no `hcl` package.
+
+- Where: the README, twice, and `conf.go:22`, which declares `HCLT`.
+- Plain description: the README says that `ox` loads HCL, and its import
+  example has `_ "github.com/xo/ox/hcl"`, which does not build. `notes.txt`
+  item 3 names `github.com/hashicorp/hcl/v2`, and also JSON and Jsonnet.
+- Found: README. Open question 11 in [PLAN.md](PLAN.md) asks whether it comes.
 
 ### B3. `RunApp` ignores its `context.Context`.
 
@@ -66,57 +362,6 @@ item came from GitHub.
   `*Context`, and `RunAppContext` then calls `c.Handler(err)` on it. The
   program panics in place of the error.
 - Found: Read.
-
-### B5. `UserConfigFile` does nothing.
-
-- Where: `opts.go:328-343`.
-- Text: `dir = dir` and then `return nil`.
-- Plain description: the option finds the user's config directory and then
-  discards it. No file is loaded.
-- Found: Lint: `go vet` reports "self-assignment of dir" at `opts.go:339`.
-
-### B6. The `yaml` loader answers no key, and the `toml` package registers no loader.
-
-- Where: `loadKey` in `yaml/yaml.go:20-38`, and `init` in `toml/toml.go:11-23`.
-- Plain description: `loadKey` parses the key as a YAML path, then returns
-  the empty string and false. The code that loads the file is in a comment.
-  The body of `init` in `toml` is all in a comment, so the `decoder` type and
-  its `Decode` method have no caller.
-- Found: Lint: `go vet` reports "self-assignment of path" at
-  `yaml/yaml.go:36`, and `unused` reports `decoder` in `toml/toml.go` and the
-  `opts` and `once` fields in `yaml/yaml.go`.
-- The README lists "Environment, YAML, TOML, HCL config loading" as a
-  feature. `notes.txt` item 3 marks env as done and names the others.
-  `TestInterpolate` reads `${yaml::...}` keys from a loader that the test
-  registers itself.
-
-### B7. There is no `hcl` package.
-
-- Where: the README, twice, and `conf.go:22`, which declares `HCLT`.
-- Plain description: the README says that `ox` loads HCL, and its import
-  example has `_ "github.com/xo/ox/hcl"`, which does not build. `notes.txt`
-  item 3 names `github.com/hashicorp/hcl/v2`, and also JSON and Jsonnet.
-- Found: README. Open question 3 in [PLAN.md](PLAN.md) asks whether it comes.
-
-### B8. `RegisterConfigLoader` ignores its `extensions` parameter.
-
-- Where: `conf.go:162`.
-- Plain description: the `yaml` package passes `"yaml", "yml"`, and nothing
-  keeps them. They are the file extensions that a config file loader needs.
-- Found: Read.
-
-## Unfinished work named in the code
-
-### B9. Completion does not complete the value of a flag.
-
-- Where: `Context.Comps` in `ox.go:440-453`.
-- Text: `// TODO: expose flags to allow hidden/deprecated`,
-  `// TODO: logic incorrect; need to strip the -/-- and = from the flag`,
-  and `// TODO: handle completion for flags with completion definitions`.
-- Plain description: after a flag that takes a value, completion offers
-  nothing. The lookup of the flag uses the text with its dashes. Hidden
-  flags are never offered, and deprecated flags always are.
-- Found: TODO. `notes.txt` item 7 names flag completion.
 
 ### B10. Case sensitivity and the distance match cannot be turned off.
 
@@ -149,58 +394,16 @@ item came from GitHub.
 - Found: TODO. Lint: `modernize` reports the `NumField` loop at
   `cmd.go:1173`.
 
-## Tooling
-
-### B14. `_examples/gen.go` does not build, and CI builds no example.
-
-- Where: `_examples/gen.go:392`.
-- Text: `not enough arguments in call to c.Interpolate`
-- Plain description: the signature of `Context.Interpolate` changed, and
-  the generator did not follow. `go test ./...` skips a directory that starts
-  with `_`, so CI does not build the examples. Every other example and every
-  generated program in `_examples/gen/` passes `go vet`.
-- Found: Lint: `go vet _examples/gen.go`. See D13, and open question 7 in
-  [PLAN.md](PLAN.md).
-
-### B15. `go vet ./...` fails on main.
-
-- Plain description: it reports the two self-assignments of B5 and B6. When
-  both are fixed, add `go vet ./...` to the commands that must pass in
-  `AGENTS.md`.
-- Found: Lint.
-
-### B16. `golangci-lint` reports 263 findings on main, and no CI job runs it.
-
-- Where: `.golangci.yml`.
-- Plain description: the linter renamed `exhaustruct` to `exhaustruct_v5`
-  and `wsl` to `wsl_v5`, so two disable lines no longer match. The two names
-  give 98 of the findings. Most of the rest are style. These look like real
-  faults or real questions:
-  1. The findings of B1, B3, B5, B6 and B13.
-  2. `recvcheck`: `Rate` in `size.go:193` and `FormattedTime` in
-     `value.go:655` mix pointer and value receivers.
-  3. `gosec` G115: `conv.go:560`, `587` and `614` convert a `uint64` to an
-     `int64` with no bound.
-  4. `errorlint`: `ox_test.go:186` uses a type assertion on an error.
-  5. `wastedassign`: `size.go:80` and `strcase/initialisms.go:81`.
-- Found: Lint, with golangci-lint 2.13.3. See D12, and open question 6 in
-  [PLAN.md](PLAN.md).
-
-## Documentation
-
 ### B17. The README is out of date.
 
 - Where: `README.md`.
 - Plain description:
   1. It says that `ox` "is built with Go 1.23+ applications in mind". The
      module declares Go 1.27. See D17.
-  2. It lists `usql` as a program that uses `ox`. `usql` requires `cobra`
-     and not `ox`. Open question 4 in [PLAN.md](PLAN.md) asks about it.
-  3. It lists "Man page generation" as a design choice. No code writes a
+  2. It lists "Man page generation" as a design choice. No code writes a
      man page.
-  4. It lists HCL loading. See B7.
-- Found: README, compared with the code, the `usql` `go.mod` and the `dbtpl`
-  `go.mod`.
+  3. It lists HCL loading. See B7.
+- Found: README, compared with the code.
 
 ### B18. Some doc comments name the wrong thing.
 
@@ -215,8 +418,6 @@ item came from GitHub.
   5. `RunApp` and `RunAppContext` have a doc comment that holds only the
      name. See B3.
 - Found: Read.
-
-## Planned features
 
 ### B19. The types and features in `notes.txt`.
 
@@ -238,18 +439,6 @@ item came from GitHub.
 - Found: `notes.txt`. Some items can be partly done. Measure each one
   before you start it.
 
-## Other
-
-### B20. Completion writes debug lines to standard error.
-
-- Where: `ox.go:225`, `ox.go:420`, `ox.go:432`, `ox.go:434` and `ox.go:437`.
-- Text: `COMP ENDED: %s`, `COMP CONTINUE ERR: %v`, `COMP ARGS: %v -- %s`,
-  `COMP PARSE ERR: %v` and `COMP COMMAND: %s`.
-- Plain description: every completion request writes these lines. The
-  scripts in `comp/` discard standard error, so a shell does not show them.
-  A person who runs `__complete` by hand sees them.
-- Found: Read. It is not known whether they stay on purpose.
-
 ### B21. `.gitignore` ignores every `.txt`, `.log` and shell script file.
 
 - Where: `.gitignore:40-41` and `.gitignore:43-46`.
@@ -260,3 +449,11 @@ item came from GitHub.
   committed. Git goes on tracking a file that it already has. A new file in
   `comp/` needs `git add -f`.
 - Found: Read.
+
+### B43. ox writes no ActiveHelp.
+
+- Plain description: the scripts of cobra show ActiveHelp, which is a line
+  of help that a program prints during completion. `ox` gives the scripts
+  the name of the ActiveHelp variable and never writes a line of it. No
+  consumer has asked for it.
+- Found: Read, on 2026-11-26.

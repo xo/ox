@@ -323,20 +323,51 @@ func Comp() CommandOption {
 	}
 }
 
-// UserConfigFile is a [Command] option to load a config file from the user's
-// config directory.
-func UserConfigFile() CommandOption {
+// ConfigFiles is a root [Command] option to add config files to read, in
+// order. Each path is interpolated, such as "$APPCONFIG/config.yaml". A later
+// file wins over an earlier one. A file that does not exist is skipped. The
+// format comes from the extension of the file. See [RegisterConfigFormat].
+func ConfigFiles(paths ...string) CommandOption {
 	return option{
-		name: "UserConfigFile",
+		name: "ConfigFiles",
 		cmd: func(cmd *Command) error {
 			if cmd.Parent != nil {
 				return ErrCanOnlyBeUsedWithRootCommand
 			}
-			dir, err := userConfigDir()
-			if err != nil {
-				return err
+			cmd.ConfigFiles = append(cmd.ConfigFiles, paths...)
+			return nil
+		},
+	}
+}
+
+// ConfigRequired is a root [Command] option that makes it an error when no
+// config file exists.
+func ConfigRequired() CommandOption {
+	return option{
+		name: "ConfigRequired",
+		cmd: func(cmd *Command) error {
+			if cmd.Parent != nil {
+				return ErrCanOnlyBeUsedWithRootCommand
 			}
-			dir = dir
+			cmd.ConfigRequired = true
+			return nil
+		},
+	}
+}
+
+// EnvPrefix is a root [Command] option to fill each flag from the
+// environment variable PREFIX_NAME, with the name of the flag in upper case
+// and each "-" as "_", such as APP_LOG_LEVEL for --log-level. The command
+// line wins over the environment, and the environment wins over the config
+// files and the default. See [NoEnv] and [EnvVar].
+func EnvPrefix(prefix string) CommandOption {
+	return option{
+		name: "EnvPrefix",
+		cmd: func(cmd *Command) error {
+			if cmd.Parent != nil {
+				return ErrCanOnlyBeUsedWithRootCommand
+			}
+			cmd.EnvPrefix = prefix
 			return nil
 		},
 	}
@@ -611,6 +642,55 @@ func Key(typ, key string) FlagOption {
 				g.Keys = make(map[string]string)
 			}
 			g.Keys[typ] = key
+			return nil
+		},
+	}
+}
+
+// ConfigFlag is a [Flag] option to mark a flag whose value names the config
+// file. When the flag has a value, its file replaces the files of
+// [ConfigFiles], and the file must exist. Its default can read the
+// environment, such as "${env::APP_CONFIG}", and not a config file.
+func ConfigFlag() FlagOption {
+	return option{
+		name: "ConfigFlag",
+		flag: func(g *Flag) error {
+			g.ConfigFile = true
+			return nil
+		},
+	}
+}
+
+// EnvVar is a [Flag] option to fill the flag from the environment variable
+// name, whatever the prefix of [EnvPrefix]. A hook flag is filled from the
+// environment only with EnvVar.
+func EnvVar(name string) FlagOption {
+	return option{
+		name: "EnvVar",
+		flag: func(g *Flag) error {
+			g.EnvVar = name
+			return nil
+		},
+	}
+}
+
+// NoEnv is a [Flag] option to keep the flag out of the environment.
+func NoEnv() FlagOption {
+	return option{
+		name: "NoEnv",
+		flag: func(g *Flag) error {
+			g.NoEnv = true
+			return nil
+		},
+	}
+}
+
+// NoConfig is a [Flag] option to keep the flag out of the config files.
+func NoConfig() FlagOption {
+	return option{
+		name: "NoConfig",
+		flag: func(g *Flag) error {
+			g.NoConfig = true
 			return nil
 		},
 	}

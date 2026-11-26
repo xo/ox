@@ -1,45 +1,27 @@
-// Package toml provides a toml config reader for ox.
+// Package toml registers the TOML config file format for ox. Import it for
+// its side effect:
+//
+//	import _ "github.com/xo/ox/toml"
+//
+// Then a program reads a TOML config file with [ox.ConfigFiles], and a flag
+// default reads a key with ${toml::key}.
 package toml
 
 import (
-	"context"
-	"io"
-
 	"github.com/pelletier/go-toml/v2"
+	"github.com/xo/ox"
 )
 
 func init() {
-	/*
-		ox.RegisterConfigLoader("toml", func(opts ...any) (ox.ConfigLoader, error) {
-				d := new(decoder)
-				for _, opt := range opts {
-					if o, ok := opt.(func(*toml.Decoder)); ok {
-						d.opts = append(d.opts, o)
-					}
-				}
-				return d, nil
-			return nil, nil
-		})
-	*/
+	ox.RegisterConfigFormat(ox.TOMLT, Decode, "toml")
 }
 
-type decoder struct {
-	opts []func(*toml.Decoder)
-}
-
-// Decode satisfies the [ox.ConfigLoader] interface.
-func (d *decoder) Decode(_ context.Context, r io.Reader, v any) error {
-	dec := toml.NewDecoder(r)
-	for _, o := range d.opts {
-		o(dec)
+// Decode decodes TOML data as an [ox.Config]. A key is a dotted path, such
+// as "server.port".
+func Decode(data []byte) (ox.Config, error) {
+	var m map[string]any
+	if err := toml.Unmarshal(data, &m); err != nil {
+		return nil, err
 	}
-	return dec.Decode(v)
-}
-
-func DisallowUnknownFields(dec *toml.Decoder) {
-	dec.DisallowUnknownFields()
-}
-
-func EnableUnmarshalerInterface(dec *toml.Decoder) {
-	dec.EnableUnmarshalerInterface()
+	return ox.MapConfig(m), nil
 }

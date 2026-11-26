@@ -97,7 +97,7 @@ parsing:
 
 [usql]: https://github.com/xo/usql
 [dbtpl]: https://github.com/xo/dbtpl
-[iv]: https://github.com/xo/iv
+[iv]: https://github.com/kenshaw/iv
 [wallgrab]: https://github.com/kenshaw/wallgrab
 
 ## About
@@ -134,6 +134,31 @@ import (
   // well-known types
   _ "github.com/xo/ox/color"
   _ "github.com/xo/ox/glob"
+)
+```
+
+Each of these subpackages is a Go module of its own, with its own tags, such
+as `yaml/v0.1.0`, so that a program that imports only `github.com/xo/ox` gets
+no other dependency. Upgrade `ox` and its modules together:
+
+```sh
+$ go get github.com/xo/ox@latest github.com/xo/ox/yaml@latest
+```
+
+A program reads its config files, and the environment, with options on the
+root command. Each flag takes its value from the command line, then the
+environment, then the config files, then its default:
+
+```go
+ox.Run(
+  ox.Usage("app", "an app"),
+  ox.EnvPrefix("APP"),                                // APP_LOG_LEVEL fills --log-level
+  ox.ConfigFiles("/etc/app.yaml", "$APPCONFIG/config.yaml"), // a later file wins
+  ox.Flags().
+    String("config", "config file", ox.ConfigFlag()). // --config replaces the files
+    String("log-level", "log level", ox.Default("info")).
+    Int("port", "port", ox.Key("", "server.port")),   // reads server.port
+  ox.Exec(run),
 )
 ```
 
@@ -186,9 +211,11 @@ Articles:
 
 | Document | Holds |
 | --- | --- |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | What a change must do, and the commands to run before a pull request |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to ask for a change, what a change must do, and the commands to run |
 | [docs/PLAN.md](docs/PLAN.md) | The plan, each decision that shapes `ox` and the reason for it, and the open questions |
-| [docs/BACKLOG.md](docs/BACKLOG.md) | Known faults and work that is not done |
+| [docs/BACKLOG.md](docs/BACKLOG.md) | Known faults and work that is not done, in order of importance |
+| [docs/DESIGN.md](docs/DESIGN.md) | The design of the planned work |
+| [docs/COBRA-IMPORT.md](docs/COBRA-IMPORT.md) | How the completion scripts are imported from cobra |
 | [AGENTS.md](AGENTS.md) | The rules for a coding agent. `CLAUDE.md` imports it |
 
 ## License
