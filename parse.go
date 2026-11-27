@@ -6,10 +6,37 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/xo/ox/text"
 )
 
 // Parse parses flags and args into context.
+//
+// A program can find the kind of a parse error with [errors.Is]. Parse
+// returns an error that wraps one of these:
+//
+//   - [ErrUnknownFlag] when a flag is not defined for the command.
+//   - [ErrMissingArgument] when a flag that takes an argument has none.
+//   - [ErrInvalidValue] when a flag cannot be set from its argument, such as
+//     a value that does not convert to the type of the flag, a value that
+//     [Valid] does not allow, or a value that a bound variable cannot hold.
+//
+// [Context.Parse] also returns [ErrInvalidValue] when a value from the
+// environment, a config file or a default cannot be set, and
+// [ErrInvalidConfig] when a config file cannot be decoded. An error that a
+// hook of the program returns passes through as it is, so the program finds
+// it with [errors.Is]. [Context.Validate],
+// which runs after the parse, returns [ErrInvalidArgCount] when the command
+// has too many or too few args for [ValidArgs]. These four errors stay
+// stable, because usql depends on them.
 func Parse(ctx *Context, cmd *Command, args []string) (*Command, []string, error) {
+	cmd, v, _, err := parse(ctx, cmd, args)
+	return cmd, v, err
+}
+
+// parse parses flags and args into context. It returns true when the args
+// hold `--`, the end of the flags.
+func parse(ctx *Context, cmd *Command, args []string) (*Command, []string, bool, error) {
 	var v []string
 	var s string
 	var n int
@@ -28,22 +55,22 @@ func Parse(ctx *Context, cmd *Command, args []string) (*Command, []string, error
 				v = append(v, s)
 			}
 		case s == "--":
-			return cmd, append(v, args...), nil
+			return cmd, append(v, args...), true, nil
 		case s[1] == '-':
 			if args, err = ParseFlagLong(ctx, cmd, s, args); err != nil {
 				if !ctx.Continue(cmd, err) {
-					return nil, nil, err
+					return nil, nil, false, err
 				}
 			}
 		default:
 			if args, err = ParseFlagShort(ctx, cmd, s, args); err != nil {
 				if !ctx.Continue(cmd, err) {
-					return nil, nil, err
+					return nil, nil, false, err
 				}
 			}
 		}
 	}
-	return cmd, v, nil
+	return cmd, v, false, nil
 }
 
 // ParseFlagLong parses a long flag ('--arg' '--arg v' '--arg k=v' '--arg=' '--arg=v').
@@ -51,60 +78,86 @@ func ParseFlagLong(ctx *Context, cmd *Command, s string, args []string) ([]strin
 	arg, value, ok := strings.Cut(strings.TrimPrefix(s, "--"), "=")
 	g := cmd.Flag(arg, true, false)
 	switch {
-	case g == nil && ctx.Continue(cmd, newFlagError(arg, ErrUnknownFlag)):
+	case g == nil && ctx.Continue(cmd, newFlagError("--"+arg, ErrUnknownFlag)):
 		return args, nil
 	case g == nil:
-		return nil, newFlagError(arg, ErrUnknownFlag)
+		return nil, newFlagError("--"+arg, ErrUnknownFlag)
+	}
+	warnDeprecated(ctx, g, "--"+arg)
+	switch {
 	case ok: // --arg=v
 	case g.NoArg: // --arg
 		var err error
-		if value, err = asString[string](g.NoArgDef); err != nil {
-			return nil, newFlagError(arg, err)
+		if value, err = noArgValue(ctx, g); err != nil {
+			return args, newFlagError("--"+arg, err)
 		}
 	case len(args) != 0: // --arg v
 		value, args = args[0], args[1:]
 	default: // missing argument to --arg
-		return nil, newFlagError(arg, ErrMissingArgument)
+		return nil, newFlagError("--"+arg, ErrMissingArgument)
 	}
 	if err := ctx.Vars.Set(ctx, g, value, true); err != nil {
-		return nil, newFlagError(arg, err)
+		return args, newFlagError("--"+arg, err)
 	}
 	return args, nil
+}
+
+// warnDeprecated writes a warning to [Context.Stderr] when g is deprecated.
+// arg is the flag as the command line gave it. A deprecated alias gives no
+// warning, so that an old name keeps working as before (D35).
+func warnDeprecated(ctx *Context, g *Flag, arg string) {
+	if ctx.Stderr != nil && g.Deprecated {
+		_, _ = fmt.Fprintf(ctx.Stderr, text.FlagDeprecated, arg)
+	}
+}
+
+// noArgValue returns the value of a flag that the command line gives without
+// a value: its [Flag.NoArgDef], with its variables expanded.
+func noArgValue(ctx *Context, g *Flag) (string, error) {
+	v, err := ctx.Expand(g.NoArgDef)
+	if err != nil {
+		return "", err
+	}
+	return asString[string](v)
 }
 
 // ParseFlagShort parses short flags ('-a' '-aaa' '-av' '-a v' '-a=' '-a=v').
 func ParseFlagShort(ctx *Context, cmd *Command, s string, args []string) ([]string, error) {
 	for v := []rune(s[1:]); len(v) != 0; v = v[1:] {
 		arg := string(v[0])
-		switch g, n := cmd.Flag(arg, true, true), len(v[1:]); {
-		case g == nil && ctx.Continue(cmd, newFlagError(arg, ErrUnknownFlag)):
+		g, n := cmd.Flag(arg, true, true), len(v[1:])
+		switch {
+		case g == nil && ctx.Continue(cmd, newFlagError("-"+arg, ErrUnknownFlag)):
 			return args, nil
 		case g == nil:
-			return nil, newFlagError(arg, ErrUnknownFlag)
+			return nil, newFlagError("-"+arg, ErrUnknownFlag)
+		}
+		warnDeprecated(ctx, g, "-"+arg)
+		switch {
 		case g.NoArg: // -a
 			var value string
 			var err error
 			if slices.Index(v, '=') == 1 {
 				value, v = string(v[2:]), v[len(v)-1:]
-			} else if value, err = asString[string](g.NoArgDef); err != nil {
-				return nil, newFlagError(arg, err)
+			} else if value, err = noArgValue(ctx, g); err != nil {
+				return args, newFlagError("-"+arg, err)
 			}
 			if err := ctx.Vars.Set(ctx, g, value, true); err != nil {
-				return nil, newFlagError(arg, err)
+				return args, newFlagError("-"+arg, err)
 			}
 		case n == 0 && len(args) == 0: // missing argument to -a
-			return nil, newFlagError(arg, ErrMissingArgument)
+			return nil, newFlagError("-"+arg, ErrMissingArgument)
 		case n != 0: // -a=, -a=v, -av
 			if slices.Index(v, '=') == 1 {
 				v = v[1:]
 			}
 			if err := ctx.Vars.Set(ctx, g, string(v[1:]), true); err != nil {
-				return nil, newFlagError(arg, err)
+				return args, newFlagError("-"+arg, err)
 			}
 			return args, nil
 		default: // -a v
 			if err := ctx.Vars.Set(ctx, g, args[0], true); err != nil {
-				return nil, newFlagError(arg, err)
+				return args[1:], newFlagError("-"+arg, err)
 			}
 			return args[1:], nil
 		}
@@ -180,6 +233,13 @@ func (vars Vars) set(ctx *Context, g *Flag, s string, set, split bool) error {
 	if !split {
 		noSplit(v)
 	}
+	// a path checks only a value from the command line
+	if isPath(g.Type) {
+		var err error
+		if s, err = g.pathValue(s, set); err != nil {
+			return err
+		}
+	}
 	// set
 	if err := v.Set(s); err != nil {
 		return err
@@ -191,8 +251,16 @@ func (vars Vars) set(ctx *Context, g *Flag, s string, set, split bool) error {
 		if !split {
 			noSplit(bind)
 		}
-		if err := bind.Bind(s); err != nil {
-			return fmt.Errorf("bind %d (%s): cannot set %q: %w", i, bind, s, err)
+		var err error
+		switch b, ok := bind.(interface{ BindVal(any) error }); {
+		case ok && g.Type != SliceT && g.Type != ArrayT && g.Type != MapT && g.Type != HookT:
+			// the value that the flag parsed, such as a duration or a count
+			err = b.BindVal(v.Val())
+		default:
+			err = bind.Bind(s)
+		}
+		if err != nil {
+			return fmt.Errorf("%w: bind %d (%s): cannot set %q: %w", ErrInvalidValue, i, bind, s, err)
 		}
 		bind.SetSet(set)
 	}

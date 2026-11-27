@@ -40,14 +40,24 @@
 *.txt
 *.log
 
+# The tests compare output with the text files in testdata.
+!/testdata/**/*.txt
+
 *.bash
 *.fish
 *.ps1
 *.zsh
 
+# The completion scripts and their license are committed, and the patterns
+# above match them.
+!/comp/*
+!/LICENSE.completions.txt
+
 # The Claude Code permissions of one person. A setting that belongs to the
 # project goes in .claude/settings.json, which is committed.
 /.claude/settings.local.json
+# The worktrees that Claude Code makes for its agents.
+/.claude/worktrees/
 
 # Each developer makes a workspace of the modules: see CONTRIBUTING.md.
 /go.work

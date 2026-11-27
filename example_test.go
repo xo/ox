@@ -122,7 +122,7 @@ func Example_psql() {
 		EchoQueries bool   `ox:"echo commands sent to server,short:e,section:1"`
 		EchoHidden  bool   `ox:"disply queries that internal commands generate,short:E,section:1"`
 		LogFile     string `ox:"send session log to file,spec:FILENAME,short:L,section:1"`
-		NoReadline  bool   `ox:"display enhanced command line editing (readline),short:L,section:1"`
+		NoReadline  bool   `ox:"display enhanced command line editing (readline),short:n,section:1"`
 		Output      string `ox:"send query results to file (or |pipe),short:o,section:1"`
 		Quiet       bool   `ox:"run quietly (no messages\\, only query output),short:q,section:1"`
 		SingleStep  bool   `ox:"single-step mode (confirm each query),short:s,section:1"`
@@ -194,7 +194,7 @@ PostgreSQL home page: <https://www.postgresql.org/>`),
 	//   -e, --echo-queries                  echo commands sent to server
 	//   -E, --echo-hidden                   disply queries that internal commands generate
 	//   -L, --log-file FILENAME             send session log to file
-	//   -L, --no-readline                   display enhanced command line editing (readline)
+	//   -n, --no-readline                   display enhanced command line editing (readline)
 	//   -o, --output string                 send query results to file (or |pipe)
 	//   -q, --quiet                         run quietly (no messages, only query output)
 	//   -s, --single-step                   single-step mode (confirm each query)

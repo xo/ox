@@ -178,7 +178,8 @@ _%[1]s()
         return $result
     else
         __%[1]s_debug "Calling _describe"
-        if eval _describe $keepOrder "completions" completions $flagPrefix $noSpace; then
+        # ox: offer every completion, so that a corrected name gets through
+        if eval _describe $keepOrder "completions" completions $flagPrefix $noSpace -U; then
             __%[1]s_debug "_describe found some completions"
 
             # Return the success of having called _describe

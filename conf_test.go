@@ -130,6 +130,7 @@ func TestFillErrors(t *testing.T) {
 		{"a list for a string flag", []Option{ConfigFiles(list)}, ErrInvalidValue},
 		{"no config file exists", []Option{ConfigFiles(filepath.Join(dir, "missing.json")), ConfigRequired()}, ErrConfigNotFound},
 		{"an extension with no format", []Option{ConfigFiles(unknown)}, ErrUnknownLoader},
+		{"a file that cannot be decoded", []Option{ConfigFiles(bad)}, ErrInvalidConfig},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -137,7 +138,7 @@ func TestFillErrors(t *testing.T) {
 			if !errors.Is(err, test.exp) {
 				t.Errorf("expected %v, got: %v", test.exp, err)
 			}
-			if !strings.Contains(err.Error(), "--name") && !errors.Is(err, ErrConfigNotFound) && !errors.Is(err, ErrUnknownLoader) {
+			if !strings.Contains(err.Error(), "--name") && !errors.Is(err, ErrConfigNotFound) && !errors.Is(err, ErrUnknownLoader) && !errors.Is(err, ErrInvalidConfig) {
 				t.Errorf("expected the error to name the flag, got: %v", err)
 			}
 		})

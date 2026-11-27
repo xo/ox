@@ -67,7 +67,7 @@ var DefaultLoader = func(ctx *Context, typ ConfigType, key string) (any, bool, e
 //	$CONFIG - the current user's config directory, taken from [os.UserConfigDir] (ex: ~/.config)
 //	$APPCONFIG - the current user's config directory, with the root command's name added as a subdir (ex: ~/.config/appName)
 //	$CACHE - the current user's cache directory, taken from [os.UserCacheDir] (ex: ~/.cache)
-//	$STATE - the current user's state directory, taken from [os.UserStateDir] (ex: ~/.local/state)
+//	$STATE - the current user's state directory, taken from [UserStateDir] (ex: ~/.local/state)
 //	$APPCACHE - the current user's cache directory, with the root command's name added as a subdir (ex: ~/.cache/appName)
 //	$APPSTATE - the current user's state directory, with the root command's name added as a subdir (ex: ~/.local/state/appName)
 //	$NUMCPU - the value of [runtime.NumCPU] (ex: 4)
@@ -237,8 +237,8 @@ type configFormat struct {
 // RegisterConfigFormat registers the decoder of a config file format, for
 // the file extensions that follow, without the dot. It also registers a
 // config loader for typ, so that ${typ::key} reads the files of the format.
-// The root package registers [JSONT]. The yaml and toml modules register
-// [YAMLT] and [TOMLT].
+// The root package registers [JSONT]. The yaml, toml and hcl modules
+// register [YAMLT], [TOMLT] and [HCLT].
 func RegisterConfigFormat(typ ConfigType, decode func([]byte) (Config, error), exts ...string) {
 	formats[typ] = configFormat{
 		decode: decode,
@@ -324,7 +324,7 @@ func readConfig(path string) (configFile, error) {
 	}
 	cfg, err := format.decode(data)
 	if err != nil {
-		return configFile{}, fmt.Errorf("%s: %w", path, err)
+		return configFile{}, fmt.Errorf("%w: %s: %w", ErrInvalidConfig, path, err)
 	}
 	return configFile{
 		path: path,

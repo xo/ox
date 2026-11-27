@@ -72,6 +72,7 @@ D33 decides this section.
 | `github.com/xo/ox/glob` | `glob/` | `ox`, `github.com/kenshaw/glob` | `glob/v0.1.0` |
 | `github.com/xo/ox/yaml` | `yaml/` | `ox`, `github.com/goccy/go-yaml` | `yaml/v0.1.0` |
 | `github.com/xo/ox/toml` | `toml/` | `ox`, `github.com/pelletier/go-toml/v2` | `toml/v0.1.0` |
+| `github.com/xo/ox/hcl` | `hcl/` | `ox`, `github.com/hashicorp/hcl/v2` | `hcl/v0.1.0` |
 | `github.com/xo/ox/test` | `test/` | every module above, with `replace` directives | never |
 
 `otx`, `strcase` and `text` stay in the root module, because they import
@@ -90,8 +91,8 @@ The rules:
    and a build of each example. Its `replace` directives point at the
    folders in the repository, and nothing imports it.
 4. No `go.work` is committed, and `.gitignore` ignores it. A developer makes
-   one with `go work init . ./color ./glob ./yaml ./toml ./test`. CI makes
-   the same one and runs the tests of every module in it. A second CI job
+   one with `go work init . ./color ./glob ./hcl ./yaml ./toml ./test`. CI
+   makes the same one and runs the tests of every module in it. A second CI job
    runs each module with `GOWORK=off` against the versions in its `go.mod`.
 5. To release, tag the root first. Then run
    `go get github.com/xo/ox@v0.1.0` in each sub module, stage that change,
@@ -232,7 +233,7 @@ standard `uuid` package. It is in three places:
 
 Each moves to a file with `//go:build go1.27`: `type_go127.go`,
 `otx/otx_go127.go` and `type_go127_test.go`. CI then builds and tests with Go
-1.25, 1.26 and 1.27, and with TinyGo 0.42.0. Rule 2 in `AGENTS.md` allows only
+1.25, 1.26 and 1.27, and with TinyGo 0.44.0. Rule 2 in `AGENTS.md` allows only
 `tinygo` and `!tinygo` as build constraints today, so D24 amends it to allow a
 Go release constraint too.
 
@@ -264,7 +265,8 @@ differences. Each is an item in [BACKLOG.md](BACKLOG.md), under B32:
 4. `ox` writes no aliases in help. psql writes `-v, --set=, --variable=NAME=VALUE`.
 5. `ox` has no way to show an optional value, as psql's `--help[=options]`,
    and no way to list the values of that option on lines of their own, such
-   as `--help=commands`.
+   as `--help=commands`. `OptionalValue("options")` and
+   `HelpValue("commands", usage)` do this since 2026-11-27.
 6. `ox` writes `(default: |)`. psql writes `(default: "|")` inside the
    description, by hand. `usql` writes its defaults by hand too, so `ox` needs
    a way to turn off the default text for one flag.
@@ -322,7 +324,7 @@ package main
 
 func main() {
 	var args Args
-	err := ox.RunError( // planned: a run that returns its error
+	err := ox.RunError( // a run that returns its error, B28
 		context.Background(),
 		ox.Usage("usql", "the universal command-line interface for SQL databases"),
 		ox.Banner("usql, the universal command-line interface for SQL databases"),
@@ -333,7 +335,7 @@ func main() {
 			"Output format options",
 			"Connection options",
 		)),
-		ox.HelpColumn(27), // planned: psql's column, B32
+		ox.HelpColumn(27), // psql's column, B32
 		ox.EnvPrefix("USQL"),
 		ox.Footer(footer),
 		ox.ValidArgs(0, 1),
@@ -353,7 +355,7 @@ func main() {
 			// general options: -v, -O, -U and -N append to the options list
 			Var("set", "set script variable NAME to VALUE (see \\set command)",
 				ox.HookT, ox.Default(args.option("vars.")), ox.Short("v"), ox.Spec("NAME=VALUE"),
-				ox.Aliases("variable"), ox.HiddenAliases("var"), ox.Section(0)). // planned: HiddenAliases, B25
+				ox.Aliases("variable"), ox.HiddenAliases("var"), ox.Section(0)).
 			Bool("no-init", "do not execute initialization scripts",
 				ox.Short("X"), ox.HiddenAliases("no-rc", "no-psqlrc", "no-usqlrc"), ox.Section(0)).
 			// ...
@@ -375,8 +377,11 @@ func main() {
 }
 ```
 
-Each planned identifier is a proposal. B42 builds the sample when B25, B28
-and B32 are done, and the `usql` session reviews it before `usql` moves.
+Each planned identifier is a proposal. B42 built the sample on 2026-11-27,
+from the options of the prototype of `usql` on that day, which has `-d` and
+`-l` too. `TestUsqlSample` builds it, and compares its help with
+`testdata/usql/help.txt`. The `usql` session reviews it before `usql`
+moves.
 
 ## Path types
 
@@ -403,7 +408,9 @@ three. Options change a path flag:
 
 Proposed: each path type expands a leading `~` to the home directory, and
 checks only a value that the user gave, never a default. Questions 1 to 6 in
-"Value completion" below list the rest.
+"Value completion" below list the rest. The types and the options were
+built on 2026-11-27 as the questions recommend. D36 lists the choices that
+the build made.
 
 ## Value completion
 
@@ -438,7 +445,7 @@ A probe program measured each case on 2026-10-15:
 | `MarkFlagDirname` | `DirT` |
 | `ShellCompDirective` values | `CompDirective`, with the same values |
 | `CompletionWithDesc` | `Completion`, with `Name` and `Usage` |
-| ActiveHelp lines | Not planned. B43 |
+| ActiveHelp lines | `NewActiveHelp(s)` in the results of a `CompFunc`, and `<PROG>_ACTIVE_HELP=0` turns them off. B43, 2026-11-27 |
 
 The scripts in `comp/` already handle every directive, so this work changes
 only the Go side. Each shell measured on 2026-10-15:
@@ -480,7 +487,7 @@ The questions, with the recommendation for each:
 10. `ValidArgs` values are offered at each position up to the maximum, and
     stored on a new field, `Command.ValidArgs`.
 11. The bash script stops its prefix filter for `--no-descriptions` too.
-12. `usql` asks that completion offers hidden aliases. See B25.
+12. `usql` asks that completion offers hidden aliases. D35 built it.
 
 ## Apps from a struct
 
@@ -519,7 +526,7 @@ func (app *App) Commands() []any { return []any{new(DumpCommand)} }
 func (app *App) Exec(ctx context.Context, args []string) error { return nil }
 
 func main() {
-	ox.AppFrom(new(App)) // planned
+	ox.AppFrom(new(App))
 }
 ```
 
@@ -535,9 +542,18 @@ Two designs can give them to `AppFrom`:
    generate step, but every program then links the Go parser, and it is not
    known whether TinyGo builds `go/doc`.
 
-`ParseCommand` and `RunApp` today look for `Sub() []any`. Proposed: rename
+`ParseCommand` and `RunApp` looked for `Sub() []any`. Proposed: rename
 it to `Commands() []any`, because `Sub` is already the option that adds a
 sub command. Both names are open questions.
+
+This was built on 2026-11-27, as open questions 4 and 5 recommend. `ox.App(v)`
+is a command option that builds the command, and `ox.AppFrom(v, opts...)`
+runs it with `ox.Defaults()`. `ox.RegisterDoc[T](doc, fields)` registers the
+doc comments, and `github.com/xo/ox/cmd/oxdoc` writes those calls in
+`oxdoc_gen.go`. `ox.App` also reads the sections `Description:`, `Aliases:`,
+`Section:`, `Sections:` and `Command sections:` that the importer writes.
+`RunApp`, `RunAppContext`, `NewApp` and `ParseCommand` are gone. D36 lists
+the choices that the build made.
 
 ## The importer
 
@@ -545,8 +561,8 @@ D31 decides this section.
 
 The importer reads the command-line interface of a well-known program and
 writes an `ox` program that has the same commands and flags. It replaces
-`_examples/gen.go`, which does not build today (B14), and it moves to
-`_tools/oximport`.
+`_examples/gen.go`, which did not build and was removed on 2026-11-27, and it
+lives in `_tools/oximport`.
 
 It reads a program in two ways:
 
@@ -569,11 +585,25 @@ It writes three styles of the same program, which D31 decides:
 2. Reflection: a struct with `ox` tags and `ox.From`.
 3. App: a struct for `ox.AppFrom`, with doc comments.
 
-Each run writes `testdata/import/<prog>/help.txt` with the text that it read,
-so that a test can run the parsers without the program installed. A test
-compares the `--help` of each program that it writes with the help that it
-read, the same way that the psql diff above was made. That diff is the
-measure of how well `ox` copies a program.
+Each run can record what it read in an archive,
+`_tools/oximport/testdata/<prog>.txtar`, so that a test can run the parsers
+without the program installed. A test builds each program that it writes,
+and compares the `--help` of the psql copy with the help that it read, the
+same way that the psql diff above was made.
+
+The importer was built on 2026-11-26, and D35 lists the choices that it made.
+Run it with:
+
+```sh
+go run ./_tools/oximport -o out -s hand -s reflect -s app psql gh
+```
+
+It reads psql, du, cp, tar, goimports, gh, helm and kubectl from their
+archives, and it read the whole trees of helm, hugo, omnictl, talosctl,
+doctl, podman, rclone, gh and kubectl live. Its limits: kubectl's root help
+lists no flags, so their types are guessed; tar's text that is neither an
+option nor a footer is dropped; and a flag that has only a short name
+becomes `--H, -H`, because an `ox` flag needs a long name.
 
 ## Examples for coding agents
 

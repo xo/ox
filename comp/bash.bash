@@ -274,8 +274,8 @@ __%[1]s_handle_standard_completion_case() {
     if [[ "${completions[*]}" != *$tab* ]]; then
         # First, escape the completions to handle special characters
         IFS=$'\n' read -ra completions -d '' < <(printf "%%q\n" "${completions[@]}")
-        # Only consider the completions that match what the user typed
-        IFS=$'\n' read -ra COMPREPLY -d '' < <(IFS=$'\n'; compgen -W "${completions[*]}" -- "${cur}")
+        # ox: offer every completion, so that a corrected name gets through
+        IFS=$'\n' read -ra COMPREPLY -d '' < <(IFS=$'\n'; compgen -W "${completions[*]}" -- "")
 
         # compgen looses the escaping so, if there is only a single completion, we need to
         # escape it again because it will be inserted on the command-line.  If there are multiple

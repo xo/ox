@@ -1,0 +1,35 @@
+A CLI for accessing Omni API.
+
+Usage:
+  omnictl [command]
+
+Available Commands:
+  apply           Create or update resource using YAML file as an input
+  audit-log       Read audit log from Omni
+  cluster         Cluster-related subcommands.
+  completion      generate completion script for a specified shell
+  config          Manage the client configuration file (omniconfig)
+  delete          Delete a specific resource by ID or all resources of the type.
+  download        Download installer media
+  get             Get a specific resource or list of resources.
+  help            show help for any command
+  infraprovider   Manage infra providers
+  kubeconfig      Download the admin kubeconfig of a cluster
+  machine-logs    Get logs for a machine
+  serviceaccount  Manage service accounts
+  support         Download the support bundle for a cluster
+  talosconfig     Download an admin talosconfig.
+  user            User-related subcommands.
+  version         show omnictl version information
+
+Flags:
+      --context string            The context to be used. Defaults to the selected context in
+                                  the omniconfig file.
+      --insecure-skip-tls-verify  Skip TLS verification for the Omni GRPC and HTTP API
+                                  endpoints.
+      --omniconfig string         The path to the omni configuration file. Defaults to
+                                  'OMNICONFIG' env variable if set, otherwise the config directory according to the XDG
+                                  specification.
+  -h, --help                      show help, then exit
+
+Use "omnictl [command] --help" for more information about a command.

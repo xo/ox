@@ -1,3 +1,3 @@
 module github.com/xo/ox
 
-go 1.27
+go 1.25

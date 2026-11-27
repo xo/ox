@@ -17,6 +17,7 @@ import (
 	"regexp"
 	"runtime"
 	"runtime/debug"
+	"slices"
 	"strings"
 	"time"
 	"unicode"
@@ -54,7 +55,7 @@ var (
 	DefaultWidth = func(s string) int {
 		return len(s)
 	}
-	// DefaultFlagNameMaper is the default flag name mapper.
+	// DefaultFlagNameMapper is the default flag name mapper.
 	DefaultFlagNameMapper = func(s string) string {
 		return strings.ReplaceAll(strcase.CamelToSnake(s), "_", "-")
 	}
@@ -115,7 +116,7 @@ var (
 		}
 	}
 	// DefaultEmitExecExitError toggles emitting captured stderr output from
-	// [os.ExitError] to the [Context.Stderr].
+	// [exec.ExitError] to the [Context.Stderr].
 	DefaultEmitExecExitError = false
 	// DefaultErrorHandler is the default error handler used by
 	// [Run]/[RunContext].
@@ -160,8 +161,15 @@ var (
 	// DefaultSuggestionsEnabled sets whether command name suggestions are
 	// given.
 	DefaultSuggestionsEnabled = true
-	// DefaultMaxDist is the default maximum distance for suggestions.
+	// DefaultMaxDist is the default maximum Levenshtein distance for
+	// suggestions and for the corrections of completion. 0 turns off the
+	// distance match. [MaxDist] changes it for one command.
 	DefaultMaxDist = 2
+	// DefaultFoldCase when true makes suggestions, and the completion of
+	// command and flag names, compare names without case. The parse of a
+	// command name always compares with case. Set it to false to compare
+	// with case.
+	DefaultFoldCase = true
 	// DefaultFlagWidth is the default minimum flag width. Does not include the
 	// padding.
 	DefaultFlagWidth = 8
@@ -177,14 +185,19 @@ var (
 	// DefaultCompEnvNoDescName is the name for the environment variable for
 	// disabling completion descriptions.
 	DefaultCompEnvNoDescName = "COMPLETION_DESCRIPTIONS"
-	// DefaultCompActiveHelpSuffix is the active help suffix.
+	// DefaultCompActiveHelpSuffix is the suffix of the environment variable
+	// that turns off ActiveHelp for a program, such as APP_ACTIVE_HELP=0.
 	DefaultCompActiveHelpSuffix = "_ACTIVE_HELP"
+	// DefaultCompActiveHelpMarker starts a completion that is a line of
+	// ActiveHelp, which the completion scripts show as help and not as a
+	// completion. See [NewActiveHelp].
+	DefaultCompActiveHelpMarker = "_activeHelp_ "
 	// DefaultCompWrite is the default completion write func, that writes the
 	// completion script from the passed template.
 	DefaultCompWrite = func(ctx *Context, cmd *Command, noDescriptions bool, shell, templ string) error {
 		rootName := cmd.RootName()
 		varName := regexp.MustCompile(`[^A-Za-z0-9_]`).ReplaceAllString(rootName, "_")
-		activeHelp := strings.ToUpper(varName) + DefaultCompActiveHelpSuffix
+		activeHelp := compActiveHelpVar(rootName)
 		compName := DefaultCompName
 		if noDescriptions {
 			compName = DefaultCompNameNoDesc
@@ -209,20 +222,22 @@ var (
 				}
 			}
 		}
+		// the scripts discard standard error, and read the directive
 		comps, dir, err := ctx.Comps()
 		if err != nil {
-			ctx.Handler(err)
-			ctx.Exit(1)
+			_, _ = fmt.Fprintf(ctx.Stderr, text.ErrorMessage, err)
+		}
+		if os.Getenv(compActiveHelpVar(ctx.Root.Name)) == "0" {
+			comps = slices.DeleteFunc(comps, isActiveHelp)
 		}
 		for _, comp := range comps {
-			if !noDescriptions {
+			if !noDescriptions && comp.Usage != "" {
 				_, _ = fmt.Fprintln(ctx.Stdout, comp.Name+"\t"+comp.Usage)
 			} else {
 				_, _ = fmt.Fprintln(ctx.Stdout, comp.Name)
 			}
 		}
 		_, _ = fmt.Fprintf(ctx.Stdout, ":%d\n", dir)
-		_, _ = fmt.Fprintf(ctx.Stderr, "COMP ENDED: %s\n", dir)
 		return ErrExit
 	}
 	// DefaultStripTestFlags strips flags starting with `-test.` from args.
@@ -299,18 +314,37 @@ func Run(opts ...Option) {
 	RunContext(DefaultContext, opts...)
 }
 
-// RunAppContext
-func RunAppContext[T *E, E any](ctx context.Context, v T, opts ...Option) {
-	c, o, err := NewApp(v)
-	if err != nil && c.Handler(err) {
-		return
+// RunError creates a [Context] from the options, as [RunContext] does, then
+// parses, validates and runs the command. It returns the first error, and
+// does not write it, exit or panic, whatever [Context.OnErr] is. So the
+// program chooses the message and the exit status. When help, the version or
+// a completion stops the run with [ErrExit], RunError returns nil.
+func RunError(ctx context.Context, opts ...Option) error {
+	c, err := NewContext(opts...)
+	if err == nil {
+		err = c.Parse()
 	}
-	RunContext(ctx, prepend(opts, o...)...)
+	if err == nil {
+		err = c.Validate()
+	}
+	if err == nil {
+		err = c.Run(ctx)
+	}
+	if errors.Is(err, ErrExit) {
+		return nil
+	}
+	return err
 }
 
-// RunApp
-func RunApp[T *E, E any](ctx context.Context, v T, opts ...Option) {
-	RunAppContext(DefaultContext, v, opts...)
+// AppFrom runs the program that v describes, as [Run] does. v is a pointer
+// to a struct, and [App] builds the command tree from it. AppFrom adds
+// [Defaults], so the program gets help, a version and completion. The options
+// in opts come after.
+//
+// Pass [App] to [RunError] to choose the [context.Context], or to get the
+// error.
+func AppFrom[T *E, E any](v T, opts ...Option) {
+	RunContext(DefaultContext, prepend(opts, App(v), Defaults())...)
 }
 
 // Context is the execution (run) context used by [Run]/[RunContext].
@@ -330,7 +364,7 @@ type Context struct {
 	// Args are the arguments to parse, normally [os.Args][1:].
 	Args []string
 	// EmitExecExitError toggles emitting captured stderr output from
-	// [os.ExitError] to [Context.Stderr].
+	// [exec.ExitError] to [Context.Stderr].
 	EmitExecExitError bool
 	// OnErr is the on error handling. Used by the default Handle func.
 	OnErr OnErr
@@ -411,7 +445,12 @@ func (ctx *Context) Parse() error {
 	return nil
 }
 
-// Comps returns the completions for the context.
+// Comps returns the completions for the context. The first arg is the name
+// of the completion command, and the last arg is the word to complete.
+//
+// Comps ignores each error in the args before the last arg, as cobra does.
+// After `--`, it completes only positional arguments. It never offers a
+// hidden or a deprecated flag, nor a hidden or a deprecated command.
 func (ctx *Context) Comps() ([]Completion, CompDirective, error) {
 	n := len(ctx.Args)
 	if n < 2 {
@@ -424,49 +463,49 @@ func (ctx *Context) Comps() ([]Completion, CompDirective, error) {
 		Stderr: io.Discard,
 		Panic:  func(any) {},
 		Exit:   func(int) {},
-		Continue: func(cmd *Command, err error) bool {
-			_, _ = fmt.Fprintf(ctx.Stderr, "COMP CONTINUE ERR: %v\n", err)
-			switch {
-			case errors.Is(err, ErrUnknownFlag),
-				errors.Is(err, ErrMissingArgument),
-				errors.Is(err, ErrExit):
-				return true
-			}
-			return false
+		Continue: func(*Command, error) bool {
+			return true
 		},
 		Args: ctx.Args[1:n],
 		Vars: make(Vars),
 	}
-	_, _ = fmt.Fprintf(ctx.Stderr, "COMP ARGS: %v -- %s\n", ctx.Args[1:n], ctx.Args[n])
-	var err error
-	if c.Exec, c.Args, err = Parse(c, c.Root, c.Args); err != nil {
-		_, _ = fmt.Fprintf(ctx.Stderr, "COMP PARSE ERR: %v\n", err)
-		return nil, CompError, err
-	}
+	var dashdash bool
+	c.Exec, c.Args, dashdash, _ = parse(c, c.Root, c.Args)
 	// a value from the environment or a config file is a help, and its
 	// error is not
 	_ = c.Fill(c.Exec)
-	_, _ = fmt.Fprintf(ctx.Stderr, "COMP COMMAND: %s\n", c.Exec.Name)
 	var comps []Completion
 	var dir CompDirective
-	// TODO: expose flags to allow hidden/deprecated
-	hidden, deprecated := false, true
-	// build completions
-	switch prev, arg := prev(ctx.Args, n), ctx.Args[n]; {
-	case strings.HasPrefix(arg, "-"):
-		comps, dir = c.Exec.CompFlags(strings.TrimLeft(arg, "-"), hidden, deprecated, !strings.HasPrefix(arg, "--"))
-	case strings.HasPrefix(prev, "-"):
-		// TODO: logic incorrect; need to strip the `-`/`--` and `=` from the flag
-		switch g := c.Exec.Flag(prev, true, len([]rune(prev)) == 2); {
-		case g == nil, g.NoArg, strings.Contains(prev, "="):
-			comps, dir = c.Exec.CompCommands(arg, hidden, deprecated)
-		default:
-			// TODO: handle completion for flags with completion definitions
+	var err error
+	switch toComplete := ctx.Args[n]; {
+	case dashdash:
+		comps, dir, err = c.compArgs(toComplete, false)
+	case strings.HasPrefix(toComplete, "-") && strings.Contains(toComplete, "="):
+		// --flag=value and -f=value
+		name, value, _ := strings.Cut(toComplete, "=")
+		short := !strings.HasPrefix(name, "--")
+		if short {
+			r := []rune(name)
+			name = string(r[len(r)-1:])
 		}
+		g := c.Exec.Flag(strings.TrimPrefix(name, "--"), true, short)
+		if g == nil {
+			return nil, CompDefault, nil
+		}
+		comps, dir, err = c.compFlagValue(g, value)
+	case strings.HasPrefix(toComplete, "-"):
+		comps, dir = c.Exec.CompFlags(strings.TrimLeft(toComplete, "-"), false, false, !strings.HasPrefix(toComplete, "--"))
 	default:
-		comps, dir = c.Exec.CompCommands(arg, hidden, deprecated)
+		if g := compPrevFlag(c.Exec, prev(ctx.Args[1:], n-1)); g != nil {
+			comps, dir, err = c.compFlagValue(g, toComplete)
+		} else {
+			comps, dir, err = c.compArgs(toComplete, true)
+		}
 	}
-	return comps, dir, nil
+	if err != nil {
+		return nil, CompError, err
+	}
+	return comps, dir &^ CompNoFilter, nil
 }
 
 // Validate validates the args.
@@ -520,26 +559,152 @@ func (ctx *Context) Populate(cmd *Command, all, overwrite bool) error {
 	return nil
 }
 
-// Expand expands a variable using [Context.Interpolate].
+// Expand expands a variable using [Context.Interpolate]. A nil context
+// returns the variable as it is.
 func (ctx *Context) Expand(v any) (any, error) {
-	if ctx.Interpolate != nil {
+	if ctx != nil && ctx.Interpolate != nil {
 		return ctx.Interpolate(ctx, v)
 	}
 	return v, nil
 }
 
-// NewApp creates a execution context and a app command tree by parsing the doc
-// comment of v.
-func NewApp[T *E, E any](v T) (*Context, []Option, error) {
-	c, err := NewContext()
-	if err != nil {
-		return nil, nil, err
+// compArgs returns the completions of a positional argument. When commands is
+// true, it adds the sub commands of the command.
+func (ctx *Context) compArgs(toComplete string, commands bool) ([]Completion, CompDirective, error) {
+	cmd := ctx.Exec
+	var comps []Completion
+	if commands && len(ctx.Args) == 0 {
+		comps, _ = cmd.CompCommands(toComplete, false, false)
 	}
-	opts, err := ParseCommand(v)
-	if err != nil {
-		return c, nil, err
+	switch {
+	case cmd.CompFunc != nil:
+		v, dir, err := compFunc(ctx, cmd.CompFunc, toComplete)
+		return compNearest(append(comps, v...)), dir, err
+	case len(cmd.ValidArgs) != 0:
+		if cmd.maxArgs < 0 || len(ctx.Args) < cmd.maxArgs {
+			comps = compNearest(append(comps, compValues(cmd, toComplete, cmd.ValidArgs)...))
+		}
+		if len(comps) != 0 {
+			return comps, CompNoFileComp | CompKeepOrder, nil
+		}
+		return nil, CompNoFileComp, nil
+	case len(comps) != 0:
+		return comps, CompNoFileComp | CompKeepOrder, nil
 	}
-	return c, opts, nil
+	return nil, CompDefault, nil
+}
+
+// compFlagValue returns the completions of the value of the flag.
+func (ctx *Context) compFlagValue(g *Flag, toComplete string) ([]Completion, CompDirective, error) {
+	switch {
+	case g.CompFunc != nil:
+		return compFunc(ctx, g.CompFunc, toComplete)
+	case len(g.Allowed) == 0 && isPath(g.Type):
+		comps, dir := g.compPath()
+		return comps, dir, nil
+	case len(g.Allowed) == 0:
+		return nil, CompDefault, nil
+	}
+	// a slice completes the value after the last separator
+	var head string
+	if (g.Type == SliceT || g.Type == ArrayT) && g.Split != "" {
+		if i := strings.LastIndex(toComplete, g.Split); i != -1 {
+			head, toComplete = toComplete[:i+len(g.Split)], toComplete[i+len(g.Split):]
+		}
+	}
+	values := make([]string, len(g.Allowed))
+	for i, v := range g.Allowed {
+		values[i] = fmt.Sprint(v)
+	}
+	comps := compValues(ctx.Exec, toComplete, values)
+	if len(comps) == 0 {
+		return nil, CompNoFileComp, nil
+	}
+	for i := range comps {
+		comps[i].Name = head + comps[i].Name
+	}
+	return comps, CompNoFileComp | CompKeepOrder, nil
+}
+
+// compFunc calls f, and keeps only the completions that start with
+// toComplete, unless f returns [CompNoFilter].
+func compFunc(ctx *Context, f func(*Context, string) ([]Completion, CompDirective, error), toComplete string) ([]Completion, CompDirective, error) {
+	comps, dir, err := f(ctx, toComplete)
+	if err != nil {
+		return nil, CompError, err
+	}
+	if dir&CompNoFilter == 0 {
+		comps = slices.DeleteFunc(comps, func(c Completion) bool {
+			return !strings.HasPrefix(c.Name, toComplete) && !isActiveHelp(c)
+		})
+	}
+	for i := range comps {
+		comps[i].Dist = 0
+	}
+	return comps, dir, nil
+}
+
+// compValues returns each value that starts with toComplete. When none
+// does, it returns each value within the maximum distance of the command, as
+// a correction.
+func compValues(cmd *Command, toComplete string, values []string) []Completion {
+	var comps []Completion
+	for _, s := range values {
+		if strings.HasPrefix(s, toComplete) {
+			comps = append(comps, NewCompletion(s, "", 0))
+		}
+	}
+	if maxDist := maxDist(cmd); len(comps) == 0 && 0 < maxDist && toComplete != "" {
+		r := []rune(foldCase(toComplete))
+		for _, s := range values {
+			if dist := Ldist([]rune(foldCase(s)), r); dist <= maxDist {
+				comps = append(comps, NewCompletion(s, "", dist))
+			}
+		}
+	}
+	return compNearest(comps)
+}
+
+// compNearest keeps only the completions with the smallest distance, so
+// that a correction shows only when nothing matches. It keeps the order.
+func compNearest(comps []Completion) []Completion {
+	if len(comps) == 0 {
+		return nil
+	}
+	d := slices.MinFunc(comps, func(a, b Completion) int {
+		return a.Dist - b.Dist
+	}).Dist
+	return slices.DeleteFunc(comps, func(c Completion) bool {
+		return d < c.Dist
+	})
+}
+
+// compPrevFlag returns the flag whose value follows s, such as `--config` or
+// `-vc`. It returns nil when s is not a flag that takes a value, or when s
+// holds the value, as in `--config=file` or `-cfile`.
+func compPrevFlag(cmd *Command, s string) *Flag {
+	switch {
+	case len(s) < 2, s[0] != '-', s == "--", strings.Contains(s, "="):
+		return nil
+	case strings.HasPrefix(s, "--"):
+		if g := cmd.Flag(s[2:], true, false); g != nil && !g.NoArg {
+			return g
+		}
+		return nil
+	}
+	r := []rune(s[1:])
+	for i, c := range r {
+		switch g := cmd.Flag(string(c), true, true); {
+		case g == nil:
+			return nil
+		case g.NoArg:
+		case i == len(r)-1:
+			return g
+		default:
+			return nil
+		}
+	}
+	return nil
 }
 
 // contextKey is the context key type.
@@ -571,10 +736,15 @@ const (
 	OnErrPanic
 )
 
-// Option returns an [opt] for the error handling type.
+// Option returns the option that sets the error handling of the [Context]
+// and of the [Command], such as `ox.Run(ox.OnErrPanic, ...)`.
 func (e OnErr) Option() option {
 	return option{
 		name: "OnErr(" + e.String() + ")",
+		ctx: func(ctx *Context) error {
+			ctx.OnErr = e
+			return nil
+		},
 		cmd: func(cmd *Command) error {
 			cmd.OnErr = e
 			return nil
@@ -642,10 +812,24 @@ const (
 	ErrTypeMismatch Error = "type mismatch"
 	// ErrNotImplemented is the not implemented error.
 	ErrNotImplemented Error = "not implemented"
+	// ErrInvalidConfig is the invalid config error, for a config file that
+	// its format cannot decode.
+	ErrInvalidConfig Error = "invalid config"
 	// ErrConfigNotFound is the config not found error.
 	ErrConfigNotFound Error = "config not found"
 	// ErrExit is the exit error.
 	ErrExit Error = "exit"
+	// ErrDuplicateFlag is the duplicate flag error, for two flags of a
+	// command with the same name.
+	ErrDuplicateFlag Error = "duplicate flag"
+	// ErrNotExist is the does not exist error of a [FileT] or a [DirT].
+	ErrNotExist Error = "does not exist"
+	// ErrExist is the exists error of a path with [NotExist].
+	ErrExist Error = "exists"
+	// ErrIsDir is the is a directory error of a [FileT].
+	ErrIsDir Error = "is a directory"
+	// ErrNotDir is the not a directory error of a [DirT].
+	ErrNotDir Error = "not a directory"
 )
 
 // SuggestionError is a suggestion error.
@@ -719,7 +903,8 @@ func Ldist[T []E, E cmp.Ordered](a, b T) int {
 	return v[m]
 }
 
-// BuildVersion returns the Go build version, or [DefaultVersionString].
+// BuildVersion returns the version of the main module from the build info,
+// or "(devel)".
 func BuildVersion() string {
 	ver := "(devel)"
 	if info, ok := debug.ReadBuildInfo(); ok {
@@ -737,6 +922,17 @@ func BuildVersion() string {
 // prepend is a generic prepend.
 func prepend[S ~[]E, E any](v S, s ...E) S {
 	return append(s, v...)
+}
+
+// compActiveHelpVar returns the name of the environment variable that turns
+// off ActiveHelp for the program.
+func compActiveHelpVar(name string) string {
+	return strings.ToUpper(regexp.MustCompile(`[^A-Za-z0-9_]`).ReplaceAllString(name, "_")) + DefaultCompActiveHelpSuffix
+}
+
+// isActiveHelp returns true when c is a line of ActiveHelp.
+func isActiveHelp(c Completion) bool {
+	return strings.HasPrefix(c.Name, DefaultCompActiveHelpMarker)
 }
 
 // asExitError is a standin for Go 1.26's errors.AsType.

@@ -3,6 +3,7 @@ package ox
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"os/exec"
 	"strconv"
@@ -183,7 +184,7 @@ func testExitError(t *testing.T) *Command {
 		t.Logf("command output %q", string(buf))
 		if err != nil {
 			t.Logf("error: %v (%T)", err, err)
-			if e, ok := err.(*exec.ExitError); ok {
+			if e := new(exec.ExitError); errors.As(err, &e) {
 				t.Logf("  exec.ExitError.Stderr: %q", string(e.Stderr))
 			}
 		}
@@ -193,4 +194,56 @@ func testExitError(t *testing.T) *Command {
 		t.Fatalf("expected no error, got: %v", err)
 	}
 	return cmd
+}
+
+// TestRunError holds that RunError returns each error and writes none, and
+// returns nil when help or the version stops the run. A run that exits stops
+// the test.
+func TestRunError(t *testing.T) {
+	errFail := errors.New("fail")
+	tests := []struct {
+		name string
+		args []string
+		exp  error
+		out  string
+	}{
+		{"run", []string{"a"}, nil, "args: [a]\n"},
+		{"exec error", []string{"fail"}, errFail, ""},
+		{"unknown flag", []string{"--nope"}, ErrUnknownFlag, ""},
+		{"too many args", []string{"a", "b"}, ErrInvalidArgCount, ""},
+		{"help", []string{"--help"}, nil, "app an app\n\nUsage:\n  app [flags] [args]\n\nFlags:\n  -v, --version   show version, then exit\n  -h, --help      show help, then exit\n"},
+		{"version", []string{"--version"}, nil, "app 1.2.3\n"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			var stdout, stderr bytes.Buffer
+			err := RunError(
+				context.Background(),
+				Usage("app", "an app"),
+				VersionString("1.2.3"),
+				Version(),
+				Help(),
+				ValidArgs(0, 1),
+				Exec(func(_ context.Context, args []string) error {
+					if len(args) != 0 && args[0] == "fail" {
+						return errFail
+					}
+					fmt.Fprintln(&stdout, "args:", args)
+					return nil
+				}),
+				Args(test.args...),
+				Pipe(nil, &stdout, &stderr),
+			)
+			switch {
+			case test.exp == nil && err != nil:
+				t.Fatalf("expected no error, got: %v", err)
+			case !errors.Is(err, test.exp):
+				t.Fatalf("expected error %v, got: %v", test.exp, err)
+			case stderr.Len() != 0:
+				t.Errorf("expected nothing on standard error, got: %q", stderr.String())
+			case stdout.String() != test.out:
+				t.Errorf("expected %q, got: %q", test.out, stdout.String())
+			}
+		})
+	}
 }

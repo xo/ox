@@ -1,0 +1,75 @@
+kubectl controls the Kubernetes cluster manager.
+
+ Find more information at: https://kubernetes.io/docs/reference/kubectl/
+
+Usage:
+  kubectl [flags] [options]
+
+Available Commands:
+  completion     generate completion script for a specified shell
+  help           show help for any command
+  version        show kubectl version information
+
+Basic Commands (Beginner):
+  create         Create a resource from a file or from stdin
+  expose         Take a replication controller, service, deployment or pod and expose it as a
+                 new Kubernetes service
+  run            Run a particular image on the cluster
+  set            Set specific features on objects
+
+Basic Commands (Intermediate):
+  delete         Delete resources by file names, stdin, resources and names, or by resources
+                 and label selector
+  edit           Edit a resource on the server
+  explain        Get documentation for a resource
+  get            Display one or many resources
+
+Deploy Commands:
+  autoscale      Auto-scale a deployment, replica set, stateful set, or replication controller
+  rollout        Manage the rollout of a resource
+  scale          Set a new size for a deployment, replica set, or replication controller
+
+Cluster Management Commands:
+  certificate    Modify certificate resources
+  cluster-info   Display cluster information
+  cordon         Mark node as unschedulable
+  drain          Drain node in preparation for maintenance
+  taint          Update the taints on one or more nodes
+  top            Display resource (CPU/memory) usage
+  uncordon       Mark node as schedulable
+
+Troubleshooting and Debugging Commands:
+  attach         Attach to a running container
+  auth           Inspect authorization
+  cp             Copy files and directories to and from containers
+  debug          Create debugging sessions for troubleshooting workloads and nodes
+  describe       Show details of a specific resource or group of resources
+  events         List events
+  exec           Execute a command in a container
+  logs           Print the logs for a container in a pod
+  port-forward   Forward one or more local ports to a pod
+  proxy          Run a proxy to the Kubernetes API server
+
+Advanced Commands:
+  apply          Apply a configuration to a resource by file name or stdin
+  diff           Diff the live version against a would-be applied version
+  kustomize      Build a kustomization target from a directory or URL
+  patch          Update fields of a resource
+  replace        Replace a resource by file name or stdin
+  wait           Experimental: Wait for a specific condition on one or many resources
+
+Settings Commands:
+  annotate       Update the annotations on a resource
+  label          Update the labels on a resource
+
+Other Commands:
+  api-resources  Print the supported API resources on the server
+  api-versions   Print the supported API versions on the server, in the form of "group/version"
+  config         Modify kubeconfig files
+  plugin         Provides utilities for interacting with plugins
+
+Flags:
+  -h, --help      show help, then exit
+
+Use "kubectl <command> --help" for more information about a given command.
+Use "kubectl options" for a list of global command-line options (applies to all commands).

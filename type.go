@@ -8,8 +8,8 @@ import (
 	"net/url"
 	"reflect"
 	"regexp"
+	"strings"
 	"time"
-	"uuid"
 )
 
 // Type is a variable type.
@@ -51,6 +51,8 @@ const (
 
 	CountT Type = "count"
 	PathT  Type = "path"
+	FileT  Type = "file"
+	DirT   Type = "dir"
 
 	BigIntT   Type = "bigint"
 	BigFloatT Type = "bigfloat"
@@ -132,27 +134,34 @@ func (typ Type) New() (Value, error) {
 }
 
 // typeNews are registered type creation funcs.
-var typeNews map[Type]func() (Value, error)
+//
+// The maps are made here, and not in init, so that the init of any file can
+// register a type, such as the init in type_go127.go.
+var typeNews = make(map[Type]func() (Value, error))
 
 // typeFlagOpts are registered type flag options.
-var typeFlagOpts map[Type][]Option
+var typeFlagOpts = make(map[Type][]Option)
 
 // reflectTypes are reflect type name lookups for registered types.
-var reflectTypes map[string]Type
+var reflectTypes = make(map[string]Type)
+
+// valueTypes are the types for reflect types that are not pointers and that
+// the kind of the reflect type does not give, such as [time.Time].
+var valueTypes = map[reflect.Type]Type{
+	reflect.TypeFor[time.Time]():     TimestampT,
+	reflect.TypeFor[time.Duration](): DurationT,
+	reflect.TypeFor[Size]():          SizeT,
+	reflect.TypeFor[Rate]():          RateT,
+}
 
 // typeTextNews are registered type creation funcs for text marshalable types.
-var typeTextNews map[Type]func() (any, error)
+var typeTextNews = make(map[Type]func() (any, error))
 
 // typeBinaryNews are registered type creation funcs for binary marshalable
 // types.
-var typeBinaryNews map[Type]func() (any, error)
+var typeBinaryNews = make(map[Type]func() (any, error))
 
 func init() {
-	typeNews = make(map[Type]func() (Value, error))
-	typeFlagOpts = make(map[Type][]Option)
-	reflectTypes = make(map[string]Type)
-	typeTextNews = make(map[Type]func() (any, error))
-	typeBinaryNews = make(map[Type]func() (any, error))
 	// register basic types
 	RegisterType(BytesT, NewVal[[]byte]())
 	RegisterType(StringT, NewVal[string]())
@@ -185,6 +194,8 @@ func init() {
 	RegisterType(DurationT, NewVal[time.Duration]())
 	RegisterType(CountT, NewVal[uint64](CountT), NoArg(true, ""))
 	RegisterType(PathT, NewVal[string](PathT))
+	RegisterType(FileT, NewVal[string](FileT))
+	RegisterType(DirT, NewVal[string](DirT))
 	// register text marshal types
 	RegisterTextType(func() (*big.Int, error) {
 		return big.NewInt(0), nil
@@ -206,9 +217,6 @@ func init() {
 	})
 	RegisterTextType(func() (*regexp.Regexp, error) {
 		return new(regexp.Regexp), nil
-	})
-	RegisterTextType(func() (*uuid.UUID, error) {
-		return new(uuid.UUID), nil
 	})
 	// register binary marshal types
 	RegisterBinaryType(func() (*url.URL, error) {
@@ -331,8 +339,6 @@ func typeRef(val any) Type {
 		return RegexpT
 	case *url.URL:
 		return URLT
-	case *uuid.UUID:
-		return UUIDT
 	}
 	typ := reflect.TypeOf(val)
 	if typ != nil {
@@ -347,11 +353,8 @@ func typeRef(val any) Type {
 
 // defaultType returns the type, map key type, and element type of v.
 func defaultType(refType reflect.Type) (Type, Type, Type, error) {
-	switch refType {
-	case timeType:
-		return TimestampT, StringT, StringT, nil
-	case uuidType:
-		return UUIDT, StringT, StringT, nil
+	if typ, ok := valueTypes[refType]; ok {
+		return typ, StringT, StringT, nil
 	}
 	switch refType.Kind() {
 	case reflect.String:
@@ -385,9 +388,12 @@ func defaultType(refType reflect.Type) (Type, Type, Type, error) {
 	case reflect.Complex128:
 		return Complex128T, StringT, StringT, nil
 	case reflect.Complex64:
-		return Complex128T, StringT, StringT, nil
+		return Complex64T, StringT, StringT, nil
 	case reflect.Pointer:
 		if typ := reflectType(refType); typ != "" {
+			return typ, StringT, StringT, nil
+		}
+		if typ := registerReflect(refType); typ != "" {
 			return typ, StringT, StringT, nil
 		}
 	case reflect.Slice:
@@ -406,6 +412,38 @@ func defaultType(refType reflect.Type) (Type, Type, Type, error) {
 		}
 	}
 	return "", "", "", ErrInvalidType
+}
+
+// registerReflect registers refType, a pointer type that has the text or the
+// binary marshal pair, as [RegisterTextType] or [RegisterBinaryType] would,
+// and returns its [Type]. It returns "" for any other type. The name of the
+// type is the name of the type that refType points to, in lower case, such as
+// "version" for *semver.Version, unless another type has that name.
+func registerReflect(refType reflect.Type) Type {
+	text := refType.Implements(reflect.TypeFor[encoding.TextMarshaler]()) &&
+		refType.Implements(reflect.TypeFor[encoding.TextUnmarshaler]())
+	binary := refType.Implements(reflect.TypeFor[encoding.BinaryMarshaler]()) &&
+		refType.Implements(reflect.TypeFor[encoding.BinaryUnmarshaler]())
+	if !text && !binary {
+		return ""
+	}
+	typ := Type(strings.ToLower(refType.Elem().Name()))
+	if _, ok := typeNews[typ]; ok || typ == "" {
+		typ = Type(refType.String())
+	}
+	f := func() (any, error) {
+		return reflect.New(refType.Elem()).Interface(), nil
+	}
+	if text {
+		typeTextNews[typ] = f
+	} else {
+		typeBinaryNews[typ] = f
+	}
+	typeNews[typ] = func() (Value, error) {
+		return &marshalVal{typ: typ}, nil
+	}
+	reflectTypes[refType.String()] = typ
+	return typ
 }
 
 // reflectType returns the [Type] for the reflect type.
@@ -428,16 +466,9 @@ func reflectType(refType reflect.Type) Type {
 		return RegexpT
 	case "*url.URL":
 		return URLT
-	case "*uuid.UUID":
-		return UUIDT
 	}
 	if typ, ok := reflectTypes[s]; ok {
 		return typ
 	}
 	return ""
 }
-
-var (
-	timeType = reflect.TypeFor[time.Time]()
-	uuidType = reflect.TypeFor[uuid.UUID]()
-)

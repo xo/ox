@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"maps"
+	"math"
 	"reflect"
 	"slices"
 	"strconv"
@@ -545,6 +546,32 @@ func asTime(val any, layout string) (FormattedTime, error) {
 	return FormattedTime{layout: layout, v: v}, nil
 }
 
+// asTimeAny converts the value to a [time.Time]. A string is parsed with the
+// layouts of [TimestampT], [DateTimeT], [DateT] and [TimeT], in turn.
+func asTimeAny(val any) (time.Time, error) {
+	switch v := val.(type) {
+	case time.Time:
+		return v, nil
+	case FormattedTime:
+		return v.Time(), nil
+	case interface{ Time() time.Time }:
+		return v.Time(), nil
+	}
+	s, err := asString[string](val)
+	switch {
+	case err != nil:
+		return time.Time{}, err
+	case s == "":
+		return time.Time{}, nil
+	}
+	for _, layout := range []string{time.RFC3339Nano, time.DateTime, time.DateOnly, time.TimeOnly} {
+		if t, err := time.Parse(layout, s); err == nil {
+			return t, nil
+		}
+	}
+	return time.Time{}, fmt.Errorf("%w: %q is not a time", ErrInvalidConversion, s)
+}
+
 // asDuration converts the value to a [time.Duration].
 func asDuration(val any) (time.Duration, error) {
 	switch v := val.(type) {
@@ -557,6 +584,9 @@ func asDuration(val any) (time.Duration, error) {
 		return time.Duration(v) * time.Second, nil
 	}
 	if v, err := asUint[uint64](val); err == nil {
+		if v > math.MaxInt64 {
+			return 0, fmt.Errorf("%w: %d overflows a duration", ErrInvalidConversion, v)
+		}
 		return time.Duration(v) * time.Second, nil
 	}
 	if v, err := asFloat[float64](val); err == nil {
@@ -584,6 +614,9 @@ func asSize(val any) (Size, error) {
 		return Size(v), nil
 	}
 	if v, err := asUint[uint64](val); err == nil {
+		if v > math.MaxInt64 {
+			return 0, fmt.Errorf("%w: %d overflows a size", ErrInvalidConversion, v)
+		}
 		return Size(v), nil
 	}
 	if v, err := asFloat[float64](val); err == nil {
@@ -611,6 +644,9 @@ func asRate(val any) (Rate, error) {
 		return Rate{Size(v), DefaultRateUnit}, nil
 	}
 	if v, err := asUint[uint64](val); err == nil {
+		if v > math.MaxInt64 {
+			return Rate{}, fmt.Errorf("%w: %d overflows a rate", ErrInvalidConversion, v)
+		}
 		return Rate{Size(v), DefaultRateUnit}, nil
 	}
 	if v, err := asFloat[float64](val); err == nil {
@@ -682,9 +718,55 @@ func asValue(value reflect.Value, val any) (err error) {
 			err = fmt.Errorf("%v", e)
 		}
 	}()
+	// the types whose kind does not give the conversion
+	switch el := value.Elem(); el.Type() {
+	case reflect.TypeFor[time.Duration]():
+		d, err := asDuration(val)
+		if err != nil {
+			return err
+		}
+		el.SetInt(int64(d))
+		return nil
+	case reflect.TypeFor[Size]():
+		size, err := asSize(val)
+		if err != nil {
+			return err
+		}
+		el.SetInt(int64(size))
+		return nil
+	case reflect.TypeFor[Rate]():
+		rate, err := asRate(val)
+		if err != nil {
+			return err
+		}
+		el.Set(reflect.ValueOf(rate))
+		return nil
+	case reflect.TypeFor[time.Time]():
+		t, err := asTimeAny(val)
+		if err != nil {
+			return err
+		}
+		el.Set(reflect.ValueOf(t))
+		return nil
+	}
 	switch el := value.Elem(); el.Kind() {
 	case reflect.Slice:
-		// TODO: implement []byte/[]rune
+		// reflect cannot tell []rune from []int32, so a []int32 takes the
+		// runes of the value
+		var v any
+		switch el.Type().Elem().Kind() {
+		case reflect.Uint8:
+			v, err = asString[[]byte](val)
+		case reflect.Int32:
+			v, err = asString[[]rune](val)
+		default:
+			return ErrInvalidConversion
+		}
+		if err != nil {
+			return err
+		}
+		el.Set(reflect.ValueOf(v).Convert(el.Type()))
+		return nil
 	case reflect.String:
 		s, err := asString[string](val)
 		if err != nil {

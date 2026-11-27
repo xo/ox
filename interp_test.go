@@ -86,6 +86,9 @@ func TestInterpolateVar(t *testing.T) {
 		{`$OS`, runtime.GOOS},
 		{`$ENV{HOME}`, home},
 		{`$ENV{NOT_DEFINED}`, ``},
+		{`$ANY{HOME}`, home},
+		{`${any::HOME}`, home},
+		{`$ANY{MY_OVERRIDE}`, `override`},
 		{`$MY_OVERRIDE`, `override`},
 		{`$MY_OVERRIDE{foo}`, `bar`},
 		{`$MY_OVERRIDE{foo|upper}`, `BAR`},
@@ -158,6 +161,33 @@ func TestInterpolateVar(t *testing.T) {
 		{`${HOME#/home}`, strings.TrimPrefix(home, "/home")},
 		{`${HOME%/` + user + `}`, strings.TrimSuffix(home, "/"+user)},
 		{`${A/a/|trim}`, `really long long string`},
+		{`${X#aX}`, `bXc`},
+		{`${X#*X}`, `bXc`},
+		{`${X##*X}`, `c`},
+		{`${X%X*}`, `aXb`},
+		{`${X%%X*}`, `a`},
+		{`${X#?X}`, `bXc`},
+		{`${X##[ab]X}`, `bXc`},
+		{`${X#[!a]}`, `aXbXc`},
+		{`${X%[bc]}`, `aXbX`},
+		{`${X%%*}`, ``},
+		{`${X#*}`, `aXbXc`},
+		{`${X##nope*}`, `aXbXc`},
+		{`${X#[a}`, `aXbXc`},
+		{`${X#.}`, `aXbXc`},
+		{`${X|upper##*X}`, `C`},
+		{`${X^}`, `AXbXc`},
+		{`${X^^}`, `AXBXC`},
+		{`${X^^[ab]}`, `AXBXc`},
+		{`${X^b}`, `aXbXc`},
+		{`${X^a}`, `AXbXc`},
+		{`${X,}`, `aXbXc`},
+		{`${X,,}`, `axbxc`},
+		{`${X,,X}`, `axbxc`},
+		{`${X,X}`, `aXbXc`},
+		{`${X|upper,}`, `aXBXC`},
+		{`${X|upper,,[!X]}`, `aXbXc`},
+		{`${X##*X|upper}`, `aXbXc`}, // the pattern is '*X|upper'
 		{`${A#a really}`, ` long long string`},
 		{`${A|upper#A REALLY }`, `LONG LONG STRING`},
 		{`${A|upper|lower|kebab%string}`, `a-really-long-long-`},
@@ -226,6 +256,8 @@ func TestInterpolateVar(t *testing.T) {
 						return "COW GOES MOO", true, nil
 					case typ == "a", key == "A":
 						return longstr, true, nil
+					case key == "X":
+						return "aXbXc", true, nil
 					case key == "VERSION":
 						return "v0.1.0", true, nil
 					case typ == "errorkey", key == "ERRORKEY":

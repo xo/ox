@@ -8,12 +8,13 @@ import (
 	"testing"
 
 	"github.com/xo/ox"
+	_ "github.com/xo/ox/hcl"
 	_ "github.com/xo/ox/toml"
 	_ "github.com/xo/ox/yaml"
 )
 
-// TestConfigFormats reads the same settings from a YAML, a TOML and a JSON
-// file, one at a time.
+// TestConfigFormats reads the same settings from a YAML, a TOML, a JSON and
+// an HCL file, one at a time.
 func TestConfigFormats(t *testing.T) {
 	dir := t.TempDir()
 	files := map[string]string{
@@ -21,6 +22,7 @@ func TestConfigFormats(t *testing.T) {
 		"config.yml":  "port: 8080\nserver:\n  host: db\ntags: [\"a,b\", c]\nverbose: 2\n",
 		"config.toml": "port = 8080\ntags = [\"a,b\", \"c\"]\nverbose = 2\n[server]\nhost = \"db\"\n",
 		"config.json": `{"port": 8080, "server": {"host": "db"}, "tags": ["a,b", "c"], "verbose": 2}`,
+		"config.hcl":  "port = 8080\ntags = [\"a,b\", \"c\"]\nverbose = 2\nserver {\n  host = \"db\"\n}\n",
 	}
 	for name, data := range files {
 		t.Run(name, func(t *testing.T) {

@@ -66,6 +66,12 @@ var edits = map[string][]struct {
 				"        IFS=$'\\n' read -ra COMPREPLY -d '' < <(IFS=$'\\n'; compgen -W \"${completions[*]}\" -- \"\")\n",
 		},
 		{
+			"        # Only consider the completions that match what the user typed\n" +
+				"        IFS=$'\\n' read -ra COMPREPLY -d '' < <(IFS=$'\\n'; compgen -W \"${completions[*]}\" -- \"${cur}\")\n",
+			"        # ox: offer every completion, so that a corrected name gets through\n" +
+				"        IFS=$'\\n' read -ra COMPREPLY -d '' < <(IFS=$'\\n'; compgen -W \"${completions[*]}\" -- \"\")\n",
+		},
+		{
 			"        # Only consider the completions that match\n" +
 				"        [[ $comp == \"$cur\"* ]] || continue\n",
 			"        # ox: offer every completion, so that a corrected name gets through\n" +
@@ -98,6 +104,11 @@ var edits = map[string][]struct {
 		{
 			"# zsh completion for %-36[1]s -*- shell-script -*-\n",
 			"# zsh completion for %[1]s\n",
+		},
+		{
+			"        if eval _describe $keepOrder \"completions\" completions $flagPrefix $noSpace; then\n",
+			"        # ox: offer every completion, so that a corrected name gets through\n" +
+				"        if eval _describe $keepOrder \"completions\" completions $flagPrefix $noSpace -U; then\n",
 		},
 	},
 }

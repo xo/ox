@@ -226,8 +226,8 @@ func (rate *Rate) UnmarshalText(b []byte) error {
 }
 
 // MarshalText satisfies the [BinaryMarshalUnmarshaler] interface.
-func (rate *Rate) MarshalText() ([]byte, error) {
-	return AppendRate(make([]byte, 0, 31), *rate, 'z', -2, true), nil
+func (rate Rate) MarshalText() ([]byte, error) {
+	return AppendRate(make([]byte, 0, 31), rate, 'z', -2, true), nil
 }
 
 // Byte sizes.

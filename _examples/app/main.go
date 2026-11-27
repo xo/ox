@@ -1,7 +1,15 @@
+// Command app is an example of a program that ox builds from a struct and
+// its doc comments, with ox.AppFrom.
+//
+// Run `go generate` after a change to a doc comment. It writes
+// oxdoc_gen.go.
 package main
+
+//go:generate go run github.com/xo/ox/cmd/oxdoc
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/xo/ox"
 )
@@ -12,54 +20,67 @@ var (
 )
 
 func main() {
-	ox.RunAppContext(
-		context.Background(),
-		NewAppCommand(),
-		ox.AppNameVersion(name, version),
-	)
+	ox.AppFrom(new(App), ox.AppNameVersion(name, version))
 }
 
-// AppCommand is the ox example app command.
+// App is the ox example app.
 //
 // Usage:
 //
-//	app [options] [command]
+//	app [flags] [command]
 //
 // Banner:
 //
+//	An example of an app built with ox.AppFrom.
+//
 // Examples:
 //
-// Footer:
-type AppCommand struct {
-	Verbose int  `ox:"verbosity,type:count,short:v"`
-	All     bool `ox:"enable all,short:a"`
+//	app -vv sub1 a b
+//	app sub2 --all
+type App struct {
+	// verbosity, such as -vvv
+	Verbose int `ox:",type:count,short:v"`
 }
 
-// NewAppCommand creates a new app command.
-func NewAppCommand() *AppCommand {
-	return new(AppCommand)
-}
-
-// Sub returns the sub commands for the app.
-func (a *AppCommand) Sub() []any {
+// Commands returns the sub commands of the app.
+func (app *App) Commands() []any {
 	return []any{
-		NewSub1Command(),
-		NewSub2Command(),
+		&AppSub1Command{app: app},
+		new(AppSub2Command),
 	}
 }
 
-// Sub1Command is the app sub1 command.
-type Sub1Command struct{}
-
-// NewSub1Command creates a app sub1 command.
-func NewSub1Command() *Sub1Command {
-	return new(Sub1Command)
+// AppSub1Command is the app sub1 command.
+//
+// Description:
+//
+//	print the args, with the verbosity of the app
+//
+// Usage:
+//
+//	app sub1 [ARG]...
+type AppSub1Command struct {
+	app *App
 }
 
-// Sub2Command is the app sub2 command.
-type Sub2Command struct{}
+// Exec runs the command.
+func (cmd *AppSub1Command) Exec(_ context.Context, args []string) error {
+	fmt.Println("verbose:", cmd.app.Verbose, "args:", args)
+	return nil
+}
 
-// NewSub2Command creates a app sub2 command.
-func NewSub2Command() *Sub2Command {
-	return new(Sub2Command)
+// AppSub2Command is the app sub2 command. It has no usage line, so its name
+// comes from its type: sub2.
+//
+// Description:
+//
+//	print a flag
+type AppSub2Command struct {
+	// enable all, or none
+	All bool `ox:",short:a"`
+}
+
+// Exec runs the command.
+func (cmd *AppSub2Command) Exec() {
+	fmt.Println("all:", cmd.All)
 }

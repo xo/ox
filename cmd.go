@@ -18,22 +18,6 @@ import (
 	"github.com/xo/ox/text"
 )
 
-// ParseCommand parses a command's doc comment with reflect, building
-func ParseCommand(v any) ([]Option, error) {
-	var opts []Option
-	// build sub commands
-	if c, ok := v.(interface{ Sub() []any }); ok {
-		for _, s := range c.Sub() {
-			o, err := ParseCommand(s)
-			if err != nil {
-				return nil, err
-			}
-			opts = append(opts, Sub(o...))
-		}
-	}
-	return opts, nil
-}
-
 // Command is a command.
 type Command struct {
 	// Parent is the command's parent.
@@ -79,6 +63,17 @@ type Command struct {
 	// EnvPrefix is the prefix of the environment variables that fill the
 	// flags, such as "APP" for APP_LOG_LEVEL.
 	EnvPrefix string
+	// ValidArgs are the allowed values of the positional arguments, from
+	// [ValidArgs]. Completion offers them.
+	ValidArgs []string
+	// CompFunc is the func that completes the positional arguments. See
+	// [CompFunc].
+	CompFunc func(ctx *Context, toComplete string) ([]Completion, CompDirective, error)
+
+	// maxArgs is the maximum of [ValidArgs]. A value < 0 means no maximum.
+	maxArgs int
+	// noArgs is true when [ValidArgs] allows no argument.
+	noArgs bool
 }
 
 // NewCommand creates a new command.
@@ -97,6 +92,9 @@ func NewCommand(opts ...Option) (*Command, error) {
 	}
 	if err := ApplyPost(cmd, opts...); err != nil {
 		return nil, err
+	}
+	if err := cmd.Flags.checkNames(); err != nil {
+		return nil, fmt.Errorf("command %s: %w", cmd.Name, err)
 	}
 	return cmd, nil
 }
@@ -137,7 +135,7 @@ func (cmd *Command) Suggest(args ...string) error {
 	if len(args) == 0 {
 		return nil
 	}
-	r, maxDist := []rune(strings.ToLower(args[0])), maxDist(cmd)
+	r, maxDist := []rune(foldCase(args[0])), maxDist(cmd)
 	type suggest struct {
 		cmd  *Command
 		dist int
@@ -145,7 +143,7 @@ func (cmd *Command) Suggest(args ...string) error {
 	var suggested []suggest
 	for _, c := range cmd.Commands {
 		for _, name := range append(prepend(c.Aliases, c.Name), c.Suggested...) {
-			if dist := Ldist(r, []rune(strings.ToLower(name))); dist <= maxDist {
+			if dist := Ldist(r, []rune(foldCase(name))); dist <= maxDist {
 				suggested = append(suggested, suggest{
 					cmd:  c,
 					dist: dist,
@@ -201,7 +199,7 @@ func (cmd *Command) Flag(name string, parents, short bool) *Flag {
 		if i := slices.IndexFunc(cmd.Flags.Flags, func(g *Flag) bool {
 			return g.Name == name && !short ||
 				g.Short == name && short ||
-				slices.ContainsFunc(g.Aliases, func(s string) bool {
+				slices.ContainsFunc(g.aliases(true), func(s string) bool {
 					return s == name && len(s) == 1 == short
 				})
 		}); i != -1 {
@@ -259,6 +257,15 @@ func (cmd *Command) HelpContext(ctx *Context) io.WriterTo {
 	return help
 }
 
+// UsageString returns the help of the command, as `--help` writes it. It
+// expands no default, because it has no [Context]. Write
+// [Command.HelpContext] to a [strings.Builder] to expand them.
+func (cmd *Command) UsageString() string {
+	var sb strings.Builder
+	_, _ = cmd.WriteTo(&sb)
+	return sb.String()
+}
+
 // WriteTo satisfies the [io.WriterTo] interface.
 func (cmd *Command) WriteTo(w io.Writer) (int64, error) {
 	help := cmd.Help
@@ -293,8 +300,7 @@ func (cmd *Command) WalkFlags(hidden, deprecated bool) iter.Seq[*Flag] {
 
 // CompCommands returns command completions for the command.
 func (cmd *Command) CompCommands(name string, hidden, deprecated bool) ([]Completion, CompDirective) {
-	// TODO: settings for toggling case sensitivity / disabling ldist matching
-	lower, m := strings.ToLower(name), make(map[string]bool)
+	lower, m := foldCase(name), make(map[string]bool)
 	var comps []Completion
 loop:
 	for _, c := range cmd.Commands {
@@ -303,7 +309,7 @@ loop:
 			continue
 		}
 		for _, s := range prepend(c.Aliases, c.Name) {
-			if strings.HasPrefix(strings.ToLower(s), lower) {
+			if strings.HasPrefix(foldCase(s), lower) {
 				comps = append(comps, NewCompletion(c.Name, c.Usage, 0))
 				m[c.Name] = true
 				continue loop
@@ -319,7 +325,7 @@ loop:
 				continue
 			}
 			for _, s := range prepend(c.Aliases, c.Name) {
-				if dist := Ldist([]rune(strings.ToLower(s)), r); dist <= maxDist {
+				if dist := Ldist([]rune(foldCase(s)), r); dist <= maxDist {
 					comps = append(comps, NewCompletion(c.Name, c.Usage, dist))
 					m[c.Name] = true
 					continue loop2
@@ -342,28 +348,30 @@ loop:
 	return nil, CompDefault
 }
 
-// CompFlags returns flag completions for the command.
+// CompFlags returns flag completions for the command. It offers the name,
+// the aliases and the hidden aliases of each flag, and never a deprecated
+// alias.
 func (cmd *Command) CompFlags(name string, hidden, deprecated, short bool) ([]Completion, CompDirective) {
 	var comps []Completion
-	lower, m := strings.ToLower(name), make(map[string]bool)
+	lower, m := foldCase(name), make(map[string]bool)
 	for g := range cmd.WalkFlags(hidden, deprecated) {
 		if !short || len(name) == 0 {
-			for _, s := range prepend(g.Aliases, g.Name) {
-				switch long := "--" + g.Name; {
+			for _, s := range g.compNames(false) {
+				switch long := "--" + s; {
 				case m[long]:
 					continue
-				case strings.HasPrefix(strings.ToLower(s), lower):
+				case strings.HasPrefix(foldCase(s), lower):
 					comps = append(comps, NewCompletion(long, g.Usage, 0))
 					m[long] = true
 				}
 			}
 		}
 		if short {
-			for _, s := range prepend(g.Aliases, g.Short) {
+			for _, s := range g.compNames(true) {
 				switch shortstr := "-" + s; {
 				case m[shortstr]:
 					continue
-				case len(s) == 1 && strings.HasPrefix(s, name):
+				case strings.HasPrefix(s, name):
 					comps = append(comps, NewCompletion(shortstr, g.Usage, 0))
 					m[shortstr] = true
 				}
@@ -374,16 +382,12 @@ func (cmd *Command) CompFlags(name string, hidden, deprecated, short bool) ([]Co
 	if maxDist := maxDist(cmd); 0 < maxDist && len(comps) == 0 && len(name) != 1 {
 		r := []rune(lower)
 		for g := range cmd.WalkFlags(hidden, deprecated) {
-			long := "--" + g.Name
-			if m[long] {
-				continue
-			}
-			for _, s := range prepend(g.Aliases, g.Name) {
-				long := "--" + g.Name
+			for _, s := range g.compNames(false) {
+				long := "--" + s
 				if m[long] {
 					continue
 				}
-				if dist := Ldist([]rune(strings.ToLower(s)), r); dist <= maxDist {
+				if dist := Ldist([]rune(foldCase(s)), r); dist <= maxDist {
 					comps = append(comps, NewCompletion(long, g.Usage, dist))
 					m[long] = true
 				}
@@ -586,9 +590,20 @@ func (fs *FlagSet) Rate(name, usage string, opts ...Option) *FlagSet {
 	return fs.Var(name, usage, prepend(opts, Option(RateT))...)
 }
 
-// Path adds a path variable to the flag set.
+// Path adds a path variable to the flag set. See [PathT].
 func (fs *FlagSet) Path(name, usage string, opts ...Option) *FlagSet {
 	return fs.Var(name, usage, prepend(opts, Option(PathT))...)
+}
+
+// File adds a variable to the flag set for a file that exists. See [FileT].
+func (fs *FlagSet) File(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(FileT))...)
+}
+
+// Dir adds a variable to the flag set for a directory that exists. See
+// [DirT].
+func (fs *FlagSet) Dir(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(DirT))...)
 }
 
 // Count adds a count variable to the flag set.
@@ -671,6 +686,37 @@ func (fs *FlagSet) Hook(name, usage string, f any, opts ...Option) *FlagSet {
 	return fs.Var(name, usage, prepend(opts, Option(HookT), NoArg(true, ""), Default(f))...)
 }
 
+// checkNames returns an error when two flags of the set have the same long
+// or short name, counting their aliases.
+func (fs *FlagSet) checkNames() error {
+	if fs == nil {
+		return nil
+	}
+	seen := make(map[string]*Flag)
+	for _, g := range fs.Flags {
+		// the name is long, the short name is short, and an alias of one
+		// letter is short, as Command.Flag finds them
+		names := []string{"--" + g.Name}
+		if g.Short != "" {
+			names = append(names, "-"+g.Short)
+		}
+		for _, s := range g.aliases(true) {
+			if len([]rune(s)) == 1 {
+				names = append(names, "-"+s)
+			} else {
+				names = append(names, "--"+s)
+			}
+		}
+		for _, name := range names {
+			if prev, ok := seen[name]; ok && prev != g {
+				return fmt.Errorf("%w: %s", ErrDuplicateFlag, name)
+			}
+			seen[name] = g
+		}
+	}
+	return nil
+}
+
 // Flag is a command-line flag variable definition.
 type Flag struct {
 	// Type is the flag's [Type].
@@ -691,6 +737,14 @@ type Flag struct {
 	Spec string
 	// Def is the flag's default value.
 	Def any
+	// NoDefault hides the "(default: ...)" text of the flag in help.
+	NoDefault bool
+	// Optional shows the flag's spec in help as an optional value, such as
+	// `--help[=options]`. See [OptionalValue].
+	Optional bool
+	// HelpValues are the values of the flag that help writes on lines of
+	// their own, such as `--help=commands`. See [HelpValue].
+	HelpValues []HelpLine
 	// NoArg when true, indicates that the flag does not require an argument.
 	NoArg bool
 	// NoArgDef is the flag's default value when no argument was passed for the
@@ -724,6 +778,38 @@ type Flag struct {
 	NoConfig bool
 	// ConfigFile indicates that the flag names the config file.
 	ConfigFile bool
+	// HiddenAliases are the flag's long and short aliases that help does not
+	// write. Completion offers them.
+	HiddenAliases []string
+	// DeprecatedAliases are the flag's long and short aliases that neither
+	// help nor completion shows.
+	DeprecatedAliases []string
+	// Abs makes the value of a path flag absolute. See [Abs].
+	Abs bool
+	// Real resolves each symbolic link in the value of a path flag. See
+	// [Real].
+	Real bool
+	// Home shows a path flag's default under the home directory as `~` in
+	// help. See [Home].
+	Home bool
+	// Exts are the file extensions that file completion offers for a path
+	// flag. See [Ext].
+	Exts []string
+	// NotExist makes the value of a path flag a path that must not exist.
+	// See [NotExist].
+	NotExist bool
+	// CompFunc is the func that completes the flag's value. See [CompFunc].
+	CompFunc func(ctx *Context, toComplete string) ([]Completion, CompDirective, error)
+}
+
+// HelpLine is a name and its usage, which help writes on a line of its own,
+// such as a value of a flag from [HelpValue], or a positional argument from
+// [ArgUsage].
+type HelpLine struct {
+	// Name is the name, such as `commands` for `--help=commands`, or `DSN`.
+	Name string
+	// Usage is the usage of the name.
+	Usage string
 }
 
 // NewFlag creates a new command-line flag.
@@ -789,8 +875,11 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 //	short - sets the flag's short (single character) name
 //	alias - adds a alias to the flag
 //	aliases - adds multiple aliases, separated by `|` to the flag
+//	hiddenaliases - adds aliases, separated by `|`, that help does not write
+//	deprecatedaliases - adds aliases, separated by `|`, that help and completion do not show
 //	spec - sets the flag's use spec
 //	default - sets the flag's default value
+//	nodefault - hides the flag's default value in help
 //	noarg - sets the flag as requiring no argument, and the default value for the flag when toggled
 //	key - sets the flag's lookup config key
 //	hook - sets the flag's special value to `hook:<type>`, and can be used to hook [Defaults]'s flags
@@ -824,19 +913,10 @@ func (g *Flag) New(ctx *Context) (Value, error) {
 	return g.Type.New()
 }
 
-// SpecString returns the spec string for the flag.
+// SpecString returns the spec string for the flag. A hook flag shows its
+// [Flag.Spec], and shows only its name when it has no spec.
 func (g *Flag) SpecString() string {
-	switch {
-	case g.NoArg || g.Type == HookT:
-		return g.Name
-	case g.Spec != "":
-		return g.Name + text.FlagSpecSpacer + g.Spec
-	case g.Type == SliceT, g.Type == ArrayT:
-		return g.Name + text.FlagSpecSpacer + g.Elem.String()
-	case g.Type == MapT:
-		return g.Name + text.FlagSpecSpacer + g.MapKey.String() + "=" + g.Elem.String()
-	}
-	return g.Name + text.FlagSpecSpacer + g.Type.String()
+	return g.Name + g.specArg()
 }
 
 // Validate checks a value against the flag's validator funcs.
@@ -860,6 +940,51 @@ func (g *Flag) Formatter() string {
 		return g.Elem.Formatter()
 	}
 	return g.Type.Formatter()
+}
+
+// specArg returns the part of the spec string after the flag's name.
+func (g *Flag) specArg() string {
+	switch {
+	case g.Optional && g.Spec != "":
+		// an optional value must follow an =, so the spacer does not apply
+		return "[=" + g.Spec + "]"
+	case g.Type == HookT && g.Spec != "" && !g.NoArg:
+		// a hook that takes a value, such as usql's -v NAME=VALUE; a hook
+		// that takes none, such as --help, has no spec to show even when the
+		// command's Spec reached it
+		return text.FlagSpecSpacer + g.Spec
+	case g.NoArg || g.Type == HookT:
+		return ""
+	case g.Spec != "":
+		return text.FlagSpecSpacer + g.Spec
+	case g.Type == SliceT, g.Type == ArrayT:
+		return text.FlagSpecSpacer + g.Elem.String()
+	case g.Type == MapT:
+		return text.FlagSpecSpacer + g.MapKey.String() + "=" + g.Elem.String()
+	}
+	return text.FlagSpecSpacer + g.Type.String()
+}
+
+// aliases returns the flag's aliases and hidden aliases. When deprecated is
+// true, it adds the deprecated aliases.
+func (g *Flag) aliases(deprecated bool) []string {
+	v := slices.Concat(g.Aliases, g.HiddenAliases)
+	if deprecated {
+		v = append(v, g.DeprecatedAliases...)
+	}
+	return v
+}
+
+// compNames returns the flag's long names, or its short names, that
+// completion offers, without the leading dashes.
+func (g *Flag) compNames(short bool) []string {
+	var v []string
+	for _, s := range prepend(g.aliases(false), g.Name, g.Short) {
+		if s != "" && utf8.RuneCountInString(s) == 1 == short && !slices.Contains(v, s) {
+			v = append(v, s)
+		}
+	}
+	return v
 }
 
 // ExecType is the interface for func's that can be used with [Run],
@@ -967,8 +1092,14 @@ func appendFlags(flags []*Flag, v reflect.Value, parents []string) ([]*Flag, err
 				return nil, err
 			}
 		default:
-			if name == "" || name == "-" {
+			switch name {
+			case "-":
 				continue
+			case "":
+				// the doc comment of the field, from RegisterDoc
+				if tags[0] = fieldDoc(typ, f.Name); tags[0] == "" {
+					continue
+				}
 			}
 			g, err := buildFlag(v, i, tags, parents)
 			if err != nil {
@@ -1028,10 +1159,16 @@ func buildFlagOpts(parent, value reflect.Value, tags []string) ([]Option, error)
 			opts = append(opts, Aliases(val))
 		case "aliases":
 			opts = append(opts, Aliases(strings.Split(val, "|")...))
+		case "hiddenaliases":
+			opts = append(opts, HiddenAliases(strings.Split(val, "|")...))
+		case "deprecatedaliases":
+			opts = append(opts, DeprecatedAliases(strings.Split(val, "|")...))
 		case "spec":
 			opts = append(opts, Spec(val))
 		case "default":
 			opts = append(opts, Default(val))
+		case "nodefault":
+			opts = append(opts, NoDefault())
 		case "noarg":
 			opts = append(opts, NoArg(true, val))
 		case "key":
@@ -1062,6 +1199,16 @@ func buildFlagOpts(parent, value reflect.Value, tags []string) ([]Option, error)
 			opts = append(opts, Deprecated(true))
 		case "split":
 			opts = append(opts, Split(val))
+		case "abs":
+			opts = append(opts, Abs())
+		case "real":
+			opts = append(opts, Real())
+		case "home":
+			opts = append(opts, Home())
+		case "ext":
+			opts = append(opts, Ext(strings.Split(val, "|")...))
+		case "notexist":
+			opts = append(opts, NotExist())
 		case "set":
 			if set, err = setField(parent, val); err != nil {
 				return nil, err
@@ -1117,12 +1264,10 @@ func newCommandError(name string, err error) error {
 	return fmt.Errorf("command %s: %w", name, err)
 }
 
-// newFlagError creates a flag error.
+// newFlagError creates a flag error. name is the flag as the command line
+// gave it, such as --d or -d.
 func newFlagError(name string, err error) error {
-	if utf8.RuneCountInString(name) == 1 {
-		return fmt.Errorf("-%s: %w", name, err)
-	}
-	return fmt.Errorf("--%s: %w", name, err)
+	return fmt.Errorf("%s: %w", name, err)
 }
 
 // SplitBy splits a string by cut, skipping runes escaped with `\`.
@@ -1180,9 +1325,17 @@ func prev(s []string, n int) string {
 // [DefaultMaxDist].
 func maxDist(cmd *Command) int {
 	if help, ok := cmd.Help.(*CommandHelp); ok && help.MaxDist != 0 {
-		return help.MaxDist
+		return max(help.MaxDist, 0)
 	}
 	return DefaultMaxDist
+}
+
+// foldCase returns s in lower case when [DefaultFoldCase] is true.
+func foldCase(s string) string {
+	if DefaultFoldCase {
+		return strings.ToLower(s)
+	}
+	return s
 }
 
 // fields is an iterator for reflect struct fields. Cribbed from the go1.26.1

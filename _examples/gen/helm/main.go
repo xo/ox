@@ -1,6 +1,6 @@
 // Command helm is a xo/ox version of `helm`.
 //
-// Generated from _examples/gen.go.
+// Generated from _examples/gen.go, which _tools/oximport replaced (D31).
 package main
 
 import (

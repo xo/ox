@@ -9,6 +9,7 @@ linters:
     - errcheck
     - exhaustive
     - exhaustruct
+    - exhaustruct_v5
     - forcetypeassert
     - funlen
     - gochecknoglobals
@@ -22,7 +23,9 @@ linters:
     - mnd
     - nilnil
     - nlreturn
+    - noinlineerr
     - testpackage
     - varnamelen
     - wrapcheck
     - wsl
+    - wsl_v5

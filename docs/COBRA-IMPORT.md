@@ -100,13 +100,25 @@ behavior adds a line that starts with `# ox:` to the script.
    it wrong, with a Levenshtein distance of 2 (D11). `8eb319f` (2024-12-20),
    "Allow correction in completion", turned off the prefix match so that the
    shell shows the corrected name. In bash, the importer changes the match in
-   two places: where the shell inserts the completions, and where it shows
-   the descriptions. Zsh did not need a change.
+   three places: where the shell inserts the completions, where it shows
+   the descriptions, and where the program returns no descriptions, as with
+   `--no-descriptions`. The third place was added on 2026-11-26 (D35).
+3. The zsh script passes `-U` to `_describe`, so that zsh offers every
+   completion that the program returns, and does not match them against the
+   typed text. This edit was added on 2026-11-27 (B47).
 
-The bash script still keeps only the completions that start with the typed
-text when the program returns no descriptions, as with `--no-descriptions`.
-The v1.8.1 import kept that match too. Question 11 of D28, in
-[DESIGN.md](DESIGN.md), asks whether it goes.
+Because no script matches by prefix now, `ox` matches the values that it
+offers by prefix itself, and offers a correction only when nothing matches
+(D35).
+
+Measured on 2026-11-27 with a program named `my-app`, by
+`TestShellCompletion` in the `test` module:
+
+1. bash, zsh, fish and PowerShell complete a prefix, a value of `ValidArgs`,
+   and a corrected command name or value, such as `completion` for
+   `compleiton`. fish drops a correction that has no description. That is
+   fish itself, measured with fish 4.9.3 and no `ox` involved.
+2. Before the edit of B47, zsh showed no correction at all.
 
 ## When the import fails
 
@@ -125,7 +137,18 @@ The v1.8.1 import kept that match too. Question 11 of D28, in
 
 ## How to test
 
-`go test ./...` does not run a script. Build the tree example with a name
+`TestShellCompletion` in `test/comp_test.go` builds `test/testdata/myapp`
+and completes four command lines in each shell that is installed. zsh
+completes only in a terminal, so the test drives one with the `zpty` module
+of zsh, and it takes 4 seconds for each case. PowerShell completes with
+`TabExpansion2`, which reaches the completer only when `my-app` is in
+`PATH`. Run it in the `test` folder:
+
+```sh
+go test -run TestShellCompletion -v .
+```
+
+To test by hand, build the tree example with a name
 that has a hyphen, because a hyphen is where `%[1]s` and `%[2]s` differ:
 
 ```sh

@@ -40,6 +40,8 @@ reader can find a decision by its number.
 | [D32](#d32-ox-has-many-examples-for-coding-agents-decided) | ox has many examples for coding agents | Decided |
 | [D33](#d33-each-sub-package-with-a-dependency-is-a-module-of-its-own-and-test-is-a-module-decided) | Each sub package with a dependency is a module of its own, and test is a module | Decided |
 | [D34](#d34-a-flag-takes-its-value-from-the-command-line-the-environment-the-config-files-or-its-default-proposed) | A flag takes its value from the command line, the environment, the config files or its default | Proposed |
+| [D35](#d35-the-choices-that-the-agents-made-on-2026-11-26-proposed) | The choices that the agents made on 2026-11-26 | Proposed |
+| [D36](#d36-choices-that-the-backlog-agent-made-proposed) | Choices that the backlog agent made | Proposed |
 
 ## Purpose
 
@@ -63,20 +65,23 @@ This section is at `bb2641a` (2026-09-27), with the changes staged on
 2. Flag parsing, the type system, help, version, the completion of command
    and flag names, and suggestions work, and the tests cover them.
    `go test ./...` and `tinygo test ./...` pass in CI.
-3. Completion does not complete flag values or positional arguments. See
-   B31.
-4. Config files of JSON, YAML and TOML, and the environment, fill the flags
-   (D34). The tests in `conf_test.go` and in the `test` module cover each
-   format and the order of the sources. An `hcl` module does not exist. See
-   B7.
-5. The app style of D20 is a sketch. D30 replaces it with `AppFrom`.
-6. The repository is six modules (D33): the root, which requires nothing,
-   `color`, `glob`, `toml`, `yaml` and `test`. None has a tag, and `go.mod`
-   declares `go 1.27`. Every module passes `go vet`. See B22 and B30.
-7. `golangci-lint` reports 263 findings on main, and no CI job runs it. See
-   D12 and B16.
-8. `dbtpl`, `iv` and `wallgrab` use `ox`. `usql` still uses `cobra`, and it
-   moves when priority 1 of [BACKLOG.md](BACKLOG.md) is done. See D22.
+3. Completion completes command and flag names, flag values, positional
+   values, hidden aliases and the values of a `CompFunc`, and help can look
+   like psql's help with `HelpColumn` (D35). zsh shows no corrections (B47).
+4. Config files of JSON, YAML, TOML and HCL, and the environment, fill the
+   flags (D34). The tests in `conf_test.go` and in the `test` module cover
+   each format and the order of the sources.
+5. `AppFrom` builds a program from a struct and its doc comments (D30), and
+   `cmd/oxdoc` writes the doc comments from `go generate`. It replaces the
+   sketch of D20.
+6. The repository is seven modules (D33): the root, which requires nothing,
+   `color`, `glob`, `hcl`, `toml`, `yaml` and `test`. None has a tag. Each `go.mod`
+   declares `go 1.25`, and the `uuid` type needs Go 1.27 (D24). Every module
+   passes `go vet` and its tests with Go 1.25, 1.26 and 1.27. See B22.
+7. `golangci-lint` reports 156 findings in the root, and no CI job runs it.
+   See D12, and D36 for the count.
+8. `dbtpl`, `iv` and `wallgrab` use `ox`. `usql` has its move to `ox` staged,
+   and it commits the move when `ox` has a tag. See D22 and B22.
 
 ## Direction
 
@@ -149,7 +154,8 @@ Commits: `61d64ed` (2024-11-19), `74b466a` (2024-11-19), `8024ca4`
 
 The first commit has a CI job that runs `tinygo test -v ./...` beside the job
 that runs `go test -v ./...`. The TinyGo release is pinned: 0.34.0, then
-0.40.1 in `1f5bd91`, then 0.42.0 in `6c99d89`.
+0.40.1 in `1f5bd91`, then 0.42.0 in `6c99d89`, then 0.44.0 on
+2026-11-27.
 
 `go.go` and `tinygo.go` hold the code that differs between the two compilers,
 behind `//go:build !tinygo` and `//go:build tinygo`. These are the only build
@@ -636,6 +642,394 @@ confirm it. It replaces the stub `UserConfigFile`, and amends nothing that
 was decided, because D16 decides only that a loader is registered for a
 `ConfigType`.
 
+### D35. The choices that the agents made on 2026-11-26. Proposed.
+
+A maintainer asked on 2026-11-26 that agents implement the plan. Five agents
+did B33, B32, B25, B20, B31, B37, B38, B30, B34, B26, B39, B40 and B41, each in a
+worktree of its own, and the work was merged in the main checkout. They
+followed the recommendations of the open questions, and each made choices
+that no maintainer has made. This entry lists them, so that a maintainer can
+confirm or change each one. It holds D28 as built, and the answer of open
+question 7 as built.
+
+Help, with `HelpColumn(n)` and `NoDefault()`:
+
+1. `HelpColumn` is opt in, so the help of every other program is the same,
+   byte for byte. `TestGenHelpIsTheSame` holds the help of 14 programs.
+2. `HelpColumn` does not change `text.FlagSpecSpacer`. A program that wants
+   psql's `--file=FILENAME` sets the spacer to `=` itself.
+3. Under `HelpColumn`, the short names come first, then the name and the long
+   aliases, and only the last name has the spec: `-v, --set=, --variable=NAME=VALUE`.
+   A hidden or a deprecated alias is not written.
+4. An option goes on its own line when it leaves fewer than 2 spaces before
+   the column.
+5. `HelpColumn` also lays out the section of sub commands.
+6. A hook flag shows its spec only when it takes a value. The help agent
+   first showed it for every hook, and the merge found that the spec of a
+   command then reached `--help`, so it was changed.
+7. An empty line inside a usage gets no indent.
+
+Completion, which holds D28:
+
+8. `HiddenAliases(...)` parses, and completion offers it, and help does not
+   write it. `DeprecatedAliases(...)` parses, and nothing shows it. `usql`
+   needed both.
+9. The debug lines of B20 are removed, and not written when a variable is
+   set.
+10. When a command or a flag has a `CompFunc` and allowed values, the
+    `CompFunc` wins. Cobra uses `ValidArgs` first.
+11. When allowed values exist and none matches, or the position is past the
+    maximum of `ValidArgs`, `ox` returns `CompNoFileComp`, as cobra does. File
+    completion comes only when a value has no source of completions.
+12. A value matches by prefix with case, as in cobra. A correction compares
+    in lower case. Command and flag names keep their match without case.
+13. Completions from commands, values and a `CompFunc` are merged, and only
+    those with the smallest distance stay, so a correction shows only when
+    nothing matches by prefix.
+14. `CompNoFilter` is 64, the next bit, and `Comps` removes it before the
+    shell sees it.
+15. When `Comps` fails, `DefaultComp` writes the error to standard error and
+    prints the directive `:1`.
+16. The bash script stops its prefix match in the path without descriptions
+    too (question 11 of D28).
+17. A flag that the command line already set is still offered, and a hook
+    still runs during completion.
+
+Platform:
+
+18. `FlagSet.UUID` and `UUIDT` have no build constraint, so with Go 1.25 or
+    1.26 a `UUID` flag fails when the program runs, as `Color` and `Glob`
+    do without their modules.
+19. A hook built with `Hook` gets a context with `DefaultContext` as its
+    parent, and not the context of `RunContext`, because `Context` keeps no
+    parent.
+20. `ErrInvalidArgCount` comes from `Context.Validate`, and not from `Parse`.
+    The other parse errors wrap `ErrUnknownFlag`, `ErrMissingArgument` or
+    `ErrInvalidValue`. `TestParseErrors` holds 24 of them, because `usql`
+    matches them with `errors.Is`.
+
+The importer, `_tools/oximport` (D31):
+
+21. It asks `__complete` only when the help is not GNU, psql or Go flag
+    help, because psql would try to connect to a database.
+22. It runs each program with `LC_ALL=C`, and keeps the rest of the
+    environment.
+23. It asks `__complete` for sub commands only on the root, and on a
+    command whose help lists sub commands, because the argument completion of
+    a leaf command can use the network.
+24. It reads short names from `__complete <path> -`. A flag that cobra lists
+    before `--help` is required, and `ox` has no required option, so that is
+    a code comment.
+25. It writes `ox.Valid` only when the description names every value that
+    completes. Otherwise it writes a `// completes:` comment.
+26. A flag of unknown type that `__complete` follows with sub commands is a
+    bool.
+27. It takes defaults only from pflag, Go flag and kubectl help, which write
+    them the same way each time.
+28. It keeps the line breaks of a description.
+29. An optional value, `--x[=ARG]`, becomes a string with `NoArg(true, "")`.
+30. It writes a help or a version flag only on the root, and only when its
+    short name or section differs from what `ox` adds.
+31. It stops at a command whose help is the same as its parent's, and at 12
+    levels, because helm plugins loop.
+32. The reflection style uses a `string` field with `type:X` for a type that
+    has no Go type that `ox` knows.
+33. The app style takes the doc comment of a field as its usage, word for
+    word, adds the doc sections Description, Aliases, Section and Sections,
+    and takes sub commands from `Commands() []any`.
+34. It writes `<prog>/{hand,reflect,app}/main.go`, with a "Code generated"
+    line, and keeps the help that it read in
+    `_tools/oximport/testdata/<prog>.txtar`. The recorder writes the home
+    directory as `/home/user`, and `TestTestdata` fails if a real home
+    directory appears.
+
+### D36. Choices that the backlog agent made. Proposed.
+
+A maintainer asked on 2026-11-27 that one agent close each item of
+[BACKLOG.md](BACKLOG.md) in order. The agent followed the recommendation of
+each open question, and made the choices below that no maintainer has made.
+A maintainer can confirm or change each one.
+
+B32, the optional value in help:
+
+1. `OptionalValue(spec)` sets the spec, sets `NoArg`, and gives the flag the
+   empty string as its value without an `=` when no `NoArg` default exists.
+   Help writes `--name[=SPEC]` with an `=`, whatever
+   `text.FlagSpecSpacer` is, because an optional value must follow an `=`.
+2. `HelpValue(value, usage)` writes `--name=value` on a line of its own
+   after the flag, in both layouts of help. Completion does not offer these
+   values. `Valid` gives a flag the values that completion offers.
+
+B28, the run that returns its error, and the usage string, with the names
+of open question 6:
+
+3. `RunError(ctx, opts...)` returns the first error of `NewContext`,
+   `Parse`, `Validate` or `Run`, whatever `Context.OnErr` is, and never
+   writes it or exits. It returns nil for `ErrExit`, so `--help`,
+   `--version` and a completion return nil.
+4. `Command.UsageString()` takes no `Context`, so it expands no variable in
+   a default. `Context.Expand` on a nil `Context` returns the value as it
+   is, where it panicked before.
+5. Item 3 of B28 is `ArgUsage(name, usage)`, a help option. Help writes an
+   `Arguments:` section after the usage, with the name of
+   `text.Arguments`. `HelpLine` holds a name and its usage, for
+   `ArgUsage` and for `HelpValue`.
+
+B35, the path types of D26, built as questions 1 to 6 of D28 recommend:
+
+6. A path type checks only a value from the command line. A value from the
+   environment or a config file is not checked, as a default is not,
+   because `Context.Fill` does not tell them apart.
+7. A path type expands only `~` and `~/...`, and not `~user`.
+8. `Real()` makes a path that does not exist absolute, as `Abs()` does,
+   because a path that does not exist has no link to resolve.
+9. A fault gives `ErrInvalidValue` and one of the new constants
+   `ErrNotExist`, `ErrExist`, `ErrIsDir` and `ErrNotDir`.
+10. `Ext` works on each path type. A `DirT` completes with
+    `CompFilterDirs`, and a path with `Ext` completes its extensions with
+    `CompFilterFileExt`, as cobra does.
+11. A slice of paths gets no expansion and no check.
+12. The tag options are `abs`, `real`, `home`, `notexist` and
+    `ext:.yaml|.yml`.
+13. `Realpath` lost the rest of the path after a symbolic link, and failed.
+    The build fixed it, and `TestRealpath` holds it.
+
+B36, `AppFrom` of D30, built as open questions 4 and 5 recommend:
+
+14. `ox.App(v)` is a command option, so that `RunError` and the other
+    options work with it. `ox.AppFrom(v, opts...)` is `RunContext` with
+    `DefaultContext`, `App(v)` and `Defaults()`, then `opts`.
+15. The tool is `github.com/xo/ox/cmd/oxdoc`, in the root module, because it
+    needs only the standard library. It writes `oxdoc_gen.go`, with a call
+    to `ox.RegisterDoc[T]` for each struct type that has a doc comment or a
+    field with one. It skips a generic type.
+16. The usage of a field is the first paragraph of its doc comment, so the
+    `oximport:` note that the importer writes after a blank line is not
+    usage. A tag with a description wins. `From` reads the doc comments too.
+17. A field whose tag has no description, and that has no doc comment, is
+    not a flag, as before.
+18. A section of the doc comment starts at a line that holds only a known
+    name and a colon, and ends at the next one. One tab is removed from each
+    line. The help indents `Examples:` by two spaces, because gofmt changes
+    the indent of a code block in a doc comment.
+19. A sub command without a `Usage:` line takes its name from its type,
+    without the suffix `Command` and without the name of the type of its
+    parent.
+20. `Exec` can have any signature that `ox.Exec` takes.
+21. `RunApp`, `RunAppContext`, `NewApp` and `ParseCommand` are removed
+    (D18). That closes B3 and B4. No program in the `xo` folder used them.
+22. `_examples/app` uses `AppFrom`, with its `oxdoc_gen.go` committed. The
+    importer writes the app style without the build constraint `ignore`, and
+    `TestBuild` runs `go generate`, then builds and runs every style.
+
+B14, the examples:
+
+23. `_examples/gen.go` is removed, and the programs in `_examples/gen/` stay
+    as it wrote them, because `TestGenHelpIsTheSame` builds them. Their
+    comment names `_tools/oximport` as the replacement.
+24. CI runs `go vet` on each folder of `_examples/`, as the importer agent
+    recommended for open question 13. `./_examples/...` matches nothing,
+    because `...` skips a folder that starts with `_`, so CI lists them with
+    `find`.
+
+B42, the sample of `usql`:
+
+25. `_examples/usql` copies the options of the prototype of `usql` of
+    2026-11-27, which has `-d`, `-l`, `-O`, `-U`, `-N`, `-D`, `--config` and
+    the hidden options of `--dump`. The texts are in the sample, and not in
+    a package `text`. It calls `RunError`, and its `Exec` prints the options
+    in order.
+26. `TestUsqlSample` in the root builds the sample and runs it, as
+    `TestGenHelpIsTheSame` does.
+
+B16, the findings of `golangci-lint` 2.13.3:
+
+27. `.golangci.yml` disables `exhaustruct_v5` and `wsl_v5` beside
+    `exhaustruct` and `wsl`. With only the new names, the old ones ran and
+    gave 1,182 findings.
+28. `.golangci.yml` disables `noinlineerr`, because `if err := f(); err !=
+    nil` is idiomatic Go. `paralleltest` stays, because many tests change a
+    `Default` variable, and that is a question for a maintainer.
+29. Real faults that got a code change: `asDuration`, `asSize` and `asRate`
+    refuse a `uint64` above `math.MaxInt64` with `ErrInvalidConversion`
+    (gosec G115). `Rate.MarshalText` has a value receiver, so a `Rate`
+    value is a `TextMarshaler` (recvcheck). A test in `ox_test.go` uses
+    `errors.As` (errorlint). The doc comments of `Lookup` and `Override`
+    name the func.
+30. No change for the rest: `FormattedTime` needs a pointer for `Set`
+    (recvcheck), `wastedassign` in `size.go` and `strcase` is style, and
+    `badCond` in `opIndex` is a false positive. The finding of B1 closes
+    with B1.
+
+B1, the operators `#`, `##`, `%` and `%%`:
+
+31. Each of the four takes a glob pattern, as bash does: `*`, `?` and
+    `[...]`, with `[!...]` or `[^...]` for a set that is negated. Any other
+    character matches itself, so a value without these characters works as
+    before. A pattern cannot escape `*`, because the reader of a variable
+    removes each backslash first.
+32. As before, the pattern takes the rest of the variable, filters too:
+    `${X##*X|upper}` has the pattern `*X|upper`. Write `${X|upper##*X}`.
+33. `apply` now calls the op when the second character of a two character
+    op starts its value, such as `/|`. It skipped the call before.
+
+B2, the operators `^`, `^^`, `,` and `,,`:
+
+34. They take a glob pattern, as `#` does, and an empty pattern matches each
+    character. `^` and `,` change only the first character, and only when it
+    matches.
+35. `,` is now an op character, so a key cannot hold a `,`, such as the
+    union `[0,1]` of a YAML path. `:`, `/` and `|` were op characters
+    already.
+
+B7, the `hcl` module, as open question 11 asks:
+
+36. `github.com/xo/ox/hcl` is a module of its own (D33), and it requires
+    `github.com/hashicorp/hcl/v2` v2.25.0. It registers `HCLT` for the
+    extension `.hcl`.
+37. An attribute is a key. A block nests its body under its type, then
+    under each label, so `server "db" { port = 5432 }` gives
+    `server.db.port`. A second block with the same type and labels adds its
+    keys to the first. An expression is evaluated with no variable and no
+    function.
+38. A value goes through the JSON of `go-cty`, so a number is a
+    `json.Number`, as the JSON format of `ox` gives.
+39. `hcl/go.mod` and `test/go.mod` declare `go 1.25.0`, and not `go 1.25`,
+    because `hcl/v2` v2.25.0 declares `go 1.25.0`, and `go mod tidy`
+    raises a lower line. It is the same release.
+40. `notes.txt` names JSON and Jsonnet beside HCL. JSON is in the root
+    package. Jsonnet is not built.
+
+B3 and B4 closed with B36, because `RunApp`, `RunAppContext` and `NewApp`
+are removed.
+
+B10, case and distance:
+
+41. `DefaultFoldCase`, true by default, makes suggestions and the completion
+    of command and flag names compare without case, as before. False
+    compares with case. The parse of a command name always compares with
+    case (D11), and a value of `Valid` matches its prefix with case (D35).
+42. `MaxDist(-1)` turns off the distance match for one command, and
+    `DefaultMaxDist = 0` turns it off for every command. `MaxDist(0)` keeps
+    `DefaultMaxDist`, as before. A suggestion still matches a name that
+    differs only in case.
+
+B11, the usage line and `ValidArgs`:
+
+43. With no `Spec`, the usage line follows `ValidArgs`: no `[args]` for
+    `ValidArgs(0, 0)`, and the allowed values, such as `[bash|zsh]...`, in
+    place of `[args]`. `...` follows when more than one arg is allowed. The
+    texts are `text.CommandArgValuesSpec` and `text.CommandArgsMore`. A
+    `CompFunc` does not change the help, because its values are not known
+    until it runs. `TestGenHelpIsTheSame` holds that no program in
+    `_examples/gen` changed.
+
+B12, `[]byte` and `[]rune`:
+
+44. A value converts to a `[]byte` and to a `[]rune`, and to a named type of
+    either. reflect cannot tell `[]rune` from `[]int32`, so a `[]int32`
+    element takes runes too. `Bind` on a `[]byte` sets its bytes, where it
+    tried to append one byte for each value before. `Bind` on a `[]int32`
+    still appends ints.
+
+B17, the README:
+
+45. Items 1 and 3 were already true: the README says Go 1.25 and later, and
+    HCL loads since B7. The line "Man page generation" stays as a design
+    goal, and it says that it is not built yet, because a maintainer wrote
+    it.
+
+B18 fixed the four doc comments that named the wrong thing. Its item 5
+closed with B36.
+
+B19, the items of `notes.txt`. Items 5, 7 and 10 stay in the backlog:
+
+46. Item 1, the cascade of config files, is D34. Item 9, the path types, is
+    B35. Item 4, `time.Duration` in reflection, is B49.
+47. `$ANY{KEY}` and `${any::KEY}` ask each loader in order, as `$KEY` does.
+48. The value that a flag takes without a value, `NoArgDef`, expands its
+    variables, as a default does.
+49. `NewCommand` refuses two flags of one command with the same long or
+    short name, counting each alias, with `ErrDuplicateFlag`. The name is
+    long, as `--H`, the short name is short, and an alias of one letter is
+    short, as `Command.Flag` finds them. A sub command
+    can have a flag with the name of a flag of its parent. The check found
+    two `-L` flags in `Example_psql`, and the second is now psql's `-n`.
+50. The `help` command completes the path of a command, such as
+    `app help sub <tab>`, with the corrections of `CompCommands`.
+51. `From` takes a field whose pointer type has the text or the binary
+    marshal pair, and that no program registered. `registerReflect`
+    registers the type the first time, with a `Value` that is not generic.
+    Its name is the name of the type in lower case, such as `testtext`, or
+    the full name when another type has that name.
+
+B21, `.gitignore`:
+
+52. `.gitignore` keeps its patterns for `*.txt`, `*.log` and the shell
+    scripts, because they keep `notes.txt` and the files that
+    `_examples/tree/gen.sh` writes out of git. Two lines bring back
+    `/comp/*` and `/LICENSE.completions.txt`, so a new script in `comp/`
+    needs no `git add -f`.
+
+B43, ActiveHelp:
+
+53. `NewActiveHelp(s)` returns a `Completion` that starts with
+    `DefaultCompActiveHelpMarker`, `_activeHelp_ `, as cobra's
+    `AppendActiveHelp` does. A `CompFunc` returns it beside its completions,
+    and the prefix match keeps it. `DefaultComp` drops it when the variable
+    of `DefaultCompActiveHelpSuffix`, such as `MY_APP_ACTIVE_HELP`, is `0`.
+    `ox` writes no ActiveHelp of its own. cobra's global
+    `COBRA_ACTIVE_HELP` has no `ox` match.
+
+B46: help converts a default that is not a string with the conversion of
+`ox`, and with `fmt.Sprint` when that fails, such as for a slice.
+
+B47 and B48, completion in zsh and PowerShell:
+
+54. The importer adds `-U` to the `_describe` call of the zsh script, and
+    the scripts were imported again from cobra v1.10.2. Only `zsh.zsh`
+    changed.
+55. `TestShellCompletion` in the `test` module completes in bash, zsh, fish
+    and PowerShell, and skips a shell that is not installed. The PowerShell
+    harness of 2026-11-26 failed because `my-app` was not in `PATH`.
+
+B49, the types of `Bind` and `From`:
+
+56. A bind of a flag that is not a slice, an array, a map or a hook gets the
+    value that the flag parsed, with `BindVal`, and not its text. So a
+    count, a duration and a date with its layout reach the variable. A
+    slice and a map still get the text, one element at a time.
+57. The conversion to a field knows `time.Duration`, `ox.Size`, `ox.Rate`
+    and `time.Time` before it looks at the kind. A `time.Time` from text
+    tries the layouts of `TimestampT`, `DateTimeT`, `DateT` and `TimeT`.
+58. `From` gives a `time.Duration` field `DurationT`, an `ox.Size` field
+    `SizeT`, an `ox.Rate` field `RateT`, and a `complex64` field
+    `Complex64T`.
+
+B50, the smaller faults of the examples:
+
+59. `Help(Footer(""))` sets `NoFooter`, as `Footer("")` on a command does.
+60. On a root with sub commands, `Version()` adds the `version` command, and
+    also hooks a flag that the program defines with `Special("hook:version")`.
+    It adds no `--version` flag of its own there (D10).
+61. An `OnErr` value, such as `ox.OnErrPanic`, sets `Context.OnErr` as well
+    as `Command.OnErr`, so `Run` can panic or go on in place of an exit.
+62. A flag with `Deprecated(true)` writes `warning: --old is deprecated` to
+    `Context.Stderr` when the command line uses it, with
+    `text.FlagDeprecated`. A deprecated alias writes nothing, so that an old
+    name of `usql` keeps working as before (D35).
+63. A flag error names the flag as the command line gave it, so a
+    one-letter long flag is `--d`.
+
+B51, the errors that wrap no constant:
+
+64. An error that decodes a config file wraps `ErrInvalidConfig`.
+65. An error that a hook or a validator of the program returns gets no
+    constant. It passes through with `%w`, so the program finds its own
+    error with `errors.Is`. A constant in front changes the message,
+    such as the `-h: unknown flag` of `usql`. A validator of `Valid`
+    already wraps `ErrInvalidValue`.
+
 ## Open questions for the maintainers
 
 An open question is not a decision. When a maintainer answers one, the
@@ -647,29 +1041,34 @@ recommendation.
    particular, must `Value.WasSet` stay true only for the command line, and
    is a key the flat name of the flag?
 2. D24 says that `ox` uses the features of Go 1.27 and declares `go 1.25`.
-   Recommended: code that needs a newer release goes in a file with a build
-   constraint such as `//go:build go1.27`, as B30 plans for `uuid`. Is that
-   what "uses the features of Go 1.27" means?
-3. D28 has 12 questions about the path types and the completion API, in
-   [DESIGN.md](DESIGN.md). Recommended: the answer that each one gives.
-   They block B31, B35 and B37.
+   This was built: code that needs a newer release, such as the `uuid` type,
+   is in a file with the build constraint `//go:build go1.27`. Is that what
+   "uses the features of Go 1.27" means?
+3. D35 lists 20 choices that the agents made, which hold D28 as built.
+   Recommended: confirm them. Questions 1 to 6 of D28, about the path types,
+   are still open. The path types were built on 2026-11-27 as they
+   recommend (D36).
 4. How does `AppFrom` get the doc comments (D30)? Recommended: a
    `go generate` tool from `ox` writes them into the program, because it
    works with TinyGo and links no parser. The other way embeds the source and
-   parses it when the program starts.
+   parses it when the program starts. This was built on 2026-11-27 as
+   `cmd/oxdoc` (D36).
 5. What does the interface for the sub commands of `AppFrom` call its
    method? Recommended: `Commands() []any`, because `Sub` is already an
    option. The sketch of D20 uses `Sub() []any`. Is the exec method
-   `Exec(ctx context.Context, args []string) error`?
+   `Exec(ctx context.Context, args []string) error`? Both were built
+   on 2026-11-27 (D36), and `Exec` can have any signature that `ox.Exec`
+   takes.
 6. What are the run func that returns its error and the usage string called
    (B28)? Recommended: `ox.RunError(ctx, opts...) error`, and
-   `Command.UsageString() string`.
-7. Does psql's layout of help, with the descriptions after 27 characters and
-   a long option on its own line, become the default for every program, or
-   does a program ask for it, such as with `HelpColumn(27)`? Recommended: a
-   program asks for it, so that `dbtpl`, `iv` and `wallgrab` do not change.
-8. When does `ox` get its first tag? Recommended: `v0.1.0` when B30
-   is done, so that `usql` can require a release that builds with Go 1.25.
+   `Command.UsageString() string`. These names were built on 2026-11-27
+   (D36).
+7. psql's layout of help was built as an option, `HelpColumn(27)`, so that
+   `dbtpl`, `iv` and `wallgrab` do not change. Recommended: keep it an option.
+   Must it become the default for every program?
+8. When does `ox` get its first tag? Recommended: now, as `v0.1.0`, because
+   B30 is done and `usql` waits for a tag. Then tag `color`, `glob`, `toml`
+   and `yaml`, in the order in [DESIGN.md](DESIGN.md).
 9. Issues and pull requests are off (D25). How does a change from a person
    outside the project arrive? Recommended: the person opens a discussion,
    and a maintainer makes the change. `CONTRIBUTING.md` says so now.
@@ -677,11 +1076,16 @@ recommendation.
    difference deliberate, or does `ox` follow bash? See D19.
 11. The README says that `ox` loads HCL, and imports `github.com/xo/ox/hcl`
     in its example. There is no such package. Does an `hcl` loader come, or
-    does the README change? See B7.
-12. No CI job runs `golangci-lint`, and main has 263 findings. Must CI run it,
-    and must the disabled list follow the renamed linters? See B16.
+    does the README change? See B7. The `hcl` module was built on 2026-11-27
+    (D36).
+12. No CI job runs `golangci-lint`, and main had 263 findings. Must CI run
+    it, and must the disabled list follow the renamed linters? See B16.
+    Since 2026-11-27, the disabled list names both the old and the new
+    names, and the root has 156 findings (D36). CI does not run it yet.
 13. No CI job builds the examples. Must CI build them, and the programs that
-    the importer writes? See B14 and B39.
+    the importer writes? See B14 and B39. Since 2026-11-27, CI runs `go vet`
+    on each example, and `TestBuild` builds each style that the importer
+    writes (D36).
 14. The repository tests in `repo_test.go` do not run under TinyGo, because a
     build constraint keeps them out. Is that the right choice? See D2 and
     D21.

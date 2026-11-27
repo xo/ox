@@ -83,8 +83,8 @@ func Interpolate(interpolate func(*Context, any) (any, error)) ContextOption {
 	}
 }
 
-// Interpolate is a [Run]/[RunContext]/[Context] option to set a interpolation
-// func.
+// Lookup is a [Run]/[RunContext]/[Context] option to set the func that looks
+// up a config variable.
 func Lookup(lookup func(*Context, ConfigType, string) (any, error)) ContextOption {
 	return option{
 		name: "Lookup",
@@ -95,7 +95,7 @@ func Lookup(lookup func(*Context, ConfigType, string) (any, error)) ContextOptio
 	}
 }
 
-// OverrideMap is a [Run]/[RunContext]/[Context] option to set a override
+// Override is a [Run]/[RunContext]/[Context] option to set a override
 // expansion func.
 func Override(override func(ConfigType, string) (any, bool, error)) ContextOption {
 	return option{
@@ -208,6 +208,35 @@ func From[T *E, E any](val T) CommandOption {
 	}
 }
 
+// App is a [Command] option to build the command, its flags and its sub
+// commands from v, a pointer to a struct:
+//
+//   - The doc comment of the struct type gives the usage and the help of the
+//     command. A section starts with a line that holds only its name and a
+//     colon. Each line after it, with one tab removed, is the text of the
+//     section, up to the next section. The sections are `Description:`, the
+//     usage of the command, `Usage:`, whose first line is the name of the
+//     command after the names of its parents, then its spec, `Aliases:`,
+//     `Section:`, `Banner:`, `Examples:`, `Sections:`, the names of the flag
+//     sections, `Command sections:`, the names of the sub command sections,
+//     and `Footer:`. A sub command without a usage line takes its name from
+//     its type, without the suffix `Command` and without the name of the type
+//     of its parent, such as `list` for `AppListCommand`.
+//   - Each field with an `ox` tag is a flag, as [From] makes it. When the tag
+//     has no description, the doc comment of the field gives the usage.
+//   - When the struct has a method `Commands() []any`, each value that it
+//     returns is a sub command, built the same way.
+//   - When the struct has a method `Exec`, with a signature that [Exec]
+//     takes, such as `Exec(context.Context, []string) error`, it is the exec
+//     func of the command.
+//
+// Go keeps no doc comment in a program, so the program registers them with
+// [RegisterDoc]. The tool `github.com/xo/ox/cmd/oxdoc` writes those calls
+// from `go generate`.
+func App[T *E, E any](v T) CommandOption {
+	return appOption(v, "")
+}
+
 // Sub is a [Command] option to create a sub command.
 func Sub(opts ...Option) CommandOption {
 	return option{
@@ -231,7 +260,14 @@ func Version() CommandOption {
 			case cmd.Parent != nil:
 				return ErrCanOnlyBeUsedWithRootCommand
 			case len(cmd.Commands) != 0:
-				return NewVersion(cmd)
+				if err := NewVersion(cmd); err != nil {
+					return err
+				}
+				// a flag that the program defines with hook:version works
+				// beside the version command
+				if cmd.FlagSpecial("hook:version") == nil {
+					return nil
+				}
 			}
 			return NewVersionFlag(cmd)
 		},
@@ -251,7 +287,7 @@ func VersionString(version string) CommandOption {
 }
 
 // AppNameVersion is a [Command] option to set the root app name and version.
-// Mostly used with [RunApp]/[RunAppContext].
+// Mostly used with [AppFrom].
 func AppNameVersion(name, version string) CommandOption {
 	return option{
 		name: "AppNameVersion",
@@ -388,6 +424,8 @@ func ArgsFunc(funcs ...func([]string) error) CommandOption {
 // ValidArgs is a [Command] option to add a argument validation func to the
 // command that validates the range of allowed minimum/maximum argruments and
 // allowed argument values. A minimum/maximum < 0 means no minimum/maximum.
+// Completion offers the values at each position up to the maximum. See
+// [Command.ValidArgs].
 func ValidArgs(minimum, maximum int, values ...string) CommandOption {
 	return option{
 		name: "ValidArgs",
@@ -396,6 +434,11 @@ func ValidArgs(minimum, maximum int, values ...string) CommandOption {
 				if s == "" {
 					return fmt.Errorf("%w: argument %d cannot be empty string", ErrInvalidArg, i)
 				}
+			}
+			cmd.ValidArgs = append(cmd.ValidArgs, values...)
+			cmd.maxArgs, cmd.noArgs = maximum, minimum == 0 && maximum == 0
+			if maximum == 0 && 0 < minimum {
+				cmd.maxArgs = -1
 			}
 			cmd.Args = append(cmd.Args, func(args []string) error {
 				switch n := len(args); {
@@ -475,6 +518,55 @@ func Aliases(aliases ...string) CommandFlagOption {
 		},
 		flag: func(g *Flag) error {
 			g.Aliases = append(g.Aliases, aliases...)
+			return nil
+		},
+	}
+}
+
+// HiddenAliases is a [Flag] option to add aliases that help does not write.
+// A hidden alias parses like any alias, and completion offers it.
+func HiddenAliases(aliases ...string) FlagOption {
+	return option{
+		name: "HiddenAliases",
+		flag: func(g *Flag) error {
+			g.HiddenAliases = append(g.HiddenAliases, aliases...)
+			return nil
+		},
+	}
+}
+
+// DeprecatedAliases is a [Flag] option to add aliases that neither help nor
+// completion shows. A deprecated alias parses like any alias, so an old name
+// keeps working.
+func DeprecatedAliases(aliases ...string) FlagOption {
+	return option{
+		name: "DeprecatedAliases",
+		flag: func(g *Flag) error {
+			g.DeprecatedAliases = append(g.DeprecatedAliases, aliases...)
+			return nil
+		},
+	}
+}
+
+// CompFunc is a [Command]/[Flag] option to set the func that completes the
+// positional arguments of the command, or the value of the flag. f returns
+// the completions for toComplete, the word under the cursor. ctx.Exec is the
+// command, ctx.Vars holds the flags parsed so far, and ctx.Args holds the
+// positional arguments before toComplete.
+//
+// Completion keeps only the results that start with toComplete, unless f
+// returns [CompNoFilter]. Completion corrects no result. If f returns no
+// completions and does not return [CompNoFileComp], the shell completes file
+// names.
+func CompFunc(f func(ctx *Context, toComplete string) ([]Completion, CompDirective, error)) CommandFlagOption {
+	return option{
+		name: "CompFunc",
+		cmd: func(cmd *Command) error {
+			cmd.CompFunc = f
+			return nil
+		},
+		flag: func(g *Flag) error {
+			g.CompFunc = f
 			return nil
 		},
 	}
@@ -620,6 +712,18 @@ func Default(def any) FlagOption {
 	}
 }
 
+// NoDefault is a [Flag] option to hide the "(default: ...)" text of the flag
+// in help. Use it when the usage of the flag already names its default.
+func NoDefault() FlagOption {
+	return option{
+		name: "NoDefault",
+		flag: func(g *Flag) error {
+			g.NoDefault = true
+			return nil
+		},
+	}
+}
+
 // NoArg is a [Flag] option to set that the flag expects no argument, and the
 // default value to set.
 func NoArg(noArg bool, def any) FlagOption {
@@ -627,6 +731,101 @@ func NoArg(noArg bool, def any) FlagOption {
 		name: "NoArg",
 		flag: func(g *Flag) error {
 			g.NoArg, g.NoArgDef = noArg, def
+			return nil
+		},
+	}
+}
+
+// OptionalValue is a [Flag] option to set that the flag takes an optional
+// value, and the spec of that value. Help writes the spec in brackets, such
+// as `--help[=options]`. The flag takes no argument, as with [NoArg], so a
+// value must follow an `=`, such as `--help=commands`. It keeps the default
+// that [NoArg] sets, and sets the empty string when there is none.
+func OptionalValue(spec string) FlagOption {
+	return option{
+		name: "OptionalValue",
+		flag: func(g *Flag) error {
+			g.Spec, g.Optional, g.NoArg = spec, true, true
+			if g.NoArgDef == nil {
+				g.NoArgDef = ""
+			}
+			return nil
+		},
+	}
+}
+
+// HelpValue is a [Flag] option to add a value of the flag that help writes on
+// a line of its own, with its usage, such as psql's `--help=commands`. Help
+// writes the values after the flag, in the order of the options.
+func HelpValue(value, usage string) FlagOption {
+	return option{
+		name: "HelpValue",
+		flag: func(g *Flag) error {
+			g.HelpValues = append(g.HelpValues, HelpLine{Name: value, Usage: usage})
+			return nil
+		},
+	}
+}
+
+// Abs is a [Flag] option to make the value of a path flag absolute. A
+// relative path is joined to the working directory.
+func Abs() FlagOption {
+	return option{
+		name: "Abs",
+		flag: func(g *Flag) error {
+			g.Abs = true
+			return nil
+		},
+	}
+}
+
+// Real is a [Flag] option to resolve each symbolic link in the value of a
+// path flag, with [Realpath]. A path that does not exist is made absolute, as
+// with [Abs].
+func Real() FlagOption {
+	return option{
+		name: "Real",
+		flag: func(g *Flag) error {
+			g.Real = true
+			return nil
+		},
+	}
+}
+
+// Home is a [Flag] option to show the default of a path flag under the home
+// directory as `~` in help, such as `~/.config/app`. It does not change the
+// value.
+func Home() FlagOption {
+	return option{
+		name: "Home",
+		flag: func(g *Flag) error {
+			g.Home = true
+			return nil
+		},
+	}
+}
+
+// Ext is a [Flag] option to set the file extensions that completion offers
+// for a path flag, such as `Ext(".yaml", ".yml")`. bash and zsh complete only
+// the files with these extensions, and fish and PowerShell complete every
+// file. It does not refuse a value with another extension.
+func Ext(exts ...string) FlagOption {
+	return option{
+		name: "Ext",
+		flag: func(g *Flag) error {
+			g.Exts = append(g.Exts, exts...)
+			return nil
+		},
+	}
+}
+
+// NotExist is a [Flag] option to make the value of a path flag a path that
+// must not exist yet, such as an output file.
+func NotExist() FlagOption {
+	return option{
+		name: "NotExist",
+		flag: func(g *Flag) error {
+			g.NotExist = true
 			return nil
 		},
 	}
@@ -770,12 +969,16 @@ func Deprecated(deprecated bool) CommandFlagOption {
 	}
 }
 
-// Hook is a [Flag] option to set a hook for a flag.
+// Hook is a [Flag] option to set a hook for a flag. The flag takes no
+// argument. When the flag is on the command line, the parse calls f with a
+// [context.Context] that holds the [Context]. Read it with [Ctx]. The parent
+// of that [context.Context] is [DefaultContext], because the parse runs
+// before [Context.Run].
 func Hook(f func(context.Context) error) FlagOption {
 	return option{
 		name: "Hook",
 		flag: func(g *Flag) error {
-			g.Type, g.Def = HookT, f
+			g.Type, g.Def, g.NoArg, g.NoArgDef = HookT, f, true, ""
 			return nil
 		},
 	}
@@ -860,7 +1063,7 @@ func Footer(footer string) HelpOption {
 			return nil
 		},
 		help: func(help *CommandHelp) error {
-			help.Footer, help.NoSpec = footer, footer == ""
+			help.Footer, help.NoFooter = footer, footer == ""
 			return nil
 		},
 	}
@@ -955,8 +1158,9 @@ func CommandSort(commandSort bool) CommandOption {
 	}
 }
 
-// MaxDist is a [Command] option to set the maximum Levenshtein distance for flags when
-// used with a [Command].
+// MaxDist is a [Command] option to set the maximum Levenshtein distance of the
+// suggestions and the corrections of the command. 0 keeps [DefaultMaxDist], and
+// a negative distance turns off the distance match for the command.
 func MaxDist(maxDist int) CommandOption {
 	return option{
 		name: "MaxDist",
@@ -1010,6 +1214,75 @@ func Sections(sections ...string) HelpOption {
 		},
 		help: func(help *CommandHelp) error {
 			help.Sections = sections
+			return nil
+		},
+	}
+}
+
+// ArgUsage is a [Help] option to add the name and the usage of a positional
+// argument, such as `DSN`. Help writes each one in an `Arguments:` section
+// after the usage, in the order of the options.
+func ArgUsage(name, usage string) HelpOption {
+	f := func(help *CommandHelp) {
+		help.Args = append(help.Args, HelpLine{Name: name, Usage: usage})
+	}
+	return option{
+		name: "ArgUsage",
+		cmd: func(*Command) error {
+			return nil
+		},
+		post: func(cmd *Command) error {
+			if cmd.Help == nil {
+				cmd.Help, _ = NewCommandHelp(cmd)
+			}
+			if help, ok := cmd.Help.(*CommandHelp); ok {
+				f(help)
+			}
+			return nil
+		},
+		flag: func(g *Flag) error {
+			if strings.HasPrefix(g.Special, `hook:`) {
+				return ErrAppliedToInvalidType
+			}
+			return nil
+		},
+		help: func(help *CommandHelp) error {
+			f(help)
+			return nil
+		},
+	}
+}
+
+// HelpColumn is a [Command]/[Help] option to start each description in help
+// after column characters, as `psql --help` does. An option or a command that
+// does not fit before the column goes on a line of its own, and its
+// description starts on the next line. A description is not wrapped, and each
+// line break in it starts a new line at the column. Help also writes the
+// aliases of each flag. Without HelpColumn, or with a column of zero or less,
+// help uses the default layout.
+func HelpColumn(column int) CommandOption {
+	return option{
+		name: "HelpColumn",
+		cmd: func(*Command) error {
+			return nil
+		},
+		post: func(cmd *Command) error {
+			if cmd.Help == nil {
+				cmd.Help, _ = NewCommandHelp(cmd)
+			}
+			if help, ok := cmd.Help.(*CommandHelp); ok {
+				help.Column = column
+			}
+			return nil
+		},
+		flag: func(g *Flag) error {
+			if strings.HasPrefix(g.Special, `hook:`) {
+				return ErrAppliedToInvalidType
+			}
+			return nil
+		},
+		help: func(help *CommandHelp) error {
+			help.Column = column
 			return nil
 		},
 	}

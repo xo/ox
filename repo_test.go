@@ -178,7 +178,7 @@ func TestTheRootModuleRequiresNothing(t *testing.T) {
 			t.Errorf("go.mod has %q. Put a dependency in a sub module of its own. See D33", strings.TrimSpace(line))
 		}
 	}
-	for _, mod := range []string{"color", "glob", "toml", "yaml", "test"} {
+	for _, mod := range []string{"color", "glob", "hcl", "toml", "yaml", "test"} {
 		if !strings.HasPrefix(read(t, filepath.Join(mod, "go.mod")), "module github.com/xo/ox/"+mod+"\n") {
 			t.Errorf("%s/go.mod must declare the module github.com/xo/ox/%s. See D33", mod, mod)
 		}
@@ -321,6 +321,43 @@ func TestAnAmendmentPointsBothWays(t *testing.T) {
 					"and to its row in the index, so that a reader of D%d learns of D%d",
 					num, m[0], other, otherStatus, want, other, other, num)
 			}
+		}
+	}
+}
+
+// TestEachExampleIsInTheDocument makes sure that each Go block in
+// docs/EXAMPLES.md is the same as a func in a test file, and that each func
+// in those files is in the document. Then go test proves each example that a
+// coding agent copies (D32).
+func TestEachExampleIsInTheDocument(t *testing.T) {
+	t.Parallel()
+	funcRE := regexp.MustCompile(`(?ms)^func (\w+)\(.*?^}$`)
+	funcs := make(map[string]string)
+	for _, path := range []string{"examples_test.go", filepath.Join("test", "example_test.go")} {
+		for _, m := range funcRE.FindAllStringSubmatch(read(t, path), -1) {
+			funcs[m[1]] = m[0]
+		}
+	}
+	blockRE := regexp.MustCompile("(?ms)^```go\n(.*?)\n```$")
+	seen := make(map[string]bool)
+	for _, m := range blockRE.FindAllStringSubmatch(read(t, filepath.Join("docs", "EXAMPLES.md")), -1) {
+		f := funcRE.FindStringSubmatch(m[1])
+		if f == nil || f[0] != m[1] {
+			t.Errorf("docs/EXAMPLES.md has a Go block that is not one func:\n%s", m[1])
+			continue
+		}
+		switch src, ok := funcs[f[1]]; {
+		case !ok:
+			t.Errorf("docs/EXAMPLES.md has the func %s, and no test file has it", f[1])
+		case src != m[1]:
+			t.Errorf("the func %s in docs/EXAMPLES.md differs from the func in its test file. "+
+				"Copy the func from the test file", f[1])
+		}
+		seen[f[1]] = true
+	}
+	for _, name := range slices.Sorted(maps.Keys(funcs)) {
+		if !seen[name] {
+			t.Errorf("the func %s is not in docs/EXAMPLES.md. Add it with the task that it shows", name)
 		}
 	}
 }

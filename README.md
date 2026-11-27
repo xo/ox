@@ -39,7 +39,7 @@
   - `*big.Int`, `*big.Float`, `*big.Rat`
   - `*url.URL`, `*regexp.Regexp`
   - `*netip.Addr`, `*netip.AddrPort`, `*netip.Prefix`
-  - `*uuid.UUID`
+  - `*uuid.UUID`, when built with Go 1.27 or later
 - Non-standard types:
   - `ox.Size` - a byte size (`15 MiB`, `1 GB`, ...)
   - `ox.Rate` - a byte rate (`15 MiB/s`, `1 GB/h`, ...)
@@ -53,6 +53,8 @@
   - `ox.Base64T` - a base64 encoded string
   - `ox.HexT` - a hex encoded string
   - `ox.PathT` / `type:path` - a file system path
+  - `ox.FileT` / `type:file` - a file that exists
+  - `ox.DirT` / `type:dir` - a directory that exists
   - `ox.HookT` - argument `func` hook, for hooking flags
 - Optional, common types, available with optional import:
   - `*github.com/kenshaw/colors.Color` - named and css style colors (`white`, `black`, `#ffffff`, `RGBA(...)`, ...)
@@ -60,6 +62,8 @@
 - Registerable user defined types, which work with all API styles
 - Testable commands/sub-commands
 - Simple/flexible APIs for Reflection, Bind, and Context style use cases
+- A program built from a struct and its doc comments, with `ox.AppFrom` and
+  `go generate`
 - Generics used where it makes sense
 - Fast
 - Environment, YAML, TOML, HCL config loading
@@ -162,8 +166,11 @@ ox.Run(
 )
 ```
 
-`ox` has been designed to use generics, and is built with Go 1.23+ applications
-in mind and works with [TinyGo][tinygo].
+`ox` has been designed to use generics, and works with [TinyGo][tinygo]. It
+supports the newest Go release and the two releases before it, so it builds
+with Go 1.25 and later. A feature that needs a newer release, such as the
+`uuid` type of Go 1.27, is there only when a program is built with that
+release.
 
 Specific design considerations of the `ox` package:
 
@@ -171,12 +178,13 @@ Specific design considerations of the `ox` package:
   case/scenario
 - No magic, sane defaults, overrideable defaults
 - Functional option and interface smuggling
-- Use generics, iterators and other go1.23+ features where prudent
+- Use generics, iterators and other features of the oldest supported Go
+  release where prudent
 - Work with TinyGo out of the box
 - Minimal use of reflection (unless TinyGo supports it)
 - Case sensitive
 - Enable registration for config file loaders, types with minimal hassle
-- Man page generation
+- Man page generation, which is not built yet
 - **Optional** support for common use-cases, via package dependencies
 
 Other command-line packages:
@@ -214,6 +222,7 @@ Articles:
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to ask for a change, what a change must do, and the commands to run |
 | [docs/PLAN.md](docs/PLAN.md) | The plan, each decision that shapes `ox` and the reason for it, and the open questions |
 | [docs/BACKLOG.md](docs/BACKLOG.md) | Known faults and work that is not done, in order of importance |
+| [docs/EXAMPLES.md](docs/EXAMPLES.md) | Short examples by task, each of which is a test |
 | [docs/DESIGN.md](docs/DESIGN.md) | The design of the planned work |
 | [docs/COBRA-IMPORT.md](docs/COBRA-IMPORT.md) | How the completion scripts are imported from cobra |
 | [AGENTS.md](AGENTS.md) | The rules for a coding agent. `CLAUDE.md` imports it |

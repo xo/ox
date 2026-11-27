@@ -7,11 +7,15 @@ import (
 	"regexp"
 	"testing"
 	"time"
-	"uuid"
 )
 
 func TestTypeNew(t *testing.T) {
-	for _, tt := range typeTests(t) {
+	testTypeNew(t, typeTests(t))
+}
+
+func testTypeNew(t *testing.T, tests []typeTest) {
+	t.Helper()
+	for _, tt := range tests {
 		for _, test := range tt.tests {
 			t.Run(tt.typ.String()+"/"+toString[string](test.v), func(t *testing.T) {
 				expErr, ok := test.exp.(error)
@@ -345,22 +349,6 @@ func typeTests(t *testing.T) []typeTest {
 			},
 		},
 		{
-			UUIDT, []test{
-				{"", "00000000-0000-0000-0000-000000000000"},
-				{"", mustUUID(t, "00000000-0000-0000-0000-000000000000")},
-				{"00000000-0000-0000-0000-000000000000", mustUUID(t, "00000000-0000-0000-0000-000000000000")},
-				{"00000000000000000000000000000000", mustUUID(t, "00000000-0000-0000-0000-000000000000")},
-				{"f47ac10b-58cc-0372-8567-0e02b2c3d479", mustUUID(t, "f47ac10b-58cc-0372-8567-0e02b2c3d479")},
-				{"F47AC10B-58CC-1372-8567-0E02B2C3D479", mustUUID(t, "f47ac10b-58cc-1372-8567-0e02b2c3d479")},
-				{"f47ac10b-58cc-2372-8567-0e02b2c3d479", mustUUID(t, "f47ac10b-58cc-2372-8567-0e02b2c3d479")},
-				{"f47ac10b58cc337285670e02b2c3d479", mustUUID(t, "f47ac10b-58cc-3372-8567-0e02b2c3d479")},
-				{"{f47ac10b-58cc-4372-8567-0e02b2c3d479}", mustUUID(t, "f47ac10b-58cc-4372-8567-0e02b2c3d479")},
-				{"{F47AC10B-58CC-4372-8567-0E02B2C3D479}", mustUUID(t, "f47ac10b-58cc-4372-8567-0e02b2c3d479")},
-				{"0", ErrInvalidValue},
-				{":", ErrInvalidValue},
-			},
-		},
-		{
 			SizeT, []test{
 				{"", "0 B"},
 				{"1", "1 B"},
@@ -430,15 +418,6 @@ func mustTime(t *testing.T, s, layout string) FormattedTime {
 func mustURL(t *testing.T, s string) *url.URL {
 	t.Helper()
 	u, err := url.Parse(s)
-	if err != nil {
-		t.Fatalf("expected no error, got: %v", err)
-	}
-	return u
-}
-
-func mustUUID(t *testing.T, s string) uuid.UUID {
-	t.Helper()
-	u, err := uuid.Parse(s)
 	if err != nil {
 		t.Fatalf("expected no error, got: %v", err)
 	}

@@ -1,9 +1,12 @@
 package ox
 
 import (
+	"errors"
 	"fmt"
+	"math"
 	"strconv"
 	"testing"
+	"time"
 )
 
 func TestSize(t *testing.T) {
@@ -83,5 +86,45 @@ func TestSize(t *testing.T) {
 				t.Errorf("expected %s, got: %s", test.v, sz)
 			}
 		})
+	}
+}
+
+// TestConvOverflow holds that a uint64 that does not fit in an int64 is an
+// error, and not a negative duration, size or rate.
+func TestConvOverflow(t *testing.T) {
+	const big = uint64(math.MaxInt64) + 1
+	tests := []struct {
+		name string
+		f    func(any) (any, error)
+		v    any
+		exp  any
+		err  error
+	}{
+		{"duration", wrapConv(asDuration), big, time.Duration(0), ErrInvalidConversion},
+		{"duration that fits", wrapConv(asDuration), uint64(2), 2 * time.Second, nil},
+		{"size", wrapConv(asSize), big, Size(0), ErrInvalidConversion},
+		{"size that fits", wrapConv(asSize), uint64(2), Size(2), nil},
+		{"rate", wrapConv(asRate), big, Rate{}, ErrInvalidConversion},
+		{"rate that fits", wrapConv(asRate), uint64(2), Rate{2, DefaultRateUnit}, nil},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			v, err := test.f(test.v)
+			switch {
+			case test.err == nil && err != nil:
+				t.Fatalf("expected no error, got: %v", err)
+			case !errors.Is(err, test.err):
+				t.Fatalf("expected error %v, got: %v", test.err, err)
+			case v != test.exp:
+				t.Errorf("expected %v, got: %v", test.exp, v)
+			}
+		})
+	}
+}
+
+// wrapConv returns f as a func that returns any.
+func wrapConv[T any](f func(any) (T, error)) func(any) (any, error) {
+	return func(v any) (any, error) {
+		return f(v)
 	}
 }

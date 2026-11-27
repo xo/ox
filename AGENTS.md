@@ -29,7 +29,8 @@ every other agent read the same rules. Edit this file, not that one.
 | asking why something is the way it is | the index at the top of [docs/PLAN.md](docs/PLAN.md) |
 | looking for work that is known and not done | [docs/BACKLOG.md](docs/BACKLOG.md), in order of importance |
 | designing or building planned work | [docs/DESIGN.md](docs/DESIGN.md), the section that the backlog item names |
-| writing a struct tag for `From` | "Escaping in a struct tag" in [docs/DESIGN.md](docs/DESIGN.md) |
+| writing a program with ox, or an example of one | [docs/EXAMPLES.md](docs/EXAMPLES.md), by task. Each example there is a test |
+| writing a struct tag for `From` | the tag options and escaping in [docs/EXAMPLES.md](docs/EXAMPLES.md) |
 | changing config loading or the environment | D34, then "Configuration" in [docs/DESIGN.md](docs/DESIGN.md) and `conf.go` |
 | adding a module or a dependency | D33, then "Modules" in [docs/DESIGN.md](docs/DESIGN.md) |
 | deciding what to work on next | "Direction" and "Open questions for the maintainers" in [docs/PLAN.md](docs/PLAN.md) |
@@ -38,7 +39,7 @@ every other agent read the same rules. Edit this file, not that one.
 | adding a default or a string that `ox` writes | rule 3 below, and D8 |
 | renaming or removing an exported identifier | rule 4 below, and D18 |
 | adding an option | D5, then an option in `opts.go` |
-| changing interpolation | D14, D15 and D19, then B1 and B2 in [docs/BACKLOG.md](docs/BACKLOG.md) |
+| changing interpolation | D14, D15, D19, and items 31 to 35 of D36 |
 | changing help, version or completion | D9 and D10, then `defs.go` and `comp/` |
 | importing the completion scripts of cobra again | [docs/COBRA-IMPORT.md](docs/COBRA-IMPORT.md), every step in order |
 | adding or changing a test | "Tests" below |
@@ -63,17 +64,27 @@ that repository, such as dbmeta D110 or tblfmt D37.
 1. The root module requires nothing, and the root package imports the
    standard library and its own `strcase` and `text` packages, and nothing
    else. A type or a loader that needs another module goes in a sub package
-   that is a module of its own, such as `color`, `glob`, `yaml` and `toml`,
-   and registers itself from `init`. A caller turns it on with a blank
-   import. `TestTheRootModuleRequiresNothing` fails on a `require` in the
+   that is a module of its own, such as `color`, `glob`, `hcl`, `yaml` and
+   `toml`, and registers itself from `init`. A caller turns it on with a
+   blank import. `TestTheRootModuleRequiresNothing` fails on a `require` in the
    root `go.mod`. See D1 and D33.
-2. `ox` builds with TinyGo. CI runs `tinygo test -v ./...` with TinyGo 0.42.0.
-   Code that differs between the compilers goes in `go.go`, behind
-   `//go:build !tinygo`, and in `tinygo.go`, behind `//go:build tinygo`. Use
+2. `ox` builds with TinyGo, and with the newest Go release and the two
+   releases before it. Today these are Go 1.25, 1.26 and 1.27, so each
+   `go.mod` declares `go 1.25`, or `go 1.25.0` when a dependency declares
+   that, as `hcl/v2` does. When Go 1.28 comes out, each `go` line moves to
+   `go 1.26`. CI runs `tinygo test -v ./...` with TinyGo 0.44.0. Code that
+   differs between the compilers goes in `go.go`, behind
+   `//go:build !tinygo`, and in `tinygo.go`, behind `//go:build tinygo`. Code
+   that needs a feature that only a newer Go release has goes in a file with
+   a constraint for that release. For example, `type_go127.go` is behind
+   `//go:build go1.27`, because the standard `uuid` package is new in Go
+   1.27. Such a file registers the feature from `init`. A program that builds
+   with an older Go does not get the feature, and everything else works. Use
    no other build constraint in the package. If TinyGo lacks a function, copy
    it from the Go source tree. Say so in its comment, with a `TODO` that says
    when to remove the copy, as `fields` in `cmd.go` does. Do not raise the
-   `go` line in `go.mod` beyond what the pinned TinyGo builds. See D2 and D17.
+   `go` line in `go.mod` beyond what the pinned TinyGo builds. See D2, D17
+   and D24.
 3. Each default is an exported package level variable with a `Default`
    prefix, in the `var` block at the top of `ox.go`, `interp.go` or
    `conf.go`. Each string that `ox` writes for a person is a variable in
@@ -85,8 +96,8 @@ that repository, such as dbmeta D110 or tblfmt D37.
 
 ## Layout
 
-- `ox.go` holds `Run`, `RunContext`, `Context`, the `Default` variables, the
-  `Error` type and its constants, and `Ldist`.
+- `ox.go` holds `Run`, `RunContext`, `RunError`, `AppFrom`, `Context`, the
+  `Default` variables, the `Error` type and its constants, and `Ldist`.
 - `cmd.go` holds `Command`, `FlagSet` and `Flag`, and the reflect style
   (`FlagsFrom`).
 - `opts.go` holds every option func and the `option` type.
@@ -100,6 +111,10 @@ that repository, such as dbmeta D110 or tblfmt D37.
   holds the config loaders, `DefaultKeyLoader`, the config file formats,
   `MapConfig`, and `Context.Fill`, which gives each flag its value from the
   environment, the config files or its default. See D34.
+- `app.go` holds `RegisterDoc` and the code of `App` and `AppFrom`, which
+  build a program from a struct and its doc comments (D30).
+  `cmd/oxdoc` is the tool that writes the calls to `RegisterDoc` from
+  `go generate`.
 - `misc.go` holds `UserStateDir`. `go.go` and `tinygo.go` hold the code that
   differs between the compilers. `onerr_string.go` is written by `stringer`,
   from the `go:generate` line in `ox.go`.
@@ -107,14 +122,15 @@ that repository, such as dbmeta D110 or tblfmt D37.
   `context.Context`, such as `otx.Get[T]`. See D7.
 - `strcase/` changes the case of identifiers. `text/` holds the strings that
   `ox` writes.
-- `color/`, `glob/`, `yaml/` and `toml/` are modules of their own, each with
-  its own `go.mod` and its own tags, such as `yaml/v0.1.0`. `yaml` and
-  `toml` register their config file formats. See D1 and D33.
+- `color/`, `glob/`, `hcl/`, `yaml/` and `toml/` are modules of their own,
+  each with its own `go.mod` and its own tags, such as `yaml/v0.1.0`.
+  `hcl`, `yaml` and `toml` register their config file formats. See D1 and
+  D33.
 - `test/` is a module that nothing imports. It holds the tests that need
   more than one module, such as a config file of each format read end to
   end. Its `go.mod` replaces each module with its folder in the repository.
 - No `go.work` is committed. Make one in the root, which `.gitignore`
-  ignores: `go work init . ./color ./glob ./toml ./yaml ./test`. A sub
+  ignores: `go work init . ./color ./glob ./hcl ./toml ./yaml ./test`. A sub
   module requires a root version from after the split of D33, so it builds
   without a workspace only after a maintainer pushes that commit.
 - `comp/` holds the completion scripts, which come from the scripts of
@@ -122,10 +138,16 @@ that repository, such as dbmeta D110 or tblfmt D37.
   script by hand. Change the importer and import again. See D9, D23 and
   `docs/COBRA-IMPORT.md`.
 - `_tools/cobraimport` imports the completion scripts from a cobra release.
-  `go test ./...` does not build `_tools/`.
+  `_tools/oximport` reads the interface of a program and writes an `ox`
+  program in each style (D31). `go test ./...` does not build `_tools/`, so
+  test it with `go test ./_tools/oximport/...`.
 - `_examples/` holds example programs, one directory each.
-  `_examples/gen.go` writes the programs in `_examples/gen/` from the help of
-  real tools. `go test ./...` does not build `_examples/`. See D13 and B14.
+  `_examples/usql` is a sample of every option of `usql`, built as `usql`
+  builds it (B42).
+  `_examples/gen/` holds programs that the removed `_examples/gen.go` wrote
+  from the help of real tools, and `TestGenHelpIsTheSame` builds them.
+  `go test ./...` does not build `_examples/`, so CI runs `go vet` on each
+  folder of it. See D13 and D31.
 - `repo_test.go` holds the tests that read the repository and not the
   package. See D21.
 
@@ -135,19 +157,62 @@ that repository, such as dbmeta D110 or tblfmt D37.
 module, with the workspace above:
 
 ```sh
-for mod in . color glob toml yaml test; do (cd $mod && go test -race -count=1 ./...); done
+for mod in . color glob hcl toml yaml test; do (cd $mod && go test -race -count=1 ./...); done
 tinygo test -v ./...
 ```
 
+To test with an older Go release, set `GOTOOLCHAIN`. The `go` command
+downloads that release from the Go module proxy. `go work init` writes the
+local Go release in `go.work`, and an older release refuses that file. So
+lower the `go` line in `go.work` first. It is `1.25.0` and not `1.25`,
+because `hcl` and `test` declare `go 1.25.0`:
+
+```sh
+go work edit -go=1.25.0
+for mod in . color glob hcl toml yaml test; do (cd $mod && GOTOOLCHAIN=go1.25.0 go test -count=1 ./...); done
+```
+
 CI makes the same workspace and runs `go test -v ./...` in each module with
-the stable Go release, and `tinygo test -v ./...` in the root module with
-TinyGo 0.42.0, both on `ubuntu-latest`. A local TinyGo older than 0.42.0
-refuses the module, because `go.mod` declares Go 1.27.
+Go 1.25, Go 1.26 and the stable Go release. Then it tests `_tools/` and runs
+`go vet` on each folder of `_examples/`, because `./...` skips a folder that
+starts with `_`:
+
+```sh
+go test ./_tools/cobraimport ./_tools/oximport/...
+go vet $(find _examples -name '*.go' -exec dirname {} \; | sort -u | sed 's|^|./|')
+```
+
+It also runs
+`tinygo test -v ./...` in the root module with TinyGo 0.44.0. Each job runs
+on `ubuntu-latest`. TinyGo refuses a Go release that is newer than the
+releases that it knows. So if the local Go is 1.27, use TinyGo 0.44.0 or
+later.
 
 The tests of the package are in `package ox`, so they reach unexported
 names. `example_test.go` is in `package ox_test`, and its examples are the
-package overview on pkg.go.dev. A test is a table of cases that it runs with
-`t.Run`.
+package overview on pkg.go.dev. `examples_test.go`, also in `package
+ox_test`, holds the examples of `docs/EXAMPLES.md`, and
+`test/example_test.go` holds the ones for YAML and TOML. A test is a table of
+cases that it runs with `t.Run`.
+
+Some tests compare output with a file in `testdata/`. `.gitignore` ignores
+`*.txt`, and `!/testdata/**/*.txt` brings those files back:
+
+1. `TestHelpPsql` in `help_test.go` compares a copy of psql's options, with
+   `HelpColumn(27)`, with `testdata/psql-help.txt`, the help of psql 18.7.
+   A comment names the one line that still differs, psql's `-1 ("one")`.
+2. `TestGenHelpIsTheSame` in `gen_test.go` builds each program in
+   `_examples/gen/` and compares its help with `testdata/gen/`, so that a
+   change to help cannot change the help of a program that does not ask for
+   it. It runs the `go` command, and it skips with `-short`.
+3. `TestUsqlSample` in `usql_test.go` builds the sample of `usql` in
+   `_examples/usql`, and compares its help with `testdata/usql/help.txt`
+   and its parse of some command lines with the test. It runs the `go`
+   command, and it skips with `-short`.
+4. `comp_test.go` holds the cases of completion, and `conf_test.go` holds
+   the sources of a flag value. `TestShellCompletion` in `test/comp_test.go`
+   runs a completion in each shell that is installed, and skips with
+   `-short`.
 
 `repo_test.go` is in `package ox_test`, and a `//go:build !tinygo` line keeps
 it out of the TinyGo run. It reads files and not the package:
@@ -164,6 +229,11 @@ it out of the TinyGo run. It reads files and not the package:
    link.
 5. `TestAnAmendmentPointsBothWays` fails unless a decision that another
    decision amends names it back.
+6. `TestTheRootModuleRequiresNothing` fails on a `require` or a `replace` in
+   the root `go.mod`, and on a sub module that is missing (D33).
+7. `TestEachExampleIsInTheDocument` fails when a code block in
+   `docs/EXAMPLES.md` differs from its `Example` func, or when an `Example`
+   func is not in the document. Change both together.
 
 ## Go conventions
 
@@ -210,9 +280,11 @@ it. See D12. Read a finding as a question and not as a task. If a linter
 makes idiomatic Go worse, disable it in `.golangci.yml`. Only a real defect
 gets a code change.
 
-Main has 263 findings today. `exhaustruct` and `wsl` are renamed
-`exhaustruct_v5` and `wsl_v5`, so their disable lines no longer match. See
-B16. To see only the findings in your change, run:
+`golangci-lint run ./...` in the root reports 156 findings today, with its
+limit of 50 for each linter, and 270 without the limit. Most of them are
+`paralleltest` and `goconst` in the tests. `.golangci.yml` disables both
+`exhaustruct` and `exhaustruct_v5`, and both `wsl` and `wsl_v5`, because the
+linter has both names. To see only the findings in your change, run:
 
 ```sh
 golangci-lint run --new-from-rev=HEAD ./...
@@ -225,7 +297,7 @@ maintainer a proposed commit message. Do not tag. All of these must pass first:
 
 ```sh
 gofmt -l .
-for mod in . color glob toml yaml test; do (cd $mod && go vet ./... && go test -race -count=1 ./...); done
+for mod in . color glob hcl toml yaml test; do (cd $mod && go vet ./... && go test -race -count=1 ./...); done
 golangci-lint run --new-from-rev=HEAD ./...
 ```
 

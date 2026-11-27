@@ -32,23 +32,24 @@ the change. See D25.
 
 ## Before you stage a change
 
-`ox` is six modules: the root, `color`, `glob`, `toml`, `yaml` and `test`.
+`ox` is seven modules: the root, `color`, `glob`, `hcl`, `toml`, `yaml` and
+`test`.
 Make a workspace of them once, in the repository root. Git ignores it:
 
 ```sh
-go work init . ./color ./glob ./toml ./yaml ./test
+go work init . ./color ./glob ./hcl ./toml ./yaml ./test
 ```
 
 A maintainer runs these in the repository root. Each must pass:
 
 ```sh
 gofmt -l .
-for mod in . color glob toml yaml test; do (cd $mod && go vet ./... && go test -race -count=1 ./...); done
+for mod in . color glob hcl toml yaml test; do (cd $mod && go vet ./... && go test -race -count=1 ./...); done
 golangci-lint run --new-from-rev=HEAD ./...
 ```
 
 `gofmt -l .` must print nothing. CI also runs `tinygo test -v ./...` with
-TinyGo 0.42.0.
+TinyGo 0.44.0.
 
 ## Writing
 

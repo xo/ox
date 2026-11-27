@@ -19,7 +19,7 @@ import (
 
 // AddHelpFlag recursively adds a `--help` flag for all commands in the command
 // tree, copying the command's [CommandHelp.Sort], [CommandHelp.CommandSort],
-// and [CommandHelp.MaxDist] settings.
+// [CommandHelp.MaxDist] and [CommandHelp.Column] settings.
 func AddHelpFlag(cmd *Command) error {
 	if len(cmd.Commands) == 0 {
 		return nil
@@ -31,6 +31,7 @@ func AddHelpFlag(cmd *Command) error {
 			Sort(help.Sort),
 			CommandSort(help.CommandSort),
 			MaxDist(help.MaxDist),
+			HelpColumn(help.Column),
 		)
 	}
 	for _, c := range cmd.Commands {
@@ -97,6 +98,11 @@ func NewHelp(cmd *Command, opts ...Option) error {
 			c, _ := Ctx(ctx)
 			_, _ = cmd.Lookup(args...).HelpContext(c).WriteTo(c.Stdout)
 			return ErrExit
+		}),
+		// complete the path of a command, such as help sub <tab>
+		CompFunc(func(ctx *Context, toComplete string) ([]Completion, CompDirective, error) {
+			comps, _ := cmd.Lookup(ctx.Args...).CompCommands(toComplete, false, false)
+			return comps, CompNoFileComp | CompKeepOrder | CompNoFilter, nil
 		}),
 		Option(OnErrContinue),
 	)...)
@@ -287,6 +293,11 @@ type CommandHelp struct {
 	Sort bool
 	// Sections are the command's flag section names.
 	Sections []string
+	// Args are the names and the usage of the command's positional
+	// arguments. See [ArgUsage].
+	Args []HelpLine
+	// Column is the column where each description starts. See [HelpColumn].
+	Column int
 	// NoFooter when true will not output the command's footer.
 	NoFooter bool
 	// Footer is the command's footer.
@@ -295,7 +306,8 @@ type CommandHelp struct {
 	Hidden bool
 	// Deprecated includes deprecated commands/flags.
 	Deprecated bool
-	// MaxDist is the maximum Levenshtein distance for suggestions.
+	// MaxDist is the maximum Levenshtein distance for suggestions. 0 means
+	// [DefaultMaxDist], and a negative distance turns off the distance match.
 	MaxDist int
 }
 
@@ -322,6 +334,7 @@ func (help *CommandHelp) WriteTo(w io.Writer) (int64, error) {
 	for _, f := range []func(StringWriter){
 		help.AddBanner,
 		help.AddUsage,
+		help.AddArgs,
 		help.AddAliases,
 		help.AddExample,
 		help.AddCommands,
@@ -371,12 +384,49 @@ func (help *CommandHelp) AddUsage(w StringWriter) {
 		if len(help.Command.Commands) != 0 {
 			v = append(v, text.CommandSubSpec)
 		}
-		// TODO: better output when arg validation/completion has been set
-		spec = strings.Join(append(v, text.CommandArgsSpec), " ")
+		switch cmd := help.Command; {
+		case cmd.noArgs:
+			// ValidArgs(0, 0) allows no argument
+		case len(cmd.ValidArgs) != 0:
+			// the values of ValidArgs, with ... when more than one is allowed
+			arg := fmt.Sprintf(text.CommandArgValuesSpec, strings.Join(cmd.ValidArgs, "|"))
+			if cmd.maxArgs != 1 {
+				arg += text.CommandArgsMore
+			}
+			v = append(v, arg)
+		default:
+			v = append(v, text.CommandArgsSpec)
+		}
+		spec = strings.Join(v, " ")
 	}
 	if strings.TrimSpace(spec) != "" {
 		_, _ = w.WriteString(" ")
 		_, _ = w.WriteString(spec)
+	}
+}
+
+// AddArgs adds the usage of the command's positional arguments, from
+// [CommandHelp.Args].
+func (help *CommandHelp) AddArgs(w StringWriter) {
+	if len(help.Args) == 0 {
+		return
+	}
+	width := DefaultCommandWidth
+	for _, a := range help.Args {
+		width = max(width, DefaultWidth(a.Name))
+	}
+	addBreak(w)
+	_, _ = w.WriteString(text.Arguments)
+	_, _ = w.WriteString(":")
+	for _, a := range help.Args {
+		_, _ = w.WriteString("\n  ")
+		if help.Column > 0 {
+			writeColumn(w, a.Name, a.Usage, help.Column)
+			continue
+		}
+		_, _ = w.WriteString(a.Name)
+		_, _ = w.WriteString(strings.Repeat(" ", width-DefaultWidth(a.Name)+2))
+		DefaultWrapTo(w, a.Usage, DefaultWrapWidth, width+4)
 	}
 }
 
@@ -448,6 +498,10 @@ func (help *CommandHelp) AddCommands(w StringWriter) {
 		for _, i := range indexes[section] {
 			c := commands[i]
 			_, _ = w.WriteString("\n  ")
+			if help.Column > 0 {
+				writeColumn(w, c.Name, c.Usage, help.Column)
+				continue
+			}
 			_, _ = w.WriteString(c.Name)
 			_, _ = w.WriteString(strings.Repeat(" ", width-len(c.Name)+2))
 			DefaultWrapTo(w, c.Usage, DefaultWrapWidth, width+4)
@@ -487,6 +541,9 @@ func (help *CommandHelp) AddFlags(w StringWriter) {
 		specs = append(specs, g.SpecString())
 		indexes[g.Section] = append(indexes[g.Section], i)
 		width = max(width, len(specs[i]))
+		for _, v := range g.HelpValues {
+			width = max(width, len(g.Name)+1+len(v.Name))
+		}
 		if _, ok := sections[g.Section]; !ok {
 			sections[g.Section] = text.Flags
 		}
@@ -508,24 +565,23 @@ func (help *CommandHelp) AddFlags(w StringWriter) {
 		for _, i := range indexes[section] {
 			_, _ = w.WriteString("\n  ")
 			g := flags[i]
-			switch {
-			case hasShort && g.Short == "":
-				_, _ = w.WriteString("    ")
-			case hasShort:
-				_, _ = w.WriteString("-")
-				_, _ = w.WriteString(g.Short)
-				_, _ = w.WriteString(", ")
-			}
-			_, _ = w.WriteString("--")
-			_, _ = w.WriteString(specs[i])
-			_, _ = w.WriteString(strings.Repeat(" ", width-len(specs[i])+2))
-			usage := g.Usage
-			if g.Def != nil && g.Type != HookT && !g.NoArg {
-				if def, err := help.Context.Expand(g.Def); err == nil {
-					usage += " " + fmt.Sprintf(text.FlagDefault, def)
+			if help.Column > 0 {
+				writeColumn(w, columnNames(g, hasShort), help.flagUsage(g), help.Column)
+			} else {
+				switch {
+				case hasShort && g.Short == "":
+					_, _ = w.WriteString("    ")
+				case hasShort:
+					_, _ = w.WriteString("-")
+					_, _ = w.WriteString(g.Short)
+					_, _ = w.WriteString(", ")
 				}
+				_, _ = w.WriteString("--")
+				_, _ = w.WriteString(specs[i])
+				_, _ = w.WriteString(strings.Repeat(" ", width-len(specs[i])+2))
+				DefaultWrapTo(w, help.flagUsage(g), DefaultWrapWidth, width+offset)
 			}
-			DefaultWrapTo(w, usage, DefaultWrapWidth, width+offset)
+			help.addValues(w, g, hasShort, width, offset)
 		}
 	}
 }
@@ -544,6 +600,115 @@ func (help *CommandHelp) AddFooter(w StringWriter) {
 	}
 	addBreak(w)
 	_, _ = w.WriteString(footer)
+}
+
+// addValues writes the values of [Flag.HelpValues] on lines of their own,
+// such as `--help=commands`, in the layout of the flag.
+func (help *CommandHelp) addValues(w StringWriter, g *Flag, hasShort bool, width, offset int) {
+	for _, v := range g.HelpValues {
+		indent := ""
+		if hasShort {
+			indent = "    "
+		}
+		spec := g.Name + "=" + v.Name
+		_, _ = w.WriteString("\n  ")
+		if help.Column > 0 {
+			writeColumn(w, indent+"--"+spec, v.Usage, help.Column)
+			continue
+		}
+		_, _ = w.WriteString(indent)
+		_, _ = w.WriteString("--")
+		_, _ = w.WriteString(spec)
+		_, _ = w.WriteString(strings.Repeat(" ", width-len(spec)+2))
+		DefaultWrapTo(w, v.Usage, DefaultWrapWidth, width+offset)
+	}
+}
+
+// flagUsage returns the usage of the flag, with the text of its default
+// value unless [Flag.NoDefault] is set.
+func (help *CommandHelp) flagUsage(g *Flag) string {
+	if g.Def == nil || g.Type == HookT || g.NoArg || g.NoDefault {
+		return g.Usage
+	}
+	def, err := help.Context.Expand(g.Def)
+	if err != nil {
+		return g.Usage
+	}
+	// a default that is not a string, such as Default(3)
+	s, err := asString[string](def)
+	if err != nil {
+		s = fmt.Sprint(def)
+	}
+	if g.Home {
+		s = homePath(s)
+	}
+	return g.Usage + " " + fmt.Sprintf(text.FlagDefault, s)
+}
+
+// columnNames returns the names of the flag for the layout of [HelpColumn],
+// such as `-v, --set=, --variable=NAME=VALUE`. The short names come first,
+// then the long name and the long aliases. Each long name but the last ends
+// with the spacer of [text.FlagSpecSpacer] without spaces, and the last one
+// ends with the spec.
+func columnNames(g *Flag, hasShort bool) string {
+	var shorts, longs []string
+	if g.Short != "" {
+		shorts = append(shorts, g.Short)
+	}
+	longs = append(longs, g.Name)
+	for _, s := range g.Aliases {
+		if len(s) == 1 {
+			shorts = append(shorts, s)
+		} else {
+			longs = append(longs, s)
+		}
+	}
+	var sb strings.Builder
+	if hasShort && len(shorts) == 0 {
+		_, _ = sb.WriteString("    ")
+	}
+	for _, s := range shorts {
+		_, _ = sb.WriteString("-")
+		_, _ = sb.WriteString(s)
+		_, _ = sb.WriteString(", ")
+	}
+	arg := g.specArg()
+	for i, s := range longs {
+		_, _ = sb.WriteString("--")
+		_, _ = sb.WriteString(s)
+		if i == len(longs)-1 {
+			_, _ = sb.WriteString(arg)
+			break
+		}
+		if arg != "" {
+			_, _ = sb.WriteString(strings.TrimSpace(text.FlagSpecSpacer))
+		}
+		_, _ = sb.WriteString(", ")
+	}
+	return sb.String()
+}
+
+// writeColumn writes the names and the usage of a flag or a command for the
+// layout of [HelpColumn]. The caller writes the indent of 2 spaces before the
+// names. When the names do not leave 2 spaces before the column, the usage
+// starts on the next line. Each line of the usage starts at the column.
+func writeColumn(w StringWriter, names, usage string, column int) {
+	_, _ = w.WriteString(names)
+	if n := column - 2 - DefaultWidth(names); n >= 2 {
+		_, _ = w.WriteString(strings.Repeat(" ", n))
+	} else {
+		_, _ = w.WriteString("\n")
+		_, _ = w.WriteString(strings.Repeat(" ", column))
+	}
+	for i, line := range strings.Split(usage, "\n") {
+		if i != 0 {
+			_, _ = w.WriteString("\n")
+			if line != "" {
+				_, _ = w.WriteString(strings.Repeat(" ", column))
+			}
+		}
+		_, _ = w.WriteString(line)
+	}
 }
 
 // addBreak conditionally adds a section break.
@@ -619,6 +784,10 @@ const (
 	// CompKeepOrder indicates that the shell should preserve the order in
 	// which the completions are provided.
 	CompKeepOrder
+	// CompNoFilter indicates that ox does not keep only the completions that
+	// start with the word to complete. A [CompFunc] returns it. ox does not
+	// pass it to the shell.
+	CompNoFilter
 	// CompDefault indicates to let the shell perform its default behavior
 	// after completions have been provided.
 	CompDefault CompDirective = 0
@@ -633,6 +802,7 @@ func (dir CompDirective) String() string {
 	has(&sb, dir, CompFilterFileExt, "CompFilterFileExt")
 	has(&sb, dir, CompFilterDirs, "CompFilterDirs")
 	has(&sb, dir, CompKeepOrder, "CompKeepOrder")
+	has(&sb, dir, CompNoFilter, "CompNoFilter")
 	if s := sb.String(); s != "" {
 		return s
 	}
@@ -644,6 +814,14 @@ type Completion struct {
 	Name  string
 	Usage string
 	Dist  int
+}
+
+// NewActiveHelp creates a line of ActiveHelp, which a [CompFunc] returns
+// beside its completions. The completion scripts show it as help, as cobra's
+// scripts do. The environment variable of
+// [DefaultCompActiveHelpSuffix], such as APP_ACTIVE_HELP=0, turns it off.
+func NewActiveHelp(help string) Completion {
+	return Completion{Name: DefaultCompActiveHelpMarker + help}
 }
 
 // NewCompletion creates a completion.

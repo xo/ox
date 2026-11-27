@@ -42,13 +42,37 @@ var (
 	DefaultInterpolate = InterpolateVar
 	// DefaultOps are default ops used by [InterpolateVar].
 	DefaultOps = map[string]func(string, string) (string, error){
-		// prefix trim
+		// remove the shortest prefix that matches a pattern
 		"#": func(s, v string) (string, error) {
-			return strings.TrimPrefix(s, v), nil
+			return trimPattern(s, v, true, false)
 		},
-		// suffix trim
+		// remove the longest prefix that matches a pattern
+		"##": func(s, v string) (string, error) {
+			return trimPattern(s, v, true, true)
+		},
+		// remove the shortest suffix that matches a pattern
 		"%": func(s, v string) (string, error) {
-			return strings.TrimSuffix(s, v), nil
+			return trimPattern(s, v, false, false)
+		},
+		// remove the longest suffix that matches a pattern
+		"%%": func(s, v string) (string, error) {
+			return trimPattern(s, v, false, true)
+		},
+		// upper case the first character, when it matches a pattern
+		"^": func(s, v string) (string, error) {
+			return casePattern(s, v, unicode.ToUpper, false)
+		},
+		// upper case each character that matches a pattern
+		"^^": func(s, v string) (string, error) {
+			return casePattern(s, v, unicode.ToUpper, true)
+		},
+		// lower case the first character, when it matches a pattern
+		",": func(s, v string) (string, error) {
+			return casePattern(s, v, unicode.ToLower, false)
+		},
+		// lower case each character that matches a pattern
+		",,": func(s, v string) (string, error) {
+			return casePattern(s, v, unicode.ToLower, true)
 		},
 		// replace one
 		"/": func(s, v string) (string, error) {
@@ -198,13 +222,13 @@ var (
 // Where the above are:
 //
 //	KEY - the key name
-//	TYPE - the config loader type
+//	TYPE - the config loader type, or ANY for the first loader that has the key
 //	default - a default value
 //	filter - a filter defined in [DefaultFilters]
 //	str - a string
 //	rep - a replacement string
 //	offset - a offset into the string; negative values are allowed
-//	length - a length from the offset
+//	length - an end index, as in s[offset:length]; see D19
 //
 // See [DefaultKeyLoader] for the list of specially recognized keys.
 //
@@ -226,7 +250,14 @@ var (
 //
 // Built-in Bash-like string variable operators (see [DefaultOps]):
 //
-//	#, ##, %, %%, /, //, ^, ^^, :
+//	#, ## - remove the shortest or the longest prefix that matches a glob
+//	%, %% - remove the shortest or the longest suffix that matches a glob
+//	^, ^^ - upper case the first character, or each one, that matches a glob
+//	,, ,, - lower case the first character, or each one, that matches a glob
+//	/, // - replace the first match, or each match, of a regexp
+//	: - substring, from a start index to an end index
+//	:-, || - a default for an empty value
+//	| - a filter
 //
 // A special Go formatting operator, @, is also provided that applies Go's
 // standard formatting. That is, a key such as `${KEY@%f}` will be interpolated
@@ -272,7 +303,12 @@ func InterpolateVar(ctx *Context, v any) (any, error) {
 			continue
 		}
 		// fmt.Fprintf(os.Stderr, "captured: %q type: %q key: %q trans: %t\n", string(r[i:end]), typ, key, transform)
-		s, err := lookup(ctx, ConfigType(strings.ToLower(typ)), key, bracket)
+		ct := ConfigType(strings.ToLower(typ))
+		if ct == "any" {
+			// $ANY{KEY} asks each loader, as $KEY does
+			ct = AnyT
+		}
+		s, err := lookup(ctx, ct, key, bracket)
 		switch {
 		case errors.Is(err, ErrUnknownKey):
 			// empty string
@@ -338,28 +374,30 @@ func apply(v any, ops string) (any, error) {
 	var op, str string
 	for ops != "" {
 		op, str, ops = readOp(ops)
-		// fmt.Fprintf(os.Stderr, "  op: %q str: %q ops: %q\n", op, str, ops)
-		switch f, ok := DefaultOps[op]; {
-		case op == "@":
+		if op == "@" {
 			var err error
 			if v, err = DefaultOpFormatFunc(str, v); err != nil {
 				return nil, err
 			}
-		case !ok && len(op) == 2:
-			if f, ok = DefaultOps[op[:1]]; !ok {
-				return nil, fmt.Errorf("%w: %w %q", ErrNotImplemented, ErrInvalidOp, op)
+			continue
+		}
+		f, ok := DefaultOps[op]
+		if !ok && len(op) == 2 {
+			// the second character is not part of the op, so it starts the
+			// value of the op
+			if f, ok = DefaultOps[op[:1]]; ok {
+				str = op[1:] + str
 			}
-			op, str = op[:1], op[1:]+str
-		case !ok:
+		}
+		if !ok {
 			return nil, fmt.Errorf("%w: %w %q", ErrNotImplemented, ErrInvalidOp, op)
-		default:
-			s, err := asString[string](v)
-			if err != nil {
-				return nil, err
-			}
-			if v, err = f(s, str); err != nil {
-				return nil, err
-			}
+		}
+		s, err := asString[string](v)
+		if err != nil {
+			return nil, err
+		}
+		if v, err = f(s, str); err != nil {
+			return nil, err
 		}
 	}
 	return v, nil
@@ -446,7 +484,7 @@ func readOp(ops string) (string, string, string) {
 		op += string(ops[0])
 		ops = ops[1:]
 	}
-	if f != '%' && f != '#' && f != '^' && f != '@' {
+	if f != '%' && f != '#' && f != '^' && f != ',' && f != '@' {
 		if i := opIndex(ops, f); i != -1 {
 			return op, ops[:i], ops[i:]
 		}
@@ -475,7 +513,7 @@ func opIndex(ops string, op rune) int {
 // isOp returns true if r is an allowed op character.
 func isOp(r rune) bool {
 	switch r {
-	case '#', '%', '^', ':', '/', '|', '@':
+	case '#', '%', '^', ',', ':', '/', '|', '@':
 		return true
 	}
 	return false
@@ -483,14 +521,121 @@ func isOp(r rune) bool {
 
 // isOpSecond returns true if r is an allowed second op character.
 func isOpSecond(r, f rune) bool {
-	if (f == '#' || f == '%' || f == '^' || f == '@') && f != r {
+	if (f == '#' || f == '%' || f == '^' || f == ',' || f == '@') && f != r {
 		return false
 	}
 	switch r {
-	case '#', '%', '^', ':', '/', '|', '@', '?', '=', '+', '-':
+	case '#', '%', '^', ',', ':', '/', '|', '@', '?', '=', '+', '-':
 		return true
 	}
 	return false
+}
+
+// trimPattern removes the shortest or the longest prefix or suffix of s that
+// matches the pattern, as bash does for ${X#p}, ${X##p}, ${X%p} and ${X%%p}.
+// The pattern is a glob: `*` matches any text, `?` matches one character, and
+// `[...]` matches one character of a set, with `[!...]` or `[^...]` for the
+// characters not in the set. Any other character matches itself.
+func trimPattern(s, pattern string, prefix, longest bool) (string, error) {
+	re, err := globRegexp(pattern)
+	if err != nil {
+		return "", fmt.Errorf("%w pattern %q: %w", ErrInvalidOp, pattern, err)
+	}
+	// the indexes where a prefix ends, or where a suffix starts
+	idx := make([]int, 0, len(s)+1)
+	for i := range s {
+		idx = append(idx, i)
+	}
+	idx = append(idx, len(s))
+	// a short prefix ends at a low index, and a short suffix starts at a
+	// high index
+	if prefix == longest {
+		slices.Reverse(idx)
+	}
+	for _, i := range idx {
+		switch {
+		case prefix && re.MatchString(s[:i]):
+			return s[i:], nil
+		case !prefix && re.MatchString(s[i:]):
+			return s[:i], nil
+		}
+	}
+	return s, nil
+}
+
+// casePattern changes the case of the first character of s, or of each
+// character when all is true, with f, as bash does for ${X^p}, ${X^^p},
+// ${X,p} and ${X,,p}. A character changes only when it matches the glob
+// pattern of [trimPattern]. An empty pattern matches each character.
+func casePattern(s, pattern string, f func(rune) rune, all bool) (string, error) {
+	if pattern == "" {
+		pattern = "?"
+	}
+	re, err := globRegexp(pattern)
+	if err != nil {
+		return "", fmt.Errorf("%w pattern %q: %w", ErrInvalidOp, pattern, err)
+	}
+	r := []rune(s)
+	for i, c := range r {
+		if re.MatchString(string(c)) {
+			r[i] = f(c)
+		}
+		if !all {
+			break
+		}
+	}
+	return string(r), nil
+}
+
+// globRegexp returns the anchored regexp of a glob pattern. See
+// [trimPattern].
+func globRegexp(pattern string) (*regexp.Regexp, error) {
+	var sb strings.Builder
+	_, _ = sb.WriteString(`^(?s:`)
+	r := []rune(pattern)
+	for i := 0; i < len(r); i++ {
+		switch c := r[i]; c {
+		case '*':
+			_, _ = sb.WriteString(`.*`)
+		case '?':
+			_, _ = sb.WriteString(`.`)
+		case '[':
+			j := i + 1
+			if j < len(r) && (r[j] == '!' || r[j] == '^') {
+				j++
+			}
+			// a ] right after the [ is part of the set
+			if j < len(r) && r[j] == ']' {
+				j++
+			}
+			for j < len(r) && r[j] != ']' {
+				j++
+			}
+			if j >= len(r) {
+				// no closing ], so the [ matches itself
+				_, _ = sb.WriteString(regexp.QuoteMeta(string(c)))
+				continue
+			}
+			set := r[i+1 : j]
+			_ = sb.WriteByte('[')
+			if len(set) != 0 && (set[0] == '!' || set[0] == '^') {
+				_ = sb.WriteByte('^')
+				set = set[1:]
+			}
+			for _, d := range set {
+				if d == '\\' || d == '[' || d == ']' || d == '^' {
+					_ = sb.WriteByte('\\')
+				}
+				_, _ = sb.WriteRune(d)
+			}
+			_ = sb.WriteByte(']')
+			i = j
+		default:
+			_, _ = sb.WriteString(regexp.QuoteMeta(string(c)))
+		}
+	}
+	_, _ = sb.WriteString(`)$`)
+	return regexp.Compile(sb.String())
 }
 
 // parseInt parses an int.

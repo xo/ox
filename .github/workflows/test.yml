@@ -2,22 +2,31 @@ on: [push, pull_request]
 name: Test
 jobs:
   test-go:
-    name: Test Go
+    name: Test Go ${{ matrix.go-version }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # the newest Go release and the two before it, see D24
+        go-version: ["1.25", "1.26", stable]
     steps:
       - name: Install Go
         uses: actions/setup-go@v7
         with:
-          go-version: stable
+          go-version: ${{ matrix.go-version }}
       - name: Checkout code
         uses: actions/checkout@v7
       - name: Test
         run: |
           # each module tests against the root in the same commit
-          go work init . ./color ./glob ./toml ./yaml ./test
-          for mod in . color glob toml yaml test; do
+          go work init . ./color ./glob ./hcl ./toml ./yaml ./test
+          for mod in . color glob hcl toml yaml test; do
             (cd $mod && go test -v ./...)
           done
+          # ./... skips a folder that starts with _, so name each tool
+          go test -v ./_tools/cobraimport ./_tools/oximport/...
+          # and each example
+          go vet $(find _examples -name '*.go' -exec dirname {} \; | sort -u | sed 's|^|./|')
   test-tinygo:
     name: Test TinyGo
     runs-on: ubuntu-latest
@@ -25,7 +34,7 @@ jobs:
       - name: Install TinyGo
         uses: acifani/setup-tinygo@v2
         with:
-          tinygo-version: "0.42.0"
+          tinygo-version: "0.44.0"
       - name: Checkout code
         uses: actions/checkout@v6
       - name: Test

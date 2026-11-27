@@ -2,6 +2,8 @@ package ox
 
 import (
 	"cmp"
+	"context"
+	"encoding"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
@@ -502,6 +504,10 @@ func (val *bindVal) Bind(s string) error {
 	typ := val.v.Elem().Type()
 	switch typ.Kind() {
 	case reflect.Slice:
+		if typ.Elem().Kind() == reflect.Uint8 {
+			// a []byte takes the bytes of s
+			return asValue(val.v, s)
+		}
 		return val.sliceSet(s)
 	case reflect.Map:
 		return val.mapSet(s)
@@ -514,6 +520,19 @@ func (val *bindVal) Bind(s string) error {
 		return nil
 	}
 	return asValue(val.v, s)
+}
+
+// BindVal binds the value that a flag parsed, such as a [time.Duration], a
+// count or the [FormattedTime] of a date. [Vars] calls it in place of
+// [bindVal.Bind] for a flag that is not a slice, an array or a map, so that
+// the bound variable gets the value of the flag and not its text.
+func (val *bindVal) BindVal(v any) error {
+	el := val.v.Elem()
+	if rv := reflect.ValueOf(v); rv.IsValid() && rv.Type().AssignableTo(el.Type()) {
+		el.Set(rv)
+		return nil
+	}
+	return asValue(val.v, v)
 }
 
 // sliceSet sets value on slice.
@@ -599,6 +618,15 @@ func newHook(ctx *Context, v any) (Value, error) {
 			f(ctx)
 			return nil
 		}
+	case func(context.Context) error:
+		val.v = func(ctx *Context, _ string) error {
+			return f(WithContext(DefaultContext, ctx))
+		}
+	case func(context.Context):
+		val.v = func(ctx *Context, _ string) error {
+			f(WithContext(DefaultContext, ctx))
+			return nil
+		}
 	case func(string) error:
 		val.v = func(_ *Context, s string) error {
 			return f(s)
@@ -649,6 +677,71 @@ func (val *hookVal) Get() (string, error) {
 
 func (val *hookVal) String() string {
 	return "(hook)"
+}
+
+// marshalVal is a value of a type that [defaultType] found with reflect,
+// whose pointer has the text or the binary marshal pair.
+type marshalVal struct {
+	typ   Type
+	valid func(any) error
+	set   bool
+	v     any
+}
+
+func (val *marshalVal) Type() Type {
+	return val.typ
+}
+
+func (val *marshalVal) Val() any {
+	return val.v
+}
+
+func (val *marshalVal) SetSet(set bool) {
+	val.set = set
+}
+
+func (val *marshalVal) WasSet() bool {
+	return val.set
+}
+
+func (val *marshalVal) SetValid(valid func(any) error) {
+	val.valid = valid
+}
+
+func (val *marshalVal) Set(s string) error {
+	v, err := asUnmarshal(val.typ, s)
+	if err != nil {
+		return fmt.Errorf("%w: %w", ErrInvalidValue, err)
+	}
+	if val.valid != nil {
+		if err := val.valid(v); err != nil {
+			return err
+		}
+	}
+	val.v = v
+	return nil
+}
+
+func (val *marshalVal) Get() (string, error) {
+	var b []byte
+	var err error
+	switch v := val.v.(type) {
+	case nil:
+		return "", nil
+	case encoding.TextMarshaler:
+		b, err = v.MarshalText()
+	case encoding.BinaryMarshaler:
+		b, err = v.MarshalBinary()
+	}
+	if err != nil {
+		return "", fmt.Errorf("%w: %w", ErrInvalidValue, err)
+	}
+	return string(b), nil
+}
+
+func (val *marshalVal) String() string {
+	s, _ := val.Get()
+	return s
 }
 
 // FormattedTime wraps a time value with a specific layout.

@@ -1,6 +1,6 @@
 // Command gh is a xo/ox version of `gh`.
 //
-// Generated from _examples/gen.go.
+// Generated from _examples/gen.go, which _tools/oximport replaced (D31).
 package main
 
 import (

@@ -1,0 +1,68 @@
+Rclone syncs files to and from cloud storage providers as well as
+mounting them, listing them in lots of different ways.
+
+See the home page (https://rclone.org/) for installation, usage,
+documentation, changelog and configuration walkthroughs.
+
+Usage:
+  rclone [flags]
+
+Available Commands:
+  authorize        Remote authorization.
+  backend          Run a backend-specific command.
+  bisync           Perform bidirectonal synchronization between two paths.
+  cat              Concatenates any files and sends them to stdout.
+  check            Checks the files in the source and destination match.
+  checksum         Checks the files in the source against a SUM file.
+  cleanup          Clean up the remote if possible.
+  completion       generate completion script for a specified shell
+  config           Enter an interactive configuration session.
+  copy             Copy files from source to dest, skipping identical files.
+  copyto           Copy files from source to dest, skipping identical files.
+  copyurl          Copy url content to dest.
+  cryptcheck       Cryptcheck checks the integrity of a crypted remote.
+  cryptdecode      Cryptdecode returns unencrypted file names.
+  dedupe           Interactively find duplicate filenames and delete/rename them.
+  delete           Remove the files in path.
+  deletefile       Remove a single file from remote.
+  genautocomplete  Output completion script for a given shell.
+  gendocs          Output markdown docs for rclone to the directory supplied.
+  hashsum          Produces a hashsum file for all the objects in the path.
+  help             show help for any command
+  link             Generate public link to file/folder.
+  listremotes      List all the remotes in the config file.
+  ls               List the objects in the path with size and path.
+  lsd              List all directories/containers/buckets in the path.
+  lsf              List directories and objects in remote:path formatted for parsing.
+  lsjson           List directories and objects in the path in JSON format.
+  lsl              List the objects in path with modification time, size and path.
+  md5sum           Produces an md5sum file for all the objects in the path.
+  mkdir            Make the path if it doesn't already exist.
+  mount            Mount the remote as file system on a mountpoint.
+  move             Move files from source to dest.
+  moveto           Move file or directory from source to dest.
+  ncdu             Explore a remote with a text based user interface.
+  obscure          Obscure password for use in the rclone config file.
+  purge            Remove the path and all of its contents.
+  rc               Run a command against a running rclone.
+  rcat             Copies standard input to file on remote.
+  rcd              Run rclone listening to remote control commands only.
+  rmdir            Remove the empty directory at path.
+  rmdirs           Remove empty directories under the path.
+  selfupdate       Update the rclone binary.
+  serve            Serve a remote over a protocol.
+  settier          Changes storage class/tier of objects in remote.
+  sha1sum          Produces an sha1sum file for all the objects in the path.
+  size             Prints the total size and number of objects in remote:path.
+  sync             Make source and dest identical, modifying destination only.
+  test             Run a test command
+  touch            Create new file or change file modification time.
+  tree             List the contents of the remote in a tree like fashion.
+  version          show rclone version information
+
+Flags:
+  -h, --help      show help, then exit
+
+Use "rclone [command] --help" for more information about a command.
+Use "rclone help flags" for to see the global flags.
+Use "rclone help backends" for a list of supported services.

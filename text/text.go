@@ -14,14 +14,25 @@ var (
 	CommandSubSpec = `[command]`
 	// CommandArgsSpec is the spec for command args.
 	CommandArgsSpec = `[args]`
+	// CommandArgValuesSpec is the spec for the allowed values of command
+	// args, which it takes joined with `|`.
+	CommandArgValuesSpec = `[%s]`
+	// CommandArgsMore is added to [CommandArgValuesSpec] when a command
+	// takes more than one arg.
+	CommandArgsMore = `...`
 	// FlagSpecSpacer is the spacer between the flag and the displayed flag
 	// spec.
 	FlagSpecSpacer = ` `
+	// FlagDeprecated is the warning for a deprecated flag or alias that the
+	// command line uses.
+	FlagDeprecated = "warning: %s is deprecated\n"
 	// FlagDefault is the flag `(default: ...)` text.
 	FlagDefault = `(default: %s)`
 
 	// Usage is the `Usage:` section name.
 	Usage = `Usage`
+	// Arguments is the `Arguments:` section name.
+	Arguments = `Arguments`
 	// Aliases is the `Aliases:` section name.
 	Aliases = `Aliases`
 	// Examples is the `Examples:` section name.
