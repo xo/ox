@@ -1036,6 +1036,40 @@ func ExampleInheritedFlags() {
 }
 ```
 
+### Set the width of the help
+
+Help wraps each description at `ox.DefaultWrapWidth`, 95 columns by
+default. Each line ends inside the width, unless a word is wider. `ox` does
+not read the width of the terminal. If a program wants that width, it reads
+the width, for example with `golang.org/x/term`, and sets
+`ox.DefaultWrapWidth` before it calls `ox.Run`.
+
+```go
+func ExampleDefaultWrapWidth() {
+	ox.DefaultWrapWidth = 50
+	defer func() {
+		ox.DefaultWrapWidth = 95
+	}()
+	ox.Run(
+		ox.Usage("app", "an app"),
+		ox.Help(),
+		ox.Flags().
+			String("name", "the name to greet, which help wraps over more than one line", ox.Short("n")),
+		ox.Args("--help"),
+	)
+	// Output:
+	// app an app
+	//
+	// Usage:
+	//   app [flags] [args]
+	//
+	// Flags:
+	//   -n, --name string  the name to greet, which help
+	//                      wraps over more than one line
+	//   -h, --help         show help, then exit
+}
+```
+
 ### Stop at the first argument
 
 A wrapper command passes its args to another command. `ox.StopAtArg()` ends
@@ -2218,4 +2252,3 @@ says.
 | --- | --- | --- |
 | `ox.Hook` takes a `func(context.Context) error`, which a hook cannot call | `invalid hook func func(context.Context) error` | Use a flag of type `ox.HookT`, or `FlagSet.Hook` |
 | The default layout of the help does not write the aliases of a flag | `--username` and not `--username, --login` | Pass `ox.HelpColumn(n)`, which writes them |
-| At `ox.DefaultWrapWidth`, `ox.Wrap` lets each line after the first pass the width by the indent of the description | A long description runs past column 95 | Keep the description short |

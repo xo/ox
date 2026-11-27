@@ -92,9 +92,11 @@ Flags:
                                        server connection
       --kube-context string            name of the kubeconfig context to use
       --kube-insecure-skip-tls-verify  if true, the Kubernetes API server's certificate will
-                                       not be checked for validity. This will make your HTTPS connections insecure
+                                       not be checked for validity. This will make your HTTPS
+                                       connections insecure
       --kube-tls-server-name string    server name to use for Kubernetes API server certificate
-                                       validation. If it is not provided, the hostname used to contact the server is used
+                                       validation. If it is not provided, the hostname used to
+                                       contact the server is used
       --kube-token string              bearer token used for authentication
       --kubeconfig string              path to the kubeconfig file
   -n, --namespace string               namespace scope for this request

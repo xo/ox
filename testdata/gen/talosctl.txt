@@ -62,8 +62,8 @@ Flags:
   -e, --endpoints string    override default endpoints in Talos configuration
   -n, --nodes string        target the specified nodes
       --talosconfig string  The path to the Talos configuration file. Defaults to 'TALOSCONFIG'
-                            env variable if set, otherwise '$HOME/.talos/config' and '/var/run/secrets/talos.dev/config' in
-                            order.
+                            env variable if set, otherwise '$HOME/.talos/config' and
+                            '/var/run/secrets/talos.dev/config' in order.
   -h, --help                show help, then exit
 
 Use "talosctl [command] --help" for more information about a command.

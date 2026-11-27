@@ -651,6 +651,32 @@ func ExampleInheritedFlags() {
 	//   -c, --config string  the config file
 }
 
+// ExampleDefaultWrapWidth sets the width at which help wraps. A program that
+// wants the width of the terminal reads it, and sets DefaultWrapWidth.
+func ExampleDefaultWrapWidth() {
+	ox.DefaultWrapWidth = 50
+	defer func() {
+		ox.DefaultWrapWidth = 95
+	}()
+	ox.Run(
+		ox.Usage("app", "an app"),
+		ox.Help(),
+		ox.Flags().
+			String("name", "the name to greet, which help wraps over more than one line", ox.Short("n")),
+		ox.Args("--help"),
+	)
+	// Output:
+	// app an app
+	//
+	// Usage:
+	//   app [flags] [args]
+	//
+	// Flags:
+	//   -n, --name string  the name to greet, which help
+	//                      wraps over more than one line
+	//   -h, --help         show help, then exit
+}
+
 // ExampleStopAtArg ends the flags of a command at its first positional
 // argument, so that a wrapper command passes the rest to the command that it
 // runs.

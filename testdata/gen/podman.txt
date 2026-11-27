@@ -87,8 +87,8 @@ Options:
                                    (default: [/usr/share/containers/oci/hooks.d])
       --identity string            path to SSH identity file, (CONTAINER_SSHKEY)
       --imagestore string          Path to the 'image store', different from 'graph root', use
-                                   this to split storing the image into a separate 'image store', see 'man
-                                   containers-storage.conf' for details
+                                   this to split storing the image into a separate 'image
+                                   store', see 'man containers-storage.conf' for details
       --log-level string           Log messages above specified level (trace, debug, info,
                                    warn, warning, error, fatal, panic) (default: warn)
       --module string              Load the containers.conf(5) module

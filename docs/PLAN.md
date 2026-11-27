@@ -1283,9 +1283,11 @@ The wrap width:
     with `DefaultWrapWidth`. So a program such as `usql` reads the width of
     the terminal as it wants to, and `ox` starts no process and adds no
     build constraint.
-18. `Wrap` lets each line after the first pass the width by the indent of
-    the description. A maintainer chose on 2026-11-28 to fix `Wrap`, which
-    changes the help of each program with a long description.
+18. `Wrap` let each line after the first pass the width by the indent of
+    the description. A maintainer chose on 2026-11-28 to fix `Wrap`. Each
+    line of a description now ends inside the width, unless a word is
+    wider. This changed the help of each program with a long description,
+    such as 6 of the files in `testdata/gen`.
 19. `HelpColumn` does not wrap, as before.
 
 ### D40. The Kubernetes form of a size. Decided.

@@ -13,9 +13,10 @@ import (
 
 // TestGenHelpIsTheSame builds the programs in _examples/gen and compares the
 // help of each with a file in testdata/gen. The files hold the help from
-// before HelpColumn existed, so the test holds that a program that does not
-// ask for HelpColumn writes the same help as before. The build constraint
-// keeps the test out of the TinyGo run, because it runs the go command.
+// before HelpColumn existed, with the fix of Wrap of D39, so the test holds
+// that a program that does not ask for HelpColumn writes the same help. The
+// build constraint keeps the test out of the TinyGo run, because it runs the
+// go command.
 func TestGenHelpIsTheSame(t *testing.T) {
 	t.Parallel()
 	if runtime.GOOS != "linux" {

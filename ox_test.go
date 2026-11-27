@@ -61,6 +61,43 @@ Did you mean this?
 	}
 }
 
+// TestWrap holds that each line of the wrapped text ends inside the width,
+// with the prefix, unless a word is wider.
+func TestWrap(t *testing.T) {
+	tests := []struct {
+		name   string
+		s      string
+		width  int
+		prefix int
+		exp    string
+	}{
+		{"empty", "  ", 20, 4, ""},
+		{"one line", "a b c", 20, 4, "a b c"},
+		{"no prefix", "aaa bbb ccc ddd", 8, 0, "aaa bbb\nccc ddd"},
+		{"prefix", "aaa bbb ccc ddd eee", 12, 4, "aaa bbb\n    ccc ddd\n    eee"},
+		{"exact", "aaaa bbb", 12, 4, "aaaa bbb"},
+		{"one over", "aaaa bbbb", 12, 4, "aaaa\n    bbbb"},
+		{"wide word", "a bbbbbbbbbbbb c", 10, 4, "a\n    bbbbbbbbbbbb\n    c"},
+		{"spaces", "  a   b  ", 20, 4, "a b"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			s := Wrap(test.s, test.width, test.prefix)
+			if s != test.exp {
+				t.Errorf("expected %q, got: %q", test.exp, s)
+			}
+			for i, line := range strings.Split(s, "\n") {
+				if i == 0 {
+					line = strings.Repeat(" ", test.prefix) + line
+				}
+				if len(line) > test.width && !strings.Contains(line, "bbbbbbbbbbbb") {
+					t.Errorf("expected at most %d columns, got %d: %q", test.width, len(line), line)
+				}
+			}
+		})
+	}
+}
+
 func TestLdist(t *testing.T) {
 	tests := []struct {
 		a   string

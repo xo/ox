@@ -86,7 +86,8 @@ Usage:
 
 Flags:
       --atomic                                    if set, the installation process deletes the
-                                                  installation on failure. The --wait flag will be set automatically if --atomic is used
+                                                  installation on failure. The --wait flag will
+                                                  be set automatically if --atomic is used
       --ca-file string                            verify certificates of HTTPS-enabled servers
                                                   using this CA bundle
       --cert-file string                          identify HTTPS client using this SSL
@@ -96,12 +97,17 @@ Flags:
                                                   before installing the chart
       --description string                        add a custom description
       --devel                                     use development versions, too. Equivalent to
-                                                  version '>0.0.0-0'. If --version is set, this is ignored
+                                                  version '>0.0.0-0'. If --version is set, this
+                                                  is ignored
       --disable-openapi-validation                if set, the installation process will not
-                                                  validate rendered templates against the Kubernetes OpenAPI Schema
+                                                  validate rendered templates against the
+                                                  Kubernetes OpenAPI Schema
       --dry-run string[="client"]                 simulate an install. If --dry-run is set with
-                                                  no option being specified or as '--dry-run=client', it will not attempt cluster connections.
-                                                  Setting '--dry-run=server' allows attempting cluster connections.
+                                                  no option being specified or as
+                                                  '--dry-run=client', it will not attempt
+                                                  cluster connections. Setting
+                                                  '--dry-run=server' allows attempting cluster
+                                                  connections.
       --enable-dns                                enable DNS lookups when rendering templates
       --force                                     force resource updates through a replacement
                                                   strategy
@@ -117,54 +123,68 @@ Flags:
       --keyring string                            location of public keys used for verification
                                                   (default: /home/user/.gnupg/pubring.gpg)
   -l, --labels string=string                      Labels that would be added to release
-                                                  metadata. Should be divided by comma. (default: [])
+                                                  metadata. Should be divided by comma.
+                                                  (default: [])
       --name-template string                      specify template used to name the release
       --no-hooks                                  prevent hooks from running during install
   -o, --output format                             prints the output in the specified format.
-                                                  Allowed values: table, json, yaml (default: table)
+                                                  Allowed values: table, json, yaml (default:
+                                                  table)
       --pass-credentials                          pass credentials to all domains
       --password string                           chart repository password where to locate the
                                                   requested chart
       --plain-http                                use insecure HTTP connections for the chart
                                                   download
       --post-renderer postRendererString          the path to an executable to be used for post
-                                                  rendering. If it exists in $PATH, the binary will be used, otherwise it will try to look for
-                                                  the executable at the given path
+                                                  rendering. If it exists in $PATH, the binary
+                                                  will be used, otherwise it will try to look
+                                                  for the executable at the given path
       --post-renderer-args postRendererArgsSlice  an argument to the post-renderer (can specify
                                                   multiple) (default: [])
       --render-subchart-notes                     if set, render subchart notes along with the
                                                   parent
       --replace                                   reuse the given name, only if that name is a
-                                                  deleted release which remains in the history. This is unsafe in production
+                                                  deleted release which remains in the history.
+                                                  This is unsafe in production
       --repo string                               chart repository url where to locate the
                                                   requested chart
       --set string                                set values on the command line (can specify
-                                                  multiple or separate values with commas: key1=val1,key2=val2)
+                                                  multiple or separate values with commas:
+                                                  key1=val1,key2=val2)
       --set-file string                           set values from respective files specified
-                                                  via the command line (can specify multiple or separate values with commas:
+                                                  via the command line (can specify multiple or
+                                                  separate values with commas:
                                                   key1=path1,key2=path2)
       --set-json string                           set JSON values on the command line (can
-                                                  specify multiple or separate values with commas: key1=jsonval1,key2=jsonval2)
+                                                  specify multiple or separate values with
+                                                  commas: key1=jsonval1,key2=jsonval2)
       --set-literal string                        set a literal STRING value on the command
                                                   line
       --set-string string                         set STRING values on the command line (can
-                                                  specify multiple or separate values with commas: key1=val1,key2=val2)
+                                                  specify multiple or separate values with
+                                                  commas: key1=val1,key2=val2)
       --skip-crds                                 if set, no CRDs will be installed. By
-                                                  default, CRDs are installed if not already present
+                                                  default, CRDs are installed if not already
+                                                  present
       --skip-schema-validation                    if set, disables JSON schema validation
       --timeout duration                          time to wait for any individual Kubernetes
-                                                  operation (like Jobs for hooks) (default: 5m0s)
+                                                  operation (like Jobs for hooks) (default:
+                                                  5m0s)
       --username string                           chart repository username where to locate the
                                                   requested chart
   -f, --values string                             specify values in a YAML file or a URL (can
                                                   specify multiple)
       --verify                                    verify the package before using it
       --wait                                      if set, will wait until all Pods, PVCs,
-                                                  Services, and minimum number of Pods of a Deployment, StatefulSet, or ReplicaSet are in a ready
-                                                  state before marking the release as successful. It will wait for as long as --timeout
+                                                  Services, and minimum number of Pods of a
+                                                  Deployment, StatefulSet, or ReplicaSet are in
+                                                  a ready state before marking the release as
+                                                  successful. It will wait for as long as
+                                                  --timeout
       --wait-for-jobs                             if set and --wait enabled, will wait until
-                                                  all Jobs have been completed before marking the release as successful. It will wait for as long
-                                                  as --timeout
+                                                  all Jobs have been completed before marking
+                                                  the release as successful. It will wait for
+                                                  as long as --timeout
   -h, --help                                      show help, then exit
 
 Global Flags:
@@ -174,23 +194,31 @@ Global Flags:
       --kube-apiserver string                     the address and the port for the Kubernetes
                                                   API server
       --kube-as-group string                      group to impersonate for the operation, this
-                                                  flag can be repeated to specify multiple groups.
+                                                  flag can be repeated to specify multiple
+                                                  groups.
       --kube-as-user string                       username to impersonate for the operation
       --kube-ca-file string                       the certificate authority file for the
                                                   Kubernetes API server connection
       --kube-context string                       name of the kubeconfig context to use
       --kube-insecure-skip-tls-verify             if true, the Kubernetes API server's
-                                                  certificate will not be checked for validity. This will make your HTTPS connections insecure
+                                                  certificate will not be checked for validity.
+                                                  This will make your HTTPS connections
+                                                  insecure
       --kube-tls-server-name string               server name to use for Kubernetes API server
-                                                  certificate validation. If it is not provided, the hostname used to contact the server is used
+                                                  certificate validation. If it is not
+                                                  provided, the hostname used to contact the
+                                                  server is used
       --kube-token string                         bearer token used for authentication
       --kubeconfig string                         path to the kubeconfig file
   -n, --namespace string                          namespace scope for this request
       --qps float32                               queries per second used when communicating
-                                                  with the Kubernetes API, not including bursting
+                                                  with the Kubernetes API, not including
+                                                  bursting
       --registry-config string                    path to the registry config file (default:
                                                   /home/user/.config/helm/registry/config.json)
       --repository-cache string                   path to the directory containing cached
-                                                  repository indexes (default: /home/user/.cache/helm/repository)
+                                                  repository indexes (default:
+                                                  /home/user/.cache/helm/repository)
       --repository-config string                  path to the file containing repository names
-                                                  and URLs (default: /home/user/.config/helm/repositories.yaml)
+                                                  and URLs (default:
+                                                  /home/user/.config/helm/repositories.yaml)

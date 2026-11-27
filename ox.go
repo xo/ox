@@ -1039,18 +1039,20 @@ func (err *SuggestionError) ErrorDetails() string {
 }
 
 // Wrap wraps a line of text to the specified width, adding a prefix of empty
-// prefixWidth to each wrapped line.
+// prefixWidth to each wrapped line. The text of each line starts after
+// prefixWidth columns, so each line ends inside width, unless a word is
+// wider than width less prefixWidth.
 func Wrap(s string, width, prefixWidth int) string {
 	words := strings.Fields(strings.TrimSpace(s))
 	if len(words) == 0 {
 		return ""
 	}
 	prefix, wrapped := strings.Repeat(" ", prefixWidth), words[0]
-	left := width - prefixWidth - len(wrapped)
+	left := width - prefixWidth - DefaultWidth(wrapped)
 	for _, word := range words[1:] {
 		if left < DefaultWidth(word)+1 {
 			wrapped += "\n" + prefix + word
-			left = width - DefaultWidth(word)
+			left = width - prefixWidth - DefaultWidth(word)
 		} else {
 			wrapped += " " + word
 			left -= 1 + DefaultWidth(word)
