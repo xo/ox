@@ -160,7 +160,7 @@ func newModule(t *testing.T) string {
 	if err != nil {
 		t.Fatal(err)
 	}
-	mod := fmt.Sprintf("module oximporttest\n\ngo 1.27\n\nrequire github.com/xo/ox v0.0.0\n\nreplace github.com/xo/ox => %s\n", repo)
+	mod := fmt.Sprintf("module oximporttest\n\ngo 1.25\n\nrequire github.com/xo/ox v0.0.0\n\nreplace github.com/xo/ox => %s\n", repo)
 	if err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte(mod), 0o644); err != nil {
 		t.Fatal(err)
 	}

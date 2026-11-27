@@ -33,8 +33,8 @@ type `HookT` and `NoArg` cover its custom value types.
 On 2026-11-27 one agent took the open items in order, and closed B32, B28,
 B35, B36, B14, B42, B16, B1, B2, B7, B3, B4, B10, B11, B12, B17, B18, B21,
 B43, B46, B47, B48, B49, B50 and B51. D36 lists the choices that it made.
-B22 waits for a maintainer, B13 waits for the `go` line of D24, and B19
-keeps two items that need a design.
+A maintainer tagged `v0.1.0` the same day, which closed B22. B13 waits
+for the `go` line of D24, and B19 keeps two items that need a design.
 
 ## Priority 1: needed before usql moves, or wrong today
 
@@ -46,8 +46,8 @@ commits the move only against a tag of `ox`. What `usql` needs before that
 tag is, in order: B33, B32, B25, and the tag (B22). Agents finished B33,
 B32 for psql's layout, B25, B20, B31, B37, B38, B30, B34, B26, B39, B40 and B41
 the same day, and the work was merged in the main checkout. The backlog agent
-finished the rest of B32 on 2026-11-27 (D36). Only the tag is left for
-`usql`. The `usql` session built a prototype with every option of `usql` on
+finished the rest of B32 on 2026-11-27 (D36). A maintainer tagged
+`v0.1.0` the same day, so no item is left for `usql`. The `usql` session built a prototype with every option of `usql` on
 `bb2641a` and the staged changes, and sent its list in this order. It writes
 its side against a local checkout. Tell the session named `usql` when each
 item lands, with its API names.
@@ -76,14 +76,6 @@ The prototype found that these work today, with no change to `ox`:
    that `usql` uses with `cobra`.
 9. The usage as text, and a run that returns its error. Since 2026-11-27,
    `Command.UsageString` and `RunError` do each one in one call (D36).
-
-### B22. ox has no tagged release.
-
-- Plain description: `usql` must require a release, not a pseudo-version.
-  `go vet ./...` passed in every module on 2026-11-26. D33 adds a tag for
-  each module, in the order that [DESIGN.md](DESIGN.md) gives. Open
-  question 8 in [PLAN.md](PLAN.md) asks when the first tag is.
-- Found: the `usql` session, item 1.
 
 ## Priority 2: the planned direction
 

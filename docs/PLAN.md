@@ -75,13 +75,13 @@ This section is at `bb2641a` (2026-09-27), with the changes staged on
    `cmd/oxdoc` writes the doc comments from `go generate`. It replaces the
    sketch of D20.
 6. The repository is seven modules (D33): the root, which requires nothing,
-   `color`, `glob`, `hcl`, `toml`, `yaml` and `test`. None has a tag. Each `go.mod`
+   `color`, `glob`, `hcl`, `toml`, `yaml` and `test`. Each module has the tag `v0.1.0`, such as `yaml/v0.1.0`, since 2026-11-27. Each `go.mod`
    declares `go 1.25`, and the `uuid` type needs Go 1.27 (D24). Every module
-   passes `go vet` and its tests with Go 1.25, 1.26 and 1.27. See B22.
+   passes `go vet` and its tests with Go 1.25, 1.26 and 1.27.
 7. `golangci-lint` reports 156 findings in the root, and no CI job runs it.
    See D12, and D36 for the count.
 8. `dbtpl`, `iv` and `wallgrab` use `ox`. `usql` has its move to `ox` staged,
-   and it commits the move when `ox` has a tag. See D22 and B22.
+   and it can commit the move against `v0.1.0`. See D22.
 
 ## Direction
 
@@ -1066,9 +1066,8 @@ recommendation.
 7. psql's layout of help was built as an option, `HelpColumn(27)`, so that
    `dbtpl`, `iv` and `wallgrab` do not change. Recommended: keep it an option.
    Must it become the default for every program?
-8. When does `ox` get its first tag? Recommended: now, as `v0.1.0`, because
-   B30 is done and `usql` waits for a tag. Then tag `color`, `glob`, `toml`
-   and `yaml`, in the order in [DESIGN.md](DESIGN.md).
+8. Answered on 2026-11-27: a maintainer tagged `v0.1.0`, then `color`,
+   `glob`, `hcl`, `toml` and `yaml`, in the order in [DESIGN.md](DESIGN.md).
 9. Issues and pull requests are off (D25). How does a change from a person
    outside the project arrive? Recommended: the person opens a discussion,
    and a maintainer makes the change. `CONTRIBUTING.md` says so now.
