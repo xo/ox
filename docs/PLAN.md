@@ -80,8 +80,8 @@ This section is at `bb2641a` (2026-09-27), with the changes staged on
    passes `go vet` and its tests with Go 1.25, 1.26 and 1.27.
 7. `golangci-lint` reports 156 findings in the root, and no CI job runs it.
    See D12, and D36 for the count.
-8. `dbtpl`, `iv` and `wallgrab` use `ox`. `usql` has its move to `ox` staged,
-   and it can commit the move against `v0.1.0`. See D22.
+8. `dbtpl`, `iv` and `wallgrab` use `ox`. `usql` requires `v0.1.0` since
+   2026-11-27, in its commit `2aff65d`. See D22.
 
 ## Direction
 

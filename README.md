@@ -99,10 +99,21 @@ parsing:
 - [`iv`][iv] - a command-line terminal graphics image viewer
 - [`wallgrab`][wallgrab] - a Apple Aerial wallpaper downloader
 
+`usql` and `iv` show two different ways to use `ox`:
+
+- [`usql`][usql-cmdline] - builds each flag by hand with `ox.Flags()`, with
+  hooks, sections and help values, so that its help matches the help of
+  `psql`
+- [`iv`][iv-ivcmd] - reads its flags from the `ox` tags of a struct with
+  `ox.From`, and [registers a type of its own][iv-ivctx] for a flag value
+
 [usql]: https://github.com/xo/usql
 [dbtpl]: https://github.com/xo/dbtpl
 [iv]: https://github.com/kenshaw/iv
 [wallgrab]: https://github.com/kenshaw/wallgrab
+[usql-cmdline]: https://github.com/xo/usql/blob/main/cmdline.go
+[iv-ivcmd]: https://github.com/kenshaw/iv/blob/main/ivcmd/ivcmd.go
+[iv-ivctx]: https://github.com/kenshaw/iv/blob/main/ivctx/ivctx.go
 
 ## About
 

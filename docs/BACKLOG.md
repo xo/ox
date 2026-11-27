@@ -7,7 +7,7 @@ here and name it in the commit message.
 
 The number of an item never changes, so the order of the numbers is not the
 order of importance. B1 to B21 were collected on 2026-09-27, B22 to B29 on
-2026-11-09, and B30 to B51 on 2026-11-26. A line number is at `eae81b9` for
+2026-11-09, B30 to B51 on 2026-11-26, and B52 on 2026-11-27. A line number is at `eae81b9` for
 B1 to B21, and at `bb2641a` after that. Each item names where it came from:
 
 1. Probe: a small program ran `ox` and showed the fault.
@@ -124,3 +124,13 @@ No item is open.
     help shows.
   - Item 10: no strftime, semver or port range type. Each is a new type and
     needs a design. A strftime type needs a module of its own (D33).
+
+### B52. The help hook writes the same help for each value.
+
+- Plain description: `HelpValue` adds a line such as `--help=commands` to
+  the help, but the help hook writes the same help for every value of the
+  flag. So `usql` replaces the default of its `hook:help` flag with a
+  `func(*ox.Context, string) error` that picks the topic. `ox` can call a
+  func for each value that `HelpValue` names.
+- Found: the `usql` session, on 2026-11-27, when `usql` moved to
+  `v0.1.0`.
