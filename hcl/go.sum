@@ -14,8 +14,8 @@ github.com/hashicorp/hcl/v2 v2.25.0 h1:HmmQVYRny4MaBo4b20TjmL46wyuUxpnMWkPZ4+NTb
 github.com/hashicorp/hcl/v2 v2.25.0/go.mod h1:vR+FKETxoZAmRlHgFfKmuqivj+C4Izm/c66XkmZ3r7M=
 github.com/mitchellh/go-wordwrap v1.0.1 h1:TLuKupo69TCn6TQSyGxwI1EblZZEsQ0vMlAFQflz0v0=
 github.com/mitchellh/go-wordwrap v1.0.1/go.mod h1:R62XHJLzvMFRBbcrT7m7WgmE1eOyTSsCt+hzestvNj0=
-github.com/xo/ox v0.0.0-20261126005800-13bd485f1d7b h1:MqHKfu4AaD3Fwgj3hCEyZ1rIvsfBeWMYm6NhSS7Wmm8=
-github.com/xo/ox v0.0.0-20261126005800-13bd485f1d7b/go.mod h1:0DjOIqyC3TjGFYs5HQnLwU65Llf/r5lmkmm7gtaOMK0=
+github.com/xo/ox v0.1.0 h1:Q4ru+5PKC72Kk8k1/pDl0OxkdQOx3/9oQ4H7nyqBuO0=
+github.com/xo/ox v0.1.0/go.mod h1:wlOnzEIdFAQ2pMuDouyGrB+0anihcNQFzUVoWzTSRhg=
 github.com/zclconf/go-cty v1.19.0 h1:IV8WdqYZc2c5rLX9bEoLNXKojBAp0MZPBHMIrCoa/s4=
 github.com/zclconf/go-cty v1.19.0/go.mod h1:12W89jGn3JCOIQi7infWr9m80rOkb5RNYJqXMZcN4c8=
 github.com/zclconf/go-cty-debug v0.0.0-20240509010212-0d6042c53940 h1:4r45xpDWB6ZMSMNJFMOjqrGHynW3DIBuR2H9j0ug+Mo=

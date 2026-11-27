@@ -1,4 +1,4 @@
 github.com/kenshaw/glob v0.1.1 h1:y7FSU+/aKf5+rm+jTchCNxrmom9snEgQrU4woq4IPSc=
 github.com/kenshaw/glob v0.1.1/go.mod h1:vuRxRIlDPSfYGjm3enW+F32FsxFu0LR1joP86Z992mM=
-github.com/xo/ox v0.0.0-20261126005800-13bd485f1d7b h1:MqHKfu4AaD3Fwgj3hCEyZ1rIvsfBeWMYm6NhSS7Wmm8=
-github.com/xo/ox v0.0.0-20261126005800-13bd485f1d7b/go.mod h1:0DjOIqyC3TjGFYs5HQnLwU65Llf/r5lmkmm7gtaOMK0=
+github.com/xo/ox v0.1.0 h1:Q4ru+5PKC72Kk8k1/pDl0OxkdQOx3/9oQ4H7nyqBuO0=
+github.com/xo/ox v0.1.0/go.mod h1:wlOnzEIdFAQ2pMuDouyGrB+0anihcNQFzUVoWzTSRhg=

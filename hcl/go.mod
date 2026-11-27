@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/hashicorp/hcl/v2 v2.25.0
-	github.com/xo/ox v0.0.0-20261126005800-13bd485f1d7b
+	github.com/xo/ox v0.1.0
 	github.com/zclconf/go-cty v1.19.0
 )
 
