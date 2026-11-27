@@ -18,8 +18,15 @@ var (
 	// args, which it takes joined with `|`.
 	CommandArgValuesSpec = `[%s]`
 	// CommandArgsMore is added to [CommandArgValuesSpec] when a command
-	// takes more than one arg.
+	// takes more than one arg, and to the name of a variadic positional
+	// argument.
 	CommandArgsMore = `...`
+	// CommandArgSpec is the spec for a required positional argument, which
+	// it takes by name.
+	CommandArgSpec = `%s`
+	// CommandArgOptionalSpec is the spec for an optional positional
+	// argument, which it takes by name.
+	CommandArgOptionalSpec = `[%s]`
 	// FlagSpecSpacer is the spacer between the flag and the displayed flag
 	// spec.
 	FlagSpecSpacer = ` `
@@ -28,6 +35,9 @@ var (
 	FlagDeprecated = "warning: %s is deprecated\n"
 	// FlagDefault is the flag `(default: ...)` text.
 	FlagDefault = `(default: %s)`
+	// FlagRequired is the flag `(required)` text, which help writes in place
+	// of the default of a required flag.
+	FlagRequired = `(required)`
 
 	// Usage is the `Usage:` section name.
 	Usage = `Usage`

@@ -24,6 +24,12 @@ type Command struct {
 	Parent *Command
 	// Exec is the command's exec func.
 	Exec ExecFunc
+	// Before is the func that runs before the exec func of the command, and
+	// of each sub command below it. See [Before].
+	Before ExecFunc
+	// After is the func that runs after the exec func of the command, and of
+	// each sub command below it. See [After].
+	After ExecFunc
 	// Name is the command's name.
 	Name string
 	// Usage is the command's usage.
@@ -69,6 +75,19 @@ type Command struct {
 	// CompFunc is the func that completes the positional arguments. See
 	// [CompFunc].
 	CompFunc func(ctx *Context, toComplete string) ([]Completion, CompDirective, error)
+	// FlagGroups are the rules between the flags of the command, from
+	// [OnlyOneOf], [AllOrNoneOf] and [AtLeastOneOf].
+	FlagGroups []FlagGroup
+	// StopAtArg makes each argument after the first positional argument of
+	// the command a positional argument, even one that starts with `-`. See
+	// [StopAtArg].
+	StopAtArg bool
+	// Abbrev lets the command line give a long flag by a unique prefix of
+	// its name. A sub command inherits it. See [Abbrev].
+	Abbrev bool
+	// Positional are the command's positional arguments, in order. See
+	// [Arg].
+	Positional []*Argument
 
 	// maxArgs is the maximum of [ValidArgs]. A value < 0 means no maximum.
 	maxArgs int
@@ -94,6 +113,9 @@ func NewCommand(opts ...Option) (*Command, error) {
 		return nil, err
 	}
 	if err := cmd.Flags.checkNames(); err != nil {
+		return nil, fmt.Errorf("command %s: %w", cmd.Name, err)
+	}
+	if err := cmd.checkArgNames(); err != nil {
 		return nil, fmt.Errorf("command %s: %w", cmd.Name, err)
 	}
 	return cmd, nil
@@ -193,21 +215,25 @@ func (cmd *Command) CommandSpecial(special string) *Command {
 	return nil
 }
 
-// Flag finds a flag from the command or the command's parents.
+// Flag finds a flag from the command or the command's parents. It does not
+// find a local flag of a parent. See [Flag.Local].
 func (cmd *Command) Flag(name string, parents, short bool) *Flag {
-	if cmd.Flags != nil {
-		if i := slices.IndexFunc(cmd.Flags.Flags, func(g *Flag) bool {
-			return g.Name == name && !short ||
-				g.Short == name && short ||
-				slices.ContainsFunc(g.aliases(true), func(s string) bool {
-					return s == name && len(s) == 1 == short
-				})
-		}); i != -1 {
-			return cmd.Flags.Flags[i]
+	for c := cmd; c != nil; c = c.Parent {
+		if c.Flags != nil {
+			if i := slices.IndexFunc(c.Flags.Flags, func(g *Flag) bool {
+				return (c == cmd || !g.Local) &&
+					(g.Name == name && !short ||
+						g.Short == name && short ||
+						slices.ContainsFunc(g.aliases(true), func(s string) bool {
+							return s == name && len(s) == 1 == short
+						}))
+			}); i != -1 {
+				return c.Flags.Flags[i]
+			}
 		}
-	}
-	if parents && cmd.Parent != nil {
-		return cmd.Parent.Flag(name, parents, short)
+		if !parents {
+			break
+		}
 	}
 	return nil
 }
@@ -234,13 +260,17 @@ func (cmd *Command) SubSpecial(special string) *Command {
 	return nil
 }
 
-// Validate validates the passed args.
+// Validate validates the passed args, with the funcs of [Command.Args], then
+// with the count of [Command.Positional].
 func (cmd *Command) Validate(args []string) error {
 	// validate args
 	for _, f := range cmd.Args {
 		if err := f(args); err != nil {
 			return newCommandError(cmd.Name, err)
 		}
+	}
+	if err := cmd.checkArgCount(len(args)); err != nil {
+		return newCommandError(cmd.Name, err)
 	}
 	return nil
 }
@@ -279,6 +309,8 @@ func (cmd *Command) WriteTo(w io.Writer) (int64, error) {
 }
 
 // WalkFlags returns an iterator for all flags on the command and its parents.
+// It skips a local flag of a parent, because the command does not inherit
+// it. See [Flag.Local].
 func (cmd *Command) WalkFlags(hidden, deprecated bool) iter.Seq[*Flag] {
 	return func(yield func(*Flag) bool) {
 		for c := cmd; c != nil; c = c.Parent {
@@ -287,7 +319,7 @@ func (cmd *Command) WalkFlags(hidden, deprecated bool) iter.Seq[*Flag] {
 			}
 			for _, g := range c.Flags.Flags {
 				switch {
-				case !hidden && g.Hidden, !deprecated && g.Deprecated:
+				case !hidden && g.Hidden, !deprecated && g.Deprecated, c != cmd && g.Local:
 					continue
 				}
 				if !yield(g) {
@@ -407,6 +439,155 @@ func (cmd *Command) CompFlags(name string, hidden, deprecated, short bool) ([]Co
 		return comps, CompNoFileComp | CompKeepOrder
 	}
 	return nil, CompDefault
+}
+
+// longFlag returns the long flag of the command with the name. When no flag
+// has the name, and [Command.Abbrev] is on for the command, it returns the
+// one flag with a long name that starts with name. A prefix matches the long
+// names that completion offers: the name, the aliases and the hidden aliases
+// of each flag that is not hidden and not deprecated. The error wraps
+// [ErrUnknownFlag], or [ErrAmbiguousFlag] when the prefix matches more than
+// one flag.
+func (cmd *Command) longFlag(name string) (*Flag, error) {
+	if g := cmd.Flag(name, true, false); g != nil {
+		return g, nil
+	}
+	if name == "" || !cmd.abbrev() {
+		return nil, ErrUnknownFlag
+	}
+	var flags []*Flag
+	var names []string
+	seen := make(map[string]bool)
+	for g := range cmd.WalkFlags(true, true) {
+		for _, s := range prepend(g.aliases(true), g.Name) {
+			switch {
+			case len(s) == 1 && s != g.Name, seen[s]:
+				// a short alias, or the name of a nearer flag
+				continue
+			}
+			seen[s] = true
+			switch {
+			case g.Hidden, g.Deprecated, slices.Contains(g.DeprecatedAliases, s), !strings.HasPrefix(s, name):
+				continue
+			}
+			names = append(names, "--"+s)
+			if !slices.Contains(flags, g) {
+				flags = append(flags, g)
+			}
+		}
+	}
+	switch len(flags) {
+	case 0:
+		return nil, ErrUnknownFlag
+	case 1:
+		return flags[0], nil
+	}
+	slices.Sort(names)
+	return nil, fmt.Errorf("%w: %s", ErrAmbiguousFlag, strings.Join(names, ", "))
+}
+
+// abbrev returns true when [Command.Abbrev] is on for the command or for a
+// parent.
+func (cmd *Command) abbrev() bool {
+	for c := cmd; c != nil; c = c.Parent {
+		if c.Abbrev {
+			return true
+		}
+	}
+	return false
+}
+
+// inheritedFlags returns the flags that the command inherits from its
+// parents, from the nearest parent first. A local flag is not inherited. A
+// flag with the name of a nearer flag is not inherited, because the nearer
+// flag hides it.
+func (cmd *Command) inheritedFlags() []*Flag {
+	var flags []*Flag
+	seen := make(map[string]bool)
+	for c := cmd; c != nil; c = c.Parent {
+		if c.Flags == nil {
+			continue
+		}
+		for _, g := range c.Flags.Flags {
+			switch {
+			case c != cmd && g.Local, seen[g.Name]:
+				continue
+			}
+			seen[g.Name] = true
+			if c != cmd {
+				flags = append(flags, g)
+			}
+		}
+	}
+	return flags
+}
+
+// checkArgCount returns an error when n args do not fit the positional
+// arguments of the command: [ErrMissingArgument] for too few, and
+// [ErrInvalidArgCount] for too many.
+func (cmd *Command) checkArgCount(n int) error {
+	if len(cmd.Positional) == 0 {
+		return nil
+	}
+	for i, a := range cmd.Positional {
+		if n <= i && !a.Optional {
+			return fmt.Errorf("%w: %s", ErrMissingArgument, a.Flag.Name)
+		}
+	}
+	if m := len(cmd.Positional); m < n && !cmd.Positional[m-1].Variadic() {
+		return fmt.Errorf("%w: takes max %d arg(s)", ErrInvalidArgCount, m)
+	}
+	return nil
+}
+
+// addArgs adds positional arguments to the command. It returns an error when
+// an argument follows a variadic argument, or when a required argument
+// follows an optional argument.
+func (cmd *Command) addArgs(args ...*Argument) error {
+	for _, a := range args {
+		if n := len(cmd.Positional); n != 0 {
+			switch prev := cmd.Positional[n-1]; {
+			case prev.Variadic():
+				return fmt.Errorf("%w: %s follows the variadic argument %s", ErrInvalidArg, a.Flag.Name, prev.Flag.Name)
+			case prev.Optional && !a.Optional:
+				return fmt.Errorf("%w: the required argument %s follows the optional argument %s", ErrInvalidArg, a.Flag.Name, prev.Flag.Name)
+			}
+		}
+		cmd.Positional = append(cmd.Positional, a)
+	}
+	return nil
+}
+
+// checkArgNames returns an error when two positional arguments of the
+// command have the same name, or when an argument has the name of a flag of
+// the command. An argument and a flag keep their values in the same
+// [Vars].
+func (cmd *Command) checkArgNames() error {
+	seen := make(map[string]bool)
+	for _, a := range cmd.Positional {
+		name := a.Flag.Name
+		switch {
+		case seen[name]:
+			return fmt.Errorf("%w: two arguments are named %s", ErrInvalidArg, name)
+		case cmd.Flag(name, false, false) != nil:
+			return fmt.Errorf("%w: the argument %s has the name of a flag", ErrInvalidArg, name)
+		}
+		seen[name] = true
+	}
+	return nil
+}
+
+// argAt returns the positional argument at index i, or the last argument
+// when it is variadic and i is past it. It returns nil when the command
+// takes no argument at i.
+func (cmd *Command) argAt(i int) *Argument {
+	switch n := len(cmd.Positional); {
+	case i < n:
+		return cmd.Positional[i]
+	case n != 0 && cmd.Positional[n-1].Variadic():
+		return cmd.Positional[n-1]
+	}
+	return nil
 }
 
 // FlagSet is a set of command-line flag definitions.
@@ -761,6 +942,9 @@ type Flag struct {
 	Hidden bool
 	// Deprecated indicates the flag is deprecated.
 	Deprecated bool
+	// Local keeps the flag to its command. A sub command does not inherit
+	// it, so the command line of a sub command refuses it. See [Local].
+	Local bool
 	// Split is a split separator, to split values for slices/arrays/maps.
 	Split string
 	// Special is the flag's special value.
@@ -800,6 +984,99 @@ type Flag struct {
 	NotExist bool
 	// CompFunc is the func that completes the flag's value. See [CompFunc].
 	CompFunc func(ctx *Context, toComplete string) ([]Completion, CompDirective, error)
+	// Required makes the parse fail when the flag gets no value from the
+	// command line, the environment or a config file. See [Required].
+	Required bool
+
+	// groups are the groups of the flag from its struct tag, such as
+	// `onlyoneof:format`.
+	groups []groupTag
+}
+
+// Rule is a rule between the flags of a [FlagGroup].
+type Rule int
+
+// Rules.
+const (
+	// RuleOnlyOneOf allows one flag of the group at most. See [OnlyOneOf].
+	RuleOnlyOneOf Rule = iota
+	// RuleAllOrNoneOf needs each flag of the group, or none of them. See
+	// [AllOrNoneOf].
+	RuleAllOrNoneOf
+	// RuleAtLeastOneOf needs one flag of the group at least. See
+	// [AtLeastOneOf].
+	RuleAtLeastOneOf
+)
+
+// FlagGroup is a group of flags of a command, and the rule between them. A
+// flag of the group counts when it gets a value from the command line, the
+// environment or a config file. A default does not count.
+type FlagGroup struct {
+	// Rule is the rule between the flags.
+	Rule Rule
+	// Names are the long names of the flags.
+	Names []string
+}
+
+// check returns an error when the flags of the group break its rule. isSet
+// tells whether a flag has a value.
+func (grp FlagGroup) check(isSet func(string) bool) error {
+	var set, unset []string
+	for _, name := range grp.Names {
+		if isSet(name) {
+			set = append(set, name)
+		} else {
+			unset = append(unset, name)
+		}
+	}
+	switch {
+	case grp.Rule == RuleOnlyOneOf && len(set) > 1:
+		return fmt.Errorf("%w: %s", ErrOnlyOneOf, flagNames(set))
+	case grp.Rule == RuleAllOrNoneOf && len(set) != 0 && len(unset) != 0:
+		return fmt.Errorf("%w: %s (missing %s)", ErrAllOrNoneOf, flagNames(grp.Names), flagNames(unset))
+	case grp.Rule == RuleAtLeastOneOf && len(set) == 0:
+		return fmt.Errorf("%w: %s", ErrAtLeastOneOf, flagNames(grp.Names))
+	}
+	return nil
+}
+
+// groupTag is the group of a flag from a struct tag, such as
+// `onlyoneof:format`.
+type groupTag struct {
+	rule Rule
+	name string
+}
+
+// addTagGroups adds to cmd a [FlagGroup] for each group that the struct tags
+// of flags name. The flags with the same rule and the same group name are
+// one group.
+func addTagGroups(cmd *Command, flags []*Flag) {
+	index := make(map[groupTag]int)
+	for _, g := range flags {
+		for _, tag := range g.groups {
+			i, ok := index[tag]
+			if !ok {
+				i = len(cmd.FlagGroups)
+				index[tag] = i
+				cmd.FlagGroups = append(cmd.FlagGroups, FlagGroup{Rule: tag.rule})
+			}
+			cmd.FlagGroups[i].Names = append(cmd.FlagGroups[i].Names, g.Name)
+		}
+	}
+}
+
+// flagNames returns the names as the command line gives them, such as
+// `--json, --yaml`.
+func flagNames(names []string) string {
+	var sb strings.Builder
+	for i, name := range names {
+		if i != 0 {
+			_, _ = sb.WriteString(", ")
+		}
+		_, _ = sb.WriteString("--")
+		_, _ = sb.WriteString(name)
+	}
+	return sb.String()
 }
 
 // HelpLine is a name and its usage, which help writes on a line of its own,
@@ -839,6 +1116,77 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 		return nil, fmt.Errorf("flag %s: %w: Def cannot be nil", g.Name, ErrInvalidValue)
 	}
 	return g, nil
+}
+
+// Argument is a positional argument of a command, from [Arg].
+type Argument struct {
+	// Flag holds the name, the usage, the type, the default, the validators,
+	// the binds and the completion of the argument, as for a flag.
+	Flag *Flag
+	// Optional is true when the command runs without the argument. An
+	// argument with a default is optional.
+	Optional bool
+}
+
+// NewArgument creates a positional argument. It applies each [ArgOption],
+// such as [Optional], to the argument, and each other option, such as a
+// [Type], [Valid] or [Bind], to its [Argument.Flag], as [NewFlag] does.
+func NewArgument(name, usage string, opts ...Option) (*Argument, error) {
+	a := new(Argument)
+	var flagOpts []Option
+	for _, o := range opts {
+		if opt := o.Option(); opt.arg != nil {
+			if err := opt.apply(a); err != nil {
+				return nil, fmt.Errorf("argument %s: %w", name, err)
+			}
+			continue
+		}
+		flagOpts = append(flagOpts, o)
+	}
+	g, err := NewFlag(name, usage, flagOpts...)
+	if err != nil {
+		return nil, fmt.Errorf("argument %s: %w", name, err)
+	}
+	a.Flag, a.Optional = g, a.Optional || g.Def != nil
+	return a, nil
+}
+
+// Variadic returns true when the argument takes each argument that is left,
+// which is when its type is a [SliceT] or an [ArrayT].
+func (a *Argument) Variadic() bool {
+	return a.Flag.Type == SliceT || a.Flag.Type == ArrayT
+}
+
+// SpecString returns the spec of the argument in the usage line of help,
+// such as `file`, `[file]`, `file...` or `[file...]`. The name is the
+// [Flag.Spec] of the argument, or its name.
+func (a *Argument) SpecString() string {
+	s := a.name()
+	if a.Variadic() {
+		s += text.CommandArgsMore
+	}
+	if a.Optional {
+		return fmt.Sprintf(text.CommandArgOptionalSpec, s)
+	}
+	return fmt.Sprintf(text.CommandArgSpec, s)
+}
+
+// name returns the name of the argument that help writes: its [Flag.Spec],
+// or its name.
+func (a *Argument) name() string {
+	if a.Flag.Spec != "" {
+		return a.Flag.Spec
+	}
+	return a.Flag.Name
+}
+
+// elem returns the type of each value of the argument: the element type of a
+// variadic argument, or the type of the argument.
+func (a *Argument) elem() Type {
+	if a.Variadic() {
+		return a.Flag.Elem
+	}
+	return a.Flag.Type
 }
 
 // FlagsFrom creates flags for a value of type *struct using reflection. Builds
@@ -886,16 +1234,31 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 //	section - sets the flag's section
 //	hidden - marks the flag as hidden
 //	deprecated - marks the flag as deprecated
+//	local - keeps the flag to its command, so that a sub command does not inherit it
 //	split - set a split separator for slice/array/map values
 //	set - binds the flag's set value to a bool field in the *struct of the name
+//	required - marks the flag as required, see [Required]
+//	onlyoneof - adds the flag to a group of the name, see [OnlyOneOf]
+//	allornoneof - adds the flag to a group of the name, see [AllOrNoneOf]
+//	atleastoneof - adds the flag to a group of the name, see [AtLeastOneOf]
+//	arg - makes the field a positional argument and not a flag, in the order of the fields
+//	optional - makes a positional argument optional
+//
+// [From] and [App] add each positional argument to the command, as [Arg]
+// does. FlagsFrom leaves them out.
 //
 // The `default:` option will be processed by [Context.Interpolate] when the
 // command's flags are populated.
 //
+// FlagsFrom keeps the group of the `onlyoneof`, `allornoneof` and
+// `atleastoneof` options on each flag. [From] and [App] add the groups to the
+// command as [Command.FlagGroups].
+//
 // The tag name (`ox`) can be changed by setting the [DefaultStructTagName] variable
 // if necessary.
 func FlagsFrom[T *E, E any](val T) ([]*Flag, error) {
-	return appendFlags(nil, reflect.ValueOf(val), nil)
+	flags, _, err := appendFlags(nil, nil, reflect.ValueOf(val), nil)
+	return flags, err
 }
 
 // New creates a new value for the flag's type.
@@ -1045,10 +1408,11 @@ func NewExec[T ExecType](f T) (ExecFunc, error) {
 	return nil, fmt.Errorf("%w: invalid exec func %T", ErrInvalidType, f)
 }
 
-// appendFlags builds and appends flags for value v to flags.
-func appendFlags(flags []*Flag, v reflect.Value, parents []string) ([]*Flag, error) {
+// appendFlags builds and appends flags for value v to flags, and the
+// positional arguments of the fields with the tag option `arg` to args.
+func appendFlags(flags []*Flag, args []*Argument, v reflect.Value, parents []string) ([]*Flag, []*Argument, error) {
 	if v.Kind() != reflect.Pointer || v.Elem().Kind() != reflect.Struct {
-		return nil, fmt.Errorf("%w: %s is not a *struct", ErrInvalidType, v.Type())
+		return nil, nil, fmt.Errorf("%w: %s is not a *struct", ErrInvalidType, v.Type())
 	}
 	v = v.Elem()
 	typ := v.Type()
@@ -1060,7 +1424,7 @@ func appendFlags(flags []*Flag, v reflect.Value, parents []string) ([]*Flag, err
 			continue
 		}
 		if r := []rune(f.Name); !unicode.IsUpper(r[0]) {
-			return nil, fmt.Errorf("%w: unexported field `%s` has tag `%s`", ErrInvalidType, f.Name, DefaultStructTagName)
+			return nil, nil, fmt.Errorf("%w: unexported field `%s` has tag `%s`", ErrInvalidType, f.Name, DefaultStructTagName)
 		}
 		field := v.Field(i)
 		tags := SplitBy(tag, ',')
@@ -1077,8 +1441,8 @@ func appendFlags(flags []*Flag, v reflect.Value, parents []string) ([]*Flag, err
 				field.Set(reflect.New(f.Type.Elem()))
 			}
 			var err error
-			if flags, err = appendFlags(flags, field, append(parents, name)); err != nil {
-				return nil, err
+			if flags, args, err = appendFlags(flags, args, field, append(parents, name)); err != nil {
+				return nil, nil, err
 			}
 		case !isField && kind == reflect.Struct: // struct
 			switch name {
@@ -1088,8 +1452,8 @@ func appendFlags(flags []*Flag, v reflect.Value, parents []string) ([]*Flag, err
 				name = f.Name
 			}
 			var err error
-			if flags, err = appendFlags(flags, field.Addr(), append(parents, name)); err != nil {
-				return nil, err
+			if flags, args, err = appendFlags(flags, args, field.Addr(), append(parents, name)); err != nil {
+				return nil, nil, err
 			}
 		default:
 			switch name {
@@ -1101,35 +1465,66 @@ func appendFlags(flags []*Flag, v reflect.Value, parents []string) ([]*Flag, err
 					continue
 				}
 			}
-			g, err := buildFlag(v, i, tags, parents)
-			if err != nil {
-				return nil, err
+			g, a, err := buildFlag(v, i, tags, parents)
+			switch {
+			case err != nil:
+				return nil, nil, err
+			case a != nil:
+				args = append(args, a)
+			default:
+				flags = append(flags, g)
 			}
-			flags = append(flags, g)
 		}
 	}
-	return flags, nil
+	return flags, args, nil
 }
 
-// buildFlags builds a flag for v.
-func buildFlag(v reflect.Value, i int, tag []string, parents []string) (*Flag, error) {
+// buildFlag builds a flag for the field i of v, or a positional argument
+// when the tag has the option `arg`.
+func buildFlag(v reflect.Value, i int, tag []string, parents []string) (*Flag, *Argument, error) {
 	f := v.Type().Field(i)
 	// flag name
 	name := f.Name
 	if len(parents) != 0 {
 		name = strings.Join(parents, "_") + "_" + name
 	}
+	// the options of a positional argument
+	var arg, optional bool
+	tags := make([]string, 0, len(tag)-1)
+	for _, s := range tag[1:] {
+		switch s {
+		case "arg":
+			arg = true
+		case "optional":
+			optional = true
+		default:
+			tags = append(tags, s)
+		}
+	}
+	if optional && !arg {
+		return nil, nil, fmt.Errorf("field %s: %w: optional without arg", f.Name, ErrInvalidValue)
+	}
 	// flag opts
-	opts, err := buildFlagOpts(v, v.Field(i).Addr(), tag[1:])
+	opts, err := buildFlagOpts(v, v.Field(i).Addr(), tags)
 	if err != nil {
-		return nil, fmt.Errorf("field %s: %w", f.Name, err)
+		return nil, nil, fmt.Errorf("field %s: %w", f.Name, err)
+	}
+	if arg {
+		if optional {
+			opts = append(opts, Optional())
+		}
+		a, err := NewArgument(DefaultFlagNameMapper(name), tag[0], opts...)
+		if err != nil {
+			return nil, nil, fmt.Errorf("field %s: %w", f.Name, err)
+		}
+		return nil, a, nil
 	}
 	// create flag
 	g, err := NewFlag(DefaultFlagNameMapper(name), tag[0], opts...)
 	if err != nil {
-		return nil, fmt.Errorf("field %s: cannot create flag: %w", f.Name, err)
+		return nil, nil, fmt.Errorf("field %s: cannot create flag: %w", f.Name, err)
 	}
-	return g, nil
+	return g, nil, nil
 }
 
 // buildFlagOpts builds flag options for value from the passed struct tags.
@@ -1197,6 +1592,8 @@ func buildFlagOpts(parent, value reflect.Value, tags []string) ([]Option, error)
 			opts = append(opts, Hidden(true))
 		case "deprecated":
 			opts = append(opts, Deprecated(true))
+		case "local":
+			opts = append(opts, Local())
 		case "split":
 			opts = append(opts, Split(val))
 		case "abs":
@@ -1209,6 +1606,14 @@ func buildFlagOpts(parent, value reflect.Value, tags []string) ([]Option, error)
 			opts = append(opts, Ext(strings.Split(val, "|")...))
 		case "notexist":
 			opts = append(opts, NotExist())
+		case "required":
+			opts = append(opts, Required())
+		case "onlyoneof":
+			opts = append(opts, groupOption(RuleOnlyOneOf, val))
+		case "allornoneof":
+			opts = append(opts, groupOption(RuleAllOrNoneOf, val))
+		case "atleastoneof":
+			opts = append(opts, groupOption(RuleAtLeastOneOf, val))
 		case "set":
 			if set, err = setField(parent, val); err != nil {
 				return nil, err

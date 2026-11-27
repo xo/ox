@@ -406,6 +406,7 @@ func (ctx *Context) fill(root *Command, g *Flag) error {
 			if err := ctx.Vars.fill(ctx, g, s); err != nil {
 				return fmt.Errorf("--%s: $%s: %w", g.Name, name, err)
 			}
+			ctx.setFilled(g.Name)
 			return nil
 		}
 	}
@@ -420,6 +421,7 @@ func (ctx *Context) fill(root *Command, g *Flag) error {
 				if err := ctx.Vars.fill(ctx, g, v); err != nil {
 					return fmt.Errorf("--%s: %s: %s: %w", g.Name, f.path, key, err)
 				}
+				ctx.setFilled(g.Name)
 				return nil
 			}
 		}
@@ -434,6 +436,47 @@ func (ctx *Context) fill(root *Command, g *Flag) error {
 	}
 	if err := ctx.Vars.fill(ctx, g, v); err != nil {
 		return fmt.Errorf("--%s: default %v: %w", g.Name, v, err)
+	}
+	return nil
+}
+
+// setFilled records that the environment or a config file filled the flag
+// name.
+func (ctx *Context) setFilled(name string) {
+	if ctx.filled == nil {
+		ctx.filled = make(map[string]bool)
+	}
+	ctx.filled[name] = true
+}
+
+// isSet returns true when the flag name has a value from the command line,
+// the environment or a config file. A default does not count.
+func (ctx *Context) isSet(name string) bool {
+	if v, ok := ctx.Vars[name]; ok && v.WasSet() {
+		return true
+	}
+	return ctx.filled[name]
+}
+
+// validateFlags returns an error when a required flag of ctx.Exec or of a
+// parent has no value, or when the flags of a [FlagGroup] of ctx.Exec or of a
+// parent break its rule.
+func (ctx *Context) validateFlags() error {
+	var missing []string
+	for _, g := range scopeFlags(ctx.Exec) {
+		if g.Required && !ctx.isSet(g.Name) {
+			missing = append(missing, g.Name)
+		}
+	}
+	if len(missing) != 0 {
+		return fmt.Errorf("%w: %s", ErrRequiredFlag, flagNames(missing))
+	}
+	for c := ctx.Exec; c != nil; c = c.Parent {
+		for _, grp := range c.FlagGroups {
+			if err := grp.check(ctx.isSet); err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }

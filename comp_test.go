@@ -29,6 +29,8 @@ func TestComps(t *testing.T) {
 		{"value with a long equal", ss(`--config=`), nil, CompDefault, false},
 		{"value with a long equal and a prefix", ss(`--config=fo`), nil, CompDefault, false},
 		{"value of an unknown flag", ss(`--nope=fo`), nil, CompDefault, false},
+		{"no value after a prefix without Abbrev", ss(`--form//`), ss(`shell//serve//completion//help`), CompNoFileComp | CompKeepOrder, false},
+		{"no value after a prefix with an equal without Abbrev", ss(`--form=j`), nil, CompDefault, false},
 		{"arg after a bool flag", ss(`--verbose//`), ss(`shell//serve//completion//help`), CompNoFileComp | CompKeepOrder, false},
 		{"arg after a bool short flag", ss(`-v//sh`), ss(`shell`), CompNoFileComp | CompKeepOrder, false},
 		// allowed values
@@ -359,6 +361,82 @@ func TestSuggestFold(t *testing.T) {
 			var e *SuggestionError
 			if ok := errors.As(err, &e); ok != test.exp {
 				t.Errorf("expected a suggestion %t, got: %v", test.exp, err)
+			}
+		})
+	}
+}
+
+// TestCompScope holds that completion offers the flags that the parse
+// accepts: no local flag of a parent, a flag after its prefix with Abbrev,
+// and only positional arguments after the first positional argument of a
+// command with StopAtArg (D38).
+func TestCompScope(t *testing.T) {
+	tests := []struct {
+		name string
+		args []string
+		exp  []string
+		dir  CompDirective
+	}{
+		// local flags
+		{"local flag in its command", ss(`--ro`), ss(`--root-dir`), CompNoFileComp | CompKeepOrder},
+		{"no local flag in a sub command", ss(`sub//--ro`), nil, CompDefault},
+		{"inherited flags in a sub command", ss(`sub//--`), ss(`--count//--verbose//--verbatim//--format`), CompNoFileComp | CompKeepOrder},
+		{"no value of a local flag in a sub command", ss(`sub//--root-dir//`), nil, CompDefault},
+		{"no value of a local flag with an equal in a sub command", ss(`sub//--root-dir=`), nil, CompDefault},
+		{"value of an inherited flag", ss(`sub//--format//`), ss(`json//yaml`), CompNoFileComp | CompKeepOrder},
+		// prefixes
+		{"value after a prefix", ss(`--form//`), ss(`json//yaml`), CompNoFileComp | CompKeepOrder},
+		{"value after a prefix with an equal", ss(`--form=y`), ss(`yaml`), CompNoFileComp | CompKeepOrder},
+		{"value after a prefix in a sub command", ss(`sub//--form//j`), ss(`json`), CompNoFileComp | CompKeepOrder},
+		{"no value after an ambiguous prefix", ss(`--verb=`), nil, CompDefault},
+		{"arg after a prefix of a bool flag", ss(`--verbo//s`), ss(`sub`), CompNoFileComp | CompKeepOrder},
+		// stop at the first arg
+		{"flags before the first arg", ss(`exec//--verb`), ss(`--verbose//--verbatim`), CompNoFileComp | CompKeepOrder},
+		{"value before the first arg", ss(`exec//--format//`), ss(`json//yaml`), CompNoFileComp | CompKeepOrder},
+		{"args after the first arg", ss(`exec//cmd//`), ss(`--wrapped//plain`), CompKeepOrder},
+		{"a flag after the first arg", ss(`exec//cmd//--w`), ss(`--wrapped`), CompKeepOrder},
+		{"no value after the first arg", ss(`exec//cmd//--format//`), ss(`--wrapped//plain`), CompKeepOrder},
+		{"no flag after the first arg", ss(`exec//cmd//--verb`), nil, CompKeepOrder},
+	}
+	wrapped := func(*Context, string) ([]Completion, CompDirective, error) {
+		return []Completion{
+			NewCompletion("--wrapped", "", 0),
+			NewCompletion("plain", "", 0),
+		}, CompKeepOrder, nil
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			root, err := NewCommand(
+				Usage("app", "an app"),
+				Abbrev(),
+				Flags().
+					String("root-dir", "the root dir", Local()).
+					Bool("verbose", "verbose").
+					Bool("verbatim", "verbatim").
+					String("format", "the format", Valid("json", "yaml")),
+				Sub(Usage("sub", "a sub command"), Flags().Int("count", "a count")),
+				Sub(Usage("exec", "run a command"), StopAtArg(), CompFunc(wrapped)),
+			)
+			if err != nil {
+				t.Fatalf("expected no error, got: %v", err)
+			}
+			ctx := &Context{
+				Root: root,
+				Args: append([]string{DefaultCompName}, test.args...),
+			}
+			comps, dir, err := ctx.Comps()
+			if err != nil {
+				t.Fatalf("expected no error, got: %v", err)
+			}
+			var names []string
+			for _, c := range comps {
+				names = append(names, c.Name)
+			}
+			if !slices.Equal(names, test.exp) {
+				t.Errorf("expected %q, got: %q", test.exp, names)
+			}
+			if dir != test.dir {
+				t.Errorf("expected %s, got: %s", test.dir, dir)
 			}
 		})
 	}

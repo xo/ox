@@ -28,6 +28,13 @@
 - POSIX-style/compatible flag parsing (`-vvv`, `-mfoo=bar` `-m foo=bar`, `--map=foo=bar`)
 - Flags can have optional arguments (via `NoArg`) and type specific defaults
 - Full command tree and sub command heirarchy
+- Sub commands inherit the flags of their parents, and `ox.Local` keeps a
+  flag to its command. `ox.InheritedFlags` shows the inherited flags in a
+  `Global Flags:` section of the help
+- `ox.StopAtArg` ends the flags at the first positional argument, for a
+  wrapper command such as `app exec cmd --its-own-flag`
+- `ox.Abbrev` takes a unique prefix of a long flag, such as `--verb` for
+  `--verbose`, as GNU `getopt_long` does
 - Support for `builtin` types:
   - `[]byte`, `string`, `[]rune`, `byte`, `rune`
   - `int64`, `int32`, `int16`, `int8`, `int`
@@ -41,8 +48,11 @@
   - `*netip.Addr`, `*netip.AddrPort`, `*netip.Prefix`
   - `*uuid.UUID`, when built with Go 1.27 or later
 - Non-standard types:
-  - `ox.Size` - a byte size (`15 MiB`, `1 GB`, ...)
-  - `ox.Rate` - a byte rate (`15 MiB/s`, `1 GB/h`, ...)
+  - `ox.Size` - a byte size (`15 MiB`, `1 GB`, `1536Mi`, `6e9`, ...). The
+    verbs `%q` and `%Q` write the exact form of a Kubernetes quantity, such
+    as `1536Mi` or `6G`, and `ox.ParseSize` reads it back
+  - `ox.Rate` - a byte rate (`15 MiB/s`, `1 GB/h`, `1536Mi/s`, ...), with
+    the same verbs
 - Support for aggregate types of above (slices/arrays/maps):
   - `[]int`, `[][]byte`, `[]string`, `[]float64`, `[]*big.Int`, etc.
   - `map[string]string`, `map[int]string`, `map[float64]*url.URL`, etc.
@@ -72,6 +82,12 @@
 - Command, argument, and flag completion
 - Suggestions for command names, aliases, and suggested names
 - Argument validation and advanced shell completion support
+- Required flags, and rules between flags: only one of, all or none of, and
+  at least one of a group
+- Positional arguments with a name and a type, with `ox.Arg`, which are
+  converted, checked, completed and written in help as flags are
+- Funcs that run before and after a command and each of its sub commands,
+  with `ox.Before` and `ox.After`
 - TinyGo compatible
 
 ## Using

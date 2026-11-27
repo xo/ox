@@ -209,6 +209,58 @@ because `encoding/json` is in the standard library (D1).
 steps 2 to 4 too, so that a completion func can read a value from a file,
 and it ignores their errors.
 
+## Required flags and rules between flags
+
+D37 decides this section, and it is built. A required flag must get a
+value. A rule between flags names a group of flags of a command, and says how
+many of them can have a value.
+
+### Built
+
+```go
+// Required is a Flag option. The parse fails when the flag gets no value
+// from the command line, the environment or a config file. Struct tag:
+// `required`.
+func Required() FlagOption
+
+// OnlyOneOf, AllOrNoneOf and AtLeastOneOf are Command options. Each adds a
+// FlagGroup to the command. Struct tags: `onlyoneof:GROUP`,
+// `allornoneof:GROUP` and `atleastoneof:GROUP`.
+func OnlyOneOf(names ...string) CommandOption
+func AllOrNoneOf(names ...string) CommandOption
+func AtLeastOneOf(names ...string) CommandOption
+
+// FlagGroup is a group of flags of a command, and the rule between them.
+// Command.FlagGroups holds them.
+type FlagGroup struct {
+	Rule  Rule // RuleOnlyOneOf, RuleAllOrNoneOf or RuleAtLeastOneOf
+	Names []string
+}
+
+// The errors that Context.Validate returns.
+const (
+	ErrRequiredFlag Error = "required flag"
+	ErrOnlyOneOf    Error = "only one of the flags can be set"
+	ErrAllOrNoneOf  Error = "all or none of the flags must be set"
+	ErrAtLeastOneOf Error = "at least one of the flags must be set"
+)
+```
+
+### The rules
+
+1. A flag counts as set when it gets a value from the command line, the
+   environment or a config file. A default does not count.
+2. `Context.Validate` checks the args, then the required flags, then the
+   groups. It checks the flags and the groups of the command and of each of
+   its parents.
+3. A command without an exec func has no check, because `ox` writes its
+   help. The help, version and completion commands have no check. `--help`
+   and `--version` stop the parse before the check.
+4. Each error names the flags, such as
+   `command app: required flag: --name`.
+5. Help writes `(required)`, the text of `text.FlagRequired`, in place of
+   the default of a required flag. Completion does not change.
+
 ## Go versions
 
 D24 decides this section.
@@ -644,3 +696,137 @@ module measured both on 2026-11-26.
 Two aliases are `aliases:one|two`, and one is `alias:one`. A comma that is
 not escaped is an error that names the field: `field X: unknown tag option:
 " forgot to escape"`.
+
+## Inherited flags, stopping at an argument, and prefixes
+
+D38 decides this section. A maintainer agreed to the
+three features on 2026-11-28, after a survey of other Go flag packages. Each
+feature is off by default, so that no program changes.
+
+| API | Target | What it does | The model |
+| --- | --- | --- | --- |
+| `Local()`, tag option `local` | a flag | keeps the flag to its command, so that the command line of a sub command refuses it | the local flags of cobra |
+| `InheritedFlags(true)` | help | writes the flags that a sub command inherits in a `Global Flags:` section | the global flags of cobra |
+| `StopAtArg()` | a command | ends the flags at the first positional argument | `SetInterspersed(false)` of pflag |
+| `Abbrev()` | a command and its sub commands | takes a unique prefix of a long flag | GNU `getopt_long` |
+| `ErrAmbiguousFlag` | an error | a prefix that matches more than one flag | the error of `getopt_long` |
+
+`Flag.Local`, `Command.StopAtArg`, `Command.Abbrev` and
+`CommandHelp.InheritedFlags` hold the settings.
+
+### The flags that a command accepts
+
+A command accepts its own flags, and each flag of a parent that is not
+local. A flag hides a flag of a parent with the same name. A local flag of a
+parent hides nothing. One rule gives this set to each part of `ox`:
+
+1. `Command.Flag` finds a flag of the set by its name.
+2. `Command.WalkFlags` walks the set, from the command to the root, so
+   completion offers the flags of the set and no other.
+3. The `Global Flags:` section of help writes the set without the flags of
+   the command, and without a hidden or a deprecated flag.
+4. A prefix of `Abbrev` matches the long names of the set that completion
+   offers.
+
+`Context.Fill` does not use the set. It still fills each flag of the command
+and its parents, so a local flag of a parent keeps its default when a sub
+command runs.
+
+### The stop at the first argument
+
+The parse reads each argument in order. When an argument is not a flag, the
+parse looks for a sub command with its name, as before. When no sub command
+has the name, the argument is the first positional argument. When the
+command has `StopAtArg`, the parse stops there, and each later argument is a
+positional argument, `--` too. Completion sees the same stop, and completes
+only positional arguments after it.
+
+### The prefix of a long flag
+
+The parse looks for a flag with the exact name first, in the set above. When
+no flag has the name, and the command or a parent has `Abbrev`, the parse
+looks for the long names of the set that start with the name. Each name of
+a hidden flag, of a deprecated flag, and each deprecated alias needs its
+exact name, as in completion. One matching flag is the flag. More than one
+gives `ErrAmbiguousFlag`, with the matching names in sorted order. No
+matching flag gives `ErrUnknownFlag`. Completion of the value of a flag uses
+the same lookup.
+
+## Before and after funcs, typed arguments, and the wrap width
+
+D39 decides this section. Each part is built.
+
+### Before and after funcs
+
+A program opens a database or a log in one place, before each command
+runs, and closes it after the command:
+
+```go
+ox.Run(
+	ox.Usage("db", "a database tool"),
+	ox.Before(func(ctx context.Context) error { /* open */ return nil }),
+	ox.After(func(ctx context.Context) error { /* close */ return nil }),
+	ox.Sub(ox.Usage("list", "list the rows"), ox.Exec(list)),
+)
+```
+
+`Context.Run` calls the funcs in this order, for `db list`:
+
+1. The before func of `db`, then the before func of `list`.
+2. The exec func of `list`.
+3. The after func of `list`, then the after func of `db`.
+
+| What happens | The funcs that run | What the run returns |
+| --- | --- | --- |
+| Each func returns nil | each func | nil |
+| A before func fails | the before funcs up to it | its error |
+| The exec func fails | each func | its error, joined with each error of an after func |
+| An after func fails | each func | its error, joined with the others |
+| `--help`, `--version`, `help`, `version`, `completion` or `__complete` | none | as before |
+
+A struct of `App` sets the funcs with its methods `Before` and `After`.
+
+### Typed arguments
+
+kong and go-arg declare each positional argument with a name and a type.
+`ox` builds an argument on a `Flag`, so each option of a flag works on it:
+
+```go
+ox.Run(
+	ox.Usage("cp", "copy files"),
+	ox.Arg("src", "the file to copy", ox.FileT),
+	ox.Arg("mode", "the mode", ox.Valid("fast", "slow"), ox.Default("fast")),
+	ox.Arg("dirs", "the directories", ox.SliceT, ox.Elem(ox.DirT), ox.Optional()),
+	ox.Exec(cp),
+)
+```
+
+The same in a struct tag, for `From` and `App`:
+
+```go
+type Args struct {
+	Src  string   `ox:"the file to copy,arg,type:file"`
+	Mode string   `ox:"the mode,arg,default:fast"`
+	Dirs []string `ox:"the directories,arg,optional,elem:dir"`
+}
+```
+
+| Part | What it does |
+| --- | --- |
+| The parse | `Command.Validate` counts the args. `Context.Validate` converts each one and sets it in `Context.Vars`, by name |
+| Required and optional | An argument is required, unless it has a default or `Optional()` |
+| Variadic | The last argument, with the type `SliceT` or `ArrayT`, takes each arg that is left |
+| Errors | `ErrMissingArgument`, `ErrInvalidArgCount` and `ErrInvalidValue` |
+| Help | The usage line writes `src [mode] [dirs...]`, and `Arguments:` writes each argument with its usage and its default |
+| Completion | Each position completes by its argument: its `CompFunc`, the values of `Valid`, or a path type. Else it calls the `CompFunc` of the command |
+
+`ValidArgs`, `ArgsFunc`, `ArgUsage` and the `CompFunc` of a command still
+work. Help writes the lines of `ArgUsage` after the arguments.
+
+### The wrap width
+
+Help wraps at `DefaultWrapWidth`. It does not read the width of the
+terminal. A program that wants the width of the terminal reads it, for
+example with `golang.org/x/term`, and sets `DefaultWrapWidth` before it
+calls `Run`. So `ox` starts no process and needs no build constraint for
+each system (D39, item 17).

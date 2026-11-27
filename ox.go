@@ -393,6 +393,9 @@ type Context struct {
 	files []configFile
 	// loaded is true when the config files were read.
 	loaded bool
+	// filled are the names of the flags that the environment or a config
+	// file filled.
+	filled map[string]bool
 }
 
 // NewContext creates a new run context.
@@ -449,8 +452,9 @@ func (ctx *Context) Parse() error {
 // of the completion command, and the last arg is the word to complete.
 //
 // Comps ignores each error in the args before the last arg, as cobra does.
-// After `--`, it completes only positional arguments. It never offers a
-// hidden or a deprecated flag, nor a hidden or a deprecated command.
+// After `--`, or after the first positional argument of a command with
+// [Command.StopAtArg], it completes only positional arguments. It never
+// offers a hidden or a deprecated flag, nor a hidden or a deprecated command.
 func (ctx *Context) Comps() ([]Completion, CompDirective, error) {
 	n := len(ctx.Args)
 	if n < 2 {
@@ -469,8 +473,8 @@ func (ctx *Context) Comps() ([]Completion, CompDirective, error) {
 		Args: ctx.Args[1:n],
 		Vars: make(Vars),
 	}
-	var dashdash bool
-	c.Exec, c.Args, dashdash, _ = parse(c, c.Root, c.Args)
+	var end bool
+	c.Exec, c.Args, end, _ = parse(c, c.Root, c.Args)
 	// a value from the environment or a config file is a help, and its
 	// error is not
 	_ = c.Fill(c.Exec)
@@ -478,17 +482,18 @@ func (ctx *Context) Comps() ([]Completion, CompDirective, error) {
 	var dir CompDirective
 	var err error
 	switch toComplete := ctx.Args[n]; {
-	case dashdash:
+	case end:
 		comps, dir, err = c.compArgs(toComplete, false)
 	case strings.HasPrefix(toComplete, "-") && strings.Contains(toComplete, "="):
 		// --flag=value and -f=value
 		name, value, _ := strings.Cut(toComplete, "=")
-		short := !strings.HasPrefix(name, "--")
-		if short {
+		var g *Flag
+		if long, ok := strings.CutPrefix(name, "--"); ok {
+			g, _ = c.Exec.longFlag(long)
+		} else {
 			r := []rune(name)
-			name = string(r[len(r)-1:])
+			g = c.Exec.Flag(string(r[len(r)-1:]), true, true)
 		}
-		g := c.Exec.Flag(strings.TrimPrefix(name, "--"), true, short)
 		if g == nil {
 			return nil, CompDefault, nil
 		}
@@ -508,16 +513,39 @@ func (ctx *Context) Comps() ([]Completion, CompDirective, error) {
 	return comps, dir &^ CompNoFilter, nil
 }
 
-// Validate validates the args.
+// Validate validates the args with [Command.Validate], then sets the value
+// of each positional argument of [Context.Exec] in [Context.Vars], then
+// validates the flags of the command and of its parents. A flag with
+// [Required] must have a value, and the flags of each [FlagGroup] must keep
+// its rule. A value counts when it comes from the command line, the
+// environment or a config file. A default does not count.
+//
+// The flags are not checked when the command has no exec func, because then
+// [Context.Run] writes the help, or when it has a special value, such as the
+// help, version and completion commands that [Defaults] adds. A `--help` or a
+// `--version` flag stops the parse before Validate.
 func (ctx *Context) Validate() error {
-	return ctx.Exec.Validate(ctx.Args)
+	if err := ctx.Exec.Validate(ctx.Args); err != nil {
+		return err
+	}
+	if err := ctx.setArgs(ctx.Exec, ctx.Args); err != nil {
+		return newCommandError(ctx.Exec.Name, err)
+	}
+	if ctx.Exec.Exec == nil || ctx.Exec.Special != "" {
+		return nil
+	}
+	if err := ctx.validateFlags(); err != nil {
+		return newCommandError(ctx.Exec.Name, err)
+	}
+	return nil
 }
 
-// Run runs the command.
+// Run runs the command. It runs the [Command.Before] funcs, the exec func,
+// then the [Command.After] funcs. See [Before] and [After].
 func (ctx *Context) Run(parent context.Context) error {
 	switch {
 	case ctx.Exec.Exec != nil:
-		return ctx.Exec.Exec(WithContext(parent, ctx), ctx.Args)
+		return ctx.exec(WithContext(parent, ctx))
 	case DefaultSuggestionsEnabled && len(ctx.Exec.Commands) != 0 && len(ctx.Args) != 0:
 		if err := ctx.Exec.Suggest(ctx.Args...); err != nil {
 			return err
@@ -568,6 +596,110 @@ func (ctx *Context) Expand(v any) (any, error) {
 	return v, nil
 }
 
+// setArgs sets the value of each positional argument of cmd in the vars,
+// from args, or from its default when args do not hold it. It converts and
+// checks each value from args as the parse does for a flag. A variadic
+// argument takes each arg that is left, and checks each path.
+func (ctx *Context) setArgs(cmd *Command, args []string) error {
+	for i, a := range cmd.Positional {
+		g := a.Flag
+		var values []string
+		switch {
+		case len(args) <= i:
+		case a.Variadic():
+			values = args[i:]
+		default:
+			values = args[i : i+1]
+		}
+		if len(values) == 0 {
+			if g.Def == nil {
+				continue
+			}
+			def, err := ctx.Expand(g.Def)
+			if err != nil {
+				return fmt.Errorf("arg %s: %w", g.Name, err)
+			}
+			if err := ctx.Vars.fill(ctx, g, def); err != nil {
+				return fmt.Errorf("arg %s: %w", g.Name, err)
+			}
+			continue
+		}
+		delete(ctx.Vars, g.Name)
+		for _, s := range values {
+			if a.Variadic() && isPath(g.Elem) {
+				// a variadic path checks each value, as a path flag does
+				elem := *g
+				elem.Type = g.Elem
+				var err error
+				if s, err = elem.pathValue(s, true); err != nil {
+					return fmt.Errorf("arg %s: %w", g.Name, err)
+				}
+			}
+			if err := ctx.Vars.set(ctx, g, s, true, false); err != nil {
+				return fmt.Errorf("arg %s: %w", g.Name, err)
+			}
+		}
+	}
+	return nil
+}
+
+// exec runs the before funcs from the root down, the exec func of
+// [Context.Exec], then the after funcs from the exec command up. A built-in
+// command, such as help, runs only its exec func.
+func (ctx *Context) exec(c context.Context) error {
+	cmd := ctx.Exec
+	if isBuiltin(cmd) {
+		return cmd.Exec(c, ctx.Args)
+	}
+	var tree []*Command
+	for x := cmd; x != nil; x = x.Parent {
+		tree = append(tree, x)
+	}
+	for _, x := range slices.Backward(tree) {
+		if x.Before == nil {
+			continue
+		}
+		if err := x.Before(c, ctx.Args); err != nil {
+			return err
+		}
+	}
+	errs := []error{cmd.Exec(c, ctx.Args)}
+	for _, x := range tree {
+		if x.After != nil {
+			errs = append(errs, x.After(c, ctx.Args))
+		}
+	}
+	return joinErrors(errs...)
+}
+
+// isBuiltin returns true when cmd is the help, the version or the completion
+// command, or a command below one.
+func isBuiltin(cmd *Command) bool {
+	for c := cmd; c != nil; c = c.Parent {
+		switch {
+		case c.Special == "help", c.Special == "version", c.Special == "comp", strings.HasPrefix(c.Special, "comp:"):
+			return true
+		}
+	}
+	return false
+}
+
+// joinErrors returns the errors that are not nil. It returns one error as it
+// is, so that a caller can still assert its type, and joins more than one with
+// [errors.Join].
+func joinErrors(errs ...error) error {
+	errs = slices.DeleteFunc(errs, func(err error) bool {
+		return err == nil
+	})
+	switch len(errs) {
+	case 0:
+		return nil
+	case 1:
+		return errs[0]
+	}
+	return errors.Join(errs...)
+}
+
 // compArgs returns the completions of a positional argument. When commands is
 // true, it adds the sub commands of the command.
 func (ctx *Context) compArgs(toComplete string, commands bool) ([]Completion, CompDirective, error) {
@@ -575,6 +707,34 @@ func (ctx *Context) compArgs(toComplete string, commands bool) ([]Completion, Co
 	var comps []Completion
 	if commands && len(ctx.Args) == 0 {
 		comps, _ = cmd.CompCommands(toComplete, false, false)
+	}
+	// a positional argument completes by its type, and a type that completes
+	// nothing falls back to the command
+	a := cmd.argAt(len(ctx.Args))
+	switch {
+	case a != nil && a.Flag.CompFunc != nil:
+		v, dir, err := compFunc(ctx, a.Flag.CompFunc, toComplete)
+		return compNearest(append(comps, v...)), dir, err
+	case a != nil && len(a.Flag.Allowed) != 0:
+		values := make([]string, len(a.Flag.Allowed))
+		for i, v := range a.Flag.Allowed {
+			values[i] = fmt.Sprint(v)
+		}
+		if comps = compNearest(append(comps, compValues(cmd, toComplete, values)...)); len(comps) != 0 {
+			return comps, CompNoFileComp | CompKeepOrder, nil
+		}
+		return nil, CompNoFileComp, nil
+	case a != nil && isPath(a.elem()):
+		elem := *a.Flag
+		elem.Type = a.elem()
+		v, dir := elem.compPath()
+		return append(comps, v...), dir, nil
+	case a == nil && len(cmd.Positional) != 0:
+		// past the last argument
+		if len(comps) != 0 {
+			return comps, CompNoFileComp | CompKeepOrder, nil
+		}
+		return nil, CompNoFileComp, nil
 	}
 	switch {
 	case cmd.CompFunc != nil:
@@ -687,7 +847,7 @@ func compPrevFlag(cmd *Command, s string) *Flag {
 	case len(s) < 2, s[0] != '-', s == "--", strings.Contains(s, "="):
 		return nil
 	case strings.HasPrefix(s, "--"):
-		if g := cmd.Flag(s[2:], true, false); g != nil && !g.NoArg {
+		if g, _ := cmd.longFlag(s[2:]); g != nil && !g.NoArg {
 			return g
 		}
 		return nil
@@ -780,6 +940,9 @@ const (
 	ErrUnknownCommand Error = "unknown command"
 	// ErrUnknownFlag is the unknown flag error.
 	ErrUnknownFlag Error = "unknown flag"
+	// ErrAmbiguousFlag is the ambiguous flag error, for a prefix of a long
+	// flag that matches more than one flag. See [Abbrev].
+	ErrAmbiguousFlag Error = "ambiguous flag"
 	// ErrUnknownLoader is the unknown loader error.
 	ErrUnknownLoader Error = "unknown loader"
 	// ErrUnknownKey is the unknown key error.
@@ -830,6 +993,18 @@ const (
 	ErrIsDir Error = "is a directory"
 	// ErrNotDir is the not a directory error of a [DirT].
 	ErrNotDir Error = "not a directory"
+	// ErrRequiredFlag is the required flag error of a flag with [Required]
+	// that has no value.
+	ErrRequiredFlag Error = "required flag"
+	// ErrOnlyOneOf is the error of the flags of [OnlyOneOf] when two or more
+	// of them have a value.
+	ErrOnlyOneOf Error = "only one of the flags can be set"
+	// ErrAllOrNoneOf is the error of the flags of [AllOrNoneOf] when some of
+	// them have a value, and others do not.
+	ErrAllOrNoneOf Error = "all or none of the flags must be set"
+	// ErrAtLeastOneOf is the error of the flags of [AtLeastOneOf] when none of
+	// them has a value.
+	ErrAtLeastOneOf Error = "at least one of the flags must be set"
 )
 
 // SuggestionError is a suggestion error.

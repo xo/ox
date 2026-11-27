@@ -173,19 +173,19 @@ func appOptions(cmd *Command, v any, prefix string) ([]Option, error) {
 		opts = append(opts, Sections(strings.Split(s, "\n")...))
 	}
 	// flags
-	flags, err := appendFlags(nil, val, nil)
+	flags, args, err := appendFlags(nil, nil, val, nil)
 	if err != nil {
 		return nil, fmt.Errorf("%s: cannot build flags: %w", typ, err)
 	}
-	if len(flags) != 0 {
+	if len(flags) != 0 || len(args) != 0 {
 		opts = append(opts, option{
 			name: "App",
 			cmd: func(cmd *Command) error {
-				if cmd.Flags == nil {
-					cmd.Flags = Flags()
+				if len(flags) != 0 {
+					cmd.Flags = cmd.Flags.With(flags...)
 				}
-				cmd.Flags.Flags = append(cmd.Flags.Flags, flags...)
-				return nil
+				addTagGroups(cmd, flags)
+				return cmd.addArgs(args...)
 			},
 		})
 	}
@@ -195,9 +195,11 @@ func appOptions(cmd *Command, v any, prefix string) ([]Option, error) {
 			opts = append(opts, Sub(appOption(sub, typeName)))
 		}
 	}
-	// exec
-	if o := appExec(v); o != nil {
-		opts = append(opts, o)
+	// exec, before and after
+	for _, o := range []Option{appExec(v), appBefore(v), appAfter(v)} {
+		if o != nil {
+			opts = append(opts, o)
+		}
 	}
 	return opts, nil
 }
@@ -226,6 +228,62 @@ func appExec(v any) Option {
 		return Exec(x.Exec)
 	case interface{ Exec() }:
 		return Exec(x.Exec)
+	}
+	return nil
+}
+
+// appBefore returns the [Before] option of the Before method of v, or nil
+// when v has no Before method that [Before] takes.
+func appBefore(v any) Option {
+	switch x := v.(type) {
+	case interface {
+		Before(context.Context, []string) error
+	}:
+		return Before(x.Before)
+	case interface {
+		Before(context.Context, []string)
+	}:
+		return Before(x.Before)
+	case interface{ Before(context.Context) error }:
+		return Before(x.Before)
+	case interface{ Before(context.Context) }:
+		return Before(x.Before)
+	case interface{ Before([]string) error }:
+		return Before(x.Before)
+	case interface{ Before([]string) }:
+		return Before(x.Before)
+	case interface{ Before() error }:
+		return Before(x.Before)
+	case interface{ Before() }:
+		return Before(x.Before)
+	}
+	return nil
+}
+
+// appAfter returns the [After] option of the After method of v, or nil when v
+// has no After method that [After] takes.
+func appAfter(v any) Option {
+	switch x := v.(type) {
+	case interface {
+		After(context.Context, []string) error
+	}:
+		return After(x.After)
+	case interface {
+		After(context.Context, []string)
+	}:
+		return After(x.After)
+	case interface{ After(context.Context) error }:
+		return After(x.After)
+	case interface{ After(context.Context) }:
+		return After(x.After)
+	case interface{ After([]string) error }:
+		return After(x.After)
+	case interface{ After([]string) }:
+		return After(x.After)
+	case interface{ After() error }:
+		return After(x.After)
+	case interface{ After() }:
+		return After(x.After)
 	}
 	return nil
 }

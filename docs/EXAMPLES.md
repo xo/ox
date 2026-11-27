@@ -29,8 +29,9 @@ program.
 3. [Build commands and help](#build-commands-and-help)
 4. [Read a value of each type](#read-a-value-of-each-type)
 5. [Read config files and the environment](#read-config-files-and-the-environment)
-6. [Test a command](#test-a-command)
-7. [Known faults](#known-faults)
+6. [Require flags](#require-flags)
+7. [Test a command](#test-a-command)
+8. [Known faults](#known-faults)
 
 ## Choose a style
 
@@ -258,12 +259,17 @@ option after the description is one of these:
 | `section:N` | puts the flag in section `N` of the help |
 | `hidden` | hides the flag in the help |
 | `deprecated` | hides the flag in the help |
+| `local` | keeps the flag to its command, so that a sub command refuses it |
 | `hook:help` or `hook:version` | makes the flag the help or the version flag |
 | `key:KEY` or `key:TYPE\|KEY` | sets the config key, for every format or for one format |
 | `config` | makes the flag name the config file |
 | `env:NAME` | fills the flag from the environment variable `NAME` |
 | `noenv` | keeps the flag out of the environment |
 | `noconfig` | keeps the flag out of the config files |
+| `required` | makes the flag required |
+| `onlyoneof:GROUP` | adds the flag to the group `GROUP`, which allows one flag at most |
+| `allornoneof:GROUP` | adds the flag to the group `GROUP`, which needs each flag or none |
+| `atleastoneof:GROUP` | adds the flag to the group `GROUP`, which needs one flag at least |
 
 An option that is not in this table is an error.
 
@@ -357,6 +363,38 @@ func ExampleFrom_values() {
 	// color: always
 	// level set: true
 	// user: ken
+}
+```
+
+### Make a field a positional argument
+
+The tag option `arg` makes a field a positional argument and not a flag.
+The arguments take the order of the fields. `optional` makes an argument
+optional. A slice field is variadic, so it takes each argument that is
+left, and `elem` sets the type of each value. `From` and `ox.App` read these
+options. `ox.FlagsFrom` leaves the arguments out.
+
+```go
+func ExampleFrom_args() {
+	args := struct {
+		Verbose bool     `ox:"write more,short:v"`
+		Src     string   `ox:"the file to copy,arg,type:file"`
+		Dsts    []string `ox:"the directories to copy to,arg,optional,elem:dir"`
+	}{}
+	ox.Run(
+		ox.Usage("cp", "copy a file"),
+		ox.From(&args),
+		ox.Exec(func() {
+			fmt.Println("verbose:", args.Verbose)
+			fmt.Println("src:", args.Src)
+			fmt.Println("dsts:", args.Dsts)
+		}),
+		ox.Args("-v", "go.mod", "docs", "testdata"),
+	)
+	// Output:
+	// verbose: true
+	// src: go.mod
+	// dsts: [docs testdata]
 }
 ```
 
@@ -459,6 +497,60 @@ func ExampleSub() {
 	// Output:
 	// dir: /src
 	// remove: origin
+}
+```
+
+### Run a func before and after a command
+
+`ox.Before(f)` runs `f` before the exec func of the command and of each sub
+command below it. `ox.After(f)` runs `f` after it. Each takes a func with a
+signature that `ox.Exec` takes. The before funcs run from the root down, and
+the after funcs run from the sub command up. These rules apply:
+
+1. If a before func returns an error, the run stops. No other func runs.
+2. The after funcs run also when the exec func returns an error. Each after
+   func runs, whatever an earlier one returns.
+3. The run returns the errors of the exec func and of the after funcs,
+   joined with `errors.Join`.
+4. `--help`, `--version`, the `help` command, the `version` command and
+   completion run no before func and no after func.
+
+With `ox.App`, a method `Before` or `After` of the struct sets the func.
+
+```go
+func ExampleBefore() {
+	err := ox.RunError(
+		context.Background(),
+		ox.Usage("db", "a database tool"),
+		ox.Flags().
+			String("dsn", "the database to open", ox.Default("app.db")),
+		ox.Before(func(ctx context.Context) error {
+			fmt.Println("open", otx.String(ctx, "dsn"))
+			return nil
+		}),
+		ox.After(func(ctx context.Context) error {
+			fmt.Println("close", otx.String(ctx, "dsn"))
+			return nil
+		}),
+		ox.Sub(
+			ox.Usage("list", "list the rows"),
+			ox.Before(func() {
+				fmt.Println("lock the table")
+			}),
+			ox.Exec(func() error {
+				fmt.Println("list the rows")
+				return errors.New("no rows")
+			}),
+		),
+		ox.Args("--dsn", "test.db", "list"),
+	)
+	fmt.Println("error:", err)
+	// Output:
+	// open test.db
+	// lock the table
+	// list the rows
+	// close test.db
+	// error: no rows
 }
 ```
 
@@ -678,6 +770,94 @@ func ExampleArgUsage() {
 }
 ```
 
+### Declare typed positional arguments
+
+`ox.Arg(name, usage, opts...)` adds a positional argument to a command. It
+takes the options of a flag, such as a type, `ox.Default`, `ox.Valid`,
+`ox.Bind`, `ox.Spec` and `ox.CompFunc`. These rules apply:
+
+1. The run converts each argument to its type and checks it, as for a flag.
+   An `ox.FileT` must be a file that exists.
+2. The exec func reads the value by the name of the argument, with `otx`.
+3. An argument is required, unless it has a default or `ox.Optional()`. A
+   required argument cannot follow an optional one.
+4. A missing argument gives `ox.ErrMissingArgument`, and one too many gives
+   `ox.ErrInvalidArgCount`.
+5. Help writes each argument in the usage line and in the `Arguments:`
+   section. Completion completes a file, a directory, or the values of
+   `ox.Valid`, and else calls the `ox.CompFunc` of the command.
+
+```go
+func ExampleArg() {
+	run := func(args ...string) {
+		err := ox.RunError(
+			context.Background(),
+			ox.Usage("cp", "copy a file"),
+			ox.Arg("src", "the file to copy", ox.FileT),
+			ox.Arg("dst", "the directory to copy to", ox.DirT, ox.Default(".")),
+			ox.Exec(func(ctx context.Context) {
+				fmt.Println("copy", otx.String(ctx, "src"), "to", otx.String(ctx, "dst"))
+			}),
+			ox.Args(args...),
+		)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+	run("go.mod", "docs")
+	run("go.mod")
+	run("missing.txt")
+	run()
+	run("go.mod", "docs", "more")
+	// Output:
+	// copy go.mod to docs
+	// copy go.mod to .
+	// command cp: arg src: invalid value: missing.txt: does not exist
+	// command cp: missing argument: src
+	// command cp: invalid arg count: takes max 2 arg(s)
+}
+```
+
+### A variadic argument
+
+The last argument can be variadic. Give it the type `ox.SliceT`, and the
+type of each value with `ox.Elem`. It takes each argument that is left, and
+`otx.Slice` reads it. `ox.Spec` sets the name that help writes.
+
+```go
+func ExampleArg_variadic() {
+	run := func(args ...string) {
+		err := ox.RunError(
+			context.Background(),
+			ox.Usage("cat", "print files"),
+			ox.Arg("files", "the files to print", ox.SliceT, ox.Elem(ox.FileT), ox.Spec("FILE")),
+			ox.Help(),
+			ox.Exec(func(ctx context.Context) {
+				fmt.Println(otx.Slice[string](ctx, "files"))
+			}),
+			ox.Args(args...),
+		)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+	run("go.mod", "LICENSE")
+	run("--help")
+	// Output:
+	// [go.mod LICENSE]
+	// cat print files
+	//
+	// Usage:
+	//   cat [flags] FILE...
+	//
+	// Arguments:
+	//   FILE    the files to print
+	//
+	// Flags:
+	//   -h, --help      show help, then exit
+}
+```
+
 ### Put the help and version flags in a section of their own
 
 A flag with `ox.Special("hook:help")` becomes the help flag, and a flag with
@@ -782,6 +962,151 @@ func Example_psqlHelp() {
 }
 ```
 
+### Keep a flag to its command
+
+A sub command inherits each flag of its parents, so `app show --config
+a.yaml` sets the `--config` flag of `app`. `ox.Local()` keeps a flag to its
+command. The command line of a sub command refuses a local flag with
+`ox.ErrUnknownFlag`, and completion does not offer it there. The tag option
+is `local`.
+
+```go
+func ExampleLocal() {
+	run := func(args ...string) error {
+		return ox.RunError(
+			context.Background(),
+			ox.Usage("app", "an app"),
+			ox.Flags().
+				String("config", "the config file").
+				Bool("init", "make a new config file", ox.Local()),
+			ox.Sub(
+				ox.Usage("show", "show the config"),
+				ox.Exec(func(ctx context.Context) {
+					fmt.Println("config:", otx.String(ctx, "config"))
+				}),
+			),
+			ox.Args(args...),
+		)
+	}
+	fmt.Println(run("show", "--config", "a.yaml"))
+	err := run("show", "--init")
+	fmt.Println(errors.Is(err, ox.ErrUnknownFlag), err)
+	// Output:
+	// config: a.yaml
+	// <nil>
+	// true --init: unknown flag
+}
+```
+
+### Show the inherited flags in the help
+
+The help of a sub command shows only its own flags. `ox.InheritedFlags(true)`
+adds a `Global Flags:` section with the flags that it inherits, as cobra
+does. Give it to `ox.Defaults` or to `ox.Help` on the root, and each sub
+command gets it. The section leaves out a local flag, a hidden flag, and a
+flag of a parent that a flag of the sub command hides.
+
+```go
+func ExampleInheritedFlags() {
+	ox.Run(
+		ox.Usage("app", "an app"),
+		ox.Defaults(ox.InheritedFlags(true)),
+		ox.Flags().
+			String("config", "the config file", ox.Short("c")).
+			Bool("init", "make a new config file", ox.Local()),
+		ox.Sub(
+			ox.Usage("show", "show the config"),
+			ox.Flags().
+				Bool("all", "show every key"),
+		),
+		ox.Args("show", "--help"),
+	)
+	// Output:
+	// show show the config
+	//
+	// Usage:
+	//   app show [flags] [args]
+	//
+	// Flags:
+	//       --all       show every key
+	//   -h, --help      show help, then exit
+	//
+	// Global Flags:
+	//   -c, --config string  the config file
+}
+```
+
+### Stop at the first argument
+
+A wrapper command passes its args to another command. `ox.StopAtArg()` ends
+the flags of the command at its first positional argument. Each later
+argument is a positional argument, even one that starts with `-`. A sub
+command name comes before the first positional argument, so `ox` still
+finds it. A sub command does not inherit `ox.StopAtArg()`.
+
+```go
+func ExampleStopAtArg() {
+	ox.Run(
+		ox.Usage("app", "an app"),
+		ox.Flags().
+			Bool("verbose", "write more", ox.Short("v")),
+		ox.Sub(
+			ox.Usage("exec", "run a command"),
+			ox.StopAtArg(),
+			ox.Flags().
+				String("dir", "the work directory", ox.Short("C")),
+			ox.Exec(func(ctx context.Context, args []string) {
+				fmt.Println("verbose:", otx.Bool(ctx, "verbose"))
+				fmt.Println("dir:", otx.String(ctx, "dir"))
+				fmt.Printf("args: %q\n", args)
+			}),
+		),
+		ox.Args("exec", "-v", "-C", "/src", "ls", "-l", "--all"),
+	)
+	// Output:
+	// verbose: true
+	// dir: /src
+	// args: ["ls" "-l" "--all"]
+}
+```
+
+### Take a prefix of a long flag
+
+`ox.Abbrev()` lets the command line give a long flag by a unique prefix of
+its name, as GNU `getopt_long` does. An exact name always wins. A prefix
+that matches more than one flag fails with `ox.ErrAmbiguousFlag`, and the
+error names the flags. A prefix does not match a hidden flag, a deprecated
+flag or a deprecated alias. A sub command inherits `ox.Abbrev()`.
+
+```go
+func ExampleAbbrev() {
+	run := func(args ...string) error {
+		return ox.RunError(
+			context.Background(),
+			ox.Usage("app", "an app"),
+			ox.Abbrev(),
+			ox.Flags().
+				Bool("verbose", "write more").
+				Bool("version", "write the version").
+				String("output", "the output file"),
+			ox.Exec(func(ctx context.Context) {
+				fmt.Println("output:", otx.String(ctx, "output"))
+				fmt.Println("verbose:", otx.Bool(ctx, "verbose"))
+			}),
+			ox.Args(args...),
+		)
+	}
+	fmt.Println(run("--out", "a.txt", "--verb"))
+	err := run("--ver")
+	fmt.Println(errors.Is(err, ox.ErrAmbiguousFlag), err)
+	// Output:
+	// output: a.txt
+	// verbose: true
+	// <nil>
+	// true --ver: ambiguous flag: --verbose, --version
+}
+```
+
 ## Read a value of each type
 
 ### A slice
@@ -879,6 +1204,39 @@ func ExampleFlagSet_Size() {
 	// Output:
 	// max: 1.5 GiB 1610612736
 	// limit: 10 MiB/s
+}
+```
+
+### A size as Kubernetes writes it
+
+The verbs `%q` and `%Q` write a size or a rate in the exact form of a
+Kubernetes quantity. Each writes an integer with the largest suffix that
+divides the size, so no byte is lost. `%q` uses a binary suffix, such as
+`Mi` or `Gi`, and `%Q` uses a decimal suffix, such as `M` or `G`. A space
+flag, as in `% q`, puts a space before the suffix. `%e` rounds to the best
+fitting suffix instead. `ox.ParseSize` reads each form back.
+
+```go
+func ExampleSize_Format() {
+	for _, s := range []string{"6Gi", "1.5Gi", "1500Mi", "6e9", "100"} {
+		size, err := ox.ParseSize(s)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("%s: %q % q %Q %e\n", s, size, size, size, size)
+	}
+	rate, err := ox.ParseRate("1.5Gi/s")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("rate: %q\n", rate)
+	// Output:
+	// 6Gi: 6Gi 6 Gi 6442450944 6Gi
+	// 1.5Gi: 1536Mi 1536 Mi 1610612736 1.5Gi
+	// 1500Mi: 1500Mi 1500 Mi 1572864k 1.46Gi
+	// 6e9: 5859375Ki 5859375 Ki 6G 5.59Gi
+	// 100: 100 100 100 100
+	// rate: 1536Mi/s
 }
 ```
 
@@ -1516,6 +1874,151 @@ func Example_hcl() {
 }
 ```
 
+## Require flags
+
+D37 proposes these rules. A flag counts as set when it gets a value from the
+command line, the environment or a config file. A default does not count.
+`Context.Validate` checks the flags after the parse, and before the exec
+func runs. `ox.RunError` and `ox.Run` call it.
+
+The flags are not checked for a command without an exec func, because `ox`
+writes its help. They are not checked for the help, version and completion
+commands either. `--help` and `--version` work without a required flag.
+
+### Make a flag required
+
+`ox.Required` makes a flag required. A flag without a value is an error that
+wraps `ox.ErrRequiredFlag`. Help writes `(required)` in place of the
+default.
+
+```go
+func ExampleRequired() {
+	run := func(args ...string) error {
+		return ox.RunError(
+			context.Background(),
+			ox.Usage("deploy", "deploy the app"),
+			ox.Help(),
+			ox.EnvPrefix("DEPLOY"),
+			ox.Flags().
+				String("target", "the target", ox.Required()).
+				String("region", "the region", ox.Default("east")),
+			ox.Exec(func(ctx context.Context) {
+				fmt.Println("deploy to", otx.String(ctx, "target"))
+			}),
+			ox.Args(args...),
+		)
+	}
+	err := run()
+	fmt.Println(errors.Is(err, ox.ErrRequiredFlag), err)
+	fmt.Println(run("--target", "prod"))
+	_ = os.Setenv("DEPLOY_TARGET", "staging")
+	defer func() { _ = os.Unsetenv("DEPLOY_TARGET") }()
+	fmt.Println(run())
+	fmt.Println(run("--help"))
+	// Output:
+	// true command deploy: required flag: --target
+	// deploy to prod
+	// <nil>
+	// deploy to staging
+	// <nil>
+	// deploy deploy the app
+	//
+	// Usage:
+	//   deploy [flags] [args]
+	//
+	// Flags:
+	//       --target string  the target (required)
+	//       --region string  the region (default: east)
+	//   -h, --help           show help, then exit
+	// <nil>
+}
+```
+
+### Add rules between flags
+
+`ox.OnlyOneOf`, `ox.AllOrNoneOf` and `ox.AtLeastOneOf` take the names of
+flags of the command or of its parents. Each rule has its own error:
+`ox.ErrOnlyOneOf`, `ox.ErrAllOrNoneOf` and `ox.ErrAtLeastOneOf`. The error
+names the flags. A rule of a parent applies to each of its sub commands.
+
+```go
+func ExampleOnlyOneOf() {
+	run := func(args ...string) error {
+		return ox.RunError(
+			context.Background(),
+			ox.Usage("export", "export the data"),
+			ox.Flags().
+				Bool("json", "write JSON").
+				Bool("yaml", "write YAML").
+				String("user", "the user").
+				String("pass", "the password").
+				String("file", "the file to read").
+				String("url", "the URL to read"),
+			ox.OnlyOneOf("json", "yaml"),
+			ox.AllOrNoneOf("user", "pass"),
+			ox.AtLeastOneOf("file", "url"),
+			ox.Exec(func() {
+				fmt.Println("export")
+			}),
+			ox.Args(args...),
+		)
+	}
+	fmt.Println(run("--file", "data.csv", "--json"))
+	err := run("--file", "data.csv", "--json", "--yaml")
+	fmt.Println(errors.Is(err, ox.ErrOnlyOneOf), err)
+	err = run("--url", "https://example.com", "--user", "ken")
+	fmt.Println(errors.Is(err, ox.ErrAllOrNoneOf), err)
+	err = run("--json")
+	fmt.Println(errors.Is(err, ox.ErrAtLeastOneOf), err)
+	// Output:
+	// export
+	// <nil>
+	// true command export: only one of the flags can be set: --json, --yaml
+	// true command export: all or none of the flags must be set: --user, --pass (missing --pass)
+	// true command export: at least one of the flags must be set: --file, --url
+}
+```
+
+### Require flags with struct tags
+
+The tag option `required` makes a flag required. The tag options
+`onlyoneof:GROUP`, `allornoneof:GROUP` and `atleastoneof:GROUP` add the flag
+to a group. The flags with the same option and the same group name are one
+group. A flag can be in more than one group.
+
+```go
+func ExampleFrom_rules() {
+	args := struct {
+		Target string `ox:"the target,required"`
+		JSON   bool   `ox:"write JSON,onlyoneof:format"`
+		YAML   bool   `ox:"write YAML,onlyoneof:format"`
+		User   string `ox:"the user,allornoneof:auth"`
+		Pass   string `ox:"the password,allornoneof:auth"`
+	}{}
+	run := func(v ...string) error {
+		return ox.RunError(
+			context.Background(),
+			ox.Usage("deploy", "deploy the app"),
+			ox.From(&args),
+			ox.Exec(func() {
+				fmt.Println("deploy to", args.Target)
+			}),
+			ox.Args(v...),
+		)
+	}
+	fmt.Println(run("--target", "prod", "--json"))
+	fmt.Println(run("--json"))
+	fmt.Println(run("--target", "prod", "--json", "--yaml"))
+	fmt.Println(run("--target", "prod", "--pass", "secret"))
+	// Output:
+	// deploy to prod
+	// <nil>
+	// command deploy: required flag: --target
+	// command deploy: only one of the flags can be set: --json, --yaml
+	// command deploy: all or none of the flags must be set: --user, --pass (missing --user)
+}
+```
+
 ## Test a command
 
 ### Return the error of a run
@@ -1715,3 +2218,4 @@ says.
 | --- | --- | --- |
 | `ox.Hook` takes a `func(context.Context) error`, which a hook cannot call | `invalid hook func func(context.Context) error` | Use a flag of type `ox.HookT`, or `FlagSet.Hook` |
 | The default layout of the help does not write the aliases of a flag | `--username` and not `--username, --login` | Pass `ox.HelpColumn(n)`, which writes them |
+| At `ox.DefaultWrapWidth`, `ox.Wrap` lets each line after the first pass the width by the indent of the description | A long description runs past column 95 | Keep the description short |

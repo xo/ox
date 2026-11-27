@@ -3,30 +3,60 @@ package ox
 import (
 	"bytes"
 	"fmt"
+	"math"
+	"math/bits"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 )
 
-// ParseSize parses a byte size string.
+// ParseSize parses a byte size string, such as 1.5GiB, 1536Mi, 6G or 100.
+// A suffix can follow a space. A number without a suffix can have an
+// exponent instead, as a Kubernetes quantity can, such as 6e9 or 1E3. An
+// integer, with or without a suffix, gives the exact number of bytes.
+// ParseSize refuses a value that does not fit in an int64.
 func ParseSize(s string) (Size, error) {
 	m := sizeRE.FindStringSubmatch(s)
 	if m == nil {
 		return 0, fmt.Errorf("%w %q", ErrInvalidSize, s)
 	}
-	f, err := strconv.ParseFloat(m[2], 64)
-	switch {
-	case err != nil:
-		return 0, fmt.Errorf("%w: %w", ErrInvalidSize, err)
-	case m[1] == "-":
-		f = -f
-	}
-	sz, err := parseSize(m[3])
+	neg := m[1] == "-"
+	sz, err := parseSize(m[5])
 	if err != nil {
 		return 0, fmt.Errorf("%w: %w", ErrInvalidSize, err)
 	}
-	return Size(f * float64(sz)), nil
+	if m[3] == "" && m[4] == "" {
+		// an integer, so multiply without a float to keep each byte
+		i, err := strconv.ParseUint(m[2], 10, 64)
+		if err != nil {
+			return 0, fmt.Errorf("%w: %w", ErrInvalidSize, err)
+		}
+		hi, lo := bits.Mul64(i, uint64(sz))
+		limit := uint64(math.MaxInt64)
+		if neg {
+			limit++
+		}
+		switch {
+		case hi != 0, limit < lo:
+			return 0, fmt.Errorf("%w %q: %w", ErrInvalidSize, s, strconv.ErrRange)
+		case neg:
+			return Size(-lo), nil
+		}
+		return Size(lo), nil
+	}
+	f, err := strconv.ParseFloat(m[2]+m[3]+m[4], 64)
+	if err != nil {
+		return 0, fmt.Errorf("%w: %w", ErrInvalidSize, err)
+	}
+	f *= float64(sz)
+	if neg {
+		f = -f
+	}
+	if f < math.MinInt64 || math.MaxInt64 <= f {
+		return 0, fmt.Errorf("%w %q: %w", ErrInvalidSize, s, strconv.ErrRange)
+	}
+	return Size(f), nil
 }
 
 // ParseRate parses a byte rate string.
@@ -61,7 +91,15 @@ func ParseRate(s string) (Rate, error) {
 // AppendSize appends the formatted size to b. A precision below -1 will format
 // the value to the fixed precision then trims any trailing '.' / '0'. Formats
 // the value based on the verb (see below). When space is true, a space will be
-// appended between the formatted size and the suffix.
+// appended between the formatted size and the suffix. A value without a suffix
+// gets no space.
+//
+// The verbs q and Q write the exact size, as Kubernetes writes a quantity.
+// Each writes an integer with the largest suffix that divides the size, so
+// that no byte is lost: q with a binary suffix (Ki, Mi, Gi, Ti, Pi, Ei) and Q
+// with a decimal suffix (k, M, G, T, P, E). A size that no suffix divides has
+// no suffix. The precision does not apply to them. For example, 1.5 GiB is
+// 1536Mi with q, and 6,000,000,000 bytes is 6G with Q.
 //
 // Supported verbs:
 //
@@ -69,6 +107,7 @@ func ParseRate(s string) (Rate, error) {
 //	f/F - size in best fitting *B/*iB (ex: 999 B, 1.1 KiB) and always with a space
 //	z/Z - size in best fitting *B/*iB (ex: 999 B, 1.1 KiB)
 //	e/E - size in best fitting */*i (ex: 12.5G, 11.1Gi)
+//	q/Q - exact size in */*i, as a Kubernetes quantity (ex: 1536Mi, 6G)
 //	k/K - size in KB/KiB (ex: 0.9 kB, 2.3 KiB)
 //	m/M - size in MB/MiB (ex: 1.2345 MB)
 //	g/G - size in GB/GiB (ex: 1 GiB)
@@ -81,6 +120,10 @@ func AppendSize(b []byte, size int64, verb rune, prec int, space bool) []byte {
 	switch verb {
 	case 'd', 'D':
 		return strconv.AppendInt(b, size, 10)
+	case 'q':
+		return appendExact(b, size, true, space)
+	case 'Q':
+		return appendExact(b, size, false, space)
 	case 'k':
 		sz, unit = sz/KiB, "KiB"
 	case 'K':
@@ -135,10 +178,41 @@ func AppendSize(b []byte, size int64, verb rune, prec int, space bool) []byte {
 			return r == '.'
 		})
 	}
-	if space {
+	if space && unit != "" {
 		b = append(b, ' ')
 	}
 	return append(b, unit...)
+}
+
+// appendExact appends size to b as an integer with the largest binary (iec)
+// or decimal suffix that divides it.
+func appendExact(b []byte, size int64, iec, space bool) []byte {
+	// a uint64 holds the magnitude of math.MinInt64
+	u := uint64(size)
+	if size < 0 {
+		b, u = append(b, '-'), -u
+	}
+	n, units := uint64(KB), "kMGTPE"
+	if iec {
+		n, units = KiB, "KMGTPE"
+	}
+	e := -1
+	for u != 0 && u%n == 0 && e < len(units)-1 {
+		u /= n
+		e++
+	}
+	b = strconv.AppendUint(b, u, 10)
+	if e == -1 {
+		return b
+	}
+	if space {
+		b = append(b, ' ')
+	}
+	b = append(b, units[e])
+	if iec {
+		b = append(b, 'i')
+	}
+	return b
 }
 
 // FormatSize formats a byte size.
@@ -321,4 +395,4 @@ func unitString(unit time.Duration) string {
 }
 
 // sizeRE matches sizes.
-var sizeRE = regexp.MustCompile(`(?i)^([-+])?([0-9]+(?:\.[0-9]*)?)(?: ?([a-z]+))?$`)
+var sizeRE = regexp.MustCompile(`(?i)^([-+])?([0-9]+)(\.[0-9]*)?(?:(e[-+]?[0-9]+)|(?: ?([a-z]+)))?$`)

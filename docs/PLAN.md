@@ -42,6 +42,10 @@ reader can find a decision by its number.
 | [D34](#d34-a-flag-takes-its-value-from-the-command-line-the-environment-the-config-files-or-its-default-proposed) | A flag takes its value from the command line, the environment, the config files or its default | Proposed |
 | [D35](#d35-the-choices-that-the-agents-made-on-2026-11-26-proposed) | The choices that the agents made on 2026-11-26 | Proposed |
 | [D36](#d36-choices-that-the-backlog-agent-made-proposed) | Choices that the backlog agent made | Proposed |
+| [D37](#d37-required-flags-and-rules-between-flags-decided) | Required flags and rules between flags | Decided |
+| [D38](#d38-inherited-flags-stopping-at-an-argument-and-prefixes-decided) | Inherited flags, stopping at an argument, and prefixes | Decided |
+| [D39](#d39-before-and-after-funcs-typed-arguments-and-the-wrap-width-decided) | Before and after funcs, typed arguments, and the wrap width | Decided |
+| [D40](#d40-the-kubernetes-form-of-a-size-decided) | The Kubernetes form of a size | Decided |
 
 ## Purpose
 
@@ -1029,6 +1033,317 @@ B51, the errors that wrap no constant:
     error with `errors.Is`. A constant in front changes the message,
     such as the `-h: unknown flag` of `usql`. A validator of `Valid`
     already wraps `ErrInvalidValue`.
+
+### D37. Required flags and rules between flags. Decided.
+
+A maintainer agreed on 2026-11-28 to two features, after a survey of other
+Go flag packages, such as cobra, kong, go-flags, go-arg, kingpin and
+urfave/cli. The first is a required flag. The second is a rule between the
+flags of a command: only one of a group, all or none of a group, and at
+least one of a group. An agent built both, and made the choices below. A
+maintainer confirmed each choice on 2026-11-28.
+The section "Required flags and rules between flags" in
+[DESIGN.md](DESIGN.md) holds the API.
+
+1. The names are `Required()`, a flag option, and `OnlyOneOf(names...)`,
+   `AllOrNoneOf(names...)` and `AtLeastOneOf(names...)`, command options.
+   The command options use the words of the request, because they say what
+   the rule does at the call site. cobra calls them
+   `MarkFlagsMutuallyExclusive`, `MarkFlagsRequiredTogether` and
+   `MarkFlagsOneRequired`.
+2. A flag counts as set when it gets a value from the command line, the
+   environment or a config file. A default does not count. `Value.WasSet`
+   stays true only for the command line, as rule 6 of the configuration in
+   [DESIGN.md](DESIGN.md) says. So `Context.Fill` records the names of the
+   flags that the environment or a config file filled, in a field of
+   `Context` that is not exported. No exported func reads it.
+3. `Context.Validate` runs the checks, after `Command.Validate` checks the
+   args. So `ErrInvalidArgCount` comes first, then the required flags, then
+   the groups in the order that the program adds them. cobra checks in the
+   same order. `RunContext` and `RunError` call `Validate` after the parse,
+   and before the exec func runs. Completion does not call it.
+4. The checks cover the flags and the groups of the command and of each of
+   its parents, as `Context.Fill` does. So a required flag of the root is
+   required for each sub command, as a required persistent flag of cobra is.
+5. A command without an exec func has no check, because `Context.Run` then
+   writes its help. A command with a special value has no check either. Those
+   are the help, version and completion commands that `Defaults` adds, so a
+   required flag of the root does not break `app help`. `--help` and
+   `--version` are hooks that stop the parse with `ErrExit`, so `Validate`
+   does not run after them.
+6. Four sentinel errors name the faults: `ErrRequiredFlag`, `ErrOnlyOneOf`,
+   `ErrAllOrNoneOf` and `ErrAtLeastOneOf`. `ErrRequiredFlag` names each
+   required flag that has no value, in one error, such as
+   `command app: required flag: --name, --token`. `ErrOnlyOneOf` names the
+   flags of the group that are set. `ErrAllOrNoneOf` names the group, then
+   the flags that are missing. `ErrAtLeastOneOf` names the group.
+7. Help writes `(required)`, the text of `text.FlagRequired`, after the
+   usage of a required flag, in place of its default. A default never wins
+   for a required flag, so help does not write it. Completion is not
+   changed.
+8. A name in a group is the long name or a long alias of a flag of the
+   command or of a parent. The command resolves the names after it has its
+   flags, and an alias becomes the name of its flag. A name that matches no
+   flag fails `NewCommand` with `ErrUnknownFlag`.
+9. In the reflection style, a tag option names the rule and a group:
+   `onlyoneof:GROUP`, `allornoneof:GROUP` and `atleastoneof:GROUP`. The
+   flags of a struct that have the same rule and the same group name are one
+   group, nested structs too. A flag can be in more than one group. The
+   struct then holds the whole rule, as the `xor` and `and` tags of kong do.
+   The other way was a tag `group:GROUP` and a command option that names the
+   group, which splits the rule between two places. A tag option without a
+   group name fails with `ErrInvalidValue`.
+10. `FlagsFrom` keeps the group of a tag on a field of `Flag` that is not
+    exported. `From` and `App` add the groups to `Command.FlagGroups`. A
+    program that calls `FlagsFrom` itself adds its groups with the command
+    options.
+11. A group can have one flag, and a required flag can have a default.
+    Neither is an error. The default of a required flag is never used.
+12. `_tools/oximport` still writes a code comment for a flag that cobra
+    lists as required (D35, item 24). It can write `ox.Required()` now. This
+    change does not touch the importer.
+
+### D38. Inherited flags, stopping at an argument, and prefixes. Decided.
+
+A maintainer agreed to three features on 2026-11-28, after a survey of other
+Go flag packages: control over which flags a sub command inherits (item 5 of
+B19), a stop at the first positional argument, and a unique prefix of a long
+flag. An agent built them, and made the choices below. A maintainer
+confirmed each choice on 2026-11-28, and items 11 and 13 in particular.
+[DESIGN.md](DESIGN.md) holds the API.
+
+The flags that a sub command inherits:
+
+1. A sub command inherits each flag of its parents by default, as before, so
+   that no program changes. `Local()`, or the tag option `local`, keeps a
+   flag to its command, as a local flag of cobra does. The command line of a
+   sub command refuses a local flag of a parent with `ErrUnknownFlag`. No
+   option makes every flag of a command local.
+2. A local flag of a parent does not hide a flag with the same name of a
+   grandparent. The sub command finds the flag of the grandparent.
+3. `Local` changes only the command line and completion. When a sub command
+   runs, `Context.Fill` still gives a local flag of a parent its value from
+   the environment, a config file or its default. So a variable that the
+   flag binds keeps its default.
+4. `InheritedFlags(true)` is a help option. It writes the flags that a sub
+   command inherits in a section after its own flags, with the name of
+   `text.GlobalFlags`, `Global Flags`, as cobra does. It is off by default,
+   so that the help of each program stays the same. When the root has it,
+   `Help` gives it to each sub command. `CommandHelp.InheritedFlags` holds
+   it, and `CommandHelp.AddInheritedFlags` writes the section.
+5. The section leaves out a local flag, a hidden flag, a deprecated flag,
+   and a flag of a parent with the name of a nearer flag. It holds the flags
+   of the nearest parent first, in one section, whatever their `Section`.
+   It aligns its descriptions on its own, as cobra does.
+6. Completion offers the flags that the parse accepts. `Command.Flag` does
+   not find a local flag of a parent, and `Command.WalkFlags` skips it.
+
+The stop at the first positional argument:
+
+7. `StopAtArg()` is a command option, and `Command.StopAtArg` holds it. A
+   sub command does not inherit it, because each command has its own
+   arguments.
+8. A sub command name comes before the first positional argument. So
+   `StopAtArg` on a root with sub commands still finds `app sub`, and
+   `app x sub` gives the root the args `x sub`.
+9. A `--` before the first positional argument ends the flags, and the
+   parse drops it, as before. A `--` after it is a positional argument, as
+   pflag does, so that a wrapper command passes it on. A `-` is a
+   positional argument, as before.
+10. After the first positional argument, completion completes only
+    positional arguments, as it does after `--`.
+
+The prefix of a long flag:
+
+11. `Abbrev()` is a command option, off by default, and `Command.Abbrev`
+    holds it. A command takes a prefix when it or a parent has `Abbrev`, so
+    a sub command inherits it and cannot turn it off.
+12. An exact name always wins over a prefix. This includes the exact name of
+    a hidden flag, a deprecated flag, an alias and a deprecated alias.
+13. A prefix matches the long names that completion offers: the name, the
+    aliases and the hidden aliases of each flag that is not hidden and not
+    deprecated. It does not match a hidden flag, a deprecated flag or a
+    deprecated alias. So a hidden flag never makes a prefix ambiguous, and
+    an error never names it. GNU `getopt_long` has no hidden option, so this
+    is a difference from it.
+14. A prefix matches the flags of the command and the flags that it
+    inherits as one set, because the command line takes them in the same
+    place. A local flag of a parent is not in the set, and neither is a flag
+    of a parent with the name of a nearer flag.
+15. Two names of one flag, such as `--color` and its alias `--colour`, are
+    one match. A prefix that matches more than one flag fails with the new
+    constant `ErrAmbiguousFlag`. The error names each long name that
+    matches, in sorted order: `--ver: ambiguous flag: --verbose, --version`.
+16. A prefix compares with case, as the parse of a name does (D36). A short
+    flag needs its exact name. The empty name of `--=x` matches nothing.
+17. Completion of the value of a flag finds the flag by its prefix too, so
+    `--form <tab>` completes the values of `--format`.
+
+### D39. Before and after funcs, typed arguments, and the wrap width. Decided.
+
+A maintainer agreed on 2026-11-28 to three features, after a survey of other
+Go flag packages: funcs that run before and after a command, as cobra's
+`PersistentPreRun` and urfave/cli's `Before` do, positional arguments with a
+name and a type, as kong and go-arg have, and help that wraps at the width of
+the terminal. An agent built them, and made the choices below. A maintainer
+confirmed each choice on 2026-11-28, and removed the width of the terminal
+(item 17).
+[DESIGN.md](DESIGN.md) has the design.
+
+The before and after funcs:
+
+1. `Before(f)` and `After(f)` are command options, and set
+   `Command.Before` and `Command.After`. Each takes any signature that
+   `Exec` takes. A command has one of each, so a later option replaces an
+   earlier one.
+2. The before func of a command runs for the command and for each sub
+   command below it. The before funcs run from the root down, then the exec
+   func runs, then the after funcs run from the exec command up. Each func
+   gets the `context.Context` and the args of the exec func.
+3. When a before func returns an error, the run stops and returns it. No
+   later before func, no exec func and no after func runs. This includes the
+   after func of a command whose before func ran.
+4. The after funcs run also when the exec func returns an error, as the
+   `After` of urfave/cli does. Each after func runs, whatever an earlier one
+   returns. The run joins the errors of the exec func and of the after funcs
+   with `errors.Join`. When only one func returns an error, the run returns
+   that error as it is, so that `DefaultErrorHandler` still finds its
+   `ErrorCode` method.
+5. The funcs run only for a command with an exec func. A command without
+   one writes its help and runs no func. A panic in the exec func runs no
+   after func.
+6. Help, the version and completion run no before func and no after func.
+   The `--help` and `--version` flags and completion stop the run in the
+   parse. `Context.Run` runs only the exec func of a command with the
+   special value `help`, `version`, `comp` or `comp:` and a shell, and of
+   each command below one.
+7. With `App`, a method `Before` or `After` of the struct sets the func.
+   It can have any signature that `Exec` takes, as item 20 of D36 allows for
+   `Exec`.
+
+The typed positional arguments:
+
+8. `Arg(name, usage, opts...)` is a command option that adds an `Argument`
+   to `Command.Positional`. An `Argument` holds a `*Flag` and `Optional`.
+   Each option of a flag applies to the flag of the argument, so a type,
+   `Elem`, `Default`, `Valid`, `Bind`, `Spec`, `CompFunc` and the path
+   options work as they do for a flag. An `ArgOption` applies to the
+   argument itself. `Optional()` is the only one. The `option` struct has a
+   new func `arg` for it (D5). `NewArgument` builds an argument.
+9. An argument is required, unless it has a default or `Optional()`. A
+   required argument cannot follow an optional one, and no argument can
+   follow a variadic one. `NewCommand` returns `ErrInvalidArg` for these,
+   for two arguments with the same name, and for an argument with the name
+   of a flag of the same command, because both keep their value in `Vars`.
+10. An argument of type `SliceT` or `ArrayT` is variadic. It takes each arg
+    that is left, and each arg is one value, without a split. A variadic
+    argument with `Elem(FileT)` or `Elem(DirT)` checks each path. A slice
+    flag of paths checks none (item 11 of D36). A list of files is the
+    usual case of a variadic argument, so it gets the check.
+11. `Context.Validate` converts and checks the args, after
+    `Command.Validate` counts them. A missing required argument gives
+    `ErrMissingArgument`, and too many args give `ErrInvalidArgCount`. A
+    value that does not convert gives `ErrInvalidValue`, as for a flag,
+    such as `command cp: arg src: invalid value: x: does not exist`.
+12. `Context.Vars` holds each value by the name of the argument. So
+    `otx.Get`, `otx.Slice`, `Bind` and `Vars` read an argument as they read
+    a flag. A missing optional argument without a default has no value. A
+    default is expanded as the default of a flag is, and a default path is
+    not checked (item 6 of D36). The environment and the config files never
+    fill an argument.
+13. The struct tag option `arg` makes a field an argument, in the order of
+    the fields, and `optional` makes it optional. `From` and `App` add the
+    arguments. `FlagsFrom` leaves them out, because it returns only flags.
+    `optional` without `arg` is an error.
+14. With no `Spec`, the usage line of help writes the arguments in place of
+    `[args]` or the values of `ValidArgs`, such as `src`, `[mode]`,
+    `files...` and `[files...]`. The texts are `text.CommandArgSpec`,
+    `text.CommandArgOptionalSpec` and `text.CommandArgsMore`. The
+    `Arguments:` section writes each argument with its default, then each
+    line of `ArgUsage`. `Spec` on an argument sets the name that help
+    writes, such as `FILE`.
+15. Completion completes the argument at the position of the word: with its
+    own `CompFunc`, then with the values of `Valid`, then by a path type, as
+    for the value of a flag. A variadic argument completes each position
+    after it. An argument of another type falls back to the `CompFunc` of
+    the command, then to `ValidArgs`. Past the last argument, when it is not
+    variadic, completion offers nothing, and no file names.
+16. `ValidArgs`, `ArgsFunc`, `ArgUsage` and `CompFunc` work as before. With
+    `Arg`, the funcs of `ValidArgs` and `ArgsFunc` also check the args,
+    before the count of the arguments. So a program uses one or the other.
+
+The wrap width:
+
+17. Help does not read the width of the terminal. The agent built a width
+    from `$COLUMNS`, then from `stty size`, because the root package has no
+    dependency (D1). No other Go flag package starts a process for this.
+    kong and kingpin call the `TIOCGWINSZ` ioctl behind a build constraint
+    for each system, and cobra, pflag and urfave/cli take the width from the
+    caller. A maintainer chose on 2026-11-28 that the caller sets the width,
+    with `DefaultWrapWidth`. So a program such as `usql` reads the width of
+    the terminal as it wants to, and `ox` starts no process and adds no
+    build constraint.
+18. `Wrap` lets each line after the first pass the width by the indent of
+    the description. A maintainer chose on 2026-11-28 to fix `Wrap`, which
+    changes the help of each program with a long description.
+19. `HelpColumn` does not wrap, as before.
+
+### D40. The Kubernetes form of a size. Decided.
+
+A maintainer asked on 2026-11-28 that `ox.Size` and `ox.Rate` write the
+form of a Kubernetes quantity, such as `6Gi` or `6 Gi`. A Kubernetes
+quantity is a number with a binary suffix (`Ki`, `Mi`, `Gi`, `Ti`, `Pi`,
+`Ei`) or a decimal suffix (`k`, `M`, `G`, `T`, `P`, `E`). `%e` and `%E`
+already wrote this form, but they round, so they can lose bytes. An agent
+made the choices below. A maintainer confirmed each choice on 2026-11-28.
+
+1. The new verb `q` writes the exact size with a binary suffix, and `Q`
+   writes it with a decimal suffix. The name comes from "quantity". The
+   lower case verb is binary, as with `e` and `z`. `AppendSize` did not use
+   `q` or `Q`, and `fmt` gives both to `Size.Format`. `fmt` keeps `p` and
+   `T` for itself.
+2. The exact form is an integer with the largest suffix that divides the
+   size, as in the canonical form of Kubernetes. So 1.5 GiB is `1536Mi`,
+   1500 MiB is `1500Mi`, and 6,000,000,000 bytes is `6G` with `Q`. A size
+   that no suffix divides has no suffix, such as `1536` for 1536 bytes. Zero
+   is `0`. The precision does not apply.
+3. Each verb keeps its base. Kubernetes writes a binary quantity between
+   -1024 and 1024 in the decimal form, so 1000 bytes is `1k`. `ox` writes
+   `1000` with `q`, because the verb names the base.
+4. Without the space flag there is no space, as Kubernetes writes. With the
+   space flag, as in `% q`, one space comes before the suffix. A value
+   without a suffix gets no space.
+5. `% e` and `% E` wrote `100 ` with a trailing space for a size below
+   1 KiB or 1 kB, because the value has no suffix. They now write `100`. No
+   other verb had this fault, because the others write `B`.
+6. `ParseSize` reads the exponent form of Kubernetes, such as `6e9`, `1E3`
+   and `1e+3`. The exponent follows the number with no space, and a suffix
+   cannot follow it. This form does not conflict with the suffix `e` or `E`
+   alone, which is still EB. `6e` is 6 EB, and `6e9` was an error before. A
+   negative exponent can give a fraction of a byte, and `ParseSize` drops
+   the fraction, as it does for `0.5`.
+7. `m` and `M` stay MB. Kubernetes reads `500m` as 0.5, because `m` is
+   milli there. A byte count has no milli, so this is a difference. A
+   memory value of Kubernetes with `m` gives a different size in `ox`.
+   `ox` refuses the suffixes `u` and `n` (micro and nano) of Kubernetes with
+   `ErrUnknownSize`. `q` and `Q` never write these suffixes, so their output
+   always parses back to the same size.
+8. `ParseSize` multiplies an integer with a suffix, or without one, as a
+   `uint64`, so it keeps each byte. Before, the value went through a
+   `float64`, which lost bytes above 2^53, such as `9007199254740993`. A
+   value with a fraction or an exponent still goes through a `float64`.
+   A value that does not fit in an `int64` gives `ErrInvalidSize` and
+   `strconv.ErrRange`. Before, such a value gave an undefined size.
+9. A rate takes the same verbs, such as `1536Mi/s`, and `ParseRate` reads
+   it back. Kubernetes has no rate.
+10. `MarshalText` does not change. It writes `z` with a precision of -2 and
+    a space, because help and config output depend on it. No `Default`
+    variable chooses its verb. Rule 3 of `AGENTS.md` puts such a variable
+    in `ox.go`, and this change stays in `size.go`. A caller that needs the
+    exact form calls `FormatSize` or `FormatRate` with `q`. `MarshalText`
+    rounds, so 12345678 bytes gives `11.77 MiB`, and a config file that it
+    writes can lose bytes. If a maintainer wants the exact form there, a
+    `DefaultSizeVerb` in `ox.go` can choose it.
 
 ## Open questions for the maintainers
 

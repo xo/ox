@@ -59,6 +59,9 @@ type HelpOption = Option
 // FlagHelpOption are [Option]'s that apply to [Flag] and [Help].
 type FlagHelpOption = Option
 
+// ArgOption are [Option]'s that apply to an [Argument].
+type ArgOption = Option
+
 // Args is a [Run]/[RunContext]/[Context] option to set the command-line
 // arguments.
 func Args(args ...string) ContextOption {
@@ -149,6 +152,41 @@ func Exec[F ExecType](f F) CommandOption {
 	}
 }
 
+// Before is a [Command] option to set a func that runs before the exec func
+// of the command, and of each sub command below it. f takes any signature
+// that [Exec] takes, and gets the same [context.Context] and args as the exec
+// func. The before funcs run from the root down to the command that runs. When
+// one returns an error, the run stops: no later before func, no exec func and
+// no after func runs. Help, the version and completion do not run it.
+func Before[F ExecType](f F) CommandOption {
+	return option{
+		name: "Before",
+		cmd: func(cmd *Command) error {
+			var err error
+			cmd.Before, err = NewExec(f)
+			return err
+		},
+	}
+}
+
+// After is a [Command] option to set a func that runs after the exec func of
+// the command, and of each sub command below it. f takes any signature that
+// [Exec] takes. The after funcs run from the command that runs up to the root,
+// also when the exec func returns an error. Each one runs, whatever an earlier
+// one returns. The run returns the errors of the exec func and of the after
+// funcs, joined with [errors.Join]. Help, the version and completion do not
+// run it.
+func After[F ExecType](f F) CommandOption {
+	return option{
+		name: "After",
+		cmd: func(cmd *Command) error {
+			var err error
+			cmd.After, err = NewExec(f)
+			return err
+		},
+	}
+}
+
 // Defaults is a [Command] option to add [Version], [Comp], and [Help] options
 // to the command. Note that the order is important.
 func Defaults(opts ...Option) CommandOption {
@@ -191,7 +229,7 @@ func From[T *E, E any](val T) CommandOption {
 			if val == nil {
 				return fmt.Errorf("%T: %w: cannot be nil", val, ErrInvalidValue)
 			}
-			flags, err := FlagsFrom(val)
+			flags, args, err := appendFlags(nil, nil, reflect.ValueOf(val), nil)
 			if err != nil {
 				typ := reflect.TypeOf(val).String()
 				if strings.HasPrefix(typ, "*struct {") {
@@ -203,7 +241,8 @@ func From[T *E, E any](val T) CommandOption {
 				cmd.Flags = Flags()
 			}
 			cmd.Flags.Flags = append(cmd.Flags.Flags, flags...)
-			return nil
+			addTagGroups(cmd, flags)
+			return cmd.addArgs(args...)
 		},
 	}
 }
@@ -229,6 +268,8 @@ func From[T *E, E any](val T) CommandOption {
 //   - When the struct has a method `Exec`, with a signature that [Exec]
 //     takes, such as `Exec(context.Context, []string) error`, it is the exec
 //     func of the command.
+//   - When the struct has a method `Before` or `After`, with a signature that
+//     [Exec] takes, it is the func of [Before] or [After] of the command.
 //
 // Go keeps no doc comment in a program, so the program registers them with
 // [RegisterDoc]. The tool `github.com/xo/ox/cmd/oxdoc` writes those calls
@@ -466,6 +507,98 @@ func ValidArgs(minimum, maximum int, values ...string) CommandOption {
 	}
 }
 
+// OnlyOneOf is a [Command] option to allow one of the named flags at most.
+// When two or more of them get a value from the command line, the
+// environment or a config file, [Context.Validate] returns an error that
+// wraps [ErrOnlyOneOf] and names them. A default does not count. The struct
+// tag option is `onlyoneof:GROUP`, which adds the flag to the group GROUP.
+func OnlyOneOf(names ...string) CommandOption {
+	return groupCommandOption("OnlyOneOf", RuleOnlyOneOf, names)
+}
+
+// AllOrNoneOf is a [Command] option to need each of the named flags, or none
+// of them. When some of them get a value from the command line, the
+// environment or a config file, and others do not, [Context.Validate]
+// returns an error that wraps [ErrAllOrNoneOf] and names them. A default does
+// not count. The struct tag option is `allornoneof:GROUP`.
+func AllOrNoneOf(names ...string) CommandOption {
+	return groupCommandOption("AllOrNoneOf", RuleAllOrNoneOf, names)
+}
+
+// AtLeastOneOf is a [Command] option to need one of the named flags at least.
+// When none of them gets a value from the command line, the environment or a
+// config file, [Context.Validate] returns an error that wraps
+// [ErrAtLeastOneOf] and names them. A default does not count. The struct tag
+// option is `atleastoneof:GROUP`.
+func AtLeastOneOf(names ...string) CommandOption {
+	return groupCommandOption("AtLeastOneOf", RuleAtLeastOneOf, names)
+}
+
+// groupCommandOption returns the option that adds a [FlagGroup] to a
+// command. After the command has its flags, each name must be the long name
+// or a long alias of a flag of the command or of a parent.
+func groupCommandOption(name string, rule Rule, names []string) CommandOption {
+	return option{
+		name: name,
+		cmd: func(*Command) error {
+			return nil
+		},
+		post: func(cmd *Command) error {
+			grp := FlagGroup{
+				Rule:  rule,
+				Names: make([]string, len(names)),
+			}
+			for i, s := range names {
+				g := cmd.Flag(s, true, false)
+				if g == nil {
+					return fmt.Errorf("%s: %w", name, newFlagError("--"+s, ErrUnknownFlag))
+				}
+				grp.Names[i] = g.Name
+			}
+			cmd.FlagGroups = append(cmd.FlagGroups, grp)
+			return nil
+		},
+	}
+}
+
+// Arg is a [Command] option to add a positional argument to the command, after
+// the arguments that it has. opts are each [ArgOption] and [FlagOption] of
+// [NewArgument], such as a [Type], [Elem], [Default], [Valid], [Bind],
+// [CompFunc], [Spec] or [Optional].
+//
+// The parse converts each argument to its type, and checks it, as for a flag.
+// So a [FileT] must be a file that exists. [Context.Vars] holds the value by
+// the name of the argument, so that the exec func reads it with `otx.Get`.
+// An argument is required, unless it has a default or [Optional]. A
+// required argument cannot follow an optional one. The last argument can be
+// variadic, with the type [SliceT] and an [Elem], and it then takes each
+// argument that is left. Help writes each argument in the usage line and in
+// the `Arguments:` section, and completion completes it by its type.
+func Arg(name, usage string, opts ...Option) CommandOption {
+	return option{
+		name: "Arg",
+		cmd: func(cmd *Command) error {
+			a, err := NewArgument(name, usage, opts...)
+			if err != nil {
+				return err
+			}
+			return cmd.addArgs(a)
+		},
+	}
+}
+
+// Optional is an [ArgOption] that makes a positional argument optional, so
+// that the command runs without it.
+func Optional() ArgOption {
+	return option{
+		name: "Optional",
+		arg: func(a *Argument) error {
+			a.Optional = true
+			return nil
+		},
+	}
+}
+
 // Parent is a [Command] option to set the command's parent.
 func Parent(parent *Command) CommandOption {
 	return option{
@@ -603,6 +736,48 @@ func Suggested(suggested ...string) CommandOption {
 		name: "Suggested",
 		cmd: func(cmd *Command) error {
 			cmd.Suggested = append(cmd.Suggested, suggested...)
+			return nil
+		},
+	}
+}
+
+// StopAtArg is a [Command] option to end the flags of the command at its
+// first positional argument, as pflag's SetInterspersed(false) does. Each
+// later argument is a positional argument, even one that starts with `-`, and
+// a later `--` too. A wrapper command, such as `app exec cmd --its-own-flag`,
+// uses it.
+//
+// A sub command name comes before the first positional argument, so
+// StopAtArg on a command with sub commands still finds them. A sub command
+// does not inherit StopAtArg. A `--` before the first positional argument
+// ends the flags, as it does without StopAtArg.
+func StopAtArg() CommandOption {
+	return option{
+		name: "StopAtArg",
+		cmd: func(cmd *Command) error {
+			cmd.StopAtArg = true
+			return nil
+		},
+	}
+}
+
+// Abbrev is a [Command] option to let the command line give a long flag by a
+// unique prefix of its name, as GNU getopt_long does: `--verb` means
+// `--verbose` when no other long flag of the command starts with `verb`. A
+// sub command inherits it.
+//
+// An exact name always wins over a prefix. A prefix that matches more than
+// one flag fails with [ErrAmbiguousFlag], and the error names the flags
+// that it matches. A prefix matches the long names that completion offers:
+// the name, the aliases and the hidden aliases of each flag that the command
+// accepts, including the flags that it inherits. A prefix does not match a
+// hidden flag, a deprecated flag or a deprecated alias, which need their
+// exact name. A short flag needs its exact name too.
+func Abbrev() CommandOption {
+	return option{
+		name: "Abbrev",
+		cmd: func(cmd *Command) error {
+			cmd.Abbrev = true
 			return nil
 		},
 	}
@@ -895,6 +1070,39 @@ func NoConfig() FlagOption {
 	}
 }
 
+// Required is a [Flag] option to make the parse fail when the flag gets no
+// value from the command line, the environment or a config file. A default
+// does not count. [Context.Validate] returns an error that wraps
+// [ErrRequiredFlag] and names each flag that has no value. Help marks the flag
+// with the text of `text.FlagRequired`. The struct tag option is `required`.
+func Required() FlagOption {
+	return option{
+		name: "Required",
+		flag: func(g *Flag) error {
+			g.Required = true
+			return nil
+		},
+	}
+}
+
+// groupOption is the [Flag] option of a struct tag that adds the flag to the
+// group name, such as `onlyoneof:format`.
+func groupOption(rule Rule, name string) FlagOption {
+	return option{
+		name: "group",
+		flag: func(g *Flag) error {
+			if name == "" {
+				return fmt.Errorf("%w: empty group name", ErrInvalidValue)
+			}
+			g.groups = append(g.groups, groupTag{
+				rule: rule,
+				name: name,
+			})
+			return nil
+		},
+	}
+}
+
 // Special is a [Flag] option to set a flag's special value.
 func Special(special string) FlagOption {
 	return option{
@@ -964,6 +1172,24 @@ func Deprecated(deprecated bool) CommandFlagOption {
 		},
 		flag: func(g *Flag) error {
 			g.Deprecated = deprecated
+			return nil
+		},
+	}
+}
+
+// Local is a [Flag] option to keep the flag to its command. A sub command
+// does not inherit a local flag, so the command line of a sub command refuses
+// it with [ErrUnknownFlag], and completion does not offer it there. A flag
+// that is not local works after each sub command, as before.
+//
+// Local changes only the command line. The environment, a config file or the
+// default still give the flag its value, as [Context.Fill] does for each flag
+// of the command and its parents.
+func Local() FlagOption {
+	return option{
+		name: "Local",
+		flag: func(g *Flag) error {
+			g.Local = true
 			return nil
 		},
 	}
@@ -1288,6 +1514,40 @@ func HelpColumn(column int) CommandOption {
 	}
 }
 
+// InheritedFlags is a [Command]/[Help] option to show the flags that a sub
+// command inherits from its parents in its help, after its own flags, in a
+// section with the name of [text.GlobalFlags], as cobra does. A local flag
+// of a parent is not inherited (see [Local]), and a flag of a parent with the
+// name of a flag of the sub command is not shown. When the root command has
+// it, [Help] gives it to each sub command.
+func InheritedFlags(show bool) CommandOption {
+	return option{
+		name: "InheritedFlags",
+		cmd: func(*Command) error {
+			return nil
+		},
+		post: func(cmd *Command) error {
+			if cmd.Help == nil {
+				cmd.Help, _ = NewCommandHelp(cmd)
+			}
+			if help, ok := cmd.Help.(*CommandHelp); ok {
+				help.InheritedFlags = show
+			}
+			return nil
+		},
+		flag: func(g *Flag) error {
+			if strings.HasPrefix(g.Special, `hook:`) {
+				return ErrAppliedToInvalidType
+			}
+			return nil
+		},
+		help: func(help *CommandHelp) error {
+			help.InheritedFlags = show
+			return nil
+		},
+	}
+}
+
 // SectionMap is a [Command] option to apply refined sections to commands and
 // flags.
 type SectionMap map[string]int
@@ -1323,6 +1583,7 @@ type option struct {
 	flag func(*Flag) error
 	help func(*CommandHelp) error
 	typ  func(v interface{ SetType(Type) }) error
+	arg  func(*Argument) error
 }
 
 // Option satisfies the [Option] interface.
@@ -1355,6 +1616,10 @@ func (opt option) apply(val any) error {
 	case *CommandHelp:
 		if opt.help != nil {
 			err = opt.help(v)
+		}
+	case *Argument:
+		if opt.arg != nil {
+			err = opt.arg(v)
 		}
 	case interface{ SetType(Type) }:
 		if opt.typ != nil {

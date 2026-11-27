@@ -19,7 +19,8 @@ import (
 
 // AddHelpFlag recursively adds a `--help` flag for all commands in the command
 // tree, copying the command's [CommandHelp.Sort], [CommandHelp.CommandSort],
-// [CommandHelp.MaxDist] and [CommandHelp.Column] settings.
+// [CommandHelp.MaxDist] and [CommandHelp.Column] settings, and
+// [CommandHelp.InheritedFlags] when it is true.
 func AddHelpFlag(cmd *Command) error {
 	if len(cmd.Commands) == 0 {
 		return nil
@@ -33,6 +34,9 @@ func AddHelpFlag(cmd *Command) error {
 			MaxDist(help.MaxDist),
 			HelpColumn(help.Column),
 		)
+		if help.InheritedFlags {
+			opts = append(opts, InheritedFlags(true))
+		}
 	}
 	for _, c := range cmd.Commands {
 		if err := NewHelpFlag(c, opts...); err != nil {
@@ -293,6 +297,9 @@ type CommandHelp struct {
 	Sort bool
 	// Sections are the command's flag section names.
 	Sections []string
+	// InheritedFlags when true writes the flags that the command inherits
+	// from its parents, in a section of their own. See [InheritedFlags].
+	InheritedFlags bool
 	// Args are the names and the usage of the command's positional
 	// arguments. See [ArgUsage].
 	Args []HelpLine
@@ -339,6 +346,7 @@ func (help *CommandHelp) WriteTo(w io.Writer) (int64, error) {
 		help.AddExample,
 		help.AddCommands,
 		help.AddFlags,
+		help.AddInheritedFlags,
 		help.AddFooter,
 	} {
 		f(wr)
@@ -385,6 +393,10 @@ func (help *CommandHelp) AddUsage(w StringWriter) {
 			v = append(v, text.CommandSubSpec)
 		}
 		switch cmd := help.Command; {
+		case len(cmd.Positional) != 0:
+			for _, a := range cmd.Positional {
+				v = append(v, a.SpecString())
+			}
 		case cmd.noArgs:
 			// ValidArgs(0, 0) allows no argument
 		case len(cmd.ValidArgs) != 0:
@@ -405,20 +417,26 @@ func (help *CommandHelp) AddUsage(w StringWriter) {
 	}
 }
 
-// AddArgs adds the usage of the command's positional arguments, from
+// AddArgs adds the usage of the command's positional arguments: each
+// argument of [Command.Positional], with its default, then each line of
 // [CommandHelp.Args].
 func (help *CommandHelp) AddArgs(w StringWriter) {
-	if len(help.Args) == 0 {
+	args := make([]HelpLine, 0, len(help.Command.Positional)+len(help.Args))
+	for _, a := range help.Command.Positional {
+		args = append(args, HelpLine{Name: a.name(), Usage: help.flagUsage(a.Flag)})
+	}
+	args = append(args, help.Args...)
+	if len(args) == 0 {
 		return
 	}
 	width := DefaultCommandWidth
-	for _, a := range help.Args {
+	for _, a := range args {
 		width = max(width, DefaultWidth(a.Name))
 	}
 	addBreak(w)
 	_, _ = w.WriteString(text.Arguments)
 	_, _ = w.WriteString(":")
-	for _, a := range help.Args {
+	for _, a := range args {
 		_, _ = w.WriteString("\n  ")
 		if help.Column > 0 {
 			writeColumn(w, a.Name, a.Usage, help.Column)
@@ -511,12 +529,45 @@ func (help *CommandHelp) AddCommands(w StringWriter) {
 
 // AddFlags adds the command's flags.
 func (help *CommandHelp) AddFlags(w StringWriter) {
-	if help.NoFlags || help.Command.Flags == nil || len(help.Command.Flags.Flags) == 0 {
+	if help.NoFlags || help.Command.Flags == nil {
 		return
 	}
+	help.writeFlags(w, help.Command.Flags.Flags, help.Sections, true)
+}
+
+// AddInheritedFlags adds the flags that the command inherits from its
+// parents, in a section of their own, when [CommandHelp.InheritedFlags] is
+// true.
+func (help *CommandHelp) AddInheritedFlags(w StringWriter) {
+	if help.NoFlags || !help.InheritedFlags {
+		return
+	}
+	help.writeFlags(w, help.Command.inheritedFlags(), []string{text.GlobalFlags}, false)
+}
+
+// AddFooter adds the command's footer.
+func (help *CommandHelp) AddFooter(w StringWriter) {
+	if help.NoFooter {
+		return
+	}
+	footer := help.Footer
+	if footer == "" && len(help.Command.Commands) != 0 {
+		footer = fmt.Sprintf(text.Footer, strings.Join(help.Command.Tree(), " "))
+	}
+	if strings.TrimSpace(footer) == "" {
+		return
+	}
+	addBreak(w)
+	_, _ = w.WriteString(footer)
+}
+
+// writeFlags writes the flags that help shows. When sections is true, each
+// flag goes in its section, which takes its name from names. When it is
+// false, every flag goes in one section, with the name names[0].
+func (help *CommandHelp) writeFlags(w StringWriter, all []*Flag, names []string, sections bool) {
 	// determine flags
 	var flags []*Flag
-	for _, g := range help.Command.Flags.Flags {
+	for _, g := range all {
 		if g.Hidden && !help.Hidden || g.Deprecated && !help.Deprecated {
 			continue
 		}
@@ -531,21 +582,25 @@ func (help *CommandHelp) AddFlags(w StringWriter) {
 		})
 	}
 	// split between sections
-	sections := make(map[int]string, len(help.Sections))
-	for i, section := range help.Sections {
-		sections[i] = section
+	sectionNames := make(map[int]string, len(names))
+	for i, section := range names {
+		sectionNames[i] = section
 	}
 	var specs []string
 	i, width, indexes, hasShort := 0, DefaultFlagWidth, make(map[int][]int), false
 	for _, g := range flags {
+		section := 0
+		if sections {
+			section = g.Section
+		}
 		specs = append(specs, g.SpecString())
-		indexes[g.Section] = append(indexes[g.Section], i)
+		indexes[section] = append(indexes[section], i)
 		width = max(width, len(specs[i]))
 		for _, v := range g.HelpValues {
 			width = max(width, len(g.Name)+1+len(v.Name))
 		}
-		if _, ok := sections[g.Section]; !ok {
-			sections[g.Section] = text.Flags
+		if _, ok := sectionNames[section]; !ok {
+			sectionNames[section] = text.Flags
 		}
 		hasShort = hasShort || g.Short != ""
 		i++
@@ -560,7 +615,7 @@ func (help *CommandHelp) AddFlags(w StringWriter) {
 		if j != 0 {
 			_, _ = w.WriteString("\n\n")
 		}
-		_, _ = w.WriteString(sections[section])
+		_, _ = w.WriteString(sectionNames[section])
 		_, _ = w.WriteString(":")
 		for _, i := range indexes[section] {
 			_, _ = w.WriteString("\n  ")
@@ -586,22 +641,6 @@ func (help *CommandHelp) AddFlags(w StringWriter) {
 	}
 }
 
-// AddFooter adds the command's footer.
-func (help *CommandHelp) AddFooter(w StringWriter) {
-	if help.NoFooter {
-		return
-	}
-	footer := help.Footer
-	if footer == "" && len(help.Command.Commands) != 0 {
-		footer = fmt.Sprintf(text.Footer, strings.Join(help.Command.Tree(), " "))
-	}
-	if strings.TrimSpace(footer) == "" {
-		return
-	}
-	addBreak(w)
-	_, _ = w.WriteString(footer)
-}
-
 // addValues writes the values of [Flag.HelpValues] on lines of their own,
 // such as `--help=commands`, in the layout of the flag.
 func (help *CommandHelp) addValues(w StringWriter, g *Flag, hasShort bool, width, offset int) {
@@ -625,8 +664,13 @@ func (help *CommandHelp) addValues(w StringWriter, g *Flag, hasShort bool, width
 }
 
 // flagUsage returns the usage of the flag, with the text of its default
-// value unless [Flag.NoDefault] is set.
+// value unless [Flag.NoDefault] is set. A required flag gets the text of
+// [text.FlagRequired], and not its default, because a default does not count
+// as a value.
 func (help *CommandHelp) flagUsage(g *Flag) string {
+	if g.Required {
+		return g.Usage + " " + text.FlagRequired
+	}
 	if g.Def == nil || g.Type == HookT || g.NoArg || g.NoDefault {
 		return g.Usage
 	}

@@ -16,6 +16,8 @@ import (
 // returns an error that wraps one of these:
 //
 //   - [ErrUnknownFlag] when a flag is not defined for the command.
+//   - [ErrAmbiguousFlag] when a prefix of a long flag matches more than one
+//     flag, with [Abbrev].
 //   - [ErrMissingArgument] when a flag that takes an argument has none.
 //   - [ErrInvalidValue] when a flag cannot be set from its argument, such as
 //     a value that does not convert to the type of the flag, a value that
@@ -28,14 +30,18 @@ import (
 // it with [errors.Is]. [Context.Validate],
 // which runs after the parse, returns [ErrInvalidArgCount] when the command
 // has too many or too few args for [ValidArgs]. These four errors stay
-// stable, because usql depends on them.
+// stable, because usql depends on them. [Context.Validate] also returns
+// [ErrRequiredFlag] for a flag with [Required] that has no value, and
+// [ErrOnlyOneOf], [ErrAllOrNoneOf] or [ErrAtLeastOneOf] for a group of flags
+// that breaks its rule.
 func Parse(ctx *Context, cmd *Command, args []string) (*Command, []string, error) {
 	cmd, v, _, err := parse(ctx, cmd, args)
 	return cmd, v, err
 }
 
-// parse parses flags and args into context. It returns true when the args
-// hold `--`, the end of the flags.
+// parse parses flags and args into context. It returns true when the flags
+// end before the last arg: at `--`, or at the first positional argument of a
+// command with [Command.StopAtArg].
 func parse(ctx *Context, cmd *Command, args []string) (*Command, []string, bool, error) {
 	var v []string
 	var s string
@@ -49,9 +55,13 @@ func parse(ctx *Context, cmd *Command, args []string) (*Command, []string, bool,
 			if len(v) == 0 {
 				c = cmd.Command(s)
 			}
-			if c != nil {
+			switch {
+			case c != nil:
 				cmd = c
-			} else {
+			case cmd.StopAtArg:
+				// the first positional argument ends the flags
+				return cmd, append(append(v, s), args...), true, nil
+			default:
 				v = append(v, s)
 			}
 		case s == "--":
@@ -74,20 +84,20 @@ func parse(ctx *Context, cmd *Command, args []string) (*Command, []string, bool,
 }
 
 // ParseFlagLong parses a long flag ('--arg' '--arg v' '--arg k=v' '--arg=' '--arg=v').
+// With [Abbrev], a unique prefix of the name of a flag gives the flag.
 func ParseFlagLong(ctx *Context, cmd *Command, s string, args []string) ([]string, error) {
 	arg, value, ok := strings.Cut(strings.TrimPrefix(s, "--"), "=")
-	g := cmd.Flag(arg, true, false)
+	g, err := cmd.longFlag(arg)
 	switch {
-	case g == nil && ctx.Continue(cmd, newFlagError("--"+arg, ErrUnknownFlag)):
+	case err != nil && ctx.Continue(cmd, newFlagError("--"+arg, err)):
 		return args, nil
-	case g == nil:
-		return nil, newFlagError("--"+arg, ErrUnknownFlag)
+	case err != nil:
+		return nil, newFlagError("--"+arg, err)
 	}
 	warnDeprecated(ctx, g, "--"+arg)
 	switch {
 	case ok: // --arg=v
 	case g.NoArg: // --arg
-		var err error
 		if value, err = noArgValue(ctx, g); err != nil {
 			return args, newFlagError("--"+arg, err)
 		}

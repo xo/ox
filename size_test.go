@@ -67,6 +67,11 @@ func TestSize(t *testing.T) {
 		{5*PiB + 200*TiB, "%v", "5.2 PiB", false},
 		{5*PiB + 200*TiB, "%V", "5.85 PB", false},
 		{5*PiB + 200*TiB, "% x", "%x(error=unknown size verb)", false},
+		{100, "%e", "100", true},
+		{100, "% e", "100", true},
+		{100, "% E", "100", true},
+		{-100, "% e", "-100", true},
+		{0, "% e", "0", true},
 	}
 	for i, test := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
@@ -84,6 +89,149 @@ func TestSize(t *testing.T) {
 			}
 			if sz != test.v {
 				t.Errorf("expected %s, got: %s", test.v, sz)
+			}
+		})
+	}
+}
+
+// TestSizeExact holds that q and Q write the exact size, as Kubernetes writes
+// a quantity, and that ParseSize reads it back to the same size.
+func TestSizeExact(t *testing.T) {
+	tests := []struct {
+		v   Size
+		as  string
+		exp string
+	}{
+		{0, "%q", "0"},
+		{0, "% q", "0"},
+		{0, "%Q", "0"},
+		{1, "%q", "1"},
+		{100, "% q", "100"},
+		{100, "% Q", "100"},
+		{1000, "%q", "1000"},
+		{1000, "%Q", "1k"},
+		{1000, "% Q", "1 k"},
+		{1024, "%q", "1Ki"},
+		{1024, "% q", "1 Ki"},
+		{1024, "%Q", "1024"},
+		{1536, "%q", "1536"},
+		{1536 * KiB, "%q", "1536Ki"},
+		{6 * GiB, "%q", "6Gi"},
+		{6 * GiB, "% q", "6 Gi"},
+		{6 * GiB, "%Q", "6442450944"},
+		{GiB + GiB/2, "%q", "1536Mi"},
+		{GiB + GiB/2, "%.0q", "1536Mi"},
+		{1500 * MiB, "%q", "1500Mi"},
+		{6 * GB, "%q", "5859375Ki"},
+		{6 * GB, "%Q", "6G"},
+		{6 * GB, "% Q", "6 G"},
+		{1500 * MB, "%Q", "1500M"},
+		{-1536 * MiB, "%q", "-1536Mi"},
+		{-6 * GB, "%Q", "-6G"},
+		{12345678, "%q", "12345678"},
+		{12345678, "%Q", "12345678"},
+		{5*PiB + 200*TiB, "%q", "5320Ti"},
+		{4 * TB, "%Q", "4T"},
+		{3 * PB, "%Q", "3P"},
+		{7 * EiB, "%q", "7Ei"},
+		{EB, "%Q", "1E"},
+		{2048 * PiB, "%q", "2Ei"},
+		{1 << 53, "%q", "8Pi"},
+		{1<<53 + 1, "%q", "9007199254740993"},
+		{1<<53 + 1, "%Q", "9007199254740993"},
+		{(1<<52 + 1) * KiB, "%q", "4503599627370497Ki"},
+		{math.MaxInt64, "%q", "9223372036854775807"},
+		{math.MaxInt64, "%Q", "9223372036854775807"},
+		{math.MaxInt64 - KiB + 1, "%q", "9007199254740991Ki"},
+		{math.MinInt64, "%q", "-8Ei"},
+		{math.MinInt64, "%Q", "-9223372036854775808"},
+	}
+	for _, test := range tests {
+		t.Run(test.as+" "+strconv.FormatInt(int64(test.v), 10), func(t *testing.T) {
+			s := fmt.Sprintf(test.as, test.v)
+			if s != test.exp {
+				t.Errorf("expected %q, got: %q", test.exp, s)
+			}
+			sz, err := ParseSize(s)
+			switch {
+			case err != nil:
+				t.Fatalf("expected no error, got: %v", err)
+			case sz != test.v:
+				t.Errorf("expected %d, got: %d", test.v, sz)
+			}
+			for _, unit := range []time.Duration{time.Second, time.Minute} {
+				rate := Rate{test.v, unit}
+				s := fmt.Sprintf(test.as, rate)
+				if exp := test.exp + "/" + unitString(unit); s != exp {
+					t.Errorf("expected %q, got: %q", exp, s)
+				}
+				r, err := ParseRate(s)
+				switch {
+				case err != nil:
+					t.Fatalf("expected no error, got: %v", err)
+				case r != rate:
+					t.Errorf("expected %v, got: %v", rate, r)
+				}
+			}
+		})
+	}
+}
+
+// TestParseSize holds the forms that ParseSize reads and refuses.
+func TestParseSize(t *testing.T) {
+	tests := []struct {
+		s   string
+		exp Size
+		err error
+	}{
+		{"6Gi", 6 * GiB, nil},
+		{"6 Gi", 6 * GiB, nil},
+		{"6G", 6 * GB, nil},
+		{"1.5Gi", GiB + GiB/2, nil},
+		{"+1k", KB, nil},
+		{"-1Ki", -KiB, nil},
+		{"6e9", 6 * GB, nil},
+		{"6E9", 6 * GB, nil},
+		{"1E3", KB, nil},
+		{"1e+3", KB, nil},
+		{"1.5e3", 1500, nil},
+		{"-2e3", -2000, nil},
+		{"15e-1", 1, nil},
+		{"0e0", 0, nil},
+		{"6e", 6 * EB, nil},
+		{"6E", 6 * EB, nil},
+		{"6 e", 6 * EB, nil},
+		{"1m", MB, nil},
+		{"9223372036854775807", math.MaxInt64, nil},
+		{"-9223372036854775808", math.MinInt64, nil},
+		{"8191Pi", 8191 * PiB, nil},
+		{"-8Ei", math.MinInt64, nil},
+		{"6e9Gi", 0, ErrInvalidSize},
+		{"6 e9", 0, ErrInvalidSize},
+		{"6e9.5", 0, ErrInvalidSize},
+		{"e9", 0, ErrInvalidSize},
+		{"6x", 0, ErrUnknownSize},
+		{"9223372036854775808", 0, strconv.ErrRange},
+		{"-9223372036854775809", 0, strconv.ErrRange},
+		{"8Ei", 0, strconv.ErrRange},
+		{"18446744073709551616", 0, strconv.ErrRange},
+		{"9.3e18", 0, strconv.ErrRange},
+		{"-9.3e18", 0, strconv.ErrRange},
+		{"1e400", 0, strconv.ErrRange},
+		{"9Ei", 0, strconv.ErrRange},
+	}
+	for _, test := range tests {
+		t.Run(test.s, func(t *testing.T) {
+			sz, err := ParseSize(test.s)
+			switch {
+			case test.err == nil && err != nil:
+				t.Fatalf("expected no error, got: %v", err)
+			case test.err != nil && !errors.Is(err, test.err):
+				t.Fatalf("expected error %v, got: %v", test.err, err)
+			case test.err != nil && !errors.Is(err, ErrInvalidSize):
+				t.Fatalf("expected error %v, got: %v", ErrInvalidSize, err)
+			case sz != test.exp:
+				t.Errorf("expected %d, got: %d", test.exp, sz)
 			}
 		})
 	}

@@ -7,7 +7,8 @@ here and name it in the commit message.
 
 The number of an item never changes, so the order of the numbers is not the
 order of importance. B1 to B21 were collected on 2026-09-27, B22 to B29 on
-2026-11-09, B30 to B51 on 2026-11-26, and B52 on 2026-11-27. A line number is at `eae81b9` for
+2026-11-09, B30 to B51 on 2026-11-26, B52 on 2026-11-27, and B53 and B54 on
+2026-11-28. A line number is at `eae81b9` for
 B1 to B21, and at `bb2641a` after that. Each item names where it came from:
 
 1. Probe: a small program ran `ox` and showed the fault.
@@ -34,7 +35,7 @@ On 2026-11-27 one agent took the open items in order, and closed B32, B28,
 B35, B36, B14, B42, B16, B1, B2, B7, B3, B4, B10, B11, B12, B17, B18, B21,
 B43, B46, B47, B48, B49, B50 and B51. D36 lists the choices that it made.
 A maintainer tagged `v0.1.0` the same day, which closed B22. B13 waits
-for the `go` line of D24, and B19 keeps two items that need a design.
+for the `go` line of D24, and B19 keeps one item that needs a design.
 
 ## Priority 1: needed before usql moves, or wrong today
 
@@ -119,11 +120,10 @@ No item is open.
 - Found: `notes.txt`. Some items can be partly done. Measure each one
   before you start it.
 - On 2026-11-27 the backlog agent measured each item. Items 1, 2, 3, 6, 7,
-  8 and 9 are done (D36), and item 4 closed with B49. These are still open:
-  - Item 5 needs a design: which flags a sub command inherits, and which
-    help shows.
-  - Item 10: no strftime, semver or port range type. Each is a new type and
-    needs a design. A strftime type needs a module of its own (D33).
+  8 and 9 are done (D36), and item 4 closed with B49. Item 5 is done with
+  `Local` and `InheritedFlags` (D38). Item 10 is still open: no strftime,
+  semver or port range type. Each is a new type and needs a design. A
+  strftime type needs a module of its own (D33).
 
 ### B52. The help hook writes the same help for each value.
 
@@ -134,3 +134,24 @@ No item is open.
   func for each value that `HelpValue` names.
 - Found: the `usql` session, on 2026-11-27, when `usql` moved to
   `v0.1.0`.
+
+### B53. A bool flag has no automatic `--no-` form.
+
+- Plain description: `--no-debug` fails with "unknown flag" for a bool flag
+  named `debug`. Only `--debug=false` turns it off. `kong` and `kingpin` add
+  the `--no-` form to each bool flag. `ox` can add it with an option or a
+  tag, and help can write it as `--[no-]debug`. A flag that is named
+  `no-something` already, such as psql's `--no-psqlrc`, must not get a
+  second form.
+- Found: Probe, on 2026-11-28, in a survey of the Go flag packages with
+  two flagship models.
+
+### B54. ox cannot write a man page or Markdown docs.
+
+- Plain description: `cobra/doc`, `urfave/cli`, `kong` and `kingpin` write
+  a man page or Markdown docs from the command tree. `ox` writes only help.
+  A hidden flag or a tool can walk the tree with `Command.Tree` and write
+  roff and Markdown. The root module requires nothing (D1), so the writer
+  uses only the standard library, or goes in a module of its own (D33).
+- Found: Read, on 2026-11-28, in a survey of the Go flag packages with two
+  flagship models.

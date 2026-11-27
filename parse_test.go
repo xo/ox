@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"maps"
 	"slices"
 	"strconv"
 	"strings"
@@ -624,4 +625,280 @@ func TestOnErrOption(t *testing.T) {
 			RunContext(context.Background(), Usage("app", ""), test.onErr, Args("--nope"), Pipe(nil, &buf, &buf), Exec(func() {}))
 		})
 	}
+}
+
+// TestLocal holds that a sub command does not inherit a local flag, and that
+// it inherits every other flag of its parents (D38).
+func TestLocal(t *testing.T) {
+	tests := []struct {
+		name string
+		args []string
+		exp  string
+	}{
+		{"local flag of the root", ss(`--root//r`), "app [] [root=r]"},
+		{"local short flag of the root", ss(`-r//r`), "app [] [root=r]"},
+		{"global flag of the root", ss(`--global//g`), "app [] [global=g]"},
+		{"local flag of the root after a sub command", ss(`sub//--root//r`), "--root: unknown flag"},
+		{"local short flag of the root after a sub command", ss(`sub//-r//r`), "-r: unknown flag"},
+		{"global flag of the root after a sub command", ss(`sub//--global//g`), "sub [] [global=g]"},
+		{"local flag of the root before a sub command", ss(`--root//r//sub`), "sub [] [root=r]"},
+		{"local flag of a sub command", ss(`sub//--only//o//a`), `sub ["a"] [only=o]`},
+		{"local flag of a sub command after its sub command", ss(`sub//child//--only//o`), "--only: unknown flag"},
+		{"global flag of the root after two sub commands", ss(`sub//child//--global//g`), "child [] [global=g]"},
+		{"global flag of a sub command after its sub command", ss(`sub//child//--shared//s`), "child [] [shared=s]"},
+		{"a flag of the root behind a local flag of the same name", ss(`sub//child//--name//n`), "child [] [name=n]"},
+		{"a local flag of the same name", ss(`sub//--name//n`), "sub [] [name=n]"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			var rootName, subName string
+			s := parseResult(
+				t,
+				test.args,
+				Usage("app", ""),
+				Flags().
+					String("root", "", Short("r"), Local()).
+					String("global", "").
+					String("name", "", Bind(&rootName)),
+				Sub(
+					Usage("sub", ""),
+					Flags().
+						String("only", "", Local()).
+						String("shared", "").
+						String("name", "", Local(), Bind(&subName)),
+					Sub(Usage("child", "")),
+				),
+			)
+			if s != test.exp {
+				t.Errorf("expected %q, got: %q", test.exp, s)
+			}
+			// the root has --name, and sub has a local --name
+			switch {
+			case slices.Equal(test.args, ss(`sub//child//--name//n`)) && (rootName != "n" || subName != ""):
+				t.Errorf("expected the --name of the root, got: root %q, sub %q", rootName, subName)
+			case slices.Equal(test.args, ss(`sub//--name//n`)) && (rootName != "" || subName != "n"):
+				t.Errorf("expected the --name of sub, got: root %q, sub %q", rootName, subName)
+			}
+		})
+	}
+}
+
+// TestLocalTag holds that the tag option local makes a local flag.
+func TestLocalTag(t *testing.T) {
+	flags, err := FlagsFrom(&struct {
+		Dir  string `ox:"the dir,local"`
+		Name string `ox:"the name"`
+	}{})
+	switch {
+	case err != nil:
+		t.Fatalf("expected no error, got: %v", err)
+	case !flags[0].Local || flags[1].Local:
+		t.Errorf("expected only --dir to be local, got: %t %t", flags[0].Local, flags[1].Local)
+	}
+}
+
+// TestStopAtArg holds that the first positional argument of a command with
+// StopAtArg ends its flags (D38).
+func TestStopAtArg(t *testing.T) {
+	tests := []struct {
+		name string
+		args []string
+		exp  string
+	}{
+		{"a flag after the first arg", ss(`exec//cmd//--flag//x`), `exec ["cmd" "--flag" "x"] []`},
+		{"flags before the first arg", ss(`exec//-v//--dir//d//cmd//-v`), `exec ["cmd" "-v"] [dir=d verbose=true]`},
+		{"a short flag after the first arg", ss(`exec//cmd//-v`), `exec ["cmd" "-v"] []`},
+		{"end of the flags before the first arg", ss(`exec//--dir//d//--//cmd//--dir//e`), `exec ["cmd" "--dir" "e"] [dir=d]`},
+		{"end of the flags after the first arg", ss(`exec//cmd//--//x`), `exec ["cmd" "--" "x"] []`},
+		{"a dash", ss(`exec//-//-v`), `exec ["-" "-v"] []`},
+		{"a sub command name after the first arg", ss(`exec//cmd//exec`), `exec ["cmd" "exec"] []`},
+		{"an unknown flag before the first arg", ss(`exec//--nope//cmd`), "--nope: unknown flag"},
+		{"no stop in a sub command without it", ss(`run//cmd//-v`), `run ["cmd"] [verbose=true]`},
+		{"no stop in the root without it", ss(`cmd//-v`), `app ["cmd"] [verbose=true]`},
+		{"no stop in a sub command of a command with it", ss(`exec//inner//cmd//-v`), `inner ["cmd"] [verbose=true]`},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			s := parseResult(
+				t,
+				test.args,
+				Usage("app", ""),
+				Flags().Bool("verbose", "", Short("v")),
+				Sub(
+					Usage("exec", ""),
+					StopAtArg(),
+					Flags().String("dir", "", Short("d")),
+					Sub(Usage("inner", "")),
+				),
+				Sub(Usage("run", "")),
+			)
+			if s != test.exp {
+				t.Errorf("expected %q, got: %q", test.exp, s)
+			}
+		})
+	}
+}
+
+// TestStopAtArgRoot holds that StopAtArg on a root with sub commands still
+// finds a sub command name before the first positional argument (D38).
+func TestStopAtArgRoot(t *testing.T) {
+	tests := []struct {
+		name string
+		args []string
+		exp  string
+	}{
+		{"a sub command", ss(`sub//-v`), `sub [] [verbose=true]`},
+		{"a flag before a sub command", ss(`-v//sub//a//-v`), `sub ["a"] [verbose=true]`},
+		{"a sub command name after the first arg", ss(`a//sub//-v`), `app ["a" "sub" "-v"] []`},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			s := parseResult(
+				t,
+				test.args,
+				Usage("app", ""),
+				StopAtArg(),
+				Flags().Bool("verbose", "", Short("v")),
+				Sub(Usage("sub", "")),
+			)
+			if s != test.exp {
+				t.Errorf("expected %q, got: %q", test.exp, s)
+			}
+		})
+	}
+}
+
+// TestAbbrev holds that a unique prefix of a long flag gives the flag when
+// the command has Abbrev (D38).
+func TestAbbrev(t *testing.T) {
+	tests := []struct {
+		name string
+		args []string
+		exp  string
+	}{
+		{"a prefix", ss(`--verbo`), "app [] [verbose=true]"},
+		{"another prefix", ss(`--verba`), "app [] [verbatim=true]"},
+		{"a prefix with a value", ss(`--conf//c`), "app [] [config=c]"},
+		{"a prefix with an equal", ss(`--conf=c`), "app [] [config=c]"},
+		{"a one letter prefix", ss(`--n//n`), "app [] [name=n]"},
+		{"an ambiguous prefix", ss(`--verb`), "--verb: ambiguous flag: --verbatim, --verbose"},
+		{"an ambiguous prefix with an equal", ss(`--verb=true`), "--verb: ambiguous flag: --verbatim, --verbose"},
+		{"a prefix of a name and an alias of one flag", ss(`--col//red`), "app [] [color=red]"},
+		{"a prefix of an alias", ss(`--colou//red`), "app [] [color=red]"},
+		{"a prefix of three names", ss(`--co//x`), "--co: ambiguous flag: --color, --colour, --config"},
+		{"an exact name wins", ss(`--port//1`), "app [] [port=1]"},
+		{"a prefix of the longer name", ss(`--porta//1`), "app [] [portal=1]"},
+		{"a prefix of a hidden alias", ss(`--mon//m`), "app [] [name=m]"},
+		{"no prefix of a hidden flag", ss(`--secr//s`), "--secr: unknown flag"},
+		{"the exact name of a hidden flag", ss(`--secret//s`), "app [] [secret=s]"},
+		{"no prefix of a deprecated flag", ss(`--ol//o`), "--ol: unknown flag"},
+		{"no prefix of a deprecated alias", ss(`--lab//l`), "--lab: unknown flag"},
+		{"no prefix that matches nothing", ss(`--zz`), "--zz: unknown flag"},
+		{"no empty prefix", ss(`--=x`), "--: unknown flag"},
+		{"no prefix of a short flag", ss(`-x`), "-x: unknown flag"},
+		{"a prefix in a sub command", ss(`sub//--verbo`), "sub [] [verbose=true]"},
+		{"a prefix of a flag of a sub command", ss(`sub//--cou//3`), "sub [] [count=3]"},
+		{"an ambiguous prefix across commands", ss(`sub//--colo//x`), "--colo: ambiguous flag: --color, --colorize, --colour"},
+		{"a prefix of a flag that hides a flag of the root", ss(`sub//--conf//c`), "sub [] [config=c]"},
+		{"no prefix of a local flag of the root", ss(`sub//--roo//r`), "--roo: unknown flag"},
+		{"a prefix of a local flag of the root", ss(`--roo//r`), "app [] [root-dir=r]"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			s := parseResult(
+				t,
+				test.args,
+				Usage("app", ""),
+				Abbrev(),
+				Flags().
+					Bool("verbose", "").
+					Bool("verbatim", "").
+					String("color", "", Aliases("colour")).
+					String("config", "").
+					String("name", "", HiddenAliases("moniker"), DeprecatedAliases("label")).
+					String("port", "").
+					String("portal", "").
+					String("secret", "", Hidden(true)).
+					String("old", "", Deprecated(true)).
+					String("root-dir", "", Local()).
+					Bool("x", "", Short("y")),
+				Sub(
+					Usage("sub", ""),
+					Flags().
+						Int("count", "").
+						Bool("colorize", "").
+						String("config", ""),
+				),
+			)
+			if s != test.exp {
+				t.Errorf("expected %q, got: %q", test.exp, s)
+			}
+		})
+	}
+}
+
+// TestAbbrevScope holds that Abbrev is off by default, and that a command
+// gets it from itself or from a parent (D38).
+func TestAbbrevScope(t *testing.T) {
+	tests := []struct {
+		name string
+		args []string
+		opts []Option
+		exp  string
+	}{
+		{"off", ss(`--verbo`), []Option{Sub(Usage("sub", ""))}, "--verbo: unknown flag"},
+		{"off in a sub command", ss(`sub//--verbo`), []Option{Sub(Usage("sub", ""))}, "--verbo: unknown flag"},
+		{"on in the root", ss(`sub//--verbo`), []Option{Abbrev(), Sub(Usage("sub", ""))}, "sub [] [verbose=true]"},
+		{"on in a sub command", ss(`sub//--verbo`), []Option{Sub(Usage("sub", ""), Abbrev())}, "sub [] [verbose=true]"},
+		{"on in a sub command and not in the root", ss(`--verbo`), []Option{Sub(Usage("sub", ""), Abbrev())}, "--verbo: unknown flag"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			opts := append([]Option{Usage("app", ""), Flags().Bool("verbose", "")}, test.opts...)
+			if s := parseResult(t, test.args, opts...); s != test.exp {
+				t.Errorf("expected %q, got: %q", test.exp, s)
+			}
+		})
+	}
+}
+
+// TestAbbrevError holds that a program finds an ambiguous prefix with
+// errors.Is (D38).
+func TestAbbrevError(t *testing.T) {
+	err := RunError(
+		context.Background(),
+		Usage("app", ""),
+		Abbrev(),
+		Flags().Bool("verbose", "").Bool("verbatim", ""),
+		Exec(func() {}),
+		Args("--verb"),
+	)
+	if !errors.Is(err, ErrAmbiguousFlag) {
+		t.Errorf("expected %v, got: %v", ErrAmbiguousFlag, err)
+	}
+}
+
+// parseResult parses args with a command of opts, and returns the name of the
+// command that runs, its args and the flags that the command line set, or
+// the error.
+func parseResult(t *testing.T, args []string, opts ...Option) string {
+	t.Helper()
+	ctx, err := NewContext(append(opts, Args(args...))...)
+	if err != nil {
+		t.Fatalf("expected no error, got: %v", err)
+	}
+	ctx.Continue = func(*Command, error) bool {
+		return false
+	}
+	if err := ctx.Parse(); err != nil {
+		return err.Error()
+	}
+	var set []string
+	for _, k := range slices.Sorted(maps.Keys(ctx.Vars)) {
+		if v := ctx.Vars[k]; v.WasSet() {
+			s, _ := v.Get()
+			set = append(set, k+"="+s)
+		}
+	}
+	return fmt.Sprintf("%s %q [%s]", ctx.Exec.Name, ctx.Args, strings.Join(set, " "))
 }

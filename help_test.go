@@ -474,3 +474,69 @@ func TestFooterAndVersion(t *testing.T) {
 		})
 	}
 }
+
+// TestInheritedFlags holds that the help of a sub command writes the flags
+// that it inherits only with InheritedFlags, and that it leaves out a local
+// flag, a hidden flag and a flag that a nearer flag hides (D38).
+func TestInheritedFlags(t *testing.T) {
+	tree := func(opts ...Option) []Option {
+		return append([]Option{
+			Usage("app", "an app"),
+			Flags().
+				String("config", "the config file", Short("c")).
+				String("root-dir", "the root dir", Local()).
+				String("name", "the name").
+				String("secret", "a secret", Hidden(true)),
+			Sub(
+				Usage("sub", "a sub command"),
+				Flags().
+					String("name", "the name of sub").
+					Bool("shared", "a flag of sub"),
+				Sub(Usage("child", "a child command")),
+			),
+		}, opts...)
+	}
+	tests := []struct {
+		name string
+		opts []Option
+		args []string
+		exp  string
+	}{
+		{
+			"off", tree(Help()), ss(`sub//--help`),
+			"sub a sub command\n\nUsage:\n  app sub [flags] [command] [args]\n\nAvailable Commands:\n  child   a child command\n\nFlags:\n      --name string  the name of sub\n      --shared       a flag of sub\n  -h, --help         show help, then exit\n\nUse \"app sub [command] --help\" for more information about a command.\n",
+		},
+		{
+			"on", tree(Help(InheritedFlags(true))), ss(`sub//--help`),
+			"sub a sub command\n\nUsage:\n  app sub [flags] [command] [args]\n\nAvailable Commands:\n  child   a child command\n\nFlags:\n      --name string  the name of sub\n      --shared       a flag of sub\n  -h, --help         show help, then exit\n\nGlobal Flags:\n  -c, --config string  the config file\n\nUse \"app sub [command] --help\" for more information about a command.\n",
+		},
+		{
+			"on in a child", tree(Help(InheritedFlags(true))), ss(`sub//child//--help`),
+			"child a child command\n\nUsage:\n  app sub child [flags] [args]\n\nFlags:\n  -h, --help      show help, then exit\n\nGlobal Flags:\n      --name string    the name of sub\n      --shared         a flag of sub\n  -c, --config string  the config file\n",
+		},
+		{
+			"on in the root", tree(Help(InheritedFlags(true))), ss(`--help`),
+			"app an app\n\nUsage:\n  app [flags] [command] [args]\n\nAvailable Commands:\n  help    show help for any command\n  sub     a sub command\n\nFlags:\n  -c, --config string    the config file\n      --root-dir string  the root dir\n      --name string      the name\n  -h, --help             show help, then exit\n\nUse \"app [command] --help\" for more information about a command.\n",
+		},
+		{
+			"on in a column", tree(Help(InheritedFlags(true), HelpColumn(24))), ss(`sub//child//--help`),
+			"child a child command\n\nUsage:\n  app sub child [flags] [args]\n\nFlags:\n  -h, --help            show help, then exit\n\nGlobal Flags:\n      --name string     the name of sub\n      --shared          a flag of sub\n  -c, --config string   the config file\n",
+		},
+		{
+			"on in one sub command", tree(Help(), Sub(Usage("other", "another sub command"), InheritedFlags(true))), ss(`other//--help`),
+			"other another sub command\n\nUsage:\n  app other [flags] [args]\n\nFlags:\n  -h, --help      show help, then exit\n\nGlobal Flags:\n  -c, --config string  the config file\n      --name string    the name\n",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			err := RunError(context.Background(), append(test.opts, Args(test.args...), Pipe(nil, &buf, &buf))...)
+			switch {
+			case err != nil:
+				t.Fatalf("expected no error, got: %v", err)
+			case buf.String() != test.exp:
+				t.Errorf("expected:\n%s\ngot:\n%s\nexpected: %q\ngot:      %q", test.exp, buf.String(), test.exp, buf.String())
+			}
+		})
+	}
+}
