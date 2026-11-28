@@ -372,3 +372,61 @@ func TestBashInherit(t *testing.T) {
 		}
 	}
 }
+
+// TestBashLongFlags tests that a command with BashLongFlags refuses a long
+// flag after a short flag, and a long flag with a value after an equal, as
+// bash does (D54).
+func TestBashLongFlags(t *testing.T) {
+	tests := []struct {
+		name    string
+		bash    bool
+		args    []string
+		rest    []string
+		err     error
+		errText string
+	}{
+		{"a long switch", true, ss(`--norc`), nil, nil, ""},
+		{"a long switch with a value", true, ss(`--norc=1`), nil, ErrInvalidValue, "--norc: invalid value: a long flag takes its value from the next word, and not after ="},
+		{"a long flag and the next word", true, ss(`--rcfile//x`), nil, nil, ""},
+		{"a long flag with a value", true, ss(`--rcfile=x`), nil, ErrInvalidValue, ""},
+		{"a long flag after a short flag", true, ss(`-e//--norc`), nil, ErrUnknownFlag, "--norc: unknown flag: a long flag comes before the short flags"},
+		{"a long flag after a plus form", true, ss(`+e//--norc`), nil, ErrUnknownFlag, ""},
+		{"a long flag before a short flag", true, ss(`--norc//-e//+e`), nil, nil, ""},
+		{"a dash dash after a short flag", true, ss(`-e//--//--norc`), ss(`--norc`), nil, ""},
+		{"a sub command inherits it", true, ss(`sub//-e//--norc`), nil, ErrUnknownFlag, ""},
+		{"no BashLongFlags", false, ss(`-e//--norc=1//--rcfile=x`), nil, nil, ""},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			var rest []string
+			exec := Exec(func(_ context.Context, a []string) {
+				rest = a
+			})
+			opts := []Option{
+				Usage("sh", "a shell"),
+				Flags().
+					Bool("errexit", "exit on an error", Short("e"), AllowPlus()).
+					Bool("norc", "read no startup file").
+					String("rcfile", "the startup file"),
+				Sub(Usage("sub", "a sub command"), exec),
+				exec,
+				Args(test.args...),
+			}
+			if test.bash {
+				opts = append(opts, BashLongFlags())
+			}
+			err := RunError(context.Background(), opts...)
+			switch {
+			case test.err != nil && !errors.Is(err, test.err):
+				t.Fatalf("expected %v, got: %v", test.err, err)
+			case test.err == nil && err != nil:
+				t.Fatalf("expected no error, got: %v", err)
+			case test.errText != "" && err.Error() != test.errText:
+				t.Errorf("expected %q, got: %q", test.errText, err.Error())
+			}
+			if test.err == nil && !slices.Equal(rest, test.rest) {
+				t.Errorf("expected args %q, got: %q", test.rest, rest)
+			}
+		})
+	}
+}

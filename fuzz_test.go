@@ -49,7 +49,9 @@ func fuzzOpts() []Option {
 			Usage("sh", "a shell with bash's command line"),
 			PlusWords(),
 			LetterClusters(),
+			BashLongFlags(),
 			Flags().
+				Bool("norc", "read no startup file").
 				Var("opt", "set an option", HookT, Default(func(*Context, string) error { return nil }), Short("O"), AllowPlus(), OptionalAtEnd()).
 				Hook("trace", "trace each command", func(*Context) {}, Short("x"), AllowPlus()),
 			Exec(func(context.Context, []string) {}),
@@ -116,6 +118,10 @@ func FuzzCommandLine(f *testing.F) {
 		"sh\n+xO",
 		"sh\n-x=",
 		"__complete\nsh\n-Ox\n",
+		"sh\n--norc\n-x",
+		"sh\n-x\n--norc",
+		"sh\n--norc=1",
+		"sh\n-x\n--\n--norc",
 	} {
 		f.Add(s)
 	}

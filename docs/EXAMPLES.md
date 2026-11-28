@@ -1263,8 +1263,12 @@ letters as bash does: a letter that takes a value takes it only from the
 next word, so `-oe nounset` sets `e`, and `o` takes `nounset`. An `=` is then
 a letter, so `-e=` fails. `ox.OptionalAtEnd()` lets a flag that takes a
 value be the last word without one, and its hook reads `ctx.NoValue()`, as
-a lone `-o` lists bash's options. A sub command inherits `ox.PlusWords()`
-and `ox.LetterClusters()` (D53).
+a lone `-o` lists bash's options. `ox.BashLongFlags()` reads long flags as
+bash does: a long flag after the first short flag is an unknown flag, as
+`bash -e --noediting` fails, and a long flag takes its value only from the
+next word, so `--norc=1` and `--rcfile=x` fail (D54). A sub command
+inherits `ox.PlusWords()`, `ox.LetterClusters()` and
+`ox.BashLongFlags()` (D53 and D54).
 
 ```go
 func ExampleLetterClusters() {

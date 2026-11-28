@@ -103,6 +103,9 @@ type Command struct {
 	// LetterClusters reads short letters as bash does: a letter that takes a
 	// value takes it only from the next word. See [LetterClusters].
 	LetterClusters bool
+	// BashLongFlags reads long flags as bash does: only before the first
+	// short flag, and without a value after `=`. See [BashLongFlags].
+	BashLongFlags bool
 
 	// noArgs is true when [ValidArgs] allows no argument. It follows the
 	// bools above, so that the bools share one word of memory.
@@ -719,6 +722,17 @@ func (cmd *Command) abbrev() bool {
 func (cmd *Command) plusWords() bool {
 	for c := cmd; c != nil; c = c.Parent {
 		if c.PlusWords {
+			return true
+		}
+	}
+	return false
+}
+
+// bashLongFlags returns true when the command, or a parent, has
+// [BashLongFlags].
+func (cmd *Command) bashLongFlags() bool {
+	for c := cmd; c != nil; c = c.Parent {
+		if c.BashLongFlags {
 			return true
 		}
 	}

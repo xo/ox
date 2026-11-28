@@ -895,6 +895,24 @@ func LetterClusters() CommandOption {
 	}
 }
 
+// BashLongFlags is a [Command] option that reads long flags as bash does. A
+// long flag after the first short flag, or after the first plus form, is an
+// error that wraps [ErrUnknownFlag], as `bash -e --noediting` fails. A long
+// flag with a value after `=`, such as `--norc=1` or `--rcfile=x`, is an
+// error that wraps [ErrInvalidValue], so a long flag takes its value only
+// from the next word. `--` still ends the flags. A command reads its long
+// flags so when it or a parent has BashLongFlags, so a sub command inherits
+// it (D54).
+func BashLongFlags() CommandOption {
+	return option{
+		name: "BashLongFlags",
+		cmd: func(cmd *Command) error {
+			cmd.BashLongFlags = true
+			return nil
+		},
+	}
+}
+
 // NegateBools is a root [Command] option to give each bool flag of the
 // command tree a negated form, such as `--no-debug` for `--debug`. The
 // negated form sets the flag to false, and takes no value. It counts as a

@@ -47,12 +47,15 @@ func parse(ctx *Context, cmd *Command, args []string) (*Command, []string, bool,
 	var s string
 	var n int
 	var err error
+	// short is true after the first short flag or plus form
+	var short bool
 	for len(args) != 0 {
 		switch s, n, args = args[0], len(args[0]), args[1:]; {
 		case s == "+" && cmd.plusWords():
 			// a lone + is skipped, as bash skips it (D53)
 		case n > 1 && s[0] == '+' && (cmd.plusWords() || cmd.plusFlag(s[1:]) != nil):
 			// the plus form of a flag, such as +o name and +ex (D52)
+			short = true
 			if args, err = ParseFlagPlus(ctx, cmd, s, args); err != nil {
 				if !ctx.Continue(cmd, err) {
 					return nil, nil, false, err
@@ -76,12 +79,14 @@ func parse(ctx *Context, cmd *Command, args []string) (*Command, []string, bool,
 		case s == "--":
 			return cmd, append(v, args...), true, nil
 		case s[1] == '-':
-			if args, err = ParseFlagLong(ctx, cmd, s, args); err != nil {
-				if !ctx.Continue(cmd, err) {
-					return nil, nil, false, err
-				}
+			if err = bashLong(cmd, s, short); err == nil {
+				args, err = ParseFlagLong(ctx, cmd, s, args)
+			}
+			if err != nil && !ctx.Continue(cmd, err) {
+				return nil, nil, false, err
 			}
 		default:
+			short = true
 			if args, err = ParseFlagShort(ctx, cmd, s, args); err != nil {
 				if !ctx.Continue(cmd, err) {
 					return nil, nil, false, err
@@ -90,6 +95,23 @@ func parse(ctx *Context, cmd *Command, args []string) (*Command, []string, bool,
 		}
 	}
 	return cmd, v, false, nil
+}
+
+// bashLong returns an error for a long flag s that bash refuses, when the
+// command has [BashLongFlags]: a long flag after a short flag, when short is
+// true, and a long flag with a value after `=` (D54).
+func bashLong(cmd *Command, s string, short bool) error {
+	if !cmd.bashLongFlags() {
+		return nil
+	}
+	name, _, eq := strings.Cut(s, "=")
+	switch {
+	case short:
+		return newFlagError(name, fmt.Errorf("%w: a long flag comes before the short flags", ErrUnknownFlag))
+	case eq:
+		return newFlagError(name, fmt.Errorf("%w: a long flag takes its value from the next word, and not after =", ErrInvalidValue))
+	}
+	return nil
 }
 
 // ParseFlagLong parses a long flag ('--arg' '--arg v' '--arg k=v' '--arg=' '--arg=v').

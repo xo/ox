@@ -59,6 +59,7 @@ reader can find a decision by its number.
 | [D51](#d51-a-hook-flag-checks-its-value-against-valid-decided-amends-d46) | A hook flag checks its value against Valid | Decided. Amends D46 |
 | [D52](#d52-a-short-flag-can-take-a-plus-form-as-bash-takes-o-name-decided-amended-by-d53) | A short flag can take a plus form, as bash takes +o name | Decided. Amended by D53 |
 | [D53](#d53-a-command-can-read-plus-words-letters-and-a-value-at-the-end-as-bash-does-decided-amends-d52) | A command can read plus words, letters and a value at the end as bash does | Decided. Amends D52 |
+| [D54](#d54-a-command-can-read-long-flags-as-bash-does-decided) | A command can read long flags as bash does | Decided |
 
 ## Purpose
 
@@ -2136,6 +2137,30 @@ B58, a value at the end:
     them only when it writes a warning. Before, the parse of each flag built
     the name, deprecated or not. A run of `BenchmarkCommandLine` now takes
     307 allocations, where it took 313 (D44).
+
+### D54. A command can read long flags as bash does. Decided.
+
+The `hail` session moved to `v0.6.0` (D53), and found two more differences
+from bash on 2026-11-28 (B59 and B60). bash reads a long option only before
+the first short option, so `bash -e --noediting` fails with
+`--: invalid option`. bash also refuses a value after `=` on a long option,
+so `--norc=1` and `--rcfile=x` fail. `ox` took each. A maintainer chose one
+command option for both, `BashLongFlags`, on 2026-11-28.
+
+1. With `BashLongFlags()`, a long flag after the first short flag, or after
+   the first plus form (D52), is an error that wraps `ErrUnknownFlag`, such
+   as `--noediting: unknown flag: a long flag comes before the short flags`.
+2. A long flag with a value after `=` is an error that wraps
+   `ErrInvalidValue`. So a long flag takes its value only from the next
+   word, as `--rcfile x`, and a long switch takes none.
+3. `--` still ends the flags, after a short flag too.
+4. A command reads its long flags so when it or a parent has
+   `BashLongFlags`, so a sub command inherits it, as for `PlusWords` and
+   `LetterClusters` (D53). A program without it reads long flags as before.
+5. The check is in the parse of the command line, so completion and the
+   environment do not change. `TestBashLongFlags` holds each case, and
+   `FuzzCommandLine` has it on its sub command with bash's command line
+   (D49).
 
 ## Open questions for the maintainers
 
