@@ -11,9 +11,9 @@ import (
 // fuzzOpts returns the options of the command tree of FuzzCommandLine. The
 // tree uses most features of the parse: short and long flags, a count, a
 // slice, a map, an optional value with a func, allowed values, a local flag,
-// plus forms, prefixes, negated bools, sub commands with aliases, typed and
-// variadic arguments, a stop at the first argument, and help, version and
-// completion.
+// plus forms, prefixes, negated bools, a sub command with bash's command
+// line, sub commands with aliases, typed and variadic arguments, a stop at
+// the first argument, and help, version and completion.
 func fuzzOpts() []Option {
 	return []Option{
 		Usage("app", "an app"),
@@ -43,6 +43,15 @@ func fuzzOpts() []Option {
 			Arg("args", "its args", SliceT, Optional()),
 			Flags().
 				String("dir", "the folder", Short("C")),
+			Exec(func(context.Context, []string) {}),
+		),
+		Sub(
+			Usage("sh", "a shell with bash's command line"),
+			PlusWords(),
+			LetterClusters(),
+			Flags().
+				Var("opt", "set an option", HookT, Default(func(*Context, string) error { return nil }), Short("O"), AllowPlus(), OptionalAtEnd()).
+				Hook("trace", "trace each command", func(*Context) {}, Short("x"), AllowPlus()),
 			Exec(func(context.Context, []string) {}),
 		),
 		Sub(
@@ -99,6 +108,14 @@ func FuzzCommandLine(f *testing.F) {
 		"+",
 		"__complete\n+",
 		"__complete\n+o\n",
+		"sh\n-Ox\nfoo",
+		"sh\n+Ox\nfoo",
+		"sh\n+\n-x",
+		"sh\n+z",
+		"sh\n-O",
+		"sh\n+xO",
+		"sh\n-x=",
+		"__complete\nsh\n-Ox\n",
 	} {
 		f.Add(s)
 	}

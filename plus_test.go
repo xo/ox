@@ -220,3 +220,155 @@ func TestPlusComp(t *testing.T) {
 		})
 	}
 }
+
+// bashOpts returns the command line of plusOpts with bash's rules: each `+`
+// word is flags, letters take their value from the next word, and -o and -O
+// can be the last word without a value. A hook records `<none>` for no value
+// (D53). letters turns LetterClusters on.
+func bashOpts(events, args *[]string, letters bool) []Option {
+	sign := func(ctx *Context) string {
+		if ctx.IsPlus() {
+			return "+"
+		}
+		return "-"
+	}
+	value := func(letter string) func(*Context, string) error {
+		return func(ctx *Context, s string) error {
+			if ctx.NoValue() {
+				s = "<none>"
+			}
+			*events = append(*events, sign(ctx)+letter+" "+s)
+			return nil
+		}
+	}
+	bare := func(letter string) func(*Context) error {
+		return func(ctx *Context) error {
+			*events = append(*events, sign(ctx)+letter)
+			return nil
+		}
+	}
+	opts := []Option{
+		Usage("sh", "a shell"),
+		StopAtArg(),
+		PlusWords(),
+		Flags().
+			Var("set-option", "set an option", HookT, Default(value("o")), Short("o"), AllowPlus(), OptionalAtEnd()).
+			Var("shopt", "set a shell option", HookT, Default(value("O")), Short("O"), AllowPlus(), OptionalAtEnd()).
+			Hook("errexit", "exit on an error", bare("e"), Short("e"), AllowPlus()).
+			Hook("xtrace", "trace each command", bare("x"), Short("x"), AllowPlus()).
+			String("name", "the name", Short("n")),
+		Exec(func(_ context.Context, a []string) {
+			*args = a
+		}),
+	}
+	if letters {
+		opts = append(opts, LetterClusters())
+	}
+	return opts
+}
+
+// TestBash tests PlusWords, LetterClusters and OptionalAtEnd (D53).
+func TestBash(t *testing.T) {
+	tests := []struct {
+		name    string
+		letters bool
+		args    []string
+		events  []string
+		rest    []string
+		err     error
+		errText string
+	}{
+		// PlusWords
+		{"a plus word without a plus flag", true, ss(`+z`), nil, nil, ErrUnknownFlag, "+z: unknown flag"},
+		{"a plus word of the date kind", true, ss(`+%Y`), nil, nil, ErrUnknownFlag, ""},
+		{"a lone plus is skipped", true, ss(`+//-e`), []string{"-e"}, nil, nil, ""},
+		{"a lone plus before an arg", true, ss(`+//script`), nil, ss(`script`), nil, ""},
+		{"a plus word after the first arg", true, ss(`script//+z`), nil, ss(`script//+z`), nil, ""},
+		// LetterClusters
+		{"a letter takes the next word", true, ss(`-oe//errexit`), []string{"-o errexit", "-e"}, nil, nil, ""},
+		{"two letters take two words", true, ss(`-oO//errexit//extglob`), []string{"-o errexit", "-O extglob"}, nil, nil, ""},
+		{"a plus cluster takes the next word", true, ss(`+oe//errexit`), []string{"+o errexit", "+e"}, nil, nil, ""},
+		{"an equal is a letter", true, ss(`-e=`), []string{"-e"}, nil, ErrUnknownFlag, "-=: unknown flag"},
+		{"getopt takes the rest of the word", false, ss(`-oe//errexit`), []string{"-o e"}, ss(`errexit`), nil, ""},
+		// OptionalAtEnd
+		{"a value flag at the end", true, ss(`-o`), []string{"-o <none>"}, nil, nil, ""},
+		{"a plus value flag at the end", true, ss(`+O`), []string{"+O <none>"}, nil, nil, ""},
+		{"a value flag at the end after a flag", true, ss(`-e//+o`), []string{"-e", "+o <none>"}, nil, nil, ""},
+		{"a cluster at the end", true, ss(`-oe`), []string{"-o <none>", "-e"}, nil, nil, ""},
+		{"a value flag at the end with getopt", false, ss(`-o`), []string{"-o <none>"}, nil, nil, ""},
+		{"a long value flag at the end", false, ss(`--set-option`), []string{"-o <none>"}, nil, nil, ""},
+		{"a value flag not at the end", true, ss(`-o//errexit`), []string{"-o errexit"}, nil, nil, ""},
+		{"no OptionalAtEnd", true, ss(`-n`), nil, nil, ErrMissingArgument, ""},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			var events, rest []string
+			ctx, err := NewContext(append(bashOpts(&events, &rest, test.letters), Args(test.args...))...)
+			if err != nil {
+				t.Fatalf("expected no error, got: %v", err)
+			}
+			err = ctx.Parse()
+			if err == nil {
+				err = ctx.Run(context.Background())
+			}
+			switch {
+			case test.err != nil && !errors.Is(err, test.err):
+				t.Fatalf("expected %v, got: %v", test.err, err)
+			case test.err == nil && err != nil:
+				t.Fatalf("expected no error, got: %v", err)
+			case test.errText != "" && err.Error() != test.errText:
+				t.Errorf("expected %q, got: %q", test.errText, err.Error())
+			}
+			if !slices.Equal(events, test.events) {
+				t.Errorf("expected events %q, got: %q", test.events, events)
+			}
+			if test.err == nil && !slices.Equal(rest, test.rest) {
+				t.Errorf("expected args %q, got: %q", test.rest, rest)
+			}
+			if ctx.IsPlus() || ctx.NoValue() {
+				t.Error("expected IsPlus and NoValue to be false after the parse")
+			}
+		})
+	}
+}
+
+// TestBashInherit tests that a sub command inherits PlusWords and
+// LetterClusters, that OptionalAtEnd refuses a flag that takes no value, and
+// that completion finds the letter that takes the next word.
+func TestBashInherit(t *testing.T) {
+	var got []string
+	err := RunError(context.Background(),
+		Usage("app", "an app"),
+		PlusWords(),
+		LetterClusters(),
+		Sub(
+			Usage("sh", "a shell"),
+			Flags().
+				Var("set-option", "set an option", HookT, Default(func(ctx *Context, s string) {
+					got = append(got, s)
+				}), Short("o"), AllowPlus()).
+				Bool("errexit", "exit on an error", Short("e"), AllowPlus()),
+			Exec(func() {}),
+		),
+		Args("sh", "-oe", "errexit", "+", "+e"),
+	)
+	if err != nil || !slices.Equal(got, []string{"errexit"}) {
+		t.Errorf("expected [errexit] and no error, got: %q %v", got, err)
+	}
+	if _, err := NewFlag("errexit", "exit", BoolT, Short("e"), OptionalAtEnd()); !errors.Is(err, ErrAppliedToInvalidType) {
+		t.Errorf("expected %v for a flag that takes no value, got: %v", ErrAppliedToInvalidType, err)
+	}
+	for _, letters := range []bool{false, true} {
+		var events, rest []string
+		cmd, err := NewCommand(bashOpts(&events, &rest, letters)...)
+		if err != nil {
+			t.Fatalf("expected no error, got: %v", err)
+		}
+		switch g := compPrevFlag(cmd, "-oe"); {
+		case letters && (g == nil || g.Name != "set-option"):
+			t.Errorf("expected -oe to complete the value of -o, got: %v", g)
+		case !letters && g != nil:
+			t.Errorf("expected -oe to complete no value with getopt, got: %v", g.Name)
+		}
+	}
+}

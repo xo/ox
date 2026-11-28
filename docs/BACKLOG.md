@@ -7,7 +7,7 @@ here and name it in the commit message.
 
 The number of an item never changes, so the order of the numbers is not the
 order of importance. B1 to B21 were collected on 2026-09-27, B22 to B29 on
-2026-11-09, B30 to B51 on 2026-11-26, B52 on 2026-11-27, and B53 to B55 on
+2026-11-09, B30 to B51 on 2026-11-26, B52 on 2026-11-27, and B53 to B58 on
 2026-11-28. A line number is at `eae81b9` for
 B1 to B21, and at `bb2641a` after that. Each item names where it came from:
 
@@ -36,7 +36,8 @@ B35, B36, B14, B42, B16, B1, B2, B7, B3, B4, B10, B11, B12, B17, B18, B21,
 B43, B46, B47, B48, B49, B50 and B51. D36 lists the choices that it made.
 A maintainer tagged `v0.1.0` the same day, which closed B22. B13 waits
 for the `go` line of D24. B55 closed on 2026-11-28 (D44), and B19, B52, B53
-and B54 closed the same day (D45, D46, D47 and D48).
+and B54 closed the same day (D45, D46, D47 and D48), then B56, B57 and B58
+(D53).
 
 ## Priority 1: needed before usql moves, or wrong today
 

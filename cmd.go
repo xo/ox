@@ -97,6 +97,12 @@ type Command struct {
 	// Abbrev lets the command line give a long flag by a unique prefix of
 	// its name. A sub command inherits it. See [Abbrev].
 	Abbrev bool
+	// PlusWords reads each word that starts with `+` as plus flags, and
+	// skips a lone `+`, as bash does. See [PlusWords].
+	PlusWords bool
+	// LetterClusters reads short letters as bash does: a letter that takes a
+	// value takes it only from the next word. See [LetterClusters].
+	LetterClusters bool
 
 	// noArgs is true when [ValidArgs] allows no argument. It follows the
 	// bools above, so that the bools share one word of memory.
@@ -709,6 +715,27 @@ func (cmd *Command) abbrev() bool {
 	return false
 }
 
+// plusWords returns true when the command, or a parent, has [PlusWords].
+func (cmd *Command) plusWords() bool {
+	for c := cmd; c != nil; c = c.Parent {
+		if c.PlusWords {
+			return true
+		}
+	}
+	return false
+}
+
+// letterClusters returns true when the command, or a parent, has
+// [LetterClusters].
+func (cmd *Command) letterClusters() bool {
+	for c := cmd; c != nil; c = c.Parent {
+		if c.LetterClusters {
+			return true
+		}
+	}
+	return false
+}
+
 // inheritedFlags returns the flags that the command inherits from its
 // parents, from the nearest parent first. A local flag is not inherited. A
 // flag with the name of a nearer flag is not inherited, because the nearer
@@ -1166,6 +1193,9 @@ type Flag struct {
 	// AllowPlus lets the short name of the flag take a `+`, as bash takes
 	// `+o name` and `+e`. See [AllowPlus].
 	AllowPlus bool
+	// OptionalAtEnd lets a flag that takes a value be the last word of the
+	// command line without one. See [OptionalAtEnd].
+	OptionalAtEnd bool
 	// Split is a split separator, to split values for slices/arrays/maps.
 	Split string
 	// Layout is the Go layout of a [TimestampT], [DateTimeT], [DateT] or
@@ -1348,6 +1378,8 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 		return nil, fmt.Errorf("flag %s: AllowPlus: %w: the flag has no short name", g.Name, ErrInvalidValue)
 	case g.AllowPlus && g.Type == CountT:
 		return nil, fmt.Errorf("flag %s: AllowPlus: %w: a count has no plus form", g.Name, ErrAppliedToInvalidType)
+	case g.OptionalAtEnd && g.NoArg:
+		return nil, fmt.Errorf("flag %s: OptionalAtEnd: %w: the flag takes no value", g.Name, ErrAppliedToInvalidType)
 	}
 	return g, nil
 }

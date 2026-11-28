@@ -822,6 +822,55 @@ func ExampleAllowPlus() {
 	//   -h,     --help             show help, then exit
 }
 
+// ExampleLetterClusters reads a command line as bash does: each word that
+// starts with `+` is flags, a letter that takes a value takes the next word,
+// and -o can be the last word, where its hook lists the options.
+func ExampleLetterClusters() {
+	set := func(ctx *ox.Context, name string) {
+		switch {
+		case ctx.NoValue():
+			fmt.Println("list the options")
+		case ctx.IsPlus():
+			fmt.Println(name, "off")
+		default:
+			fmt.Println(name, "on")
+		}
+	}
+	errexit := func(ctx *ox.Context) {
+		set(ctx, "errexit")
+	}
+	run := func(args ...string) {
+		err := ox.RunError(
+			context.Background(),
+			ox.Usage("sh", "a shell"),
+			ox.StopAtArg(),
+			ox.PlusWords(),
+			ox.LetterClusters(),
+			ox.Flags().
+				Var("set-option", "set an option", ox.HookT, ox.Default(set), ox.Short("o"), ox.AllowPlus(), ox.OptionalAtEnd()).
+				Hook("errexit", "exit on an error", errexit, ox.Short("e"), ox.AllowPlus()),
+			ox.Exec(func() {}),
+			ox.Args(args...),
+		)
+		if err != nil {
+			fmt.Println("error:", err)
+		}
+	}
+	run("-oe", "nounset")
+	run("+", "+o", "nounset")
+	run("-o")
+	run("+z")
+	run("-e=")
+	// Output:
+	// nounset on
+	// errexit on
+	// nounset off
+	// list the options
+	// error: +z: unknown flag
+	// errexit on
+	// error: -=: unknown flag
+}
+
 // ExampleFlagSet_Slice reads a flag more than one time, or a list split by a
 // comma.
 func ExampleFlagSet_Slice() {

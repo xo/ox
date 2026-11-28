@@ -49,7 +49,9 @@ func parse(ctx *Context, cmd *Command, args []string) (*Command, []string, bool,
 	var err error
 	for len(args) != 0 {
 		switch s, n, args = args[0], len(args[0]), args[1:]; {
-		case n > 1 && s[0] == '+' && cmd.plusFlag(s[1:]) != nil:
+		case s == "+" && cmd.plusWords():
+			// a lone + is skipped, as bash skips it (D53)
+		case n > 1 && s[0] == '+' && (cmd.plusWords() || cmd.plusFlag(s[1:]) != nil):
 			// the plus form of a flag, such as +o name and +ex (D52)
 			if args, err = ParseFlagPlus(ctx, cmd, s, args); err != nil {
 				if !ctx.Continue(cmd, err) {
@@ -103,7 +105,7 @@ func ParseFlagLong(ctx *Context, cmd *Command, s string, args []string) ([]strin
 	case err != nil:
 		return nil, newFlagError("--"+arg, err)
 	}
-	warnDeprecated(ctx, g, "--"+arg)
+	warnDeprecated(ctx, g, "--", arg)
 	switch {
 	case neg && ok: // --no-arg=v
 		return args, newFlagError("--"+arg, fmt.Errorf("%w: the negated form of --%s takes no value", ErrInvalidValue, g.Name))
@@ -116,6 +118,11 @@ func ParseFlagLong(ctx *Context, cmd *Command, s string, args []string) ([]strin
 		}
 	case len(args) != 0: // --arg v
 		value, args = args[0], args[1:]
+	case g.OptionalAtEnd: // --arg at the end
+		if err := setNoValue(ctx, g); err != nil {
+			return args, newFlagError("--"+arg, err)
+		}
+		return args, nil
 	default: // missing argument to --arg
 		return nil, newFlagError("--"+arg, ErrMissingArgument)
 	}
@@ -126,11 +133,13 @@ func ParseFlagLong(ctx *Context, cmd *Command, s string, args []string) ([]strin
 }
 
 // warnDeprecated writes a warning to [Context.Stderr] when g is deprecated.
-// arg is the flag as the command line gave it. A deprecated alias gives no
+// sign and arg are the flag as the command line gave it, such as "--" and
+// "name". They are joined only for a warning, so that the parse of a flag
+// that is not deprecated does not allocate. A deprecated alias gives no
 // warning, so that an old name keeps working as before (D35).
-func warnDeprecated(ctx *Context, g *Flag, arg string) {
+func warnDeprecated(ctx *Context, g *Flag, sign, arg string) {
 	if ctx.Stderr != nil && g.Deprecated {
-		_, _ = fmt.Fprintf(ctx.Stderr, text.FlagDeprecated, arg)
+		_, _ = fmt.Fprintf(ctx.Stderr, text.FlagDeprecated, sign+arg)
 	}
 }
 
@@ -145,47 +154,10 @@ func noArgValue(ctx *Context, g *Flag) (string, error) {
 }
 
 // ParseFlagShort parses short flags ('-a' '-aaa' '-av' '-a v' '-a=' '-a=v').
+// With [LetterClusters], a letter that takes a value takes it only from the
+// next word.
 func ParseFlagShort(ctx *Context, cmd *Command, s string, args []string) ([]string, error) {
-	for v := []rune(s[1:]); len(v) != 0; v = v[1:] {
-		arg := string(v[0])
-		g, n := cmd.Flag(arg, true, true), len(v[1:])
-		switch {
-		case g == nil && ctx.Continue(cmd, newFlagError("-"+arg, ErrUnknownFlag)):
-			return args, nil
-		case g == nil:
-			return nil, newFlagError("-"+arg, ErrUnknownFlag)
-		}
-		warnDeprecated(ctx, g, "-"+arg)
-		switch {
-		case g.NoArg: // -a
-			var value string
-			var err error
-			if slices.Index(v, '=') == 1 {
-				value, v = string(v[2:]), v[len(v)-1:]
-			} else if value, err = noArgValue(ctx, g); err != nil {
-				return args, newFlagError("-"+arg, err)
-			}
-			if err := ctx.Vars.Set(ctx, g, value, true); err != nil {
-				return args, newFlagError("-"+arg, err)
-			}
-		case n == 0 && len(args) == 0: // missing argument to -a
-			return nil, newFlagError("-"+arg, ErrMissingArgument)
-		case n != 0: // -a=, -a=v, -av
-			if slices.Index(v, '=') == 1 {
-				v = v[1:]
-			}
-			if err := ctx.Vars.Set(ctx, g, string(v[1:]), true); err != nil {
-				return args, newFlagError("-"+arg, err)
-			}
-			return args, nil
-		default: // -a v
-			if err := ctx.Vars.Set(ctx, g, args[0], true); err != nil {
-				return args[1:], newFlagError("-"+arg, err)
-			}
-			return args[1:], nil
-		}
-	}
-	return args, nil
+	return parseLetters(ctx, cmd, s, args)
 }
 
 // ParseFlagPlus parses the plus form of short flags ('+a' '+a v' '+av'
@@ -198,48 +170,91 @@ func ParseFlagPlus(ctx *Context, cmd *Command, s string, args []string) ([]strin
 	defer func() {
 		ctx.plus = false
 	}()
+	return parseLetters(ctx, cmd, s, args)
+}
+
+// parseLetters parses the letters of s after its first byte, a '-' or a '+'.
+// Without [LetterClusters], a letter that takes a value takes the rest of the
+// word, after an optional '=', or else the next word, as getopt does. With
+// it, the letter takes only the next word, and each letter after it is a
+// flag, as bash does (D53).
+func parseLetters(ctx *Context, cmd *Command, s string, args []string) ([]string, error) {
+	sign, plus, letters := s[:1], s[0] == '+', cmd.letterClusters()
 	for v := []rune(s[1:]); len(v) != 0; v = v[1:] {
 		arg := string(v[0])
 		g, n := cmd.Flag(arg, true, true), len(v[1:])
-		switch {
-		case (g == nil || !g.AllowPlus) && ctx.Continue(cmd, newFlagError("+"+arg, ErrUnknownFlag)):
-			return args, nil
-		case g == nil || !g.AllowPlus:
-			return nil, newFlagError("+"+arg, ErrUnknownFlag)
+		if plus && g != nil && !g.AllowPlus {
+			g = nil
 		}
-		warnDeprecated(ctx, g, "+"+arg)
 		switch {
-		case g.NoArg && slices.Index(v, '=') == 1: // +a=v
-			return args, newFlagError("+"+arg, fmt.Errorf("%w: the plus form of -%s takes no value", ErrInvalidValue, arg))
-		case g.NoArg: // +a
-			value := "false"
-			if !g.isBool() {
-				var err error
+		case g == nil && ctx.Continue(cmd, newFlagError(sign+arg, ErrUnknownFlag)):
+			return args, nil
+		case g == nil:
+			return nil, newFlagError(sign+arg, ErrUnknownFlag)
+		}
+		warnDeprecated(ctx, g, sign, arg)
+		eq := !letters && slices.Index(v, '=') == 1
+		switch {
+		case g.NoArg && eq && plus: // +a=v
+			return args, newFlagError(sign+arg, fmt.Errorf("%w: the plus form of -%s takes no value", ErrInvalidValue, arg))
+		case g.NoArg: // -a, -a=v, +a
+			var value string
+			var err error
+			switch {
+			case eq:
+				value, v = string(v[2:]), v[len(v)-1:]
+			case plus && g.isBool():
+				value = "false"
+			default:
 				if value, err = noArgValue(ctx, g); err != nil {
-					return args, newFlagError("+"+arg, err)
+					return args, newFlagError(sign+arg, err)
 				}
 			}
 			if err := ctx.Vars.Set(ctx, g, value, true); err != nil {
-				return args, newFlagError("+"+arg, err)
+				return args, newFlagError(sign+arg, err)
 			}
-		case n == 0 && len(args) == 0: // missing argument to +a
-			return nil, newFlagError("+"+arg, ErrMissingArgument)
-		case n != 0: // +a=, +a=v, +av
-			if slices.Index(v, '=') == 1 {
+		case letters && len(args) != 0: // -a v, with bash's letters
+			value := args[0]
+			args = args[1:]
+			if err := ctx.Vars.Set(ctx, g, value, true); err != nil {
+				return args, newFlagError(sign+arg, err)
+			}
+		case letters, n == 0 && len(args) == 0: // -a at the end
+			if !g.OptionalAtEnd {
+				return nil, newFlagError(sign+arg, ErrMissingArgument)
+			}
+			if err := setNoValue(ctx, g); err != nil {
+				return args, newFlagError(sign+arg, err)
+			}
+			if !letters {
+				return args, nil
+			}
+		case n != 0: // -a=, -a=v, -av
+			if eq {
 				v = v[1:]
 			}
 			if err := ctx.Vars.Set(ctx, g, string(v[1:]), true); err != nil {
-				return args, newFlagError("+"+arg, err)
+				return args, newFlagError(sign+arg, err)
 			}
 			return args, nil
-		default: // +a v
+		default: // -a v
 			if err := ctx.Vars.Set(ctx, g, args[0], true); err != nil {
-				return args[1:], newFlagError("+"+arg, err)
+				return args[1:], newFlagError(sign+arg, err)
 			}
 			return args[1:], nil
 		}
 	}
 	return args, nil
+}
+
+// setNoValue sets a flag with [OptionalAtEnd] that is the last word of the
+// command line, from an empty value, with [Context.NoValue] true.
+func setNoValue(ctx *Context, g *Flag) error {
+	ctx.noValue = true
+	defer func() {
+		ctx.noValue = false
+	}()
+	return ctx.Vars.Set(ctx, g, "", true)
 }
 
 // Vars is a map of argument variables.

@@ -57,7 +57,8 @@ reader can find a decision by its number.
 | [D49](#d49-answers-of-2026-11-28-lint-in-ci-completion-of-help-values-and-fuzz-tests-decided-amends-d12-amends-d36-amends-d46) | Answers of 2026-11-28, lint in CI, completion of help values, and fuzz tests | Decided. Amends D12. Amends D36. Amends D46 |
 | [D50](#d50-the-substring-operator-follows-bash-and-base64-and-hex-write-their-text-decided-supersedes-d19) | The substring operator follows bash, and base64 and hex write their text | Decided. Supersedes D19 |
 | [D51](#d51-a-hook-flag-checks-its-value-against-valid-decided-amends-d46) | A hook flag checks its value against Valid | Decided. Amends D46 |
-| [D52](#d52-a-short-flag-can-take-a-plus-form-as-bash-takes-o-name-decided) | A short flag can take a plus form, as bash takes +o name | Decided |
+| [D52](#d52-a-short-flag-can-take-a-plus-form-as-bash-takes-o-name-decided-amended-by-d53) | A short flag can take a plus form, as bash takes +o name | Decided. Amended by D53 |
+| [D53](#d53-a-command-can-read-plus-words-letters-and-a-value-at-the-end-as-bash-does-decided-amends-d52) | A command can read plus words, letters and a value at the end as bash does | Decided. Amends D52 |
 
 ## Purpose
 
@@ -2012,7 +2013,7 @@ for each value that no `HelpValue` names.
    `--help`, because it has nothing to complete.
    `TestHookValid` holds each case.
 
-### D52. A short flag can take a plus form, as bash takes +o name. Decided.
+### D52. A short flag can take a plus form, as bash takes +o name. Decided. Amended by D53.
 
 The `hail` session, a shell that copies bash's command line, asked on
 2026-11-28 for bash's `+` options, with a maintainer's go-ahead for its
@@ -2074,6 +2075,67 @@ An agent made these choices, and a maintainer accepted them on
     and `BenchmarkCommandLine` shows no change (D44). `TestPlus`,
     `TestPlusHelp`, `TestPlusComp`, `TestPlusTag` and `TestPlusErrors` hold
     the cases, and `FuzzCommandLine` has flags with plus forms (D49).
+
+### D53. A command can read plus words, letters and a value at the end as bash does. Decided. Amends D52.
+
+The `hail` session moved to `v0.5.0` for its item W27 (D52), and found three
+differences from bash on 2026-11-28 (B56, B57 and B58). A maintainer
+accepted B57 and B58 as `hail` asked, and asked to revise D52 for B56. Each
+of the three is opt in, so a program that does not ask reads its command
+line as before. The names are the ones that `hail` proposed. A maintainer
+accepted the design and each choice below on 2026-11-28.
+
+B56, plus words:
+
+1. The command option `PlusWords()` reads each word that starts with `+`
+   as the plus forms of short flags, and not only a word whose first letter
+   names a flag with `AllowPlus` (item 3 of D52). So `+z` and `+%Y` are
+   errors that wrap `ErrUnknownFlag`, as `bash +z` fails with "invalid
+   option", and a lone `+` is skipped, as bash skips it.
+2. Without `PlusWords`, item 3 of D52 holds, so `date +%Y` keeps working.
+3. A command reads plus words when it or a parent has `PlusWords`, so a
+   sub command inherits it, as for `Abbrev` (D38). The first argument with
+   `StopAtArg`, and `--`, still end the flags.
+
+B57, letter clusters:
+
+4. The command option `LetterClusters()` reads short letters as bash
+   does. A letter that takes a value takes it only from the next word, so
+   `-oe errexit` sets `e`, and `o` takes `errexit`. Without it, `ox` reads
+   letters as `getopt` does, and `o` takes the value `e`.
+5. Each letter that takes a value takes the next word in turn, so
+   `-oO a b` gives `a` to `o` and `b` to `O`. The letters run in their order
+   in the word.
+6. An `=` is a letter, so `-e=` is an error that wraps `ErrUnknownFlag` and
+   names `-=`, as bash refuses it. `-o=x` is refused too. A hook so never
+   sees `-e=` as `-e`.
+7. It applies to the `+` forms too, so `+oe errexit` turns `o` and `e` off.
+   A long flag does not change. A sub command inherits it. Completion
+   completes the value of the first letter that takes the next word.
+8. `ParseFlagShort` and `ParseFlagPlus` share one parse, `parseLetters`,
+   which reads either way.
+
+B58, a value at the end:
+
+9. The flag option `OptionalAtEnd()` lets a flag that takes a value be
+   the last word of the command line without one, so a lone `-o` or `+o`
+   reaches its hook, which lists the options as bash does. The flag is set
+   from an empty value, and the hook reads the new method
+   `Context.NoValue()` as true. Anywhere else, the flag takes its value as
+   before.
+10. It works for a short flag, its plus form, a letter at the end of a
+    cluster with or without `LetterClusters`, and a long flag at the end,
+    such as `--set-option`. A flag that takes no value refuses it with
+    `ErrAppliedToInvalidType`.
+11. No struct tag option is added for these three, because `hail` builds
+    its flags by hand. One can be added when a program asks.
+12. `TestBash` and `TestBashInherit` hold each case, `ExampleLetterClusters`
+    shows them, and `FuzzCommandLine` has a sub command with the three
+    (D49). The two fields of `Command` fit in its padding.
+13. `warnDeprecated` takes the sign and the name of a flag apart, and joins
+    them only when it writes a warning. Before, the parse of each flag built
+    the name, deprecated or not. A run of `BenchmarkCommandLine` now takes
+    307 allocations, where it took 313 (D44).
 
 ## Open questions for the maintainers
 

@@ -1254,6 +1254,66 @@ func ExampleAllowPlus() {
 }
 ```
 
+### Read a command line as bash does
+
+`ox.PlusWords()` reads each word that starts with `+` as flags, as bash
+does, so `+z` is an unknown flag, and a lone `+` is skipped. Without it, a
+word such as `+%Y` stays an argument. `ox.LetterClusters()` reads short
+letters as bash does: a letter that takes a value takes it only from the
+next word, so `-oe nounset` sets `e`, and `o` takes `nounset`. An `=` is then
+a letter, so `-e=` fails. `ox.OptionalAtEnd()` lets a flag that takes a
+value be the last word without one, and its hook reads `ctx.NoValue()`, as
+a lone `-o` lists bash's options. A sub command inherits `ox.PlusWords()`
+and `ox.LetterClusters()` (D53).
+
+```go
+func ExampleLetterClusters() {
+	set := func(ctx *ox.Context, name string) {
+		switch {
+		case ctx.NoValue():
+			fmt.Println("list the options")
+		case ctx.IsPlus():
+			fmt.Println(name, "off")
+		default:
+			fmt.Println(name, "on")
+		}
+	}
+	errexit := func(ctx *ox.Context) {
+		set(ctx, "errexit")
+	}
+	run := func(args ...string) {
+		err := ox.RunError(
+			context.Background(),
+			ox.Usage("sh", "a shell"),
+			ox.StopAtArg(),
+			ox.PlusWords(),
+			ox.LetterClusters(),
+			ox.Flags().
+				Var("set-option", "set an option", ox.HookT, ox.Default(set), ox.Short("o"), ox.AllowPlus(), ox.OptionalAtEnd()).
+				Hook("errexit", "exit on an error", errexit, ox.Short("e"), ox.AllowPlus()),
+			ox.Exec(func() {}),
+			ox.Args(args...),
+		)
+		if err != nil {
+			fmt.Println("error:", err)
+		}
+	}
+	run("-oe", "nounset")
+	run("+", "+o", "nounset")
+	run("-o")
+	run("+z")
+	run("-e=")
+	// Output:
+	// nounset on
+	// errexit on
+	// nounset off
+	// list the options
+	// error: +z: unknown flag
+	// errexit on
+	// error: -=: unknown flag
+}
+```
+
 ### Write a man page or Markdown docs
 
 Import `github.com/xo/ox/metadoc`, and add the root option

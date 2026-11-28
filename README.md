@@ -323,7 +323,9 @@ Specific design considerations of the `ox` package:
 - Suggestions for command names, aliases, and suggested names
 - Argument validation and advanced shell completion support
 - Plus forms of short flags, as bash takes `+o name` and `+ex`, with
-  `ox.AllowPlus()`, and a hook that reads the sign with `ctx.IsPlus()`
+  `ox.AllowPlus()`, and a hook that reads the sign with `ctx.IsPlus()`.
+  `ox.PlusWords()`, `ox.LetterClusters()` and `ox.OptionalAtEnd()` read the
+  rest of bash's command line
 - Required flags, and rules between flags: only one of, all or none of, and
   at least one of a group
 - Positional arguments with a name and a type, with `ox.Arg`, which are

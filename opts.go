@@ -860,6 +860,41 @@ func Abbrev() CommandOption {
 	}
 }
 
+// PlusWords is a [Command] option that reads each word that starts with `+`
+// as the plus forms of short flags, as bash does, and not only a word whose
+// first letter names a flag with [AllowPlus] (D52). So a letter without a
+// plus form, such as the `z` of `+z`, is an error that wraps
+// [ErrUnknownFlag], and a lone `+` is skipped. A command takes each word so
+// when it or a parent has PlusWords, so a sub command inherits it. A program
+// that takes an argument such as the `+%Y` of `date` does not use it.
+func PlusWords() CommandOption {
+	return option{
+		name: "PlusWords",
+		cmd: func(cmd *Command) error {
+			cmd.PlusWords = true
+			return nil
+		},
+	}
+}
+
+// LetterClusters is a [Command] option that reads short letters as bash
+// does. A letter that takes a value takes it only from the next word, so
+// `-oe errexit` sets e, and o takes errexit, where `getopt` gives o the value
+// e. Each letter that takes a value takes the next word in turn. An `=` is a
+// letter, so `-e=` is an error that wraps [ErrUnknownFlag], as bash refuses
+// it. It applies to the `+` forms too. A command reads its letters so when it
+// or a parent has LetterClusters, so a sub command inherits it. A long flag
+// does not change.
+func LetterClusters() CommandOption {
+	return option{
+		name: "LetterClusters",
+		cmd: func(cmd *Command) error {
+			cmd.LetterClusters = true
+			return nil
+		},
+	}
+}
+
 // NegateBools is a root [Command] option to give each bool flag of the
 // command tree a negated form, such as `--no-debug` for `--debug`. The
 // negated form sets the flag to false, and takes no value. It counts as a
@@ -961,6 +996,22 @@ func AllowPlus() FlagOption {
 		name: "AllowPlus",
 		flag: func(g *Flag) error {
 			g.AllowPlus = true
+			return nil
+		},
+	}
+}
+
+// OptionalAtEnd is a [Flag] option that lets a flag that takes a value be
+// the last word of the command line without one, as bash takes a lone `-o`
+// to list its options. The flag is set from an empty value, and its hook
+// reads [Context.NoValue] as true. Anywhere else, the flag takes its value as
+// before. A flag that takes no value refuses it with
+// [ErrAppliedToInvalidType].
+func OptionalAtEnd() FlagOption {
+	return option{
+		name: "OptionalAtEnd",
+		flag: func(g *Flag) error {
+			g.OptionalAtEnd = true
 			return nil
 		},
 	}

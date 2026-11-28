@@ -402,6 +402,9 @@ type Context struct {
 	filled map[string]bool
 	// plus is true while the parse sets a flag from its plus form.
 	plus bool
+	// noValue is true while the parse sets a flag with [OptionalAtEnd] that
+	// is the last word without a value.
+	noValue bool
 }
 
 // NewContext creates a new run context.
@@ -625,6 +628,13 @@ func (ctx *Context) Expand(v any) (any, error) {
 // as `+o name`, and false for the `-` form. See [AllowPlus].
 func (ctx *Context) IsPlus() bool {
 	return ctx.plus
+}
+
+// NoValue returns true while a hook runs for a flag with [OptionalAtEnd]
+// that is the last word of the command line without a value, such as a lone
+// `-o`.
+func (ctx *Context) NoValue() bool {
+	return ctx.noValue
 }
 
 // setArgs sets the value of each positional argument of cmd in the vars,
@@ -899,12 +909,15 @@ func compPrevFlag(cmd *Command, s string) *Flag {
 		return nil
 	}
 	r := []rune(s[1:])
+	letters := cmd.letterClusters()
 	for i, c := range r {
 		switch g := cmd.Flag(string(c), true, true); {
 		case g == nil, s[0] == '+' && !g.AllowPlus:
 			return nil
 		case g.NoArg:
-		case i == len(r)-1:
+		case letters, i == len(r)-1:
+			// with bash's letters, the first letter that takes a value
+			// takes the next word (D53)
 			return g
 		default:
 			return nil
