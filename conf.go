@@ -28,6 +28,7 @@ const (
 	YAMLT ConfigType = "yaml"
 	HCLT  ConfigType = "hcl"
 	TOMLT ConfigType = "toml"
+	INIT  ConfigType = "ini"
 )
 
 // DefaultLoader is the default config loader.
@@ -342,7 +343,8 @@ func (ctx *Context) Fill(cmd *Command) error {
 	if ctx.Vars == nil {
 		ctx.Vars = make(Vars)
 	}
-	root, flags := cmd, scopeFlags(cmd)
+	root := cmd
+	flags, owners := scopeFlags(cmd)
 	for root.Parent != nil {
 		root = root.Parent
 	}
@@ -351,7 +353,7 @@ func (ctx *Context) Fill(cmd *Command) error {
 	explicit := false
 	if i := slices.IndexFunc(flags, func(g *Flag) bool { return g.ConfigFile }); i != -1 {
 		g := flags[i]
-		if err := ctx.fill(root, g); err != nil {
+		if err := ctx.fill(root, owners[i], g); err != nil {
 			return err
 		}
 		if v, ok := ctx.Vars[g.Name]; ok {
@@ -381,19 +383,20 @@ func (ctx *Context) Fill(cmd *Command) error {
 		}
 	}
 	// fill the other flags
-	for _, g := range flags {
+	for i, g := range flags {
 		if g.ConfigFile {
 			continue
 		}
-		if err := ctx.fill(root, g); err != nil {
+		if err := ctx.fill(root, owners[i], g); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-// fill gives a value to one flag that the command line did not set.
-func (ctx *Context) fill(root *Command, g *Flag) error {
+// fill gives a value to one flag of the command owner that the command line
+// did not set.
+func (ctx *Context) fill(root, owner *Command, g *Flag) error {
 	if v, ok := ctx.Vars[g.Name]; ok && v.WasSet() || g.Special != "" {
 		return nil
 	}
@@ -413,7 +416,7 @@ func (ctx *Context) fill(root *Command, g *Flag) error {
 	// config files
 	if !g.NoConfig && (!hook || len(g.Keys) != 0) {
 		for _, f := range slices.Backward(ctx.files) {
-			key := configKey(g, f.typ)
+			key := configKey(owner, g, f.typ)
 			switch v, ok, err := f.cfg.Lookup(key); {
 			case err != nil:
 				return fmt.Errorf("--%s: %s: %s: %w", g.Name, f.path, key, err)
@@ -463,7 +466,8 @@ func (ctx *Context) isSet(name string) bool {
 // parent break its rule.
 func (ctx *Context) validateFlags() error {
 	var missing []string
-	for _, g := range scopeFlags(ctx.Exec) {
+	flags, _ := scopeFlags(ctx.Exec)
+	for _, g := range flags {
 		if g.Required && !ctx.isSet(g.Name) {
 			missing = append(missing, g.Name)
 		}
@@ -482,9 +486,11 @@ func (ctx *Context) validateFlags() error {
 }
 
 // scopeFlags returns the flags of cmd and of its parents, with a flag of cmd
-// before a flag of a parent that has the same name.
-func scopeFlags(cmd *Command) []*Flag {
+// before a flag of a parent that has the same name, and the command of each
+// flag.
+func scopeFlags(cmd *Command) ([]*Flag, []*Command) {
 	var flags []*Flag
+	var owners []*Command
 	seen := make(map[string]bool)
 	for c := cmd; c != nil; c = c.Parent {
 		if c.Flags == nil {
@@ -492,11 +498,11 @@ func scopeFlags(cmd *Command) []*Flag {
 		}
 		for _, g := range c.Flags.Flags {
 			if !seen[g.Name] {
-				flags, seen[g.Name] = append(flags, g), true
+				flags, owners, seen[g.Name] = append(flags, g), append(owners, c), true
 			}
 		}
 	}
-	return flags
+	return flags, owners
 }
 
 // envName returns the name of the environment variable of a flag, or "" when
@@ -513,15 +519,29 @@ func envName(root *Command, g *Flag) string {
 	return ""
 }
 
-// configKey returns the config key of a flag for a config type.
-func configKey(g *Flag, typ ConfigType) string {
+// configKey returns the config key of the flag g of the command owner, for
+// a config type. A key of [Key] is the whole key. Else the key is the path of
+// owner below the root, then the key path of a field of a nested struct, or
+// the name of the flag, joined with dots. So the flag --steps of the command
+// "app migrate" is "migrate.steps", and the field Source.Dir of that command
+// is "migrate.source.dir".
+func configKey(owner *Command, g *Flag, typ ConfigType) string {
 	if key, ok := g.Keys[string(typ)]; ok {
 		return key
 	}
 	if key, ok := g.Keys[""]; ok {
 		return key
 	}
-	return g.Name
+	name := g.Name
+	if g.keyPath != "" {
+		name = g.keyPath
+	}
+	var parts []string
+	for c := owner; c != nil && c.Parent != nil; c = c.Parent {
+		parts = append(parts, c.Name)
+	}
+	slices.Reverse(parts)
+	return strings.Join(append(parts, name), ".")
 }
 
 // fillValues converts a value that is not from the command line to the

@@ -501,6 +501,9 @@ func (val *bindVal) SetSet(set bool) {
 
 // Bind satisfies the [Binder] interface.
 func (val *bindVal) Bind(s string) error {
+	if ok, err := unmarshalInto(val.v, s); ok {
+		return err
+	}
 	typ := val.v.Elem().Type()
 	switch typ.Kind() {
 	case reflect.Slice:
@@ -679,8 +682,9 @@ func (val *hookVal) String() string {
 	return "(hook)"
 }
 
-// marshalVal is a value of a type that [defaultType] found with reflect,
-// whose pointer has the text or the binary marshal pair.
+// marshalVal is a value of a type that [registerUnmarshal] found with
+// reflect, whose pointer reads its own text with UnmarshalText,
+// UnmarshalBinary or Set. Its value is always a pointer.
 type marshalVal struct {
 	typ   Type
 	valid func(any) error
@@ -709,6 +713,17 @@ func (val *marshalVal) SetValid(valid func(any) error) {
 }
 
 func (val *marshalVal) Set(s string) error {
+	// a type with a Set method, as a [flag.Value] has, sets the same value
+	// each time, so that a type that appends keeps each value
+	if _, ok := typeLookup(typeSetNews, val.typ); ok && val.v != nil {
+		if err := val.v.(setter).Set(s); err != nil {
+			return fmt.Errorf("%w: %w", ErrInvalidValue, err)
+		}
+		if val.valid != nil {
+			return val.valid(val.v)
+		}
+		return nil
+	}
 	v, err := asUnmarshal(val.typ, s)
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrInvalidValue, err)
@@ -732,6 +747,10 @@ func (val *marshalVal) Get() (string, error) {
 		b, err = v.MarshalText()
 	case encoding.BinaryMarshaler:
 		b, err = v.MarshalBinary()
+	case fmt.Stringer:
+		return v.String(), nil
+	default:
+		return fmt.Sprint(reflect.Indirect(reflect.ValueOf(v))), nil
 	}
 	if err != nil {
 		return "", fmt.Errorf("%w: %w", ErrInvalidValue, err)

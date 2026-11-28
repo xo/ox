@@ -64,10 +64,11 @@ that repository, such as dbmeta D110 or tblfmt D37.
 1. The root module requires nothing, and the root package imports the
    standard library and its own `strcase` and `text` packages, and nothing
    else. A type or a loader that needs another module goes in a sub package
-   that is a module of its own, such as `color`, `glob`, `hcl`, `yaml` and
-   `toml`, and registers itself from `init`. A caller turns it on with a
-   blank import. `TestTheRootModuleRequiresNothing` fails on a `require` in the
-   root `go.mod`. See D1 and D33.
+   that is a module of its own, such as `hcl`, `yaml` and `toml`, and
+   registers itself from `init`. A loader that needs only the standard
+   library, such as `ini`, is a sub package of the root module. A caller
+   turns each on with a blank import. `TestTheRootModuleRequiresNothing`
+   fails on a `require` in the root `go.mod`. See D1, D33 and D43.
 2. `ox` builds with TinyGo, and with the newest Go release and the two
    releases before it. Today these are Go 1.25, 1.26 and 1.27, so each
    `go.mod` declares `go 1.25`, or `go 1.25.0` when a dependency declares
@@ -122,7 +123,10 @@ that repository, such as dbmeta D110 or tblfmt D37.
   `context.Context`, such as `otx.Get[T]`. See D7.
 - `strcase/` changes the case of identifiers. `text/` holds the strings that
   `ox` writes.
-- `color/`, `glob/`, `hcl/`, `yaml/` and `toml/` are modules of their own,
+- `ini/` reads INI config files. It imports only the standard library and
+  `ox`, so it is a package of the root module, and a program turns it on
+  with a blank import (D43).
+- `hcl/`, `yaml/` and `toml/` are modules of their own,
   each with its own `go.mod` and its own tags, such as `yaml/v0.1.0`.
   `hcl`, `yaml` and `toml` register their config file formats. See D1 and
   D33.
@@ -130,7 +134,7 @@ that repository, such as dbmeta D110 or tblfmt D37.
   more than one module, such as a config file of each format read end to
   end. Its `go.mod` replaces each module with its folder in the repository.
 - No `go.work` is committed. Make one in the root, which `.gitignore`
-  ignores: `go work init . ./color ./glob ./hcl ./toml ./yaml ./test`. A sub
+  ignores: `go work init . ./hcl ./toml ./yaml ./test`. A sub
   module requires a root version from after the split of D33, so it builds
   without a workspace only after a maintainer pushes that commit.
 - `comp/` holds the completion scripts, which come from the scripts of
@@ -142,6 +146,8 @@ that repository, such as dbmeta D110 or tblfmt D37.
   program in each style (D31). `go test ./...` does not build `_tools/`, so
   test it with `go test ./_tools/oximport/...`.
 - `_examples/` holds example programs, one directory each.
+  `_examples/greet` and `_examples/paint` are the programs in the Using
+  section of `README.md`.
   `_examples/usql` is a sample of every option of `usql`, built as `usql`
   builds it (B42).
   `_examples/gen/` holds programs that the removed `_examples/gen.go` wrote
@@ -157,7 +163,7 @@ that repository, such as dbmeta D110 or tblfmt D37.
 module, with the workspace above:
 
 ```sh
-for mod in . color glob hcl toml yaml test; do (cd $mod && go test -race -count=1 ./...); done
+for mod in . hcl toml yaml test; do (cd $mod && go test -race -count=1 ./...); done
 tinygo test -v ./...
 ```
 
@@ -169,7 +175,7 @@ because `hcl` and `test` declare `go 1.25.0`:
 
 ```sh
 go work edit -go=1.25.0
-for mod in . color glob hcl toml yaml test; do (cd $mod && GOTOOLCHAIN=go1.25.0 go test -count=1 ./...); done
+for mod in . hcl toml yaml test; do (cd $mod && GOTOOLCHAIN=go1.25.0 go test -count=1 ./...); done
 ```
 
 CI makes the same workspace and runs `go test -v ./...` in each module with
@@ -234,6 +240,10 @@ it out of the TinyGo run. It reads files and not the package:
 7. `TestEachExampleIsInTheDocument` fails when a code block in
    `docs/EXAMPLES.md` differs from its `Example` func, or when an `Example`
    func is not in the document. Change both together.
+8. `TestTheReadmeShowsTheExamples` fails when a program that `README.md`
+   shows with `$ cat _examples/...` differs from its file, or when the
+   output of a `$ go run ./_examples/...` differs from what the program
+   writes. Change both together.
 
 ## Go conventions
 
@@ -297,7 +307,7 @@ maintainer a proposed commit message. Do not tag. All of these must pass first:
 
 ```sh
 gofmt -l .
-for mod in . color glob hcl toml yaml test; do (cd $mod && go vet ./... && go test -race -count=1 ./...); done
+for mod in . hcl toml yaml test; do (cd $mod && go vet ./... && go test -race -count=1 ./...); done
 golangci-lint run --new-from-rev=HEAD ./...
 ```
 

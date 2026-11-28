@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -64,9 +65,6 @@ const (
 	URLT      Type = "url"
 	UUIDT     Type = "uuid"
 
-	ColorT Type = "color"
-	GlobT  Type = "glob"
-
 	SliceT Type = "slice"
 	ArrayT Type = "array"
 	MapT   Type = "map"
@@ -121,7 +119,7 @@ func (typ Type) New() (Value, error) {
 	case MapT:
 		v, err = NewMap(StringT, StringT)
 	default:
-		f, ok := typeNews[typ]
+		f, ok := typeLookup(typeNews, typ)
 		if !ok {
 			return nil, fmt.Errorf("%w: type not registered (%q)", ErrCouldNotCreateValue, string(typ))
 		}
@@ -131,6 +129,20 @@ func (typ Type) New() (Value, error) {
 		return nil, fmt.Errorf("%w: %w", ErrCouldNotCreateValue, err)
 	}
 	return v, nil
+}
+
+// typeMu guards the maps of registered types below. The first use of a type
+// that reads its own text registers it (D41), so that two goroutines that
+// build commands at the same time write to the maps. Each read takes the
+// read lock with [typeLookup].
+var typeMu sync.RWMutex
+
+// typeLookup returns the value of k in m, one of the maps that typeMu guards.
+func typeLookup[K comparable, V any](m map[K]V, k K) (V, bool) {
+	typeMu.RLock()
+	defer typeMu.RUnlock()
+	v, ok := m[k]
+	return v, ok
 }
 
 // typeNews are registered type creation funcs.
@@ -160,6 +172,14 @@ var typeTextNews = make(map[Type]func() (any, error))
 // typeBinaryNews are registered type creation funcs for binary marshalable
 // types.
 var typeBinaryNews = make(map[Type]func() (any, error))
+
+// typeSetNews are the creation funcs of the types that [registerUnmarshal]
+// found with a Set method, as a [flag.Value] has.
+var typeSetNews = make(map[Type]func() (any, error))
+
+// unmarshalTypes are the types that [registerUnmarshal] registered, by the
+// type that is not a pointer.
+var unmarshalTypes = make(map[reflect.Type]Type)
 
 func init() {
 	// register basic types
@@ -226,11 +246,15 @@ func init() {
 
 // RegisterType registers a type.
 func RegisterType(typ Type, f func() (Value, error), opts ...Option) {
+	typeMu.Lock()
+	defer typeMu.Unlock()
 	typeNews[typ], typeFlagOpts[typ] = f, opts
 }
 
 // RegisterTypeName registers a type name.
 func RegisterTypeName(typ Type, names ...string) {
+	typeMu.Lock()
+	defer typeMu.Unlock()
 	for _, name := range names {
 		reflectTypes[name] = typ
 	}
@@ -249,6 +273,8 @@ func RegisterBinaryType[T BinaryMarshalUnmarshaler](f func() (T, error)) {
 // registerMarshaler registers a type marshaler.
 func registerMarshaler[T any](f func() (any, error), m map[Type]func() (any, error)) {
 	typ := typeType[T]()
+	typeMu.Lock()
+	defer typeMu.Unlock()
 	if _, ok := typeNews[typ]; ok {
 		return
 	}
@@ -343,7 +369,7 @@ func typeRef(val any) Type {
 	typ := reflect.TypeOf(val)
 	if typ != nil {
 		s := typ.String()
-		if typ, ok := reflectTypes[s]; ok {
+		if typ, ok := typeLookup(reflectTypes, s); ok {
 			return typ
 		}
 		return Type(s)
@@ -354,6 +380,11 @@ func typeRef(val any) Type {
 // defaultType returns the type, map key type, and element type of v.
 func defaultType(refType reflect.Type) (Type, Type, Type, error) {
 	if typ, ok := valueTypes[refType]; ok {
+		return typ, StringT, StringT, nil
+	}
+	// a type that reads its own text comes before the kind of the type, so
+	// that a named int such as slog.Level reads "debug"
+	if typ := registerUnmarshal(refType); typ != "" {
 		return typ, StringT, StringT, nil
 	}
 	switch refType.Kind() {
@@ -389,13 +420,6 @@ func defaultType(refType reflect.Type) (Type, Type, Type, error) {
 		return Complex128T, StringT, StringT, nil
 	case reflect.Complex64:
 		return Complex64T, StringT, StringT, nil
-	case reflect.Pointer:
-		if typ := reflectType(refType); typ != "" {
-			return typ, StringT, StringT, nil
-		}
-		if typ := registerReflect(refType); typ != "" {
-			return typ, StringT, StringT, nil
-		}
 	case reflect.Slice:
 		elem := refType.Elem()
 		if elem.Kind() == reflect.Slice && elem.Elem().Kind() == reflect.Uint8 {
@@ -414,36 +438,115 @@ func defaultType(refType reflect.Type) (Type, Type, Type, error) {
 	return "", "", "", ErrInvalidType
 }
 
-// registerReflect registers refType, a pointer type that has the text or the
-// binary marshal pair, as [RegisterTextType] or [RegisterBinaryType] would,
-// and returns its [Type]. It returns "" for any other type. The name of the
-// type is the name of the type that refType points to, in lower case, such as
-// "version" for *semver.Version, unless another type has that name.
-func registerReflect(refType reflect.Type) Type {
-	text := refType.Implements(reflect.TypeFor[encoding.TextMarshaler]()) &&
-		refType.Implements(reflect.TypeFor[encoding.TextUnmarshaler]())
-	binary := refType.Implements(reflect.TypeFor[encoding.BinaryMarshaler]()) &&
-		refType.Implements(reflect.TypeFor[encoding.BinaryUnmarshaler]())
-	if !text && !binary {
+// unmarshalKind is the method with which a type reads its text.
+type unmarshalKind int
+
+// Unmarshal kinds.
+const (
+	unmarshalNone unmarshalKind = iota
+	unmarshalText
+	unmarshalBinary
+	unmarshalSet
+)
+
+// setter is a type that sets itself from a string, as a [flag.Value] does.
+type setter interface {
+	Set(string) error
+}
+
+// unmarshalOf returns the method with which refType, or a pointer to it,
+// reads its text. UnmarshalText comes first, then UnmarshalBinary, then Set.
+// A type of [valueTypes], such as [time.Time], has none.
+// A type assertion, and not [reflect.Type.Implements], finds the method, so
+// that it works with TinyGo.
+func unmarshalOf(refType reflect.Type) unmarshalKind {
+	// time.Time, Size and Rate have their own parse, which reads more forms
+	// than their UnmarshalText
+	if _, ok := valueTypes[refType]; ok {
+		return unmarshalNone
+	}
+	if refType.Kind() == reflect.Pointer {
+		refType = refType.Elem()
+	}
+	if refType.Kind() == reflect.Pointer || refType.Kind() == reflect.Interface {
+		return unmarshalNone
+	}
+	switch reflect.New(refType).Interface().(type) {
+	case encoding.TextUnmarshaler:
+		return unmarshalText
+	case encoding.BinaryUnmarshaler:
+		return unmarshalBinary
+	case setter:
+		return unmarshalSet
+	}
+	return unmarshalNone
+}
+
+// registerUnmarshal returns the [Type] of refType when refType, or a pointer
+// to it, reads its own text, and "" for any other type. A type that is
+// registered, such as *url.URL or *colors.Color with the color package,
+// keeps its [Type]. A type that is not registered is registered here, as
+// [RegisterTextType] or [RegisterBinaryType] would register it. Its name is
+// the name of the type in lower case, such as "color" for colors.Color and
+// for *colors.Color, unless another type has that name.
+//
+// A value of the type is always a pointer, and a bind or a conversion to the
+// type that is not a pointer copies the value that it points to.
+func registerUnmarshal(refType reflect.Type) Type {
+	base := refType
+	if base.Kind() == reflect.Pointer {
+		base = base.Elem()
+	}
+	ptr := reflect.PointerTo(base)
+	if typ := reflectType(ptr); typ != "" {
+		return typ
+	}
+	kind := unmarshalOf(base)
+	if kind == unmarshalNone {
 		return ""
 	}
-	typ := Type(strings.ToLower(refType.Elem().Name()))
-	if _, ok := typeNews[typ]; ok || typ == "" {
-		typ = Type(refType.String())
+	typeMu.Lock()
+	defer typeMu.Unlock()
+	// another goroutine can have registered it
+	if typ, ok := unmarshalTypes[base]; ok {
+		return typ
 	}
+	typ := unmarshalName(base)
 	f := func() (any, error) {
-		return reflect.New(refType.Elem()).Interface(), nil
+		return reflect.New(base).Interface(), nil
 	}
-	if text {
+	switch kind {
+	case unmarshalText:
 		typeTextNews[typ] = f
-	} else {
+	case unmarshalBinary:
 		typeBinaryNews[typ] = f
+	case unmarshalSet:
+		typeSetNews[typ] = f
 	}
 	typeNews[typ] = func() (Value, error) {
 		return &marshalVal{typ: typ}, nil
 	}
-	reflectTypes[refType.String()] = typ
+	unmarshalTypes[base] = typ
+	reflectTypes[ptr.String()] = typ
 	return typ
+}
+
+// unmarshalName returns the name of the [Type] of base: the name of base in
+// lower case, such as "color", then its package and name, such as
+// "colors.color", then its package path and name. The caller holds the lock
+// of typeMu.
+func unmarshalName(base reflect.Type) Type {
+	for _, name := range []string{
+		base.Name(),
+		base.String(),
+		base.PkgPath() + "." + base.Name(),
+	} {
+		typ := Type(strings.ToLower(name))
+		if _, ok := typeNews[typ]; !ok && name != "" && name != "." {
+			return typ
+		}
+	}
+	return Type(base.String())
 }
 
 // reflectType returns the [Type] for the reflect type.
@@ -467,7 +570,7 @@ func reflectType(refType reflect.Type) Type {
 	case "*url.URL":
 		return URLT
 	}
-	if typ, ok := reflectTypes[s]; ok {
+	if typ, ok := typeLookup(reflectTypes, s); ok {
 		return typ
 	}
 	return ""

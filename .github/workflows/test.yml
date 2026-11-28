@@ -19,8 +19,8 @@ jobs:
       - name: Test
         run: |
           # each module tests against the root in the same commit
-          go work init . ./color ./glob ./hcl ./toml ./yaml ./test
-          for mod in . color glob hcl toml yaml test; do
+          go work init . ./hcl ./toml ./yaml ./test
+          for mod in . hcl toml yaml test; do
             (cd $mod && go test -v ./...)
           done
           # ./... skips a folder that starts with _, so name each tool

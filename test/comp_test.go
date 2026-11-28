@@ -1,6 +1,7 @@
 package test
 
 import (
+	"context"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -8,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 )
 
 // TestShellCompletion runs a completion of my-app, in testdata/myapp, in
@@ -67,18 +69,20 @@ printf "%s\n" "${COMPREPLY[@]}"`, "bash", line}
 		{
 			"zsh", "zsh", "_my-app", "zsh",
 			func(line string) []string {
-				// zsh completes only in a terminal, so zpty drives one. After
-				// the tab, the line moves into an echo
+				// zsh completes only in a terminal, so zpty drives one. The
+				// script waits for zsh to print each marker, and does not
+				// sleep for a fixed time, because compinit and the completion
+				// take longer on a slow or busy machine. The marker READY is
+				// written as RE''ADY, so that the echo of the typed line does
+				// not match it. After the tab, the line moves into an echo,
+				// and the script waits for the line that the echo writes
 				return []string{"-f", "-c", `zmodload zsh/zpty
 zpty z "zsh -f -i"
-zpty -w z "fpath=($PWD \$fpath); autoload -U compinit; compinit -u; PS1='> '"
-sleep 1
+zpty -w z "fpath=($PWD \$fpath); autoload -U compinit; compinit -u; PS1='> '; print RE''ADY"
+zpty -r -m z out '*READY*' || exit 1
 zpty -w -n z "$1"$'\t'
-sleep 2
 zpty -w -n z $'\x01'"echo RESULT: "$'\n'
-sleep 1
-out=""
-while zpty -r -t z chunk; do out+=$chunk; done
+zpty -r -m z out '*'$'\n''RESULT: *'$'\n''*' || exit 1
 zpty -d z
 print -r -- "$out" | tr -d '\r' | grep -a '^RESULT: ' | tail -1`, "zsh", line}
 			},
@@ -114,7 +118,11 @@ print -r -- "$out" | tr -d '\r' | grep -a '^RESULT: ' | tail -1`, "zsh", line}
 			script(t, shell.script, shell.file)
 			for _, test := range tests {
 				t.Run(test.name, func(t *testing.T) {
-					cmd := exec.Command(bin, shell.args(test.line)...)
+					// a shell that waits for output that never comes stops
+					// at the deadline
+					ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+					defer cancel()
+					cmd := exec.CommandContext(ctx, bin, shell.args(test.line)...)
 					cmd.Dir, cmd.Env = dir, env
 					buf, err := cmd.CombinedOutput()
 					if err != nil {

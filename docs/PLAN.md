@@ -38,14 +38,17 @@ reader can find a decision by its number.
 | [D30](#d30-appfrom-builds-a-program-from-a-struct-and-its-doc-comments-decided-amends-d20) | AppFrom builds a program from a struct and its doc comments | Decided. Amends D20 |
 | [D31](#d31-an-importer-writes-ox-programs-from-the-interface-of-well-known-programs-decided-amends-d13) | An importer writes ox programs from the interface of well-known programs | Decided. Amends D13 |
 | [D32](#d32-ox-has-many-examples-for-coding-agents-decided) | ox has many examples for coding agents | Decided |
-| [D33](#d33-each-sub-package-with-a-dependency-is-a-module-of-its-own-and-test-is-a-module-decided) | Each sub package with a dependency is a module of its own, and test is a module | Decided |
-| [D34](#d34-a-flag-takes-its-value-from-the-command-line-the-environment-the-config-files-or-its-default-proposed) | A flag takes its value from the command line, the environment, the config files or its default | Proposed |
+| [D33](#d33-each-sub-package-with-a-dependency-is-a-module-of-its-own-and-test-is-a-module-decided-amended-by-d42) | Each sub package with a dependency is a module of its own, and test is a module | Decided. Amended by D42 |
+| [D34](#d34-a-flag-takes-its-value-from-the-command-line-the-environment-the-config-files-or-its-default-proposed-amended-by-d43) | A flag takes its value from the command line, the environment, the config files or its default | Proposed. Amended by D43 |
 | [D35](#d35-the-choices-that-the-agents-made-on-2026-11-26-proposed) | The choices that the agents made on 2026-11-26 | Proposed |
-| [D36](#d36-choices-that-the-backlog-agent-made-proposed) | Choices that the backlog agent made | Proposed |
+| [D36](#d36-choices-that-the-backlog-agent-made-proposed-amended-by-d41) | Choices that the backlog agent made | Proposed. Amended by D41 |
 | [D37](#d37-required-flags-and-rules-between-flags-decided) | Required flags and rules between flags | Decided |
 | [D38](#d38-inherited-flags-stopping-at-an-argument-and-prefixes-decided) | Inherited flags, stopping at an argument, and prefixes | Decided |
 | [D39](#d39-before-and-after-funcs-typed-arguments-and-the-wrap-width-decided) | Before and after funcs, typed arguments, and the wrap width | Decided |
 | [D40](#d40-the-kubernetes-form-of-a-size-decided) | The Kubernetes form of a size | Decided |
+| [D41](#d41-a-type-that-reads-its-own-text-needs-no-registration-decided-amends-d36) | A type that reads its own text needs no registration | Decided. Amends D36 |
+| [D42](#d42-the-color-and-glob-modules-are-removed-decided-amends-d33) | The color and glob modules are removed | Decided. Amends D33 |
+| [D43](#d43-a-config-key-starts-with-the-path-of-its-command-and-ini-is-a-package-decided-amends-d34) | A config key starts with the path of its command, and INI is a package | Decided. Amends D34 |
 
 ## Purpose
 
@@ -144,7 +147,8 @@ itself from `init`, and a caller turns it on with a blank import:
 4. `toml` holds a decoder for `github.com/pelletier/go-toml/v2`.
 
 `go.mod` requires the four modules, and a program that imports only the root
-package does not link them.
+package does not link them. D33 made each subpackage a module of its own,
+and D42 removed `color` and `glob`.
 
 Reason, from the README: `ox` "is written in pure Go, with no non-standard
 package dependencies", and the external dependencies "are optional, requiring
@@ -622,7 +626,7 @@ tag. `docs/EXAMPLES.md` will hold them by task, and each will also be an
 `Example` func, so that `go test` proves it. [DESIGN.md](DESIGN.md) has the
 first set and the escaping rules, which a probe measured. B41 has the work.
 
-### D33. Each sub package with a dependency is a module of its own, and test is a module. Decided.
+### D33. Each sub package with a dependency is a module of its own, and test is a module. Decided. Amended by D42.
 
 A maintainer decided on 2026-11-26 that `ox` adds a `test` package with its
 own `go.mod`, and that each sub package that needs another dependency gets
@@ -632,7 +636,7 @@ nothing. This changes how D1 is held, and not what it says: a program that
 imports only `ox` still gets no other module. [DESIGN.md](DESIGN.md) has the
 layout, the CI and the order of tagging, which two flagship models reviewed.
 
-### D34. A flag takes its value from the command line, the environment, the config files or its default. Proposed.
+### D34. A flag takes its value from the command line, the environment, the config files or its default. Proposed. Amended by D43.
 
 A maintainer asked on 2026-11-26 that config loading work properly. This
 answers what was open question 11. The design in [DESIGN.md](DESIGN.md) went
@@ -747,7 +751,7 @@ The importer, `_tools/oximport` (D31):
     directory as `/home/user`, and `TestTestdata` fails if a real home
     directory appears.
 
-### D36. Choices that the backlog agent made. Proposed.
+### D36. Choices that the backlog agent made. Proposed. Amended by D41.
 
 A maintainer asked on 2026-11-27 that one agent close each item of
 [BACKLOG.md](BACKLOG.md) in order. The agent followed the recommendation of
@@ -965,7 +969,8 @@ B19, the items of `notes.txt`. Items 5, 7 and 10 stay in the backlog:
     marshal pair, and that no program registered. `registerReflect`
     registers the type the first time, with a `Value` that is not generic.
     Its name is the name of the type in lower case, such as `testtext`, or
-    the full name when another type has that name.
+    the full name when another type has that name. D41 widens this to every
+    type that reads its own text.
 
 B21, `.gitignore`:
 
@@ -1347,6 +1352,119 @@ made the choices below. A maintainer confirmed each choice on 2026-11-28.
     writes can lose bytes. If a maintainer wants the exact form there, a
     `DefaultSizeVerb` in `ox.go` can choose it.
 
+### D41. A type that reads its own text needs no registration. Decided. Amends D36.
+
+A maintainer asked on 2026-11-28 that `ox` take any type without
+registration, so that a program does not need the `color` module to read a
+`colors.Color`. The maintainer also asked that help write the name of such
+a type in lower case, such as `--fg color`. Before, only a pointer field with
+the text or the binary marshal pair worked (D36, item 51). A value field
+such as `colors.Color` or `netip.Addr` was refused, a named int with
+`UnmarshalText`, such as `slog.Level`, was read as an int, and a hand-built
+flag could not name a Go type. The maintainer chose the plan below, and an
+agent built it.
+
+1. A type reads its own text when it, or a pointer to it, has
+   `UnmarshalText`, `UnmarshalBinary` or `Set(string) error`, in that order.
+   `Set` is the method of a `flag.Value`. A type needs no `MarshalText`.
+2. The method comes before the kind of the type. So `slog.Level` reads
+   `debug`, as `flag.TextVar` and `encoding/json` read it. A number that the
+   method refuses fails, even when the kind of the type is int.
+   `time.Time`, `Size` and `Rate` keep their own parse, which reads more
+   forms than their `UnmarshalText`.
+3. `From`, `App`, `Bind` and the new option `TypeFor[T]()` take such a type,
+   as a value or as a pointer, and as the element of a slice or a map.
+   `TypeFor` sets the type of a hand-built flag from a Go type, as `From`
+   does for a field. It also takes the types that `From` takes, such as
+   `[]string`.
+4. The first use registers the type, with the name of the type in lower
+   case, such as `color` for `colors.Color` and for `*colors.Color`. When
+   another type has that name, the name is the package and the name, such
+   as `ox.url`, then the package path and the name. A registered type keeps
+   its name, so `*url.URL` stays `url`.
+5. A value of such a type is always a pointer. A bind or a conversion to the
+   type that is not a pointer copies the value that it points to.
+6. A type with `Set` keeps one value, and calls `Set` for each value on the
+   command line, as the `flag` package does. So a `flag.Value` that appends
+   keeps each value. A type with `UnmarshalText` or `UnmarshalBinary` gets a
+   new value each time, so the last value wins.
+7. Help writes a value with `MarshalText`, `MarshalBinary` or `String`, and
+   else with `fmt`.
+8. `As[T]`, and so `otx.Get[T]`, converts a string to such a type without a
+   registration, so that two goroutines can read values at the same time.
+9. A type assertion, and not `reflect.Type.Implements`, finds the methods,
+   so that the code works with TinyGo.
+10. The first use of a type registers it, so two goroutines that build
+    commands at the same time write the maps of registered types. A
+    `sync.RWMutex` guards the maps. The race detector found this in the
+    tests of the `test` module, and the old `registerReflect` had the same
+    fault.
+11. A program does not need the `color` and `glob` modules to read
+    `colors.Color` and `glob.Glob`. D42 removed both modules.
+
+### D42. The color and glob modules are removed. Decided. Amends D33.
+
+A maintainer chose on 2026-11-28 to remove the `color` and `glob` modules,
+because D41 reads `colors.Color` and `glob.Glob` without them. Before, each
+module registered its type from `init`, and gave a name, a method and an
+accessor. A program that did not import the module could not use the name or
+the method.
+
+1. The root loses `ColorT`, `GlobT`, `FlagSet.Color` and `FlagSet.Glob`. A
+   program uses `ox.TypeFor[*colors.Color]()` and
+   `ox.TypeFor[*glob.Glob]()`, or a field of the type with `From` or `App`.
+   Help writes `color` and `glob`, as before.
+2. The accessors `color.Color` and `glob.Glob` go. A program calls
+   `otx.Get[*colors.Color]` and `otx.Get[*glob.Glob]`.
+3. `color.Default` goes. The zero `colors.Color` is transparent, as
+   `color.Default` was. A program sets another default with `ox.Default`.
+4. The tags `color/v0.1.0` and `glob/v0.1.0` stay, so that a program that
+   pins them still builds against `ox` `v0.1.0`. They do not build against a
+   later root, because they name `ox.ColorT` and `ox.GlobT`.
+5. `ox` makes no promise of backward compatibility (D18). `dbtpl` uses
+   `ox.GlobT` and imports `github.com/xo/ox/glob`. `iv` imports
+   `github.com/xo/ox/color`. A maintainer changes both when they move to the
+   next `ox`.
+
+### D43. A config key starts with the path of its command, and INI is a package. Decided. Amends D34.
+
+A maintainer asked on 2026-11-28 that the key of a flag of a sub command
+start with the path of the command, so that a flag of `a b c` reads
+`a.b.c.flag`. Before, each flag read the key of its own name, and a flag of
+a sub command read a key at the top of the file. The maintainer also asked
+for an INI format, in a package that a program must import, as for the other
+formats, and for tests and examples of each format.
+
+1. Without `Key`, the key of a flag is the path of its command below the
+   root, then the name of the flag, joined with dots. So `--steps` of
+   `db migrate` reads `migrate.steps`, and a flag of the root reads its name,
+   as before.
+2. A field of a nested struct of `From` or `App` reads the path of the
+   field, with `DefaultFlagNameMapper` on each part. So the field
+   `Source.Dir` of `db migrate` reads `migrate.source.dir`, and its flag is
+   `--source-dir`. A tag option `name:` names the last part. A flag that a
+   program builds by hand has no such path, so it uses `Key`.
+3. The command of a flag is the command that owns it. So a flag of the root
+   that a sub command inherits keeps the key of the root.
+4. `Key` gives the whole key. The path of the command does not apply to it.
+5. `MapConfig` tries the whole key first, so a flat key with dots, such as
+   `"migrate.steps"` in JSON, also matches.
+6. The environment does not change. `EnvPrefix` gives `APP_STEPS` for
+   `--steps` of a sub command, as before.
+7. `github.com/xo/ox/ini` reads INI files, with the extension `.ini`, and
+   `INIT` is its config type. It uses only the standard library, so it is a
+   package of the root module and not a module of its own (D33). A program
+   imports it for its side effect, as for `yaml`, `toml` and `hcl`, so a
+   program that does not import it does not link it.
+8. INI has sections, and a dot in the name of a section or of a key nests
+   it. A key that is written more than once is a list. `;` and `#` start a
+   comment on a line of its own. A value in double quotes is a Go string,
+   and a value in single quotes is the text between them. Each value is a
+   string, and the flag converts it. An error names its line.
+9. Each of `yaml`, `toml`, `hcl` and `ini` has the examples `Example_build`
+   and `Example_reflect`, which read the same settings, and the README links
+   them. `yaml`, `toml` and `ini` have tests of their own.
+
 ## Open questions for the maintainers
 
 An open question is not a decision. When a maintainer answers one, the
@@ -1355,8 +1473,8 @@ recommendation.
 
 1. D34 is proposed. Recommended: confirm the names and rules in
    [DESIGN.md](DESIGN.md), as two flagship models reviewed them. In
-   particular, must `Value.WasSet` stay true only for the command line, and
-   is a key the flat name of the flag?
+   particular, must `Value.WasSet` stay true only for the command line? D43
+   answered the key of a flag.
 2. D24 says that `ox` uses the features of Go 1.27 and declares `go 1.25`.
    This was built: code that needs a newer release, such as the `uuid` type,
    is in a file with the build constraint `//go:build go1.27`. Is that what

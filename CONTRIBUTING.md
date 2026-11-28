@@ -7,7 +7,7 @@ form for a person.
 ## What a change must do
 
 The root package imports only the standard library. A type or a config
-loader that needs another module goes in a subpackage, such as `color` or
+loader that needs another module goes in a subpackage, such as `hcl` or
 `yaml`, which a program turns on with a blank import. See D1 in
 [docs/PLAN.md](docs/PLAN.md).
 
@@ -32,19 +32,18 @@ the change. See D25.
 
 ## Before you stage a change
 
-`ox` is seven modules: the root, `color`, `glob`, `hcl`, `toml`, `yaml` and
-`test`.
+`ox` is five modules: the root, `hcl`, `toml`, `yaml` and `test`.
 Make a workspace of them once, in the repository root. Git ignores it:
 
 ```sh
-go work init . ./color ./glob ./hcl ./toml ./yaml ./test
+go work init . ./hcl ./toml ./yaml ./test
 ```
 
 A maintainer runs these in the repository root. Each must pass:
 
 ```sh
 gofmt -l .
-for mod in . color glob hcl toml yaml test; do (cd $mod && go vet ./... && go test -race -count=1 ./...); done
+for mod in . hcl toml yaml test; do (cd $mod && go vet ./... && go test -race -count=1 ./...); done
 golangci-lint run --new-from-rev=HEAD ./...
 ```
 

@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -894,6 +895,36 @@ func ExampleFlagSet_URL() {
 	// path: /api
 }
 
+// ExampleTypeFor gives a flag the type slog.Level, which nothing registers.
+// The flag reads its value with the UnmarshalText of slog.Level, and help
+// writes its type in lower case.
+func ExampleTypeFor() {
+	run := func(args ...string) {
+		ox.Run(
+			ox.Usage("app", "an app"),
+			ox.Help(),
+			ox.Flags().
+				Var("log", "the log level", ox.TypeFor[slog.Level](), ox.Default("info")),
+			ox.Exec(func(ctx context.Context) {
+				fmt.Println("log:", otx.Get[slog.Level](ctx, "log"))
+			}),
+			ox.Args(args...),
+		)
+	}
+	run("--log", "debug")
+	run("--help")
+	// Output:
+	// log: DEBUG
+	// app an app
+	//
+	// Usage:
+	//   app [flags] [args]
+	//
+	// Flags:
+	//       --log level  the log level (default: info)
+	//   -h, --help       show help, then exit
+}
+
 // ExampleFlagSet_Date reads a date, a date and time, and a timestamp.
 func ExampleFlagSet_Date() {
 	ox.Run(
@@ -1147,6 +1178,52 @@ func ExampleKey() {
 	// host: db1
 	// port: 5433
 	// password: ""
+}
+
+// ExampleConfigFiles_subCommand reads the key of a flag of a sub command,
+// under the path of the command. A field of a nested struct reads the path
+// of the field, and an inherited flag keeps the key of its command.
+func ExampleConfigFiles_subCommand() {
+	dir, err := os.MkdirTemp("", "app")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer os.RemoveAll(dir)
+	path := filepath.Join(dir, "config.json")
+	data := `{"verbose": true, "db": {"migrate": {"steps": 3, "source": {"dir": "./up"}}}}`
+	_ = os.WriteFile(path, []byte(data), 0o600)
+	var args struct {
+		Steps  int `ox:"the number of steps"`
+		Source struct {
+			Dir string `ox:"the folder of the migrations"`
+		} `ox:""`
+	}
+	ox.Run(
+		ox.Usage("app", "an app"),
+		ox.ConfigFiles(path),
+		ox.Flags().
+			Bool("verbose", "write more"),
+		ox.Sub(
+			ox.Usage("db", "the database"),
+			ox.Sub(
+				ox.Usage("migrate", "migrate the database"),
+				// --steps reads db.migrate.steps, and --source-dir reads
+				// db.migrate.source.dir
+				ox.From(&args),
+				ox.Exec(func(ctx context.Context) {
+					fmt.Println("verbose:", otx.Bool(ctx, "verbose"))
+					fmt.Println("steps:", args.Steps)
+					fmt.Println("dir:", args.Source.Dir)
+				}),
+			),
+		),
+		ox.Args("db", "migrate"),
+	)
+	// Output:
+	// verbose: true
+	// steps: 3
+	// dir: ./up
 }
 
 // Example_sources shows the order of the sources of a value. The command

@@ -3,7 +3,9 @@ module github.com/xo/ox/test
 go 1.25.0
 
 require (
-	github.com/xo/ox v0.0.0-20261126005800-13bd485f1d7b
+	github.com/kenshaw/colors v0.2.4
+	github.com/kenshaw/glob v0.1.1
+	github.com/xo/ox v0.1.0
 	github.com/xo/ox/hcl v0.0.0-00010101000000-000000000000
 	github.com/xo/ox/toml v0.0.0-00010101000000-000000000000
 	github.com/xo/ox/yaml v0.0.0-00010101000000-000000000000

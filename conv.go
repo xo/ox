@@ -2,6 +2,7 @@ package ox
 
 import (
 	"cmp"
+	"encoding"
 	"errors"
 	"fmt"
 	"maps"
@@ -144,12 +145,86 @@ func as[T any](val any, layout string) (any, error) {
 	case Rate:
 		return asRate(val)
 	}
-	// unmarshal
-	v, err := asUnmarshal(typeRef(res), val)
+	// a value of type T, or a pointer to one
+	if v, ok := val.(T); ok {
+		return v, nil
+	}
+	refType := reflect.TypeFor[T]()
+	if rv := reflect.ValueOf(val); rv.IsValid() && rv.Kind() == reflect.Pointer && !rv.IsNil() && rv.Elem().Type() == refType {
+		return rv.Elem().Interface(), nil
+	}
+	// a registered type
+	if typ := typeRef(res); isUnmarshal(typ) {
+		v, err := asUnmarshal(typ, val)
+		if err != nil {
+			return nil, err
+		}
+		return derefTo(refType, v), nil
+	}
+	// a type that reads its own text. This registers nothing, so that two
+	// goroutines can convert at the same time.
+	if kind := unmarshalOf(refType); kind != unmarshalNone {
+		v, err := unmarshalTo(refType, kind, val)
+		if err != nil {
+			return nil, err
+		}
+		return v.Interface(), nil
+	}
+	return nil, fmt.Errorf("%w: %T->%s", ErrInvalidConversion, val, refType)
+}
+
+// isUnmarshal returns true when typ is a registered type with a text, a
+// binary or a Set method.
+func isUnmarshal(typ Type) bool {
+	_, text := typeLookup(typeTextNews, typ)
+	_, binary := typeLookup(typeBinaryNews, typ)
+	_, set := typeLookup(typeSetNews, typ)
+	return text || binary || set
+}
+
+// derefTo returns the value that v points to when refType is not a pointer
+// and v is a pointer to refType. Else it returns v.
+func derefTo(refType reflect.Type, v any) any {
+	if rv := reflect.ValueOf(v); refType.Kind() != reflect.Pointer && rv.Kind() == reflect.Pointer && !rv.IsNil() && rv.Elem().Type() == refType {
+		return rv.Elem().Interface()
+	}
+	return v
+}
+
+// unmarshalTo reads val into a new value of refType, with the method of kind.
+// When refType is not a pointer, the value is not a pointer.
+func unmarshalTo(refType reflect.Type, kind unmarshalKind, val any) (reflect.Value, error) {
+	buf, err := asString[[]byte](val)
 	if err != nil {
-		return nil, err
+		return reflect.Value{}, err
+	}
+	base := refType
+	if base.Kind() == reflect.Pointer {
+		base = base.Elem()
+	}
+	v := reflect.New(base)
+	if len(buf) != 0 {
+		if err := unmarshalWith(v.Interface(), kind, buf); err != nil {
+			return reflect.Value{}, fmt.Errorf("%w: %w", ErrInvalidConversion, err)
+		}
+	}
+	if refType.Kind() != reflect.Pointer {
+		return v.Elem(), nil
 	}
 	return v, nil
+}
+
+// unmarshalWith reads buf into v, with the method of kind.
+func unmarshalWith(v any, kind unmarshalKind, buf []byte) error {
+	switch kind {
+	case unmarshalText:
+		return v.(encoding.TextUnmarshaler).UnmarshalText(buf)
+	case unmarshalBinary:
+		return v.(encoding.BinaryUnmarshaler).UnmarshalBinary(buf)
+	case unmarshalSet:
+		return v.(setter).Set(string(buf))
+	}
+	return ErrInvalidConversion
 }
 
 // asString converts the value to a string.
@@ -685,30 +760,31 @@ func asUnmarshal(typ Type, val any) (any, error) {
 // asNew creates a new value for the type, returning the created value and the
 // unmarshal func for the value.
 func asNew(typ Type) (any, func([]byte) error, error) {
-	var (
-		f      func() (any, error)
-		ok     bool
-		asText bool
-	)
-	if f, ok = typeTextNews[typ]; ok {
-		asText = true
-	} else if f, ok = typeBinaryNews[typ]; ok {
-		asText = false
+	var f func() (any, error)
+	var kind unmarshalKind
+	for _, k := range []struct {
+		news map[Type]func() (any, error)
+		kind unmarshalKind
+	}{
+		{typeTextNews, unmarshalText},
+		{typeBinaryNews, unmarshalBinary},
+		{typeSetNews, unmarshalSet},
+	} {
+		if g, ok := typeLookup(k.news, typ); ok {
+			f, kind = g, k.kind
+			break
+		}
 	}
-	if !ok {
+	if f == nil {
 		return nil, nil, fmt.Errorf("%w (%s): no text/binary marshaler", ErrInvalidConversion, typ)
 	}
 	v, err := f()
 	if err != nil {
 		return nil, nil, fmt.Errorf("%w (%s): %w", ErrCouldNotCreateValue, typ, err)
 	}
-	var u func([]byte) error
-	if asText {
-		u = v.(interface{ UnmarshalText([]byte) error }).UnmarshalText
-	} else {
-		u = v.(interface{ UnmarshalBinary([]byte) error }).UnmarshalBinary
-	}
-	return v, u, nil
+	return v, func(buf []byte) error {
+		return unmarshalWith(v, kind, buf)
+	}, nil
 }
 
 // asValue converts a value -- expects reflect.Value(&<target>).
@@ -748,6 +824,9 @@ func asValue(value reflect.Value, val any) (err error) {
 		}
 		el.Set(reflect.ValueOf(t))
 		return nil
+	}
+	if ok, err := unmarshalInto(value, val); ok {
+		return err
 	}
 	switch el := value.Elem(); el.Kind() {
 	case reflect.Slice:
@@ -826,6 +905,34 @@ func asValue(value reflect.Value, val any) (err error) {
 		return nil
 	}
 	return ErrInvalidConversion
+}
+
+// unmarshalInto sets the value that value points to from val, when the type
+// of the value, or a pointer to it, reads its own text. It returns false for
+// any other type. When val is already of the type, or a pointer to it, it
+// sets val, or a copy of what val points to.
+func unmarshalInto(value reflect.Value, val any) (bool, error) {
+	el := value.Elem()
+	kind := unmarshalOf(el.Type())
+	if kind == unmarshalNone {
+		return false, nil
+	}
+	if rv := reflect.ValueOf(val); rv.IsValid() {
+		switch {
+		case rv.Type().AssignableTo(el.Type()):
+			el.Set(rv)
+			return true, nil
+		case rv.Kind() == reflect.Pointer && !rv.IsNil() && rv.Elem().Type().AssignableTo(el.Type()):
+			el.Set(rv.Elem())
+			return true, nil
+		}
+	}
+	v, err := unmarshalTo(el.Type(), kind, val)
+	if err != nil {
+		return true, err
+	}
+	el.Set(v)
+	return true, nil
 }
 
 // toString converts a value to string.

@@ -174,20 +174,84 @@ func TestFillHook(t *testing.T) {
 }
 
 // TestFillSubCommand tests that a sub command fills its own flags and the
-// flags of its parents.
+// flags of its parents, and that the key of a flag of a sub command starts
+// with the path of the command.
 func TestFillSubCommand(t *testing.T) {
-	dir := t.TempDir()
-	file := writeFile(t, dir, "config.json", `{"root": "r", "child": "c"}`)
-	ctx := runFill(t, []string{"sub"},
+	tests := []struct {
+		name string
+		data string
+		exp  string
+	}{
+		{"nested", `{"root": "r", "sub": {"deep": {"child": "c"}}}`, "c"},
+		{"dotted", `{"root": "r", "sub.deep.child": "c"}`, "c"},
+		{"not top level", `{"root": "r", "child": "c"}`, ""},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			file := writeFile(t, t.TempDir(), "config.json", test.data)
+			ctx := runFill(t, []string{"sub", "deep"},
+				ConfigFiles(file),
+				Flags().String("root", "root"),
+				Sub(
+					Usage("sub", "a sub command"),
+					Sub(
+						Usage("deep", "a sub command of sub"),
+						Flags().String("child", "child"),
+						Exec(func() {}),
+					),
+				),
+			)
+			if v, ok := ctx.Vars["root"]; !ok || v.String() != "r" {
+				t.Errorf("expected root to be %q, got: %v", "r", v)
+			}
+			var s string
+			if v, ok := ctx.Vars["child"]; ok {
+				s = v.String()
+			}
+			if s != test.exp {
+				t.Errorf("expected child to be %q, got: %q", test.exp, s)
+			}
+		})
+	}
+}
+
+// TestFillKeyPath tests the key of a field of a nested struct of a sub
+// command, and that a key of Key is the whole key.
+func TestFillKeyPath(t *testing.T) {
+	file := writeFile(t, t.TempDir(), "config.json", `{
+		"server": {"host": "db"},
+		"migrate": {"steps": 3, "source": {"dir": "up", "url": "file:///x"}},
+		"absolute": "a"
+	}`)
+	var root struct {
+		Server struct {
+			Host string `ox:"the host"`
+		} `ox:""`
+	}
+	var sub struct {
+		Steps  int `ox:"the steps"`
+		Source struct {
+			Dir string `ox:"the folder"`
+			URL string `ox:"the url,name:url"`
+		} `ox:""`
+		Other string `ox:"a key of its own,key:absolute"`
+	}
+	ctx := runFill(t, []string{"migrate"},
 		ConfigFiles(file),
-		Flags().String("root", "root"),
+		From(&root),
 		Sub(
-			Usage("sub", "a sub command"),
-			Flags().String("child", "child"),
+			Usage("migrate", "migrate"),
+			From(&sub),
 			Exec(func() {}),
 		),
 	)
-	for name, exp := range map[string]string{"root": "r", "child": "c"} {
+	for name, exp := range map[string]string{
+		"server-host": "db",
+		"steps":       "3",
+		"source-dir":  "up",
+		"url":         "file:///x",
+		"other":       "a",
+	} {
 		if v, ok := ctx.Vars[name]; !ok || v.String() != exp {
 			t.Errorf("expected %s to be %q, got: %v", name, exp, v)
 		}

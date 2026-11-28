@@ -1362,6 +1362,44 @@ func ExampleFlagSet_URL() {
 }
 ```
 
+### A type that nothing registers
+
+A type that reads its own text needs no registration. Its value, or a
+pointer to it, has `UnmarshalText`, `UnmarshalBinary` or `Set(string)
+error`, as a `flag.Value` has. `ox.TypeFor[T]()` gives a flag the type `T`,
+and `ox.From` and `ox.App` do the same for a field. Help writes the name of
+the type in lower case, such as `level` for `slog.Level` and `color` for
+`colors.Color`.
+
+```go
+func ExampleTypeFor() {
+	run := func(args ...string) {
+		ox.Run(
+			ox.Usage("app", "an app"),
+			ox.Help(),
+			ox.Flags().
+				Var("log", "the log level", ox.TypeFor[slog.Level](), ox.Default("info")),
+			ox.Exec(func(ctx context.Context) {
+				fmt.Println("log:", otx.Get[slog.Level](ctx, "log"))
+			}),
+			ox.Args(args...),
+		)
+	}
+	run("--log", "debug")
+	run("--help")
+	// Output:
+	// log: DEBUG
+	// app an app
+	//
+	// Usage:
+	//   app [flags] [args]
+	//
+	// Flags:
+	//       --log level  the log level (default: info)
+	//   -h, --help       show help, then exit
+}
+```
+
 ### A date and a time
 
 `Date` reads `2006-01-02`, `DateTime` reads `2006-01-02 15:04:05`, and
@@ -1519,9 +1557,15 @@ that has one:
 3. The config files. The last file that has the key wins.
 4. The default of the flag.
 
-The root package reads JSON. A blank import of `github.com/xo/ox/yaml` or
-`github.com/xo/ox/toml` adds YAML or TOML. The extension of a file gives its
-format.
+The root package reads JSON. A blank import of `github.com/xo/ox/yaml`,
+`github.com/xo/ox/toml`, `github.com/xo/ox/hcl` or `github.com/xo/ox/ini`
+adds YAML, TOML, HCL or INI. The extension of a file gives its format. Each
+of these packages has two examples of its own, `Example_build` and
+`Example_reflect`, which read the same settings.
+
+The key of a flag is the path of its command below the root, then the name
+of the flag, joined with dots (D43). So `--steps` of `app migrate` reads
+`migrate.steps`. `ox.Key` gives a flag a whole key of its own.
 
 ### Read config files
 
@@ -1683,6 +1727,59 @@ func ExampleKey() {
 	// host: db1
 	// port: 5433
 	// password: ""
+}
+```
+
+### Read the key of a sub command
+
+A flag of a sub command reads its key under the path of the command. A field
+of a nested struct reads the path of the field. So the field `Source.Dir` of
+`app db migrate` reads `db.migrate.source.dir`, and its flag is
+`--source-dir`. A flag that a sub command inherits, such as `--verbose`
+here, keeps the key of the command that owns it.
+
+```go
+func ExampleConfigFiles_subCommand() {
+	dir, err := os.MkdirTemp("", "app")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer os.RemoveAll(dir)
+	path := filepath.Join(dir, "config.json")
+	data := `{"verbose": true, "db": {"migrate": {"steps": 3, "source": {"dir": "./up"}}}}`
+	_ = os.WriteFile(path, []byte(data), 0o600)
+	var args struct {
+		Steps  int `ox:"the number of steps"`
+		Source struct {
+			Dir string `ox:"the folder of the migrations"`
+		} `ox:""`
+	}
+	ox.Run(
+		ox.Usage("app", "an app"),
+		ox.ConfigFiles(path),
+		ox.Flags().
+			Bool("verbose", "write more"),
+		ox.Sub(
+			ox.Usage("db", "the database"),
+			ox.Sub(
+				ox.Usage("migrate", "migrate the database"),
+				// --steps reads db.migrate.steps, and --source-dir reads
+				// db.migrate.source.dir
+				ox.From(&args),
+				ox.Exec(func(ctx context.Context) {
+					fmt.Println("verbose:", otx.Bool(ctx, "verbose"))
+					fmt.Println("steps:", args.Steps)
+					fmt.Println("dir:", args.Source.Dir)
+				}),
+			),
+		),
+		ox.Args("db", "migrate"),
+	)
+	// Output:
+	// verbose: true
+	// steps: 3
+	// dir: ./up
 }
 ```
 
@@ -1907,6 +2004,15 @@ func Example_hcl() {
 	// region: US
 }
 ```
+
+### Read an INI file
+
+Import `github.com/xo/ox/ini` for its side effect. It uses only the standard
+library, so it is in the module of `ox`. A section nests its keys under its
+name, and a dot in the name of a section nests it again. So the key of `dir`
+in `[migrate.source]` is `migrate.source.dir`. A key that is written more
+than once is a list. [`ini/example_test.go`](../ini/example_test.go) holds
+the examples.
 
 ## Require flags
 

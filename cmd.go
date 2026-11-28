@@ -837,16 +837,6 @@ func (fs *FlagSet) UUID(name, usage string, opts ...Option) *FlagSet {
 	return fs.Var(name, usage, prepend(opts, Option(UUIDT))...)
 }
 
-// Color adds a color variable to the flag set.
-func (fs *FlagSet) Color(name, usage string, opts ...Option) *FlagSet {
-	return fs.Var(name, usage, prepend(opts, Option(ColorT))...)
-}
-
-// Glob adds a glob variable to the flag set.
-func (fs *FlagSet) Glob(name, usage string, opts ...Option) *FlagSet {
-	return fs.Var(name, usage, prepend(opts, Option(GlobT))...)
-}
-
 // Slice adds a slice variable to the flag set.
 func (fs *FlagSet) Slice(name, usage string, opts ...Option) *FlagSet {
 	return fs.Var(name, usage, prepend(opts, Option(SliceT))...)
@@ -934,7 +924,10 @@ type Flag struct {
 	// Binds are the bound variables that will be additionally set when the
 	// flag is encountered on the command-line.
 	Binds []Binder
-	// Keys are the flag's config look up keys.
+	// Keys are the flag's config look up keys. A key here is the whole key.
+	// Without one, the key is the path of the command of the flag below the
+	// root, then the name of the flag, such as "migrate.steps" for the flag
+	// --steps of the command "app migrate".
 	Keys map[string]string
 	// Section is the flag's help section.
 	Section int
@@ -991,6 +984,9 @@ type Flag struct {
 	// groups are the groups of the flag from its struct tag, such as
 	// `onlyoneof:format`.
 	groups []groupTag
+	// keyPath is the config key of a field of a nested struct, relative to
+	// its command, such as "server.port". See [fieldKeyPath].
+	keyPath string
 }
 
 // Rule is a rule between the flags of a [FlagGroup].
@@ -1102,7 +1098,7 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 	if err := Apply(g, opts...); err != nil {
 		return nil, err
 	}
-	if extra, ok := typeFlagOpts[g.Type]; ok {
+	if extra, ok := typeLookup(typeFlagOpts, g.Type); ok {
 		if err := Apply(g, extra...); err != nil {
 			return nil, err
 		}
@@ -1524,7 +1520,28 @@ func buildFlag(v reflect.Value, i int, tag []string, parents []string) (*Flag, *
 	if err != nil {
 		return nil, nil, fmt.Errorf("field %s: cannot create flag: %w", f.Name, err)
 	}
+	if len(parents) != 0 {
+		g.keyPath = fieldKeyPath(parents, f.Name, tags)
+	}
 	return g, nil, nil
+}
+
+// fieldKeyPath returns the config key of a field of a nested struct, relative
+// to its command: each parent, then the name of the field, each with
+// [DefaultFlagNameMapper], joined with dots. So the field Port of the field
+// Server is "server.port", and its flag is --server-port. A tag option
+// `name:` names the last part.
+func fieldKeyPath(parents []string, name string, tags []string) string {
+	for _, s := range tags {
+		if v, ok := strings.CutPrefix(s, "name:"); ok {
+			name = v
+		}
+	}
+	parts := make([]string, 0, len(parents)+1)
+	for _, s := range append(parents, name) {
+		parts = append(parts, DefaultFlagNameMapper(s))
+	}
+	return strings.Join(parts, ".")
 }
 
 // buildFlagOpts builds flag options for value from the passed struct tags.

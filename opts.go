@@ -805,6 +805,30 @@ func Elem(elem Type) FlagOption {
 	}
 }
 
+// TypeFor is a [Flag] option that sets the type of the flag from the Go type
+// T, as [From] does for the type of a field. T can be a type that reads its
+// own text, with UnmarshalText, UnmarshalBinary or Set, or a pointer to one,
+// and it needs no registration. Help writes the name of such a type in lower
+// case, so a flag of type colors.Color shows `--fg color`. T can also be a
+// type that [From] takes, such as int, []string or map[string]int.
+//
+//	ox.Flags().
+//		Var("fg", "the foreground color", ox.TypeFor[colors.Color]())
+func TypeFor[T any]() FlagOption {
+	return option{
+		name: "TypeFor",
+		flag: func(g *Flag) error {
+			refType := reflect.TypeFor[T]()
+			typ, mapKey, elem, err := defaultType(refType)
+			if err != nil {
+				return fmt.Errorf("%s: %w", refType, err)
+			}
+			g.Type, g.MapKey, g.Elem = typ, mapKey, elem
+			return nil
+		},
+	}
+}
+
 // BindRef is a [Flag] option to bind a reflected value to a flag.
 func BindRef(value reflect.Value, set *bool) FlagOption {
 	return option{

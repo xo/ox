@@ -63,13 +63,13 @@ choice and the reason.
 
 ## Modules
 
-D33 decides this section.
+D33 decides this section. D42 removed the `color` and `glob` modules, and
+their tags `color/v0.1.0` and `glob/v0.1.0` stay for the programs that pin
+them.
 
 | Module | Path | Requires | Tag |
 | --- | --- | --- | --- |
 | `github.com/xo/ox` | `/` | the standard library only | `v0.1.0` |
-| `github.com/xo/ox/color` | `color/` | `ox`, `github.com/kenshaw/colors` | `color/v0.1.0` |
-| `github.com/xo/ox/glob` | `glob/` | `ox`, `github.com/kenshaw/glob` | `glob/v0.1.0` |
 | `github.com/xo/ox/yaml` | `yaml/` | `ox`, `github.com/goccy/go-yaml` | `yaml/v0.1.0` |
 | `github.com/xo/ox/toml` | `toml/` | `ox`, `github.com/pelletier/go-toml/v2` | `toml/v0.1.0` |
 | `github.com/xo/ox/hcl` | `hcl/` | `ox`, `github.com/hashicorp/hcl/v2` | `hcl/v0.1.0` |
@@ -91,7 +91,7 @@ The rules:
    and a build of each example. Its `replace` directives point at the
    folders in the repository, and nothing imports it.
 4. No `go.work` is committed, and `.gitignore` ignores it. A developer makes
-   one with `go work init . ./color ./glob ./hcl ./yaml ./toml ./test`. CI
+   one with `go work init . ./hcl ./yaml ./toml ./test`. CI
    makes the same one and runs the tests of every module in it. A second CI job
    runs each module with `GOWORK=off` against the versions in its `go.mod`.
 5. To release, tag the root first. Then run
@@ -103,7 +103,7 @@ The rules:
 
 ## Configuration
 
-D34 decides this section.
+D34 decides this section, and D43 amends its key of a flag.
 
 Each flag gets its value from the first source that has one, in this order:
 
@@ -161,8 +161,9 @@ func EnvVar(name string) FlagOption
 func NoEnv() FlagOption
 func NoConfig() FlagOption
 
-// Key, which exists, gives the config key of a flag for one format, or for
-// every format when typ is empty. Without it, the key is the name of the flag.
+// Key, which exists, gives the whole config key of a flag for one format, or
+// for every format when typ is empty. Without it, the key is the path of the
+// command below the root, then the name of the flag (D43).
 func Key(typ, key string) FlagOption
 ```
 
@@ -171,13 +172,21 @@ func Key(typ, key string) FlagOption
 interpolation: `${yaml::server.port}` reads only the YAML files, and
 `${server.port}` reads every source in order. `UserConfigFile` goes, and
 `ConfigFiles("$APPCONFIG/config.yaml")` does its job. JSON is in the root,
-because `encoding/json` is in the standard library (D1).
+because `encoding/json` is in the standard library (D1). INI is the package
+`github.com/xo/ox/ini`, in the root module, because it uses only the
+standard library. A program imports it to read INI files (D43).
 
 ### The rules
 
-1. The key of a flag is the name of the flag, such as `log-level`, and it
-   is the same for a flag of a sub command. `Key` gives another key, such as
-   `server.port`. Flat keys survive the rename of a command.
+1. The key of a flag is the path of its command below the root, then the
+   name of the flag, joined with dots (D43). So `--log-level` of the root is
+   `log-level`, and `--steps` of `app migrate` is `migrate.steps`. A field of
+   a nested struct uses its path, so `Source.Dir` of `app migrate` is
+   `migrate.source.dir`, and its flag is `--source-dir`. A flag that a sub
+   command inherits keeps the key of the command that owns it. `Key` gives a
+   whole key, such as `server.port`, and the path of the command does not
+   apply to it. A flat key with dots, such as `"migrate.steps"` in JSON, also
+   matches, because `MapConfig` tries the whole key first.
 2. A scalar in a file is formatted as a string and set. A list sets a slice
    or an array, and replaces its value. A map sets a map flag, one
    `key=value` at a time, in key order. A list for a flag that is not a

@@ -8,6 +8,7 @@ import (
 	"io/fs"
 	"maps"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"slices"
@@ -178,7 +179,7 @@ func TestTheRootModuleRequiresNothing(t *testing.T) {
 			t.Errorf("go.mod has %q. Put a dependency in a sub module of its own. See D33", strings.TrimSpace(line))
 		}
 	}
-	for _, mod := range []string{"color", "glob", "hcl", "toml", "yaml", "test"} {
+	for _, mod := range []string{"hcl", "toml", "yaml", "test"} {
 		if !strings.HasPrefix(read(t, filepath.Join(mod, "go.mod")), "module github.com/xo/ox/"+mod+"\n") {
 			t.Errorf("%s/go.mod must declare the module github.com/xo/ox/%s. See D33", mod, mod)
 		}
@@ -363,6 +364,70 @@ func TestEachExampleIsInTheDocument(t *testing.T) {
 }
 
 // read returns the content of the file at path.
+// TestTheReadmeShowsTheExamples reads each `$ cat _examples/<dir>/main.go`
+// and each `$ go run ./_examples/<dir> <args>` in the sh blocks of README.md.
+// It fails when the README shows a program that differs from its file, or
+// output that differs from what the program writes. It builds each program,
+// so the part that runs them skips with -short.
+func TestTheReadmeShowsTheExamples(t *testing.T) {
+	t.Parallel()
+	type command struct {
+		dir  string
+		args []string
+		out  string
+	}
+	var cats, runs []command
+	blocks := strings.Split(read(t, "README.md"), "```sh\n")
+	for _, block := range blocks[1:] {
+		block, _, _ = strings.Cut(block, "```\n")
+		parts := strings.Split("\n"+block, "\n$ ")
+		for i, part := range parts[1:] {
+			line, out, _ := strings.Cut(part, "\n")
+			// the split takes the newline before each later command
+			if i < len(parts)-2 {
+				out += "\n"
+			}
+			switch fields := strings.Fields(line); {
+			case len(fields) == 2 && fields[0] == "cat" && strings.HasPrefix(fields[1], "_examples/"):
+				cats = append(cats, command{dir: fields[1], out: out})
+			case len(fields) >= 3 && fields[0] == "go" && fields[1] == "run" && strings.HasPrefix(fields[2], "./_examples/"):
+				runs = append(runs, command{dir: fields[2], args: fields[3:], out: out})
+			}
+		}
+	}
+	if len(cats) == 0 || len(runs) == 0 {
+		t.Fatal("README.md must show a program in _examples, and run it")
+	}
+	for _, c := range cats {
+		if src := read(t, c.dir); c.out != src {
+			t.Errorf("README.md shows a program that differs from %s:\n%s", c.dir, c.out)
+		}
+	}
+	if testing.Short() {
+		t.Skip("the test builds the programs in _examples")
+	}
+	gobin, err := exec.LookPath("go")
+	if err != nil {
+		t.Skip("the go command is not in PATH")
+	}
+	dir := t.TempDir()
+	for _, c := range runs {
+		t.Run(strings.Join(append([]string{filepath.Base(c.dir)}, c.args...), " "), func(t *testing.T) {
+			bin := filepath.Join(dir, filepath.Base(c.dir))
+			if buf, err := exec.Command(gobin, "build", "-o", bin, c.dir).CombinedOutput(); err != nil {
+				t.Fatalf("building %s: %v\n%s", c.dir, err, buf)
+			}
+			buf, err := exec.Command(bin, c.args...).CombinedOutput()
+			if err != nil {
+				t.Fatalf("running %s: %v\n%s", c.dir, err, buf)
+			}
+			if string(buf) != c.out {
+				t.Errorf("README.md shows:\n%s\nthe program writes:\n%s", c.out, buf)
+			}
+		})
+	}
+}
+
 func read(t *testing.T, path string) string {
 	t.Helper()
 	b, err := os.ReadFile(path)

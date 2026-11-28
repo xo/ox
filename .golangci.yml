@@ -29,3 +29,10 @@ linters:
     - wrapcheck
     - wsl
     - wsl_v5
+  exclusions:
+    rules:
+      # an example file prints its output, also from a method of a type
+      # that its Example func runs
+      - path: example_test\.go$
+        linters:
+          - forbidigo
