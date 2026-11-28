@@ -5,6 +5,7 @@ import (
 	"errors"
 	"slices"
 	"strings"
+	"sync"
 	"testing"
 )
 
@@ -439,5 +440,52 @@ func TestCompScope(t *testing.T) {
 				t.Errorf("expected %s, got: %s", test.dir, dir)
 			}
 		})
+	}
+}
+
+// TestCompLazy tests that the completion command builds its shells the
+// first time that they are read, that each shell gets a help flag as the
+// other commands do, and that two goroutines can read them at the same time
+// (B55).
+func TestCompLazy(t *testing.T) {
+	cmd, err := NewCommand(
+		Usage("app", "an app"),
+		Defaults(),
+		Sub(Usage("sub", "a sub command"), Exec(func() {})),
+	)
+	if err != nil {
+		t.Fatalf("expected no error, got: %v", err)
+	}
+	comp := cmd.Command("completion")
+	if comp == nil {
+		t.Fatal("expected a completion command")
+	}
+	if comp.FlagSpecial("hook:help") == nil {
+		t.Error("expected the completion command to have a help flag")
+	}
+	if len(comp.Commands) != 0 {
+		t.Fatalf("expected no shell before the first read, got: %d", len(comp.Commands))
+	}
+	var wg sync.WaitGroup
+	shells := make([]*Command, 8)
+	for i := range shells {
+		wg.Go(func() {
+			shells[i] = cmd.Lookup("completion", "bash")
+		})
+	}
+	wg.Wait()
+	for i, c := range shells {
+		if c == nil || c.Name != "bash" || c != shells[0] {
+			t.Fatalf("expected each read %d to find the same bash command, got: %v", i, c)
+		}
+	}
+	for _, name := range []string{"bash", "fish", "powershell", "zsh"} {
+		c := comp.Command(name)
+		switch {
+		case c == nil:
+			t.Errorf("expected a %s command", name)
+		case c.FlagSpecial("hook:help") == nil:
+			t.Errorf("expected the %s command to have a help flag", name)
+		}
 	}
 }

@@ -13,6 +13,7 @@ import (
 	"slices"
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/xo/ox/text"
 )
@@ -153,7 +154,6 @@ func NewComp(cmd *Command, opts ...Option) error {
 	if cmd.SubSpecial(special) != nil {
 		return nil
 	}
-	var noDescriptions bool
 	// base command
 	comp, err := NewCommand(prepend(
 		opts,
@@ -172,11 +172,24 @@ func NewComp(cmd *Command, opts ...Option) error {
 	); err != nil {
 		return err
 	}
-	// load shells from templates
-	txt, tpl, err := loadTemplates(DefaultCompTemplates)
+	// the shells wait for their first read (B55)
+	comp.lazy = &lazySubs{f: func(comp *Command) error {
+		return addCompShells(cmd, comp)
+	}}
+	cmd.Commands = append(cmd.Commands, comp)
+	return nil
+}
+
+// addCompShells adds a `completion <shell>` command to comp, the completion
+// command of cmd, for each shell. When comp has a help flag, each shell gets
+// one too, as [AddHelpFlag] gives it.
+func addCompShells(cmd, comp *Command) error {
+	const special = `comp`
+	txt, tpl, err := compTemplates()
 	if err != nil {
 		return err
 	}
+	var noDescriptions bool
 	// build completion commands
 	for _, shell := range slices.Sorted(maps.Keys(txt)) {
 		templ, ok := tpl[shell]
@@ -214,7 +227,9 @@ func NewComp(cmd *Command, opts ...Option) error {
 		}
 		comp.Commands = append(comp.Commands, sub)
 	}
-	cmd.Commands = append(cmd.Commands, comp)
+	if comp.FlagSpecial("hook:help") != nil {
+		return AddHelpFlag(comp)
+	}
 	return nil
 }
 
@@ -223,7 +238,7 @@ func NewComp(cmd *Command, opts ...Option) error {
 func NewCompFlags(cmd *Command, _ ...Option) error {
 	const special = `comp`
 	// load shells from templates
-	txt, tpl, err := loadTemplates(DefaultCompTemplates)
+	txt, tpl, err := compTemplates()
 	if err != nil {
 		return err
 	}
@@ -389,7 +404,7 @@ func (help *CommandHelp) AddUsage(w StringWriter) {
 		if help.Command.Flags != nil && len(help.Command.Flags.Flags) > 0 {
 			v = append(v, text.CommandFlagsSpec)
 		}
-		if len(help.Command.Commands) != 0 {
+		if len(help.Command.subs()) != 0 {
 			v = append(v, text.CommandSubSpec)
 		}
 		switch cmd := help.Command; {
@@ -472,12 +487,12 @@ func (help *CommandHelp) AddExample(w StringWriter) {
 
 // AddCommands adds the command's sub commands.
 func (help *CommandHelp) AddCommands(w StringWriter) {
-	if help.NoCommands || len(help.Command.Commands) == 0 {
+	if help.NoCommands || len(help.Command.subs()) == 0 {
 		return
 	}
 	// determine commands
 	var commands []*Command
-	for _, c := range help.Command.Commands {
+	for _, c := range help.Command.subs() {
 		if c.Hidden && !help.Hidden || c.Deprecated && !help.Deprecated {
 			continue
 		}
@@ -551,7 +566,7 @@ func (help *CommandHelp) AddFooter(w StringWriter) {
 		return
 	}
 	footer := help.Footer
-	if footer == "" && len(help.Command.Commands) != 0 {
+	if footer == "" && len(help.Command.subs()) != 0 {
 		footer = fmt.Sprintf(text.Footer, strings.Join(help.Command.Tree(), " "))
 	}
 	if strings.TrimSpace(footer) == "" {
@@ -761,6 +776,31 @@ func addBreak(w StringWriter) {
 		_, _ = w.WriteString("\n\n")
 	}
 }
+
+// compTemplates returns the completion templates of [DefaultCompTemplates].
+// It reads the embedded templates once, and reuses them, because each
+// command with completion asks for them when it is built. The maps are only
+// read. A program that sets DefaultCompTemplates to its own files gets them
+// read each time.
+func compTemplates() (map[string]string, map[string]string, error) {
+	if DefaultCompTemplates == templates {
+		t := embeddedTemplates()
+		return t.txt, t.tpl, t.err
+	}
+	return loadTemplates(DefaultCompTemplates)
+}
+
+// compTemplateSet is the result of [loadTemplates].
+type compTemplateSet struct {
+	txt, tpl map[string]string
+	err      error
+}
+
+// embeddedTemplates reads the embedded completion templates once.
+var embeddedTemplates = sync.OnceValue(func() compTemplateSet {
+	txt, tpl, err := loadTemplates(templates)
+	return compTemplateSet{txt, tpl, err}
+})
 
 // loadTemplates loads templates.
 func loadTemplates(tpls fs.FS) (map[string]string, map[string]string, error) {

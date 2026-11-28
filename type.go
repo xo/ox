@@ -73,21 +73,11 @@ const (
 )
 
 // Option returns an [option] for the type.
+// The option carries the type, and not a func, so that a flag of each type
+// does not allocate a func (B55).
 func (typ Type) Option() option {
 	return option{
-		name: "Type(" + typ.String() + ")",
-		flag: func(g *Flag) error {
-			if g.Type != SliceT && g.Type != ArrayT && g.Type != MapT && g.Type != HookT {
-				g.Type = typ
-			} else if g.Type != HookT {
-				g.Elem = typ
-			}
-			return nil
-		},
-		typ: func(t interface{ SetType(Type) }) error {
-			t.SetType(typ)
-			return nil
-		},
+		setType: typ,
 	}
 }
 
@@ -129,6 +119,26 @@ func (typ Type) New() (Value, error) {
 		return nil, fmt.Errorf("%w: %w", ErrCouldNotCreateValue, err)
 	}
 	return v, nil
+}
+
+// applyType applies the type of a [Type] option to val: a [Flag] gets the
+// type, or the element type of a slice, an array or a map, and a value with
+// a SetType method gets the type.
+func (typ Type) applyType(val any) error {
+	switch v := val.(type) {
+	case *Flag:
+		if v.Type != SliceT && v.Type != ArrayT && v.Type != MapT && v.Type != HookT {
+			v.Type = typ
+		} else if v.Type != HookT {
+			v.Elem = typ
+		}
+		return nil
+	case *Command, *Context, *CommandHelp, *Argument:
+	case interface{ SetType(Type) }:
+		v.SetType(typ)
+		return nil
+	}
+	return fmt.Errorf("Type(%s) (%T): %w", typ, val, ErrAppliedToInvalidType)
 }
 
 // typeMu guards the maps of registered types below. The first use of a type

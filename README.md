@@ -338,6 +338,14 @@ Other command-line packages:
 [pbff]: https://github.com/peterbourgon/ff
 [urfave]: https://github.com/urfave/cli
 
+[`test/bench_test.go`](test/bench_test.go) runs the same command line with
+`ox` and with each of these packages, and checks that each one parses it.
+Run it in the `test` folder:
+
+```sh
+$ go test -run '^$' -bench CommandLine -benchmem
+```
+
 Articles:
 
 - [Matt Turner, Choosing a Go CLI Library][mtgocli]

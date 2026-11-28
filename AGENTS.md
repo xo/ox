@@ -218,7 +218,11 @@ Some tests compare output with a file in `testdata/`. `.gitignore` ignores
 4. `comp_test.go` holds the cases of completion, and `conf_test.go` holds
    the sources of a flag value. `TestShellCompletion` in `test/comp_test.go`
    runs a completion in each shell that is installed, and skips with
-   `-short`.
+   `-short`. `BenchmarkCommandLine` in `test/bench_test.go` runs the
+   same command line with `ox` and with other Go flag packages, such as
+   cobra and kong, and `TestCommandLine` holds that each one parses it. Run
+   the benchmark with `go test -run '^$' -bench CommandLine -benchmem` in
+   `test/`. No CI job runs it.
 
 `repo_test.go` is in `package ox_test`, and a `//go:build !tinygo` line keeps
 it out of the TinyGo run. It reads files and not the package:

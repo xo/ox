@@ -1608,6 +1608,8 @@ type option struct {
 	help func(*CommandHelp) error
 	typ  func(v interface{ SetType(Type) }) error
 	arg  func(*Argument) error
+	// setType is the type of a [Type] option, which has no funcs.
+	setType Type
 }
 
 // Option satisfies the [Option] interface.
@@ -1617,6 +1619,9 @@ func (opt option) Option() option {
 
 // apply applies the option to val.
 func (opt option) apply(val any) error {
+	if opt.setType != "" {
+		return opt.setType.applyType(val)
+	}
 	var err error = ErrAppliedToInvalidType
 	switch v := val.(type) {
 	case *Command:

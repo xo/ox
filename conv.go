@@ -399,6 +399,16 @@ func asBool(val any) (bool, error) {
 		return v, nil
 	case interface{ Bool() bool }:
 		return v.Bool(), nil
+	case string:
+		// the words of strconv.ParseBool first, so that a word does not try
+		// each number parse, which allocates an error. A number such as 2
+		// falls through to the number parses
+		if v == "" {
+			return false, nil
+		}
+		if b, err := strconv.ParseBool(strings.ToLower(v)); err == nil {
+			return b, nil
+		}
 	}
 	if v, err := asInt[int64](val); err == nil {
 		return 0 < v, nil
@@ -654,6 +664,17 @@ func asDuration(val any) (time.Duration, error) {
 		return v, nil
 	case interface{ Duration() time.Duration }:
 		return v.Duration(), nil
+	case string:
+		// a duration with a unit first, so that it does not try each number
+		// parse, which allocates an error. A number without a unit, such as
+		// 30, which time.ParseDuration refuses, falls through to the number
+		// parses
+		if v == "" {
+			return 0, nil
+		}
+		if d, err := time.ParseDuration(v); err == nil {
+			return d, nil
+		}
 	}
 	if v, err := asInt[int64](val); err == nil {
 		return time.Duration(v) * time.Second, nil

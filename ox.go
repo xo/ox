@@ -525,6 +525,10 @@ func (ctx *Context) Comps() ([]Completion, CompDirective, error) {
 // help, version and completion commands that [Defaults] adds. A `--help` or a
 // `--version` flag stops the parse before Validate.
 func (ctx *Context) Validate() error {
+	// a sub command that waited for its first read failed to build
+	if err := ctx.Exec.lazyErr(); err != nil {
+		return err
+	}
 	if err := ctx.Exec.Validate(ctx.Args); err != nil {
 		return err
 	}
@@ -546,7 +550,7 @@ func (ctx *Context) Run(parent context.Context) error {
 	switch {
 	case ctx.Exec.Exec != nil:
 		return ctx.exec(WithContext(parent, ctx))
-	case DefaultSuggestionsEnabled && len(ctx.Exec.Commands) != 0 && len(ctx.Args) != 0:
+	case DefaultSuggestionsEnabled && len(ctx.Exec.subs()) != 0 && len(ctx.Args) != 0:
 		if err := ctx.Exec.Suggest(ctx.Args...); err != nil {
 			return err
 		}

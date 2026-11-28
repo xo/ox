@@ -12,6 +12,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"unicode"
 	"unicode/utf8"
 
@@ -40,7 +41,11 @@ type Command struct {
 	Suggested []string
 	// Flags are the command's flags.
 	Flags *FlagSet
-	// Commands are the command's sub commands.
+	// Commands are the command's sub commands. The completion command of
+	// [Comp] builds its sub commands, one for each shell, the first time
+	// that a method of [Command] reads them, such as [Command.Command] or
+	// [Command.Lookup], so that a program that does not complete builds
+	// none (B55). Read the sub commands with such a method.
 	Commands []*Command
 	// Args are the command's argument validation func's.
 	Args []func([]string) error
@@ -93,6 +98,8 @@ type Command struct {
 	maxArgs int
 	// noArgs is true when [ValidArgs] allows no argument.
 	noArgs bool
+	// lazy builds the sub commands of the command when they are first read.
+	lazy *lazySubs
 }
 
 // NewCommand creates a new command.
@@ -163,7 +170,7 @@ func (cmd *Command) Suggest(args ...string) error {
 		dist int
 	}
 	var suggested []suggest
-	for _, c := range cmd.Commands {
+	for _, c := range cmd.subs() {
 		for _, name := range append(prepend(c.Aliases, c.Name), c.Suggested...) {
 			if dist := Ldist(r, []rune(foldCase(name))); dist <= maxDist {
 				suggested = append(suggested, suggest{
@@ -197,7 +204,7 @@ func (cmd *Command) Lookup(args ...string) *Command {
 
 // Command returns the sub command with the name.
 func (cmd *Command) Command(name string) *Command {
-	for _, c := range cmd.Commands {
+	for _, c := range cmd.subs() {
 		if c.Name == name || slices.Contains(c.Aliases, name) {
 			return c
 		}
@@ -207,7 +214,7 @@ func (cmd *Command) Command(name string) *Command {
 
 // CommandSpecial returns the sub command with the special value.
 func (cmd *Command) CommandSpecial(special string) *Command {
-	for _, c := range cmd.Commands {
+	for _, c := range cmd.subs() {
 		if c.Special == special {
 			return c
 		}
@@ -252,7 +259,7 @@ func (cmd *Command) FlagSpecial(special string) *Flag {
 
 // SubSpecial returns the sub command with a special value.
 func (cmd *Command) SubSpecial(special string) *Command {
-	for _, c := range cmd.Commands {
+	for _, c := range cmd.subs() {
 		if c.Special == special {
 			return c
 		}
@@ -335,7 +342,7 @@ func (cmd *Command) CompCommands(name string, hidden, deprecated bool) ([]Comple
 	lower, m := foldCase(name), make(map[string]bool)
 	var comps []Completion
 loop:
-	for _, c := range cmd.Commands {
+	for _, c := range cmd.subs() {
 		switch {
 		case m[c.Name], !hidden && c.Hidden, !deprecated && c.Deprecated:
 			continue
@@ -351,7 +358,7 @@ loop:
 	if maxDist := maxDist(cmd); 0 < maxDist && len(comps) == 0 {
 		r := []rune(lower)
 	loop2:
-		for _, c := range cmd.Commands {
+		for _, c := range cmd.subs() {
 			switch {
 			case m[c.Name], !hidden && c.Hidden, !deprecated && c.Deprecated:
 				continue
@@ -439,6 +446,37 @@ func (cmd *Command) CompFlags(name string, hidden, deprecated, short bool) ([]Co
 		return comps, CompNoFileComp | CompKeepOrder
 	}
 	return nil, CompDefault
+}
+
+// lazySubs builds the sub commands of a command the first time that they
+// are read.
+type lazySubs struct {
+	once sync.Once
+	f    func(*Command) error
+	err  error
+}
+
+// subs returns the sub commands of cmd. It first builds the sub commands
+// that wait for their first read, such as the shells of the completion
+// command.
+func (cmd *Command) subs() []*Command {
+	if cmd.lazy != nil {
+		cmd.lazy.once.Do(func() {
+			cmd.lazy.err = cmd.lazy.f(cmd)
+		})
+	}
+	return cmd.Commands
+}
+
+// lazyErr returns the error of the build of the sub commands of cmd, or of a
+// parent of cmd, that waited for their first read.
+func (cmd *Command) lazyErr() error {
+	for c := cmd; c != nil; c = c.Parent {
+		if c.lazy != nil && c.lazy.err != nil {
+			return c.lazy.err
+		}
+	}
+	return nil
 }
 
 // longFlag returns the long flag of the command with the name. When no flag
@@ -1694,6 +1732,10 @@ func newFlagError(name string, err error) error {
 
 // SplitBy splits a string by cut, skipping runes escaped with `\`.
 func SplitBy(str string, cut rune) []string {
+	// without an escape, the parts are those of strings.Split
+	if !strings.ContainsRune(str, '\\') {
+		return strings.Split(str, string(cut))
+	}
 	r, v := []rune(str), make([][]rune, 1)
 	var c, next rune
 	for i, j, n := 0, 0, len(r); i < n; i++ {

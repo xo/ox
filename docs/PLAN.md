@@ -49,6 +49,7 @@ reader can find a decision by its number.
 | [D41](#d41-a-type-that-reads-its-own-text-needs-no-registration-decided-amends-d36) | A type that reads its own text needs no registration | Decided. Amends D36 |
 | [D42](#d42-the-color-and-glob-modules-are-removed-decided-amends-d33) | The color and glob modules are removed | Decided. Amends D33 |
 | [D43](#d43-a-config-key-starts-with-the-path-of-its-command-and-ini-is-a-package-decided-amends-d34) | A config key starts with the path of its command, and INI is a package | Decided. Amends D34 |
+| [D44](#d44-ox-builds-the-shells-of-completion-on-first-use-decided) | ox builds the shells of completion on first use | Decided |
 
 ## Purpose
 
@@ -1464,6 +1465,40 @@ formats, and for tests and examples of each format.
 9. Each of `yaml`, `toml`, `hcl` and `ini` has the examples `Example_build`
    and `Example_reflect`, which read the same settings, and the README links
    them. `yaml`, `toml` and `ini` have tests of their own.
+
+### D44. ox builds the shells of completion on first use. Decided.
+
+`BenchmarkCommandLine` in `test/bench_test.go` runs the same command line
+with `ox` and other Go flag packages (B55). It found that a run of `ox`
+with `Defaults` took 40 µs and 195 KB, and a run of cobra took 9 µs and
+32 KB, on an AMD Ryzen 9 9950X. A maintainer asked on 2026-11-28 to fix
+it.
+
+1. `compTemplates` reads the embedded completion scripts once, and reuses
+   them. Before, each command with completion read every script again,
+   which was 86% of the memory of a run. A program that sets
+   `DefaultCompTemplates` to its own files gets them read each time.
+2. The `completion` command builds its sub commands, one for each shell,
+   the first time that a method of `Command` reads them, such as `Command`,
+   `Lookup`, `CompCommands` or the help of the command. A `sync.Once`
+   guards the build. Each shell then gets a help flag, as `AddHelpFlag`
+   gives the other commands, when the completion command has one. A
+   program that reads the field `Command.Commands` of the completion command
+   before such a method finds no shell. The doc comment of the field says
+   so. `Context.Validate` returns an error of the build.
+3. The help flag of each command, and its `CommandHelp`, are still built
+   when the program starts. Each command writes its own `-h, --help` in its
+   help, and the parse and the completion need the flag. Building it later
+   would change the help of each program.
+4. A `Type` used as an option carries the type, and not two funcs, so a
+   flag of each type allocates no func. `SplitBy` uses `strings.Split` when
+   the text has no backslash. `asBool` and `asDuration` try the word or the
+   duration with a unit first, so a value such as `true` or `30s` does not
+   try each number parse, which allocates an error. Each gives the same
+   result for each value as before.
+5. A run of `ox` now takes about 10 µs, 22 KB and 313 allocations, and a run
+   of `ox` with a struct about 18 µs, 29 KB and 586 allocations. cobra takes
+   about 9.5 µs, 32 KB and 156 allocations.
 
 ## Open questions for the maintainers
 
