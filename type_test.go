@@ -89,16 +89,16 @@ func typeTests(t *testing.T) []typeTest {
 		{
 			Base64T, []test{
 				{"", ""},
-				{"Zm9v", "foo"},
-				{"Zm9vCg==", "foo\n"},
+				{"Zm9v", "Zm9v"},
+				{"Zm9vCg==", "Zm9vCg=="},
 				{"---", ErrInvalidValue},
 			},
 		},
 		{
 			HexT, []test{
 				{"", ""},
-				{"666f6f", "foo"},
-				{"666f6f0a", "foo\n"},
+				{"666f6f", "666f6f"},
+				{"666F6F0A", "666f6f0a"},
 				{"---", ErrInvalidValue},
 			},
 		},

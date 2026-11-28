@@ -125,6 +125,16 @@ func (val *anyVal[T]) Get() (string, error) {
 	if invalid(val.v) {
 		return "", nil
 	}
+	// base64 and hex write the text that Set reads, so that help and a
+	// config file write what the command line takes
+	if b, ok := any(val.v).([]byte); ok {
+		switch val.typ {
+		case Base64T:
+			return base64.StdEncoding.EncodeToString(b), nil
+		case HexT:
+			return hex.EncodeToString(b), nil
+		}
+	}
 	v, err := as[string](val.v, layout(val.v))
 	if err != nil {
 		return "", fmt.Errorf("%w: %w", ErrInvalidValue, err)
@@ -592,10 +602,11 @@ func (val *bindVal) mapSet(s string) error {
 
 // hookVal is a hook func.
 type hookVal struct {
-	typ Type
-	ctx *Context
-	set bool
-	v   func(*Context, string) error
+	typ   Type
+	ctx   *Context
+	set   bool
+	valid func(any) error
+	v     func(*Context, string) error
 }
 
 // newHook creates a new hook for the func f in v.
@@ -670,7 +681,19 @@ func (val *hookVal) WasSet() bool {
 	return val.set
 }
 
+// SetValid sets the valid func, which checks the value of the hook against
+// the allowed values of the flag, such as from [Valid], before the hook runs
+// (D51).
+func (val *hookVal) SetValid(valid func(any) error) {
+	val.valid = valid
+}
+
 func (val *hookVal) Set(s string) error {
+	if val.valid != nil {
+		if err := val.valid(s); err != nil {
+			return err
+		}
+	}
 	return val.v(val.ctx, s)
 }
 

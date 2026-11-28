@@ -784,10 +784,13 @@ func (ctx *Context) compFlagValue(g *Flag, toComplete string) ([]Completion, Com
 			head, toComplete = toComplete[:i+len(g.Split)], toComplete[i+len(g.Split):]
 		}
 	}
-	// the allowed values, then the values of HelpValue, each with its usage
+	// the allowed values, then the values of HelpValue, each with its usage.
+	// An empty value, such as "" for a bare --help, has nothing to complete
 	values := make([]string, 0, len(g.Allowed)+len(g.HelpValues))
 	for _, v := range g.Allowed {
-		values = append(values, fmt.Sprint(v))
+		if s := fmt.Sprint(v); s != "" {
+			values = append(values, s)
+		}
 	}
 	usages := make(map[string]string, len(g.HelpValues))
 	for _, v := range g.HelpValues {

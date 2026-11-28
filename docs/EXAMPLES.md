@@ -1665,7 +1665,10 @@ line gives the flag that value. Here `--help=commands` writes a list of
 commands, as psql does, and `--help` writes the help of the command. After
 the funcs, the run stops as help does. If a func returns an error, the run
 stops with that error. A value without funcs, and a value that no
-`HelpValue` names, write the help of the command.
+`HelpValue` names, write the help of the command. To refuse a topic that the
+flag does not know, as psql does, give the flag `ox.Valid` with each topic
+and `""` for a bare `--help`, such as `ox.Valid("", "commands")`. Then
+`--help=bogus` fails with `ox.ErrInvalidValue` (D51).
 
 ```go
 func ExampleHelpValue() {

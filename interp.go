@@ -101,37 +101,38 @@ var (
 			}
 			return re.ReplaceAllString(s, rep), nil
 		},
-		// substring
+		// substring, as bash takes it: ${VAR:offset} and ${VAR:offset:length}
 		":": func(s, idx string) (string, error) {
-			start, end, single, v := 0, len(s), true, idx
-			if i := strings.Index(v, ":"); i != -1 {
-				switch i, ok := parseInt(v[i+1:]); {
+			r := []rune(s)
+			offStr, lenStr, hasLen := strings.Cut(idx, ":")
+			off, ok := parseIndex(offStr)
+			if !ok {
+				return "", fmt.Errorf("%w offset %q", ErrInvalidOp, idx)
+			}
+			// a negative offset counts from the end, and an offset past
+			// either end gives an empty value
+			if off < 0 {
+				off += len(r)
+			}
+			if off < 0 || len(r) < off {
+				return "", nil
+			}
+			end := len(r)
+			if hasLen {
+				n, ok := parseIndex(lenStr)
+				switch {
 				case !ok:
-					return "", fmt.Errorf("%w index %q", ErrInvalidOp, idx)
-				case 0 <= i:
-					end = i
+					return "", fmt.Errorf("%w length %q", ErrInvalidOp, idx)
+				case 0 <= n:
+					end = min(off+n, len(r))
 				default:
-					end += i
+					// a negative length counts from the end
+					if end += n; end < off {
+						return "", fmt.Errorf("%w length %q: the end is before the offset", ErrInvalidOp, idx)
+					}
 				}
-				single, v = false, v[:i]
 			}
-			switch i, ok := parseInt(v); {
-			case !ok:
-				return "", fmt.Errorf("%w index %q", ErrInvalidOp, idx)
-			case !single && 0 <= i:
-				start = i
-			case !single:
-				start = len(s) + i
-			case single && 0 <= i:
-				start = i
-			case single:
-				start = len(s) + i
-			}
-			switch { // indices check
-			case len(s) < end, end < start, start < 0:
-				return "", fmt.Errorf("%w index %q", ErrInvalidOp, idx)
-			}
-			return s[start:end], nil
+			return string(r[off:end]), nil
 		},
 		// default
 		":-": func(s, v string) (string, error) {
@@ -255,7 +256,7 @@ var (
 //	^, ^^ - upper case the first character, or each one, that matches a glob
 //	,, ,, - lower case the first character, or each one, that matches a glob
 //	/, // - replace the first match, or each match, of a regexp
-//	: - substring, from a start index to an end index
+//	: - substring, from an offset and with a length, as in bash
 //	:-, || - a default for an empty value
 //	| - a filter
 //
@@ -637,6 +638,15 @@ func globRegexp(pattern string) (*regexp.Regexp, error) {
 }
 
 // parseInt parses an int.
+// parseIndex parses an offset or a length of the substring operator. An
+// empty offset or length is 0, as in bash.
+func parseIndex(s string) (int, bool) {
+	if strings.TrimSpace(s) == "" {
+		return 0, true
+	}
+	return parseInt(s)
+}
+
 func parseInt(s string) (int, bool) {
 	i, err := strconv.ParseInt(strings.TrimSpace(s), 10, 64)
 	return int(i), err == nil

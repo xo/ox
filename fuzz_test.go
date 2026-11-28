@@ -130,9 +130,7 @@ var fuzzTypes = []Type{
 // FuzzTypeValue sets any text on a value of each type. Set can refuse the
 // text, and it must never panic. When it takes the text, Get must not fail,
 // and a new value must take the text of Get and give the same text, so that
-// help and config output read back. Base64T and HexT decode their text, and
-// Get gives the bytes and not the encoded text, as TestTypeNew holds, so
-// they are only checked for a panic and for Get.
+// help and config output read back.
 func FuzzTypeValue(f *testing.F) {
 	for _, s := range []string{
 		"", "0", "-1", "1.5", "1e9", "true", "x", "é", "1 GiB", "1536Mi", "2KiB/s",
@@ -164,9 +162,6 @@ func FuzzTypeValue(f *testing.F) {
 		got, err := v.Get()
 		if err != nil {
 			t.Fatalf("%s: Set(%q) worked, and Get failed: %v", typ, s, err)
-		}
-		if typ == Base64T || typ == HexT {
-			return
 		}
 		w, err := typ.New()
 		if err != nil {

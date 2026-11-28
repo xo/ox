@@ -24,8 +24,8 @@ reader can find a decision by its number.
 | [D16](#d16-a-config-loader-is-registered-for-a-configtype-decided) | A config loader is registered for a ConfigType | Decided |
 | [D17](#d17-the-go-directive-stays-at-a-release-that-the-pinned-tinygo-can-build-decided-amended-by-d24) | The go directive stays at a release that the pinned TinyGo can build | Decided. Amended by D24 |
 | [D18](#d18-ox-makes-no-promise-of-backward-compatibility-decided) | ox makes no promise of backward compatibility | Decided |
-| [D19](#d19-the-substring-operator-takes-an-end-index-and-not-a-length-proposed) | The substring operator takes an end index and not a length | Proposed |
-| [D20](#d20-an-app-builds-its-command-tree-from-the-doc-comment-of-a-struct-proposed-amended-by-d30) | An app builds its command tree from the doc comment of a struct | Proposed. Amended by D30 |
+| [D19](#d19-the-substring-operator-takes-an-end-index-and-not-a-length-superseded-by-d50) | The substring operator takes an end index and not a length | Superseded by D50 |
+| [D20](#d20-an-app-builds-its-command-tree-from-the-doc-comment-of-a-struct-superseded-by-d30) | An app builds its command tree from the doc comment of a struct | Superseded by D30 |
 | [D21](#d21-ox-is-set-up-for-coding-agents-as-every-xo-repository-is-decided) | ox is set up for coding agents as every xo repository is | Decided |
 | [D22](#d22-ox-is-the-command-line-package-for-the-maintainers-programs-and-usql-moves-to-it-decided) | ox is the command-line package for the maintainers' programs, and usql moves to it | Decided |
 | [D23](#d23-a-tool-imports-the-completion-scripts-from-each-cobra-release-decided) | A tool imports the completion scripts from each cobra release | Decided |
@@ -33,15 +33,15 @@ reader can find a decision by its number.
 | [D25](#d25-the-github-project-takes-discussions-and-not-issues-or-pull-requests-decided) | The GitHub project takes discussions, and not issues or pull requests | Decided |
 | [D26](#d26-a-path-flag-is-a-patht-a-filet-or-a-dirt-decided) | A path flag is a PathT, a FileT or a DirT | Decided |
 | [D27](#d27-ox-completes-flag-values-and-positional-arguments-as-cobra-does-decided) | ox completes flag values and positional arguments as cobra does | Decided |
-| [D28](#d28-one-compfunc-completes-a-flag-or-an-argument-proposed) | One CompFunc completes a flag or an argument | Proposed |
+| [D28](#d28-one-compfunc-completes-a-flag-or-an-argument-decided) | One CompFunc completes a flag or an argument | Decided |
 | [D29](#d29-a-program-can-make-its-help-look-like-psqls-help-decided) | A program can make its help look like psql's help | Decided |
-| [D30](#d30-appfrom-builds-a-program-from-a-struct-and-its-doc-comments-decided-amends-d20) | AppFrom builds a program from a struct and its doc comments | Decided. Amends D20 |
+| [D30](#d30-appfrom-builds-a-program-from-a-struct-and-its-doc-comments-decided-supersedes-d20) | AppFrom builds a program from a struct and its doc comments | Decided. Supersedes D20 |
 | [D31](#d31-an-importer-writes-ox-programs-from-the-interface-of-well-known-programs-decided-amends-d13) | An importer writes ox programs from the interface of well-known programs | Decided. Amends D13 |
 | [D32](#d32-ox-has-many-examples-for-coding-agents-decided) | ox has many examples for coding agents | Decided |
 | [D33](#d33-each-sub-package-with-a-dependency-is-a-module-of-its-own-and-test-is-a-module-decided-amended-by-d42) | Each sub package with a dependency is a module of its own, and test is a module | Decided. Amended by D42 |
-| [D34](#d34-a-flag-takes-its-value-from-the-command-line-the-environment-the-config-files-or-its-default-proposed-amended-by-d43) | A flag takes its value from the command line, the environment, the config files or its default | Proposed. Amended by D43 |
-| [D35](#d35-the-choices-that-the-agents-made-on-2026-11-26-proposed) | The choices that the agents made on 2026-11-26 | Proposed |
-| [D36](#d36-choices-that-the-backlog-agent-made-proposed-amended-by-d41-amended-by-d49) | Choices that the backlog agent made | Proposed. Amended by D41. Amended by D49 |
+| [D34](#d34-a-flag-takes-its-value-from-the-command-line-the-environment-the-config-files-or-its-default-decided-amended-by-d43) | A flag takes its value from the command line, the environment, the config files or its default | Decided. Amended by D43 |
+| [D35](#d35-the-choices-that-the-agents-made-on-2026-11-26-decided) | The choices that the agents made on 2026-11-26 | Decided |
+| [D36](#d36-choices-that-the-backlog-agent-made-decided-amended-by-d41-amended-by-d49) | Choices that the backlog agent made | Decided. Amended by D41. Amended by D49 |
 | [D37](#d37-required-flags-and-rules-between-flags-decided) | Required flags and rules between flags | Decided |
 | [D38](#d38-inherited-flags-stopping-at-an-argument-and-prefixes-decided) | Inherited flags, stopping at an argument, and prefixes | Decided |
 | [D39](#d39-before-and-after-funcs-typed-arguments-and-the-wrap-width-decided) | Before and after funcs, typed arguments, and the wrap width | Decided |
@@ -51,10 +51,12 @@ reader can find a decision by its number.
 | [D43](#d43-a-config-key-starts-with-the-path-of-its-command-and-ini-is-a-package-decided-amends-d34) | A config key starts with the path of its command, and INI is a package | Decided. Amends D34 |
 | [D44](#d44-ox-builds-the-shells-of-completion-on-first-use-decided) | ox builds the shells of completion on first use | Decided |
 | [D45](#d45-a-port-range-type-and-strftime-layouts-decided) | A port range type, and strftime layouts | Decided |
-| [D46](#d46-a-value-of-helpvalue-can-run-funcs-decided-amended-by-d49) | A value of HelpValue can run funcs | Decided. Amended by D49 |
+| [D46](#d46-a-value-of-helpvalue-can-run-funcs-decided-amended-by-d49-amended-by-d51) | A value of HelpValue can run funcs | Decided. Amended by D49. Amended by D51 |
 | [D47](#d47-a-bool-flag-can-have-a-negated-form-such-as---no-debug-decided) | A bool flag can have a negated form, such as --no-debug | Decided |
-| [D48](#d48-metadoc-writes-a-man-page-and-markdown-docs-proposed) | metadoc writes a man page and Markdown docs | Proposed |
+| [D48](#d48-metadoc-writes-a-man-page-and-markdown-docs-decided) | metadoc writes a man page and Markdown docs | Decided |
 | [D49](#d49-answers-of-2026-11-28-lint-in-ci-completion-of-help-values-and-fuzz-tests-decided-amends-d12-amends-d36-amends-d46) | Answers of 2026-11-28, lint in CI, completion of help values, and fuzz tests | Decided. Amends D12. Amends D36. Amends D46 |
+| [D50](#d50-the-substring-operator-follows-bash-and-base64-and-hex-write-their-text-decided-supersedes-d19) | The substring operator follows bash, and base64 and hex write their text | Decided. Supersedes D19 |
+| [D51](#d51-a-hook-flag-checks-its-value-against-valid-decided-amends-d46) | A hook flag checks its value against Valid | Decided. Amends D46 |
 
 ## Purpose
 
@@ -420,7 +422,7 @@ A change can rename or remove an exported identifier when that makes the code
 better. `dbtpl` requires `ox`, so a change that breaks `dbtpl` names the use
 in its commit message.
 
-### D19. The substring operator takes an end index and not a length. Proposed.
+### D19. The substring operator takes an end index and not a length. Superseded by D50.
 
 Commit: `89032b1` (2026-03-22).
 
@@ -433,7 +435,7 @@ describes the operator as `${VAR:offset:length}`.
 The code does it, and no record shows that a maintainer chose the difference from
 bash. This is open question 10.
 
-### D20. An app builds its command tree from the doc comment of a struct. Proposed. Amended by D30.
+### D20. An app builds its command tree from the doc comment of a struct. Superseded by D30.
 
 Commits: `49a01e6` (2026-03-27), `2e2b6f4` (2026-03-30), `23b1eda`
 (2026-03-30), `739fd0c` (2026-03-30).
@@ -587,13 +589,14 @@ arguments. The scripts in `comp/` already do this. `ox` must give them the
 completions and the directives. [DESIGN.md](DESIGN.md) maps each feature of
 cobra to `ox`, and B31 has the faults that a probe found.
 
-### D28. One CompFunc completes a flag or an argument. Proposed.
+### D28. One CompFunc completes a flag or an argument. Decided.
 
 The API that D27 needs. One option, `CompFunc`, works on a command and on a
 flag, and a directive, `CompNoFilter`, turns off the prefix match that `ox`
 does now that the scripts do not. [DESIGN.md](DESIGN.md) has the signature
-and 12 questions, each with a recommendation. A maintainer must answer them
-before the work starts. This is open question 3 below.
+and 12 questions, each with a recommendation. The work followed the
+recommendations (D35, D36), and a maintainer confirmed it as built on
+2026-11-28 (D50).
 
 ### D29. A program can make its help look like psql's help. Decided.
 
@@ -604,7 +607,7 @@ must remove, and one fault where a hook loses its placeholder. They are B32
 and B33. The `usql` session proposed its own layout, which a maintainer of
 `usql` must confirm. [DESIGN.md](DESIGN.md) has both.
 
-### D30. AppFrom builds a program from a struct and its doc comments. Decided. Amends D20.
+### D30. AppFrom builds a program from a struct and its doc comments. Decided. Supersedes D20.
 
 A maintainer decided on 2026-11-26 that a program can pass a pointer to a
 struct to `ox.AppFrom`. The doc comments of the struct and of its fields
@@ -642,7 +645,7 @@ nothing. This changes how D1 is held, and not what it says: a program that
 imports only `ox` still gets no other module. [DESIGN.md](DESIGN.md) has the
 layout, the CI and the order of tagging, which two flagship models reviewed.
 
-### D34. A flag takes its value from the command line, the environment, the config files or its default. Proposed. Amended by D43.
+### D34. A flag takes its value from the command line, the environment, the config files or its default. Decided. Amended by D43.
 
 A maintainer asked on 2026-11-26 that config loading work properly. This
 answers what was open question 11. The design in [DESIGN.md](DESIGN.md) went
@@ -650,20 +653,20 @@ to Gemini 3.1 Pro and GPT-6 Astra before any code was written, and it
 follows their review: one `Config` interface for a file, `ConfigFiles`,
 `ConfigFlag`, `EnvPrefix`, `EnvVar`, `NoEnv` and `NoConfig`, flat keys by flag
 name, a value from a file that assigns and does not append, and a default
-that is expanded only when it wins. No maintainer has chosen the names or
-the rules, so this is proposed. Open question 1 asks a maintainer to
-confirm it. It replaces the stub `UserConfigFile`, and amends nothing that
+that is expanded only when it wins. A maintainer confirmed the names and
+the rules on 2026-11-28, and that `Value.WasSet` stays true only for a value
+from the command line (D50). It replaces the stub `UserConfigFile`, and amends nothing that
 was decided, because D16 decides only that a loader is registered for a
 `ConfigType`.
 
-### D35. The choices that the agents made on 2026-11-26. Proposed.
+### D35. The choices that the agents made on 2026-11-26. Decided.
 
 A maintainer asked on 2026-11-26 that agents implement the plan. Five agents
 did B33, B32, B25, B20, B31, B37, B38, B30, B34, B26, B39, B40 and B41, each in a
 worktree of its own, and the work was merged in the main checkout. They
 followed the recommendations of the open questions, and each made choices
-that no maintainer has made. This entry lists them, so that a maintainer can
-confirm or change each one. It holds D28 as built, and the answer of open
+that no maintainer had made. This entry lists them. A maintainer confirmed
+each one on 2026-11-28 (D50). It holds D28 as built, and the answer of open
 question 7 as built.
 
 Help, with `HelpColumn(n)` and `NoDefault()`:
@@ -757,12 +760,12 @@ The importer, `_tools/oximport` (D31):
     directory as `/home/user`, and `TestTestdata` fails if a real home
     directory appears.
 
-### D36. Choices that the backlog agent made. Proposed. Amended by D41. Amended by D49.
+### D36. Choices that the backlog agent made. Decided. Amended by D41. Amended by D49.
 
 A maintainer asked on 2026-11-27 that one agent close each item of
 [BACKLOG.md](BACKLOG.md) in order. The agent followed the recommendation of
-each open question, and made the choices below that no maintainer has made.
-A maintainer can confirm or change each one.
+each open question, and made the choices below. A maintainer confirmed each
+one on 2026-11-28 (D50).
 
 B32, the optional value in help:
 
@@ -1575,7 +1578,7 @@ and an agent built it. A maintainer accepted it on 2026-11-28.
     `Required` now follow `Optional`, and `NotExist` follows `Home`, so
     that the bool fields share their words. `Flag` is 496 bytes, and a run
     of `BenchmarkCommandLine` uses the same memory as before.
-### D46. A value of HelpValue can run funcs. Decided. Amended by D49.
+### D46. A value of HelpValue can run funcs. Decided. Amended by D49. Amended by D51.
 
 Before, `HelpValue` wrote a line such as `--help=commands` in the help, but
 the help flag wrote the same help for every value. So `usql` replaced the
@@ -1705,7 +1708,7 @@ Help and completion:
 16. Completion offers each negated form after the names of its flag, and
     corrects a negated form as it corrects a name. It completes no value
     after a negated form, and nothing after `--no-debug=`.
-### D48. metadoc writes a man page and Markdown docs. Proposed.
+### D48. metadoc writes a man page and Markdown docs. Decided.
 
 B54 found that `ox` writes only help, and that `cobra/doc`, `urfave/cli`,
 `kong` and `kingpin` write a man page or Markdown docs. A maintainer chose
@@ -1761,7 +1764,8 @@ The maintainer chose these:
 11. The name of the program is the name of the root command, and never
     `os.Args[0]`.
 
-The agent that built it chose these. A maintainer must confirm them:
+The agent that built it chose these. A maintainer confirmed them on
+2026-11-28 (D50):
 
 12. `Command` with no format adds both formats, so that `metadoc.Command()`
     is enough for most programs.
@@ -1932,60 +1936,109 @@ Fuzz tests, in `fuzz_test.go`:
     `go test -run '^$' -fuzz '^FuzzCommandLine$' -fuzztime 60s`. No CI job
     fuzzes.
 
+### D50. The substring operator follows bash, and base64 and hex write their text. Decided. Supersedes D19.
+
+A maintainer answered these on 2026-11-28.
+
+The substring operator, which answers open question 10:
+
+1. `${VAR:offset}` and `${VAR:offset:length}` follow bash, and the second
+   number is a length, not an end index. So `${X:1:2}` of `aXbXc` is `Xb`,
+   as in bash. Before, it was `X` (D19).
+2. A negative offset counts from the end. An offset past either end gives an
+   empty value, as in bash, and not an error. A length past the end stops at
+   the end.
+3. A negative length counts from the end of the value, so `${X:1:-1}` of
+   `aXbXc` is `XbX`. An end before the offset is an error that wraps
+   `ErrInvalidOp`, as bash fails with "substring expression < 0".
+4. An empty offset or length is 0, as in bash, so `${X:1:}` is empty and
+   `${X::2}` is `aX`.
+5. The operator counts characters and not bytes, so `${X:1:3}` of `héllo`
+   is `éll`, as bash does in a UTF-8 locale.
+6. `${X:-1}` is still the default operator `:-`, as in bash. A negative
+   offset needs a space, as in `${X: -1}`, as bash needs it.
+   `TestSubstring` holds each case, and each was checked with bash.
+
+Base64 and hex, which answers open question 15:
+
+7. `Get` of a `Base64T` or a `HexT` value writes the encoded text that
+   `Set` reads, so help and a config file write what the command line
+   takes. Before, `Get` gave the decoded bytes, so help wrote a default of
+   `aGVsbG8=` as `hello`. `otx.Bytes`, `otx.String` and `As[[]byte]` read
+   the value, and still give the bytes. `FuzzTypeValue` now holds the round
+   trip of both types (D49).
+
+The confirmations:
+
+8. D48 is decided as built, with each choice that the agent made, such as
+   `ox.Extend`.
+9. D34 is decided. `Value.WasSet` stays true only for a value from the
+   command line, which answers open question 1. `Context.isSet` counts the
+   environment and the config files for a required flag and a rule.
+10. D28, D35 and D36 are decided as built, which answers open question 3.
+11. D30 supersedes D20, because D30 holds the design as built. D20 is the
+    sketch that came first.
+12. Open questions 4, 5, 6, 11 and 13 were answered on 2026-11-27, when the
+    work was built, and are marked answered.
+
+### D51. A hook flag checks its value against Valid. Decided. Amends D46.
+
+The `usql` session tried `v0.3.0` on 2026-11-28, and stayed on `v0.1.0` for
+one reason. With the funcs of `HelpValue`, `--help=commands` works, but
+`--help=bogus` writes the help and exits with 0. psql fails on a topic that
+it does not know. `ox.Valid` on the help flag did nothing, because
+`NewHelpFlag` makes it a hook flag, and the value of a hook was never
+checked. A maintainer chose that a hook flag honors `Valid`, over an error
+for each value that no `HelpValue` names.
+
+1. The value of a hook flag checks its text against the validator of the
+   flag, as each other value does, before the hook runs. So a program gives
+   its help flag `ox.Valid("", "options", "commands", "variables")`, and
+   `--help=bogus` fails with `ErrInvalidValue`, such as
+   `--help: invalid value: "bogus": allowed values: "", "options",
+   "commands", "variables"`. The empty value is in the list, so that a bare
+   `--help` works.
+2. A value of `HelpValue` with funcs runs its funcs before the check, so it
+   needs no place in `Valid`. A program lists it anyway, so that the error
+   names each topic.
+3. A hook flag without `Valid` takes each value, as before, so no program
+   changes unless it gives a hook flag `Valid`. Item 4 of D46 holds for such
+   a flag.
+4. The error quotes the value of a hook flag, as for a string, because the
+   value is text from the command line. `Type.Formatter` of `HookT` is
+   `%q`.
+5. Completion leaves out an empty allowed value, such as the `""` of a bare
+   `--help`, because it has nothing to complete.
+   `TestHookValid` holds each case.
+
 ## Open questions for the maintainers
 
 An open question is not a decision. When a maintainer answers one, the
 answer becomes a decision above, and the question goes. Each question has a
 recommendation.
 
-1. D34 is proposed. Recommended: confirm the names and rules in
-   [DESIGN.md](DESIGN.md), as two flagship models reviewed them. In
-   particular, must `Value.WasSet` stay true only for the command line? D43
-   answered the key of a flag.
+1. Answered on 2026-11-28: D34 is decided, and `Value.WasSet` stays true
+   only for the command line (D50).
 2. Answered on 2026-11-28: yes, D24 means what was built (D49).
-3. D35 lists 20 choices that the agents made, which hold D28 as built.
-   Recommended: confirm them. Questions 1 to 6 of D28, about the path types,
-   are still open. The path types were built on 2026-11-27 as they
-   recommend (D36).
-4. How does `AppFrom` get the doc comments (D30)? Recommended: a
-   `go generate` tool from `ox` writes them into the program, because it
-   works with TinyGo and links no parser. The other way embeds the source and
-   parses it when the program starts. This was built on 2026-11-27 as
-   `cmd/oxdoc` (D36).
-5. What does the interface for the sub commands of `AppFrom` call its
-   method? Recommended: `Commands() []any`, because `Sub` is already an
-   option. The sketch of D20 uses `Sub() []any`. Is the exec method
-   `Exec(ctx context.Context, args []string) error`? Both were built
-   on 2026-11-27 (D36), and `Exec` can have any signature that `ox.Exec`
-   takes.
-6. What are the run func that returns its error and the usage string called
-   (B28)? Recommended: `ox.RunError(ctx, opts...) error`, and
-   `Command.UsageString() string`. These names were built on 2026-11-27
-   (D36).
+3. Answered on 2026-11-28: D28, D35 and D36 are decided as built (D50).
+4. Answered on 2026-11-27: `cmd/oxdoc` writes the doc comments into the
+   program from `go generate` (D36).
+5. Answered on 2026-11-27: the method is `Commands() []any`, and `Exec` can
+   have any signature that `ox.Exec` takes (D36).
+6. Answered on 2026-11-27: `ox.RunError` and `Command.UsageString` (D36).
 7. Answered on 2026-11-28: `HelpColumn(27)` stays an option, and is not the
    default (D49).
 8. Answered on 2026-11-27: a maintainer tagged `v0.1.0`, then `color`,
    `glob`, `hcl`, `toml` and `yaml`, in the order in [DESIGN.md](DESIGN.md).
 9. Answered on 2026-11-28: a change arrives only as a GitHub discussion, and
    a maintainer makes it (D49).
-10. The substring operator takes an end index, and bash takes a length. Is the
-   difference deliberate, or does `ox` follow bash? See D19.
-11. The README says that `ox` loads HCL, and imports `github.com/xo/ox/hcl`
-    in its example. There is no such package. Does an `hcl` loader come, or
-    does the README change? See B7. The `hcl` module was built on 2026-11-27
-    (D36).
+10. Answered on 2026-11-28: the substring operator follows bash (D50).
+11. Answered on 2026-11-27: the `hcl` module reads HCL files (D36).
 12. Answered on 2026-11-28: CI runs `golangci-lint` on each module, and each
     module has no finding (D49).
-13. No CI job builds the examples. Must CI build them, and the programs that
-    the importer writes? See B14 and B39. Since 2026-11-27, CI runs `go vet`
-    on each example, and `TestBuild` builds each style that the importer
-    writes (D36).
+13. Answered on 2026-11-27: CI runs `go vet` on each example, and
+    `TestBuild` builds each style that the importer writes (D36).
 14. Answered on 2026-11-28: the tests in `repo_test.go` do not run under
     TinyGo (D49).
-15. `Base64T` and `HexT` decode their text when it is set, and `Get` gives
-    the decoded bytes, as `TestTypeNew` holds. So help writes a default of
-    `aGVsbG8=` as `hello`, and that text does not read back. Must `Get` give
-    the encoded text? Recommended: yes, so that help and a config file write
-    what the command line takes. A program that reads the value with
-    `otx.Bytes` or `As[[]byte]` gets the bytes either way. See item 15 of
-    D49.
+15. Answered on 2026-11-28: `Get` of `Base64T` and `HexT` writes the encoded
+    text (D50).

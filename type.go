@@ -90,7 +90,7 @@ func (typ Type) String() string {
 // Formatter returns the value format string for the type.
 func (typ Type) Formatter() string {
 	switch typ {
-	case BytesT, StringT, RunesT, ByteT, RuneT:
+	case BytesT, StringT, RunesT, ByteT, RuneT, HookT:
 		return `%q`
 	}
 	return `%v`

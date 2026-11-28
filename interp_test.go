@@ -147,7 +147,7 @@ func TestInterpolateVar(t *testing.T) {
 		{`${ABC:-||bar}`, `bar`},
 		{`${HOME:1}`, home[1:]},
 		{`${HOME: 1 }`, home[1:]},
-		{`${HOME: 1 : 2 }`, home[1:2]},
+		{`${HOME: 1 : 2 }`, home[1:3]},
 		{`${HOME:-1}`, home}, // :- matches the default operator
 		{`${HOME: -1}`, home[len(home)-1:]},
 		{`${HOME: -2}`, home[len(home)-2:]},
@@ -327,3 +327,48 @@ func init() {
 }
 
 const longstr = "a really long long string"
+
+// TestSubstring tests the substring operator, which takes an offset and a
+// length, as bash does (D50). Each value is what bash gives for
+// ${X:<idx>}, with X set to the value.
+func TestSubstring(t *testing.T) {
+	sub := DefaultOps[":"]
+	tests := []struct {
+		s   string
+		idx string
+		exp string
+		err bool
+	}{
+		{"aXbXc", "1:2", "Xb", false},
+		{"aXbXc", "1", "XbXc", false},
+		{"aXbXc", " -2", "Xc", false},
+		{"aXbXc", "0:0", "", false},
+		{"aXbXc", "1:-1", "XbX", false},
+		{"aXbXc", "1:", "", false},
+		{"aXbXc", ":2", "aX", false},
+		{"aXbXc", "2:99", "bXc", false},
+		{"aXbXc", "5", "", false},
+		{"aXbXc", "9", "", false},
+		{"aXbXc", " -9", "", false},
+		{"aXbXc", " -5:2", "aX", false},
+		{"héllo", "1:3", "éll", false},
+		{"héllo", " -4:-1", "éll", false},
+		{"", "0", "", false},
+		{"aXbXc", "3:-3", "", true},
+		{"aXbXc", "x", "", true},
+		{"aXbXc", "1:y", "", true},
+	}
+	for _, test := range tests {
+		t.Run(test.s+":"+test.idx, func(t *testing.T) {
+			s, err := sub(test.s, test.idx)
+			switch {
+			case test.err && !errors.Is(err, ErrInvalidOp):
+				t.Fatalf("expected %v, got: %v", ErrInvalidOp, err)
+			case !test.err && err != nil:
+				t.Fatalf("expected no error, got: %v", err)
+			case s != test.exp:
+				t.Errorf("expected %q, got: %q", test.exp, s)
+			}
+		})
+	}
+}

@@ -620,3 +620,100 @@ func TestInheritedFlags(t *testing.T) {
 		})
 	}
 }
+
+// TestHookValid holds that a hook flag checks its value against Valid before
+// the hook runs, so that a help flag refuses a topic that it does not know,
+// as psql does (D51). A hook flag without Valid takes each value, as before.
+func TestHookValid(t *testing.T) {
+	tests := []struct {
+		name  string
+		valid bool
+		args  []string
+		exp   string
+		err   string
+	}{
+		{"no value", true, []string{"--help"}, "help\n", ""},
+		{"no value short", true, []string{"-?"}, "help\n", ""},
+		{"an allowed value", true, []string{"--help=options"}, "help options\n", ""},
+		{"a value with a func", true, []string{"--help=commands"}, "the commands\n", ""},
+		{"an unknown value", true, []string{"--help=bogus"}, "", `--help: invalid value: "bogus": allowed values: "", "options", "commands", "variables"`},
+		{"an unknown value short", true, []string{"-?=bogus"}, "", `-?: invalid value: "bogus": allowed values: "", "options", "commands", "variables"`},
+		{"an unknown value without Valid", false, []string{"--help=bogus"}, "help bogus\n", ""},
+		{"completion", true, []string{"__complete", "--help="}, "options\ncommands\tlist the commands\nvariables\tlist the variables\n:36\n", ""},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			opts := []Option{
+				Short("?"), Special("hook:help"), OptionalValue("TOPIC"),
+				HelpValue("commands", "list the commands", func(ctx *Context) error {
+					_, _ = fmt.Fprintln(ctx.Stdout, "the commands")
+					return nil
+				}),
+				HelpValue("variables", "list the variables"),
+			}
+			if test.valid {
+				opts = append(opts, Valid("", "options", "commands", "variables"))
+			}
+			err := RunError(
+				context.Background(),
+				Usage("app", "an app"),
+				Flags().
+					Hook("help", "show help, then exit", func(ctx *Context, s string) error {
+						_, _ = fmt.Fprintln(ctx.Stdout, strings.TrimSpace("help "+s))
+						return ErrExit
+					}, opts...),
+				Comp(),
+				Exec(func() {}),
+				Args(test.args...),
+				Pipe(nil, &buf, &buf),
+			)
+			switch {
+			case test.err == "" && err != nil:
+				t.Fatalf("expected no error, got: %v", err)
+			case test.err != "" && (!errors.Is(err, ErrInvalidValue) || err.Error() != test.err):
+				t.Fatalf("expected %q, got: %v", test.err, err)
+			}
+			if s := buf.String(); s != test.exp {
+				t.Errorf("expected:\n%q\ngot:\n%q", test.exp, s)
+			}
+		})
+	}
+}
+
+// TestHelpFlagValid holds that a help flag that the program defines with
+// Special("hook:help"), which Help turns into a hook flag, keeps its Valid,
+// as usql defines its help flag (D51).
+func TestHelpFlagValid(t *testing.T) {
+	for _, test := range []struct {
+		arg string
+		err bool
+	}{
+		{"--help", false},
+		{"--help=options", false},
+		{"--help=bogus", true},
+	} {
+		t.Run(test.arg, func(t *testing.T) {
+			var buf bytes.Buffer
+			err := RunError(
+				context.Background(),
+				Usage("app", "an app"),
+				Flags().
+					Var("help", "show help, then exit", Short("?"), Special("hook:help"), OptionalValue("options"),
+						Valid("", "options", "commands")),
+				Help(),
+				Exec(func() {}),
+				Args(test.arg),
+				Pipe(nil, &buf, &buf),
+			)
+			switch {
+			case test.err && !errors.Is(err, ErrInvalidValue):
+				t.Fatalf("expected %v, got: %v", ErrInvalidValue, err)
+			case !test.err && err != nil:
+				t.Fatalf("expected no error, got: %v", err)
+			case !test.err && !strings.HasPrefix(buf.String(), "app an app"):
+				t.Errorf("expected the help, got:\n%s", buf.String())
+			}
+		})
+	}
+}
