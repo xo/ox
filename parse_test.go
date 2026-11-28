@@ -27,8 +27,7 @@ func TestParse(t *testing.T) {
 			}
 			t.Logf("cmd: %s", c.Root.Name)
 			t.Logf("args: %q", c.Args)
-			switch err := c.Parse(); {
-			case err != nil:
+			if err := c.Parse(); err != nil {
 				fmt.Fprintln(c.Stdout, "error:", err)
 			}
 			if c.Exec != nil {

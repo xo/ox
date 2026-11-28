@@ -30,6 +30,10 @@ var (
 	// FlagSpecSpacer is the spacer between the flag and the displayed flag
 	// spec.
 	FlagSpecSpacer = ` `
+	// FlagNegatedSpec is the spec before the name of a bool flag with a
+	// negated form, which it takes by the prefix, such as `[no-]` in
+	// `--[no-]debug`.
+	FlagNegatedSpec = `[%s-]`
 	// FlagDeprecated is the warning for a deprecated flag or alias that the
 	// command line uses.
 	FlagDeprecated = "warning: %s is deprecated\n"
@@ -99,6 +103,38 @@ var (
 	// CompCommandAnyShellDesc is the `completion` command `a specified shell`
 	// description.
 	CompCommandAnyShellDesc = `a specified shell`
+
+	// DocCommandUsage is the usage of the hidden `__docs` command of
+	// metadoc.
+	DocCommandUsage = `write the docs of the commands`
+	// DocFormatUsage is the usage of a sub command of `__docs`, such as
+	// `__docs man`, which it takes with the name of the format.
+	DocFormatUsage = `write the docs as %s`
+	// DocDirFlagUsage is the usage of the `--dir` flag of a sub command of
+	// `__docs`.
+	DocDirFlagUsage = `write a file for each command in the folder`
+	// DocName is the `Name` section name of the docs that metadoc writes.
+	// A man page writes each section name in upper case.
+	DocName = `Name`
+	// DocSynopsis is the `Synopsis` section name of the docs.
+	DocSynopsis = `Synopsis`
+	// DocDescription is the `Description` section name of the docs.
+	DocDescription = `Description`
+	// DocOptions is the `Options` section name of the docs.
+	DocOptions = `Options`
+	// DocGlobalOptions is the `Global Options` section name of the docs,
+	// which holds the flags that a command inherits from its parents.
+	DocGlobalOptions = `Global Options`
+	// DocCommands is the `Commands` section name of the docs.
+	DocCommands = `Commands`
+	// DocNotes is the `Notes` section name of the docs, which holds the
+	// footer of a command.
+	DocNotes = `Notes`
+	// DocSeeAlso is the `See Also` section name of the docs.
+	DocSeeAlso = `See Also`
+	// DocAllowed is the `(allowed: ...)` text of a flag with allowed values
+	// in the docs.
+	DocAllowed = `(allowed: %s)`
 
 	// Footer is the default footer for commands with sub commands.
 	Footer = `Use "%s [command] --help" for more information about a command.`

@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"slices"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 )
 
@@ -285,6 +286,24 @@ func Sub(opts ...Option) CommandOption {
 		cmd: func(cmd *Command) error {
 			return cmd.Sub(opts...)
 		},
+	}
+}
+
+// Extend is a root [Command] option that runs f on the root command after
+// each other option, so that f finds every flag and sub command, and the
+// help, version and completion of [Defaults]. A package outside ox uses it to
+// add to the command tree, as [github.com/xo/ox/metadoc.Command] does. The
+// name names the option in an error.
+func Extend(name string, f func(*Command) error) CommandOption {
+	return option{
+		name: name,
+		cmd: func(cmd *Command) error {
+			if cmd.Parent != nil {
+				return ErrCanOnlyBeUsedWithRootCommand
+			}
+			return nil
+		},
+		last: f,
 	}
 }
 
@@ -730,6 +749,64 @@ func Split(split string) FlagOption {
 	}
 }
 
+// Strftime is a [Flag] option to read and write the time of a flag in a
+// strftime layout, such as `%d/%m/%Y %H:%M`. A flag of type [TimestampT],
+// [DateTimeT], [DateT] or [TimeT] keeps its type, and a flag of another type
+// gets the type [TimestampT]. A slice, an array, a map or a hook flag refuses
+// it.
+//
+// Strftime converts the layout to a Go layout, and sets [Flag.Layout]. It
+// takes only the directives that Go writes and reads in the same way:
+//
+//	%Y  the year, such as 2006
+//	%y  the year in 2 digits, such as 06
+//	%m  the month in 2 digits, such as 01
+//	%b  the short name of the month, such as Jan
+//	%B  the name of the month, such as January
+//	%d  the day of the month in 2 digits, such as 02
+//	%e  the day of the month, padded with a space, such as " 2"
+//	%j  the day of the year in 3 digits, such as 002
+//	%a  the short name of the day of the week, such as Mon
+//	%A  the name of the day of the week, such as Monday
+//	%H  the hour of 24 hours in 2 digits, such as 15
+//	%I  the hour of 12 hours in 2 digits, such as 03
+//	%p  AM or PM
+//	%M  the minute in 2 digits, such as 04
+//	%S  the second in 2 digits, such as 05
+//	%f  the microseconds in 6 digits, after a . or a ,
+//	%L  the milliseconds in 3 digits, after a . or a ,
+//	%z  the offset of the zone, such as -0700
+//	%Z  the name of the zone, such as MST
+//	%T  the same as %H:%M:%S
+//	%R  the same as %H:%M
+//	%D  the same as %m/%d/%y
+//	%F  the same as %Y-%m-%d
+//	%%  a %
+//
+// Strftime refuses any other directive, and text between the directives that
+// Go reads as a part of a time, such as 1 or Jan. Its error wraps
+// [ErrInvalidLayout].
+func Strftime(layout string) FlagOption {
+	return option{
+		name: "Strftime",
+		flag: func(g *Flag) error {
+			goLayout, err := strftimeLayout(layout)
+			if err != nil {
+				return err
+			}
+			switch g.Type {
+			case TimestampT, DateTimeT, DateT, TimeT:
+			case SliceT, ArrayT, MapT, HookT:
+				return fmt.Errorf("Strftime(%q) (%s): %w", layout, g.Type, ErrAppliedToInvalidType)
+			default:
+				g.Type = TimestampT
+			}
+			g.Layout = goLayout
+			return nil
+		},
+	}
+}
+
 // Suggested is a [Command] option to add suggested names for the command.
 func Suggested(suggested ...string) CommandOption {
 	return option{
@@ -778,6 +855,89 @@ func Abbrev() CommandOption {
 		name: "Abbrev",
 		cmd: func(cmd *Command) error {
 			cmd.Abbrev = true
+			return nil
+		},
+	}
+}
+
+// NegateBools is a root [Command] option to give each bool flag of the
+// command tree a negated form, such as `--no-debug` for `--debug`. The
+// negated form sets the flag to false, and takes no value. It counts as a
+// value from the command line, as the flag does. Without a prefix, the
+// prefix is [DefaultNegatePrefix]. Each prefix adds a form, so
+// `NegateBools("no", "without")` gives `--no-debug` and `--without-debug`.
+// A prefix is a word of letters, digits and hyphens, with no hyphen at
+// either end.
+//
+// Only a bool flag that the command line sets to true without a value gets
+// a negated form. A count flag and a hook flag, such as `--help`, do not.
+// The negated form comes from the long name of the flag. An alias and a
+// short name get none. A flag whose name starts with a prefix and a hyphen,
+// such as `--no-psqlrc`, gets none, so that no flag reads `--no-no-psqlrc`.
+// Help writes the flag as `--[no-]debug`, with the first prefix, and
+// completion offers each form.
+//
+// The negated form of a hidden flag is hidden, the negated form of a local
+// flag is local (see [Local]), and a sub command takes the negated form of
+// each flag that it inherits. A negated form with the name of another flag
+// of a command, or of its long alias, is an error when the command is
+// built. Give one of the flags [Negatable] false to keep it out. The
+// environment and the config files set the flag itself, and are not
+// changed.
+//
+// NegateBools is not one of the [Defaults], because it changes how the
+// command line parses.
+func NegateBools(prefixes ...string) CommandOption {
+	return option{
+		name: "NegateBools",
+		cmd: func(cmd *Command) error {
+			if cmd.Parent != nil {
+				return ErrCanOnlyBeUsedWithRootCommand
+			}
+			v := prefixes
+			if len(v) == 0 {
+				v = []string{DefaultNegatePrefix}
+			}
+			for i, p := range v {
+				switch {
+				case !validPrefix(p):
+					return fmt.Errorf("%w: prefix %q", ErrInvalidValue, p)
+				case slices.Contains(v[:i], p):
+					return fmt.Errorf("%w: prefix %q is given twice", ErrInvalidValue, p)
+				}
+			}
+			cmd.NegateBools = v
+			return nil
+		},
+	}
+}
+
+// validPrefix returns true when p is a prefix that [NegateBools] takes: a
+// word of letters, digits and hyphens, with no hyphen at either end.
+func validPrefix(p string) bool {
+	if p == "" || p[0] == '-' || p[len(p)-1] == '-' {
+		return false
+	}
+	for _, r := range p {
+		if r != '-' && !unicode.IsLetter(r) && !unicode.IsDigit(r) {
+			return false
+		}
+	}
+	return true
+}
+
+// Negatable is a [Flag] option to choose whether a bool flag has a negated
+// form, such as `--no-debug`. Negatable(false) keeps the flag out of
+// [NegateBools]. Negatable(true) gives the flag a negated form without
+// [NegateBools], with the prefix of [DefaultNegatePrefix]. With
+// [NegateBools], the flag takes the prefixes of the root command. A flag
+// that is not a bool flag refuses Negatable(true) with
+// [ErrAppliedToInvalidType].
+func Negatable(negatable bool) FlagOption {
+	return option{
+		name: "Negatable",
+		flag: func(g *Flag) error {
+			g.Negatable, g.NoNegate = negatable, !negatable
 			return nil
 		},
 	}
@@ -956,11 +1116,18 @@ func OptionalValue(spec string) FlagOption {
 // HelpValue is a [Flag] option to add a value of the flag that help writes on
 // a line of its own, with its usage, such as psql's `--help=commands`. Help
 // writes the values after the flag, in the order of the options.
-func HelpValue(value, usage string) FlagOption {
+//
+// When the command line gives the flag this value, each func in funcs runs in
+// order, in place of the flag, and the run stops as help does. The first
+// error of a func stops the run with that error. So `--help=commands` can
+// write a topic of its own to [Context.Stdout], and `--help` still writes the
+// help of the command. Without funcs, the flag takes the value as it takes
+// any other value.
+func HelpValue(value, usage string, funcs ...func(*Context) error) FlagOption {
 	return option{
 		name: "HelpValue",
 		flag: func(g *Flag) error {
-			g.HelpValues = append(g.HelpValues, HelpLine{Name: value, Usage: usage})
+			g.HelpValues = append(g.HelpValues, HelpLine{Name: value, Usage: usage, Funcs: funcs})
 			return nil
 		},
 	}
@@ -1604,6 +1771,7 @@ type option struct {
 	ctx  func(*Context) error
 	cmd  func(*Command) error
 	post func(*Command) error
+	last func(*Command) error
 	flag func(*Flag) error
 	help func(*CommandHelp) error
 	typ  func(v interface{ SetType(Type) }) error
@@ -1636,7 +1804,7 @@ func (opt option) apply(val any) error {
 			err = opt.flag(v)
 		}
 	case *Context:
-		if opt.cmd != nil || opt.post != nil {
+		if opt.cmd != nil || opt.post != nil || opt.last != nil {
 			err = nil
 		}
 		if opt.ctx != nil {
@@ -1671,13 +1839,25 @@ func Apply(v any, opts ...Option) error {
 	return nil
 }
 
-// ApplyPost applies post options to the command.
+// ApplyPost applies post options to the command, then the funcs of each
+// [Extend] option.
 func ApplyPost(cmd *Command, opts ...Option) error {
+	// each Option call can build its funcs again, so call it once
+	var last []option
 	for _, o := range opts {
-		if opt := o.Option(); opt.post != nil {
+		opt := o.Option()
+		if opt.post != nil {
 			if err := opt.post(cmd); err != nil {
 				return err
 			}
+		}
+		if opt.last != nil {
+			last = append(last, opt)
+		}
+	}
+	for _, opt := range last {
+		if err := opt.last(cmd); err != nil {
+			return fmt.Errorf("%s: %w", opt.name, err)
 		}
 	}
 	return nil

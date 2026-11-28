@@ -15,6 +15,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/urfave/cli/v3"
+
 	"github.com/xo/ox"
 	"github.com/xo/ox/otx"
 )
@@ -282,7 +283,7 @@ func runUrfave(args []string) (result, error) {
 					Verbose: c.Bool("verbose"),
 					Config:  c.String("config"),
 					Host:    c.String("host"),
-					Port:    int(c.Int("port")),
+					Port:    c.Int("port"),
 					Timeout: c.Duration("timeout"),
 					Tags:    c.StringSlice("tags"),
 					Debug:   c.Bool("debug"),

@@ -260,6 +260,7 @@ option after the description is one of these:
 | `hidden` | hides the flag in the help |
 | `deprecated` | hides the flag in the help |
 | `local` | keeps the flag to its command, so that a sub command refuses it |
+| `negatable` or `negatable:false` | gives a bool flag a negated form such as `--no-debug`, or keeps it out of `NegateBools` |
 | `hook:help` or `hook:version` | makes the flag the help or the version flag |
 | `key:KEY` or `key:TYPE\|KEY` | sets the config key, for every format or for one format |
 | `config` | makes the flag name the config file |
@@ -1141,6 +1142,77 @@ func ExampleAbbrev() {
 }
 ```
 
+### Give a bool flag a negated form
+
+`ox.NegateBools()` gives each bool flag of the command tree a negated form,
+such as `--no-color` for `--color`. The negated form sets the flag to false,
+and takes no value. Each prefix adds a form, and without a prefix the prefix
+is `no`. Help writes the flag as `--[no-]color`, with the first prefix. A
+flag whose name starts with a prefix and a hyphen, such as `--no-rc`, gets
+no second form. `ox.Negatable(false)` keeps one flag out, and
+`ox.Negatable(true)` gives one flag the form without `ox.NegateBools()`. A
+count flag, a hook flag, an alias and a short name get no negated form. If a
+negated form has the name of another flag, the build of the command fails.
+`ox.NegateBools()` is not one of the `ox.Defaults()`.
+
+```go
+func ExampleNegateBools() {
+	run := func(args ...string) {
+		ox.Run(
+			ox.Usage("app", "an app"),
+			ox.Help(),
+			ox.NegateBools("no", "skip"),
+			ox.Flags().
+				Bool("color", "use color", ox.Default(true)).
+				Bool("cache", "use the cache", ox.Default(true)).
+				Bool("no-rc", "do not read the startup file").
+				Bool("force", "overwrite each file", ox.Negatable(false)),
+			ox.Exec(func(ctx context.Context) {
+				fmt.Println("color:", otx.Bool(ctx, "color"))
+				fmt.Println("cache:", otx.Bool(ctx, "cache"))
+			}),
+			ox.Args(args...),
+		)
+	}
+	run("--no-color", "--skip-cache")
+	run("--help")
+	// Output:
+	// color: false
+	// cache: false
+	// app an app
+	//
+	// Usage:
+	//   app [flags] [args]
+	//
+	// Flags:
+	//       --[no-]color  use color
+	//       --[no-]cache  use the cache
+	//       --no-rc       do not read the startup file
+	//       --force       overwrite each file
+	//   -h, --help        show help, then exit
+}
+```
+
+### Write a man page or Markdown docs
+
+Import `github.com/xo/ox/metadoc`, and add the root option
+`metadoc.Command(metadoc.ManPage(), metadoc.Markdown())`. It adds the hidden
+command `__docs`, which help and completion do not show. D48 decides it.
+Then the program writes its docs:
+
+```sh
+app __docs man > app.1                # the whole tree as one man page
+app __docs markdown > app.md          # the whole tree as one Markdown document
+app __docs man --dir man/man1         # app.1, app-sub.1, and so on
+app __docs markdown --dir docs/cli    # app.md, app-sub.md, and so on
+```
+
+The date of a man page is the option `metadoc.Date`, else
+`$SOURCE_DATE_EPOCH`, else today. A program that does not want the writer in
+its binary calls `metadoc.Write`, `metadoc.WriteCommand` or
+`metadoc.WriteDir` from a test or from `go generate`.
+[`metadoc/example_test.go`](../metadoc/example_test.go) holds the examples.
+
 ## Read a value of each type
 
 ### A slice
@@ -1362,6 +1434,39 @@ func ExampleFlagSet_URL() {
 }
 ```
 
+### A port range
+
+`ox.PortRange` is a range of ports, from `Lo` to `Hi`. A flag reads one
+port, such as `80`, or a range, such as `100-200` or `100:200`. Each port is
+1 to 65535, and the first port is not greater than the last. Help and
+`String` write the range with a `-`, or one port when `Lo` and `Hi` are the
+same. `Contains` tells whether the range holds a port, and `Ports` walks each
+port of the range. A slice of port ranges splits its value at each comma. A
+field of type `ox.PortRange` gets the type with `ox.From` and `ox.App`.
+
+```go
+func ExampleFlagSet_PortRange() {
+	ox.Run(
+		ox.Usage("app", "an app"),
+		ox.Flags().
+			PortRange("ports", "the ports to listen on", ox.Default("8000-8099")).
+			Slice("allow", "the ports to allow", ox.PortRangeT),
+		ox.Exec(func(ctx context.Context) {
+			ports := otx.Get[ox.PortRange](ctx, "ports")
+			fmt.Println("ports:", ports, ports.Lo, ports.Hi, ports.Contains(8080))
+			for _, r := range otx.Slice[ox.PortRange](ctx, "allow") {
+				fmt.Println("allow:", r, slices.Collect(r.Ports()))
+			}
+		}),
+		ox.Args("--ports", "8080:8081", "--allow", "22,443-445"),
+	)
+	// Output:
+	// ports: 8080-8081 8080 8081 true
+	// allow: 22 [22]
+	// allow: 443-445 [443 444 445]
+}
+```
+
 ### A type that nothing registers
 
 A type that reads its own text needs no registration. Its value, or a
@@ -1369,7 +1474,9 @@ pointer to it, has `UnmarshalText`, `UnmarshalBinary` or `Set(string)
 error`, as a `flag.Value` has. `ox.TypeFor[T]()` gives a flag the type `T`,
 and `ox.From` and `ox.App` do the same for a field. Help writes the name of
 the type in lower case, such as `level` for `slog.Level` and `color` for
-`colors.Color`.
+`colors.Color`. `ox` has no type for a semantic version, such as `1.2.3`.
+A program uses the version type of its semver package, because that type
+reads its own text.
 
 ```go
 func ExampleTypeFor() {
@@ -1424,6 +1531,37 @@ func ExampleFlagSet_Date() {
 	// since: 2026-11-01
 	// at: 2026-11-26 09:30:00
 	// until: 2026-12-01T00:00:00Z
+}
+```
+
+### A time in a strftime layout
+
+`ox.Strftime` reads and writes a time in a strftime layout, such as
+`%d/%m/%Y`. It converts the layout to a Go layout. A flag of type `Date`,
+`DateTime`, `Time` or `Timestamp` keeps its type, and any other flag gets the
+type `timestamp`. `Strftime` takes only the directives that Go writes and
+reads in the same way, such as `%Y`, `%m`, `%d`, `%H`, `%M`, `%S`, `%b`,
+`%p`, `%z`, `%T` and `%F`. The doc comment of `Strftime` lists each one.
+`Strftime` refuses any other directive. It also refuses text that Go reads
+as a part of a time, such as `1` or `Jan`, because a Go layout cannot escape
+text. A slice, an array or a map flag refuses it.
+
+```go
+func ExampleStrftime() {
+	ox.Run(
+		ox.Usage("app", "an app"),
+		ox.Flags().
+			Var("since", "the first day", ox.Strftime("%d/%m/%Y"), ox.Default("01/11/2026")).
+			Var("at", "a date and time", ox.Strftime("%d %b %Y %I:%M %p")),
+		ox.Exec(func(ctx context.Context) {
+			fmt.Println("since:", otx.Get[time.Time](ctx, "since").Format(time.DateOnly))
+			fmt.Println("at:", otx.Time(ctx, "at"), "is", otx.TimeTime(ctx, "at").Format(time.DateTime))
+		}),
+		ox.Args("--at", "26 Nov 2026 09:30 PM"),
+	)
+	// Output:
+	// since: 2026-11-01
+	// at: 26 Nov 2026 09:30 PM is 2026-11-26 21:30:00
 }
 ```
 
@@ -1517,6 +1655,49 @@ func ExampleOptionalValue() {
 	//       --color=never   never use color
 	//   -q, --quiet         run quietly
 	//   -h, --help          show help, then exit
+}
+```
+
+### Write a help topic for a value of the help flag
+
+`ox.HelpValue(value, usage, funcs...)` takes funcs that run when the command
+line gives the flag that value. Here `--help=commands` writes a list of
+commands, as psql does, and `--help` writes the help of the command. After
+the funcs, the run stops as help does. If a func returns an error, the run
+stops with that error. A value without funcs, and a value that no
+`HelpValue` names, write the help of the command.
+
+```go
+func ExampleHelpValue() {
+	commands := func(ctx *ox.Context) error {
+		fmt.Fprintln(ctx.Stdout, `\q  quit`)
+		fmt.Fprintln(ctx.Stdout, `\?  show the commands`)
+		return nil
+	}
+	run := func(args ...string) {
+		ox.Run(
+			ox.Usage("app", "an app"),
+			ox.Flags().
+				Bool("help", "show this help, then exit", ox.Special("hook:help"), ox.OptionalValue("TOPIC"),
+					ox.HelpValue("commands", "list the commands, then exit", commands),
+				),
+			ox.Help(),
+			ox.Args(args...),
+		)
+	}
+	run("--help=commands")
+	run("--help")
+	// Output:
+	// \q  quit
+	// \?  show the commands
+	// app an app
+	//
+	// Usage:
+	//   app [flags] [args]
+	//
+	// Flags:
+	//   --help[=TOPIC]   show this help, then exit
+	//   --help=commands  list the commands, then exit
 }
 ```
 

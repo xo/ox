@@ -276,3 +276,50 @@ func wrapConv[T any](f func(any) (T, error)) func(any) (any, error) {
 		return f(v)
 	}
 }
+
+// TestSizeOverflow holds that a size or a duration out of the range of an
+// int64 is an error, and that the lowest size formats with one sign.
+// FuzzTypeValue found that 1e20 gave the lowest int64, which help wrote as
+// --9223372036854775808 B.
+func TestSizeOverflow(t *testing.T) {
+	for _, test := range []struct {
+		typ Type
+		s   string
+	}{
+		{SizeT, "1e20"},
+		{SizeT, "-1e20"},
+		{SizeT, "NaN"},
+		{SizeT, "+Inf"},
+		{DurationT, "1e20"},
+		{DurationT, "NaN"},
+		{DurationT, "9999999999999"},
+		{DurationT, "-9999999999999"},
+		{DurationT, "18446744073709551615"},
+	} {
+		t.Run(test.typ.String()+" "+test.s, func(t *testing.T) {
+			v, err := test.typ.New()
+			if err != nil {
+				t.Fatalf("expected no error, got: %v", err)
+			}
+			if err := v.Set(test.s); !errors.Is(err, ErrInvalidValue) {
+				t.Errorf("expected %v, got: %v", ErrInvalidValue, err)
+			}
+		})
+	}
+	for _, test := range []struct {
+		size Size
+		verb rune
+		exp  string
+	}{
+		{math.MinInt64, 'f', "-8 EiB"},
+		{math.MinInt64, 'F', "-9.22 EB"},
+		{math.MinInt64, 'q', "-8 Ei"},
+		{math.MaxInt64, 'f', "8 EiB"},
+	} {
+		t.Run(fmt.Sprintf("format %d %c", test.size, test.verb), func(t *testing.T) {
+			if s := FormatSize(int64(test.size), test.verb, -2, true); s != test.exp {
+				t.Errorf("expected %q, got: %q", test.exp, s)
+			}
+		})
+	}
+}

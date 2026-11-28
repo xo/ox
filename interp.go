@@ -111,7 +111,7 @@ var (
 				case 0 <= i:
 					end = i
 				default:
-					end = end + i
+					end += i
 				}
 				single, v = false, v[:i]
 			}
@@ -497,9 +497,7 @@ func readOp(ops string) (string, string, string) {
 func opIndex(ops string, op rune) int {
 	if i := strings.IndexFunc(ops, isOp); i != -1 {
 		switch c := rune(ops[i]); {
-		case
-			op == '/' && op == c,
-			op == ':' && op == c:
+		case c == op && (op == '/' || op == ':'):
 			if j := strings.IndexFunc(ops[i+1:], isOp); j != -1 {
 				return i + j + 1
 			}

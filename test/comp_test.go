@@ -128,7 +128,7 @@ print -r -- "$out" | tr -d '\r' | grep -a '^RESULT: ' | tail -1`, "zsh", line}
 					if err != nil {
 						t.Fatalf("expected no error, got: %v\n%s", err, buf)
 					}
-					if !completes(shell.name, string(buf), test.line, test.exp) {
+					if !completes(shell.name, string(buf), test.exp) {
 						t.Errorf("expected %q for %q, got:\n%s", test.exp, test.line, buf)
 					}
 				})
@@ -137,8 +137,9 @@ print -r -- "$out" | tr -d '\r' | grep -a '^RESULT: ' | tail -1`, "zsh", line}
 	}
 }
 
-// completes returns true when the output of a shell completes line with exp.
-func completes(shell, out, line, exp string) bool {
+// completes returns true when the output of a shell completes the line with
+// exp.
+func completes(shell, out, exp string) bool {
 	if shell == "zsh" {
 		fields := strings.Fields(strings.TrimPrefix(strings.TrimSpace(out), "RESULT: "))
 		return len(fields) != 0 && fields[len(fields)-1] == exp

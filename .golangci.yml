@@ -1,38 +1,196 @@
+# Lint configuration for each module of ox. golangci-lint finds this file from
+# the folder of each module, so the hcl, toml, yaml and test modules use it
+# too. CI lints each module with the version that it pins.
+#
+# The rule for adding to this file (D12): a linter that makes idiomatic Go
+# worse is disabled here, with the reason beside it. Only a real defect gets a
+# code change. A change that only quiets a linter is itself a defect, because
+# no reader can explain it.
+#
+# The posture is `default: all` with a list of the linters that are off, as in
+# github.com/xo/dbmeta and github.com/xo/dburl. A new linter in a new release
+# gets a look, and the pinned version in CI keeps an upgrade from failing a
+# build that changed nothing.
 version: "2"
+
+run:
+  modules-download-mode: readonly
+
 linters:
   default: all
   disable:
-    - cyclop
-    - depguard
-    - dupl
-    - err113
-    - errcheck
-    - exhaustive
-    - exhaustruct
-    - exhaustruct_v5
-    - forcetypeassert
-    - funlen
-    - gochecknoglobals
+    # Deliberate patterns. A type, a loader and a format register themselves
+    # from init into a package level registry, and each Default variable is a
+    # setting that a program changes (D8).
     - gochecknoinits
+    - gochecknoglobals
+    # The tests are tables of command lines, help text and values, and the
+    # same flag name or value in two cases is the point of the table.
+    - goconst
+    # dupword reads a string as prose. Most strings here are help text and
+    # command lines, where `--help --help` is a case and not a typo.
+    - dupword
+    # Complexity metrics. A conversion that switches over every type, or a
+    # parse of every struct tag option, is one long list and not complex
+    # logic, and these count it as complex.
+    - cyclop
+    - funlen
     - gocognit
-    - inamedparam
-    - ineffassign
-    - ireturn
-    - lll
-    - makezero
-    - mnd
-    - nilnil
-    - nlreturn
-    - noinlineerr
-    - testpackage
-    - varnamelen
+    - gocyclo
+    - maintidx
+    - nestif
+    # A sentinel error is a constant of the type Error, and an error with
+    # more to say wraps it with %w. err113 cannot check that rule.
+    - err113
+    # wrapcheck wants each error from another package wrapped, which hides
+    # the error of a hook or a validator that the program checks with
+    # errors.Is.
     - wrapcheck
+    # The result of a write to an io.Writer is discarded with `_, _ =`, and a
+    # deferred Close returns an error that nothing can act on.
+    - errcheck
+    # Style opinions that argue with gofmt or with plain code.
+    - lll
     - wsl
     - wsl_v5
+    - nlreturn
+    - varnamelen
+    - exhaustruct
+    - exhaustruct_v5
+    - mnd
+    - nilnil
+    - ireturn
+    - inamedparam
+    - forcetypeassert
+    - noinlineerr
+    - tagalign
+    # prealloc rewrites readable loops for a gain that nothing measured.
+    # BenchmarkCommandLine in test/ measures what matters (D44).
+    - prealloc
+    # A switch over a Type, an OnErr or a CompDirective handles the values
+    # that it needs, and the rest fall to the code after the switch.
+    - exhaustive
+    # makezero and ineffassign report the appends and the assignments of a
+    # builder that sets a value in each branch on purpose.
+    - makezero
+    - ineffassign
+    # Many tests change a Default variable, such as DefaultWrapWidth, so
+    # they must not run in parallel with the tests that read it.
+    - paralleltest
+    - tparallel
+    # The tests of the root are in package ox, because they read unexported
+    # names. The examples are in package ox_test.
+    - testpackage
+    # The root imports only the standard library, and a test holds that rule
+    # (TestTheRootModuleRequiresNothing). Holding it twice means two places
+    # to change it.
+    - depguard
+    - gomodguard
+    - gomodguard_v2
+    # The test module replaces each module of ox with its folder, so that it
+    # tests the code in the same commit (D33).
+    - gomoddirectives
+    # A copy of a function from the Go source tree waits for TinyGo with a
+    # TODO that says when to remove it (D2, rule 2 of AGENTS.md).
+    - godox
+    # FormattedTime and Size read with a pointer receiver and answer with a
+    # value receiver, as the encoding interfaces need.
+    - recvcheck
+    # The funcs that read the methods Exec, Before and After, and asInt and
+    # asUint, look alike because they do the same work for other names and
+    # types. Merging them would hide which name a program defines.
+    - dupl
+  settings:
+    errorlint:
+      errorf: true
+      asserts: true
+      comparison: true
+    gocritic:
+      disabled-checks:
+        # The doc comment of the field Deprecated starts with its name, as Go
+        # asks, and this check reads it as a deprecation notice.
+        - deprecatedComment
+    gosec:
+      excludes:
+        # A program reads the config files and the templates that it names.
+        - G304
+        # The docs that metadoc writes and the code that oxdoc writes are
+        # read by people and by the go command, so they are 0o644 in folders
+        # of 0o755, as a man page or a source file is.
+        - G301
+        - G306
+        # The hash filters of interpolation, such as ${NAME|md5}, give a
+        # name or a key, and are not for security.
+        - G401
+        - G501
+        - G505
+    revive:
+      rules:
+        - name: context-as-argument
+        - name: error-naming
+        - name: error-return
+        - name: error-strings
+        - name: exported
+        - name: indent-error-flow
+        - name: package-comments
+        - name: receiver-naming
+        - name: var-naming
   exclusions:
     rules:
-      # an example file prints its output, also from a method of a type
-      # that its Example func runs
+      # A test builds its own programs and files, runs the go command and the
+      # shells, and is not the attack surface that gosec looks for.
+      - path: _test\.go
+        linters:
+          - gosec
+          - noctx
+      # An example prints its output, also from a method of a type that its
+      # Example func runs.
       - path: example_test\.go$
         linters:
           - forbidigo
+      # Each conversion in size.go checks the range or the sign first.
+      - path: size\.go
+        text: G115
+        linters:
+          - gosec
+      # The parse takes no context, so a hook that takes a context.Context
+      # gets DefaultContext, which a program sets (D8).
+      - text: newHook
+        linters:
+          - contextcheck
+      # The tools are programs that a maintainer runs. They print their
+      # progress, run the go command, and read the JSON of `go list`, whose
+      # fields are Dir and Version.
+      - path: _tools/
+        linters:
+          - forbidigo
+          - gosec
+          - noctx
+          - tagliatelle
+      # The examples are programs that print what they read. An exec func of
+      # an example has the signature that it shows, even when it returns no
+      # error.
+      - path: _examples/
+        linters:
+          - forbidigo
+          - gosec
+          - unparam
+      # The programs in _examples/gen copy the help of real tools, mistakes
+      # and all, so that their help matches testdata/gen.
+      - path: _examples/gen/
+        linters:
+          - misspell
+      # The zero value of a loop variable starts the loop, and the loop sets
+      # it before its first read.
+      - path: strcase/
+        linters:
+          - wastedassign
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/xo/ox

@@ -156,3 +156,42 @@ func (v *testHooksSubCommand) After(context.Context, []string) error {
 func (v *testHooksSubCommand) Exec() {
 	*v.calls = append(*v.calls, "exec sub")
 }
+
+// TestExtend holds that the func of Extend runs after each other option, in
+// any order, and that a hidden command with the special value of the docs
+// changes neither the help nor the run of the root.
+func TestExtend(t *testing.T) {
+	addDocs := Extend("docs", func(cmd *Command) error {
+		if cmd.FlagSpecial("hook:help") == nil {
+			return errors.New("expected the help flag of Defaults")
+		}
+		return cmd.Sub(Usage("__docs", "the docs"), Hidden(true), Special(docsSpecial))
+	})
+	help := "app an app\n\nUsage:\n  app [flags] [args]\n\nFlags:\n  -v, --version   show version, then exit\n  -h, --help      show help, then exit\n"
+	tests := []struct {
+		name string
+		opts []Option
+		args []string
+	}{
+		{"before defaults", []Option{addDocs, Defaults(), Exec(func() {})}, ss(`--help`)},
+		{"after defaults", []Option{Defaults(), addDocs, Exec(func() {})}, ss(`--help`)},
+		{"no exec", []Option{Defaults(), addDocs}, nil},
+		{"no exec with an arg", []Option{Defaults(), addDocs}, ss(`x`)},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			var stdout bytes.Buffer
+			opts := slices.Concat(test.opts, []Option{Usage("app", "an app"), Args(test.args...), Pipe(nil, &stdout, &stdout)})
+			switch err := RunError(context.Background(), opts...); {
+			case err != nil:
+				t.Fatalf("expected no error, got: %v", err)
+			case stdout.String() != help:
+				t.Errorf("expected:\n%q\ngot:\n%q", help, stdout.String())
+			}
+		})
+	}
+	_, err := NewCommand(Usage("app", "an app"), Sub(Usage("sub", "a sub command"), addDocs))
+	if !errors.Is(err, ErrCanOnlyBeUsedWithRootCommand) {
+		t.Errorf("expected ErrCanOnlyBeUsedWithRootCommand, got: %v", err)
+	}
+}

@@ -1,3 +1,5 @@
+// Command test reads its flags from a struct with nested structs, with
+// ox.From, and writes what it read.
 package main
 
 import (

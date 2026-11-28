@@ -170,6 +170,10 @@ var (
 	// command name always compares with case. Set it to false to compare
 	// with case.
 	DefaultFoldCase = true
+	// DefaultNegatePrefix is the prefix of the negated form of a bool flag,
+	// such as `--no-debug` for `--debug`, when [NegateBools] gets no prefix
+	// and for a flag with [Negatable].
+	DefaultNegatePrefix = "no"
 	// DefaultFlagWidth is the default minimum flag width. Does not include the
 	// padding.
 	DefaultFlagWidth = 8
@@ -489,7 +493,10 @@ func (ctx *Context) Comps() ([]Completion, CompDirective, error) {
 		name, value, _ := strings.Cut(toComplete, "=")
 		var g *Flag
 		if long, ok := strings.CutPrefix(name, "--"); ok {
-			g, _ = c.Exec.longFlag(long)
+			// the negated form of a flag takes no value
+			if v, neg, _ := c.Exec.longFlag(long); !neg {
+				g = v
+			}
 		} else {
 			r := []rune(name)
 			g = c.Exec.Flag(string(r[len(r)-1:]), true, true)
@@ -550,7 +557,7 @@ func (ctx *Context) Run(parent context.Context) error {
 	switch {
 	case ctx.Exec.Exec != nil:
 		return ctx.exec(WithContext(parent, ctx))
-	case DefaultSuggestionsEnabled && len(ctx.Exec.subs()) != 0 && len(ctx.Args) != 0:
+	case DefaultSuggestionsEnabled && ctx.Exec.hasSubs() && len(ctx.Args) != 0:
 		if err := ctx.Exec.Suggest(ctx.Args...); err != nil {
 			return err
 		}
@@ -676,12 +683,13 @@ func (ctx *Context) exec(c context.Context) error {
 	return joinErrors(errs...)
 }
 
-// isBuiltin returns true when cmd is the help, the version or the completion
-// command, or a command below one.
+// isBuiltin returns true when cmd is the help, the version, the completion
+// or the hidden `__docs` command, or a command below one.
 func isBuiltin(cmd *Command) bool {
 	for c := cmd; c != nil; c = c.Parent {
 		switch {
-		case c.Special == "help", c.Special == "version", c.Special == "comp", strings.HasPrefix(c.Special, "comp:"):
+		case c.Special == "help", c.Special == "version", c.Special == "comp", strings.HasPrefix(c.Special, "comp:"),
+			c.Special == docsSpecial, strings.HasPrefix(c.Special, docsSpecial+":"):
 			return true
 		}
 	}
@@ -763,10 +771,10 @@ func (ctx *Context) compFlagValue(g *Flag, toComplete string) ([]Completion, Com
 	switch {
 	case g.CompFunc != nil:
 		return compFunc(ctx, g.CompFunc, toComplete)
-	case len(g.Allowed) == 0 && isPath(g.Type):
+	case len(g.Allowed) == 0 && len(g.HelpValues) == 0 && isPath(g.Type):
 		comps, dir := g.compPath()
 		return comps, dir, nil
-	case len(g.Allowed) == 0:
+	case len(g.Allowed) == 0 && len(g.HelpValues) == 0:
 		return nil, CompDefault, nil
 	}
 	// a slice completes the value after the last separator
@@ -776,16 +784,24 @@ func (ctx *Context) compFlagValue(g *Flag, toComplete string) ([]Completion, Com
 			head, toComplete = toComplete[:i+len(g.Split)], toComplete[i+len(g.Split):]
 		}
 	}
-	values := make([]string, len(g.Allowed))
-	for i, v := range g.Allowed {
-		values[i] = fmt.Sprint(v)
+	// the allowed values, then the values of HelpValue, each with its usage
+	values := make([]string, 0, len(g.Allowed)+len(g.HelpValues))
+	for _, v := range g.Allowed {
+		values = append(values, fmt.Sprint(v))
+	}
+	usages := make(map[string]string, len(g.HelpValues))
+	for _, v := range g.HelpValues {
+		if !slices.Contains(values, v.Name) {
+			values = append(values, v.Name)
+		}
+		usages[v.Name] = v.Usage
 	}
 	comps := compValues(ctx.Exec, toComplete, values)
 	if len(comps) == 0 {
 		return nil, CompNoFileComp, nil
 	}
 	for i := range comps {
-		comps[i].Name = head + comps[i].Name
+		comps[i].Name, comps[i].Usage = head+comps[i].Name, usages[comps[i].Name]
 	}
 	return comps, CompNoFileComp | CompKeepOrder, nil
 }
@@ -851,7 +867,7 @@ func compPrevFlag(cmd *Command, s string) *Flag {
 	case len(s) < 2, s[0] != '-', s == "--", strings.Contains(s, "="):
 		return nil
 	case strings.HasPrefix(s, "--"):
-		if g, _ := cmd.longFlag(s[2:]); g != nil && !g.NoArg {
+		if g, neg, _ := cmd.longFlag(s[2:]); g != nil && !neg && !g.NoArg {
 			return g
 		}
 		return nil
@@ -959,6 +975,11 @@ const (
 	ErrInvalidSize Error = "invalid size"
 	// ErrInvalidRate is the invalid rate error.
 	ErrInvalidRate Error = "invalid rate"
+	// ErrInvalidPortRange is the invalid port range error of
+	// [ParsePortRange].
+	ErrInvalidPortRange Error = "invalid port range"
+	// ErrInvalidLayout is the invalid layout error of [Strftime].
+	ErrInvalidLayout Error = "invalid layout"
 	// ErrUnknownSize is the unknown size error.
 	ErrUnknownSize Error = "unknown size"
 	// ErrUnknownTagOption is the unknown tag option error.
@@ -1051,18 +1072,22 @@ func Wrap(s string, width, prefixWidth int) string {
 	if len(words) == 0 {
 		return ""
 	}
-	prefix, wrapped := strings.Repeat(" ", prefixWidth), words[0]
-	left := width - prefixWidth - DefaultWidth(wrapped)
+	prefix := strings.Repeat(" ", prefixWidth)
+	var sb strings.Builder
+	_, _ = sb.WriteString(words[0])
+	left := width - prefixWidth - DefaultWidth(words[0])
 	for _, word := range words[1:] {
 		if left < DefaultWidth(word)+1 {
-			wrapped += "\n" + prefix + word
+			_, _ = sb.WriteString("\n")
+			_, _ = sb.WriteString(prefix)
 			left = width - prefixWidth - DefaultWidth(word)
 		} else {
-			wrapped += " " + word
+			_, _ = sb.WriteString(" ")
 			left -= 1 + DefaultWidth(word)
 		}
+		_, _ = sb.WriteString(word)
 	}
-	return wrapped
+	return sb.String()
 }
 
 // Ldist is a Levenshtein distance implementation.

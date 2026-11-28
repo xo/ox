@@ -3,6 +3,7 @@ package ox
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -320,6 +321,85 @@ func TestOptionalValue(t *testing.T) {
 			)
 			if s := buf.String(); s != test.exp {
 				t.Errorf("expected %q, got: %q", test.exp, s)
+			}
+		})
+	}
+}
+
+// TestHelpValueFuncs holds that a value of [HelpValue] with funcs runs them in
+// place of the flag and stops the run, and that every other value keeps the
+// behavior of the flag.
+func TestHelpValueFuncs(t *testing.T) {
+	const help = "app an app\n\nUsage:\n  app [flags] [args]\n\nFlags:\n" +
+		"  -?, --help[=TOPIC]   show help, then exit\n" +
+		"      --help=commands  list the commands\n" +
+		"      --help=env       list the environment\n" +
+		"      --help=bad       fail\n" +
+		"      --color WHEN     when to use color\n" +
+		"      --color=list     list the values\n"
+	errBad := Error("bad topic")
+	tests := []struct {
+		name string
+		args []string
+		exp  string
+		err  error
+	}{
+		{"no value", []string{"--help"}, help, nil},
+		{"no value short", []string{"-?"}, help, nil},
+		{"a value with a func", []string{"--help=commands"}, "the commands\n", nil},
+		{"a value with a func short", []string{"-?=commands"}, "the commands\n", nil},
+		{"a value with two funcs", []string{"--help=env"}, "HOME\nPATH\n", nil},
+		{"a value without a func", []string{"--help=variables"}, help, nil},
+		{"an unknown value", []string{"--help=nope"}, help, nil},
+		{"an error from a func", []string{"--help=bad"}, "", errBad},
+		{"a value with a func on another flag", []string{"--color=list", "a"}, "always never\n", nil},
+		{"another value on another flag", []string{"--color=always", "a"}, "color=always format=list args=[a]\n", nil},
+		{"a default does not run a func", []string{"--color=never", "a"}, "color=never format=list args=[a]\n", nil},
+		{"completion offers the values (D49)", []string{"__complete", "--help=c"}, "commands\tlist the commands\n:36\n", nil},
+		{"completion offers each value (D49)", []string{"__complete", "--help="}, "commands\tlist the commands\nenv\tlist the environment\nbad\tfail\n:36\n", nil},
+		{"completion after a value with a func", []string{"__complete", "--help=commands", "--co"}, "--color\twhen to use color\n:36\n", nil},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			write := func(s string) func(*Context) error {
+				return func(ctx *Context) error {
+					_, _ = fmt.Fprintln(ctx.Stdout, s)
+					return nil
+				}
+			}
+			err := RunError(
+				context.Background(),
+				Usage("app", "an app"),
+				Flags().
+					Hook("help", "show help, then exit", func() {}, Short("?"), Special("hook:help"), OptionalValue("TOPIC"),
+						HelpValue("commands", "list the commands", write("the commands")),
+						HelpValue("env", "list the environment", write("HOME"), write("PATH")),
+						HelpValue("bad", "fail", func(*Context) error { return errBad }, write("not written")),
+					).
+					String("color", "when to use color", Spec("WHEN"),
+						HelpValue("list", "list the values", write("always never")),
+					).
+					String("format", "the format", Default("list"), Hidden(true),
+						HelpValue("list", "list the formats", write("json yaml")),
+					),
+				Help(),
+				Comp(),
+				Exec(func(ctx context.Context, args []string) {
+					c, _ := Ctx(ctx)
+					_, _ = fmt.Fprintf(c.Stdout, "color=%s format=%s args=%v\n", c.Vars["color"], c.Vars["format"], args)
+				}),
+				Args(test.args...),
+				Pipe(nil, &buf, &buf),
+			)
+			switch {
+			case test.err == nil && err != nil:
+				t.Fatalf("expected no error, got: %v", err)
+			case test.err != nil && !errors.Is(err, test.err):
+				t.Fatalf("expected %v, got: %v", test.err, err)
+			}
+			if s := buf.String(); s != test.exp {
+				t.Errorf("expected:\n%s\ngot:\n%s", test.exp, s)
 			}
 		})
 	}

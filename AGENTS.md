@@ -105,7 +105,9 @@ that repository, such as dbmeta D110 or tblfmt D37.
 - `parse.go` holds `Parse` and `Vars`, the parsed values. `conv.go` converts
   values between types, with `As[T]` and its relatives.
 - `type.go` and `value.go` hold the flag types and their values. `size.go`
-  holds `Size` and `Rate`. `path.go` holds `Realpath`.
+  holds `Size` and `Rate`. `port.go` holds `PortRange`. `strftime.go`
+  converts the layout of the `Strftime` option to a Go layout. `path.go`
+  holds `Realpath`.
 - `defs.go` holds help, version and completion, with `CommandHelp`, and
   embeds `comp/`.
 - `interp.go` holds `InterpolateVar`, its operators and its filters. `conf.go`
@@ -126,6 +128,13 @@ that repository, such as dbmeta D110 or tblfmt D37.
 - `ini/` reads INI config files. It imports only the standard library and
   `ox`, so it is a package of the root module, and a program turns it on
   with a blank import (D43).
+- `metadoc/` writes the docs of a command tree, as a man page or as
+  Markdown. It imports only the standard library and `ox`, so it is a
+  package of the root module. A program turns it on with an import and the
+  root option `metadoc.Command`, which adds the hidden command `__docs`
+  with `ox.Extend` (D48). `metadoc/testdata/` holds its golden files,
+  with the extensions `.1`, `.8` and `.md`. Write them again with
+  `go test ./metadoc -update`.
 - `hcl/`, `yaml/` and `toml/` are modules of their own,
   each with its own `go.mod` and its own tags, such as `yaml/v0.1.0`.
   `hcl`, `yaml` and `toml` register their config file formats. See D1 and
@@ -154,6 +163,12 @@ that repository, such as dbmeta D110 or tblfmt D37.
   from the help of real tools, and `TestGenHelpIsTheSame` builds them.
   `go test ./...` does not build `_examples/`, so CI runs `go vet` on each
   folder of it. See D13 and D31.
+- `fuzz_test.go` holds the fuzz tests of the command line and of the value
+  of each type (D49). `go test` runs their seeds and the inputs in
+  `testdata/fuzz`. Fuzz one with
+  `go test -run '^$' -fuzz '^FuzzCommandLine$' -fuzztime 60s`. When a fuzz
+  test finds a fault, fix it, keep the input that `go test` wrote in
+  `testdata/fuzz`, and add a plain test of the case.
 - `repo_test.go` holds the tests that read the repository and not the
   package. See D21.
 
@@ -289,20 +304,24 @@ func body is short and lower case.
 
 ## Linting
 
-`.golangci.yml` enables every linter and disables a list, and no CI job runs
-it. See D12. Read a finding as a question and not as a task. If a linter
-makes idiomatic Go worse, disable it in `.golangci.yml`. Only a real defect
-gets a code change.
+`.golangci.yml` enables every linter and disables a list, with the reason
+beside each one. See D12 and D49. Read a finding as a question and not as a
+task. If a linter makes idiomatic Go worse, disable it in `.golangci.yml`,
+with the reason. Only a real defect gets a code change. A change that only
+quiets a linter is itself a defect.
 
-`golangci-lint run ./...` in the root reports 156 findings today, with its
-limit of 50 for each linter, and 270 without the limit. Most of them are
-`paralleltest` and `goconst` in the tests. `.golangci.yml` disables both
-`exhaustruct` and `exhaustruct_v5`, and both `wsl` and `wsl_v5`, because the
-linter has both names. To see only the findings in your change, run:
+The CI job Lint runs `golangci-lint` v2.15.0 on the root, the tools and each
+example, then on each module from its own folder. Each module has no
+finding. Run the same thing before you stage:
 
 ```sh
-golangci-lint run --new-from-rev=HEAD ./...
+golangci-lint run ./... ./_tools/cobraimport ./_tools/oximport/... $(find _examples -name '*.go' -exec dirname {} \; | sort -u | sed 's|^|./|')
+for mod in hcl toml yaml test; do (cd $mod && golangci-lint run ./...); done
 ```
+
+v2.15.0 is the first release that reads the export data of Go 1.27. An
+older release fails with "export data version 5 is greater than maximum
+supported version 4".
 
 ## Before you stage
 
@@ -312,10 +331,12 @@ maintainer a proposed commit message. Do not tag. All of these must pass first:
 ```sh
 gofmt -l .
 for mod in . hcl toml yaml test; do (cd $mod && go vet ./... && go test -race -count=1 ./...); done
-golangci-lint run --new-from-rev=HEAD ./...
+golangci-lint run ./... ./_tools/cobraimport ./_tools/oximport/... $(find _examples -name '*.go' -exec dirname {} \; | sort -u | sed 's|^|./|')
+for mod in hcl toml yaml test; do (cd $mod && golangci-lint run ./...); done
 ```
 
-`gofmt -l .` must print nothing.
+`gofmt -l .` must print nothing, and each `golangci-lint` run must report
+no finding.
 
 ## Writing documentation
 

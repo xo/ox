@@ -84,10 +84,12 @@ func parse(ctx *Context, cmd *Command, args []string) (*Command, []string, bool,
 }
 
 // ParseFlagLong parses a long flag ('--arg' '--arg v' '--arg k=v' '--arg=' '--arg=v').
-// With [Abbrev], a unique prefix of the name of a flag gives the flag.
+// With [Abbrev], a unique prefix of the name of a flag gives the flag. The
+// negated form of a bool flag ('--no-arg') sets the flag to false, and takes
+// no value. See [NegateBools].
 func ParseFlagLong(ctx *Context, cmd *Command, s string, args []string) ([]string, error) {
 	arg, value, ok := strings.Cut(strings.TrimPrefix(s, "--"), "=")
-	g, err := cmd.longFlag(arg)
+	g, neg, err := cmd.longFlag(arg)
 	switch {
 	case err != nil && ctx.Continue(cmd, newFlagError("--"+arg, err)):
 		return args, nil
@@ -96,6 +98,10 @@ func ParseFlagLong(ctx *Context, cmd *Command, s string, args []string) ([]strin
 	}
 	warnDeprecated(ctx, g, "--"+arg)
 	switch {
+	case neg && ok: // --no-arg=v
+		return args, newFlagError("--"+arg, fmt.Errorf("%w: the negated form of --%s takes no value", ErrInvalidValue, g.Name))
+	case neg: // --no-arg
+		value = "false"
 	case ok: // --arg=v
 	case g.NoArg: // --arg
 		if value, err = noArgValue(ctx, g); err != nil {
@@ -229,6 +235,16 @@ func (vars Vars) set(ctx *Context, g *Flag, s string, set, split bool) error {
 	name := g.Name
 	if name == "" {
 		return ErrInvalidFlagName
+	}
+	// a value from the command line with the funcs of HelpValue runs them in
+	// place of the flag, then stops as help does
+	if funcs := g.helpFuncs(s); set && len(funcs) != 0 {
+		for _, f := range funcs {
+			if err := f(ctx); err != nil {
+				return err
+			}
+		}
+		return ErrExit
 	}
 	// instantiate
 	v, ok := vars[name]

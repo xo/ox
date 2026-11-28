@@ -184,7 +184,12 @@ Each of these subpackages, other than `ini`, is a Go module of its own, with
 its own tags, such as `yaml/v0.1.0`, so that a program that imports only
 `github.com/xo/ox` gets no other dependency. `ini` uses only the standard
 library, so it is in the module of `ox`, and a program reads INI files only
-when it imports it. Upgrade `ox` and its modules together:
+when it imports it. `github.com/xo/ox/metadoc` also uses only the standard
+library. A program imports it and adds the option
+`metadoc.Command(metadoc.ManPage(), metadoc.Markdown())`, and then
+`app __docs man` writes a man page. See
+[`metadoc/example_test.go`](metadoc/example_test.go). Upgrade `ox` and its
+modules together:
 
 ```sh
 $ go get github.com/xo/ox@latest github.com/xo/ox/yaml@latest
@@ -239,7 +244,7 @@ Specific design considerations of the `ox` package:
 - Minimal use of reflection (unless TinyGo supports it)
 - Case sensitive
 - Enable registration for config file loaders, types with minimal hassle
-- Man page generation, which is not built yet
+- Man page generation, which `github.com/xo/ox/metadoc` does
 - **Optional** support for common use-cases, via package dependencies
 
 [cobra]: https://github.com/spf13/cobra
@@ -261,6 +266,8 @@ Specific design considerations of the `ox` package:
   wrapper command such as `app exec cmd --its-own-flag`
 - `ox.Abbrev` takes a unique prefix of a long flag, such as `--verb` for
   `--verbose`, as GNU `getopt_long` does
+- `ox.NegateBools` gives each bool flag a negated form, such as `--no-debug`,
+  and help writes the flag as `--[no-]debug`
 - Support for `builtin` types:
   - `[]byte`, `string`, `[]rune`, `byte`, `rune`
   - `int64`, `int32`, `int16`, `int8`, `int`
@@ -279,12 +286,15 @@ Specific design considerations of the `ox` package:
     as `1536Mi` or `6G`, and `ox.ParseSize` reads it back
   - `ox.Rate` - a byte rate (`15 MiB/s`, `1 GB/h`, `1536Mi/s`, ...), with
     the same verbs
+  - `ox.PortRange` / `type:portrange` - a port or a range of ports (`80`,
+    `100-200`, `100:200`), with `Contains` and `Ports`
 - Support for aggregate types of above (slices/arrays/maps):
   - `[]int`, `[][]byte`, `[]string`, `[]float64`, `[]*big.Int`, etc.
   - `map[string]string`, `map[int]string`, `map[float64]*url.URL`, etc.
 - Additional type support:
   - `ox.DateTimeT`, `ox.DateT`, `ox.TimeT` / `type:datetime`, `type:date`, `type:time` - standard dates and times
   - `ox.FormattedTime` - any `time.Time` value using any `time.Layout` format
+  - `ox.Strftime` - a time in a strftime layout, such as `%d/%m/%Y`
   - `ox.CountT` / `type:count` - incrementing counter, such as for verbosity `-vvvv`
   - `ox.Base64T` - a base64 encoded string
   - `ox.HexT` - a hex encoded string
@@ -303,7 +313,8 @@ Specific design considerations of the `ox` package:
 - A program built from a struct and its doc comments, with `ox.AppFrom` and
   `go generate`
 - Generics used where it makes sense
-- Fast
+- Fast: about as fast as `cobra` when a program starts, with less memory, as
+  [`BenchmarkCommandLine`](test/bench_test.go) measures
 - Environment, JSON, YAML, TOML, HCL and INI config loading, with the keys
   of a sub command under the path of the command
 - Deferred default value expansion
@@ -317,6 +328,8 @@ Specific design considerations of the `ox` package:
   converted, checked, completed and written in help as flags are
 - Funcs that run before and after a command and each of its sub commands,
   with `ox.Before` and `ox.After`
+- A man page and Markdown docs of the command tree, with
+  `github.com/xo/ox/metadoc`, as one page or as a file for each command
 - TinyGo compatible
 
 ## Comparison

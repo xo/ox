@@ -44,11 +44,13 @@ A maintainer runs these in the repository root. Each must pass:
 ```sh
 gofmt -l .
 for mod in . hcl toml yaml test; do (cd $mod && go vet ./... && go test -race -count=1 ./...); done
-golangci-lint run --new-from-rev=HEAD ./...
+golangci-lint run ./... ./_tools/cobraimport ./_tools/oximport/... $(find _examples -name '*.go' -exec dirname {} \; | sort -u | sed 's|^|./|')
+for mod in hcl toml yaml test; do (cd $mod && golangci-lint run ./...); done
 ```
 
-`gofmt -l .` must print nothing. CI also runs `tinygo test -v ./...` with
-TinyGo 0.44.0.
+`gofmt -l .` must print nothing, and `golangci-lint` v2.15.0 must report no
+finding. CI runs the same checks, and `tinygo test -v ./...` with TinyGo
+0.44.0.
 
 ## Writing
 

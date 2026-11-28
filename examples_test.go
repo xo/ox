@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -734,6 +735,44 @@ func ExampleAbbrev() {
 	// true --ver: ambiguous flag: --verbose, --version
 }
 
+// ExampleNegateBools gives each bool flag a negated form, such as
+// --no-color, and help writes the flag as --[no-]color.
+func ExampleNegateBools() {
+	run := func(args ...string) {
+		ox.Run(
+			ox.Usage("app", "an app"),
+			ox.Help(),
+			ox.NegateBools("no", "skip"),
+			ox.Flags().
+				Bool("color", "use color", ox.Default(true)).
+				Bool("cache", "use the cache", ox.Default(true)).
+				Bool("no-rc", "do not read the startup file").
+				Bool("force", "overwrite each file", ox.Negatable(false)),
+			ox.Exec(func(ctx context.Context) {
+				fmt.Println("color:", otx.Bool(ctx, "color"))
+				fmt.Println("cache:", otx.Bool(ctx, "cache"))
+			}),
+			ox.Args(args...),
+		)
+	}
+	run("--no-color", "--skip-cache")
+	run("--help")
+	// Output:
+	// color: false
+	// cache: false
+	// app an app
+	//
+	// Usage:
+	//   app [flags] [args]
+	//
+	// Flags:
+	//       --[no-]color  use color
+	//       --[no-]cache  use the cache
+	//       --no-rc       do not read the startup file
+	//       --force       overwrite each file
+	//   -h, --help        show help, then exit
+}
+
 // ExampleFlagSet_Slice reads a flag more than one time, or a list split by a
 // comma.
 func ExampleFlagSet_Slice() {
@@ -895,6 +934,28 @@ func ExampleFlagSet_URL() {
 	// path: /api
 }
 
+// ExampleFlagSet_PortRange reads a port range, and a slice of port ranges.
+func ExampleFlagSet_PortRange() {
+	ox.Run(
+		ox.Usage("app", "an app"),
+		ox.Flags().
+			PortRange("ports", "the ports to listen on", ox.Default("8000-8099")).
+			Slice("allow", "the ports to allow", ox.PortRangeT),
+		ox.Exec(func(ctx context.Context) {
+			ports := otx.Get[ox.PortRange](ctx, "ports")
+			fmt.Println("ports:", ports, ports.Lo, ports.Hi, ports.Contains(8080))
+			for _, r := range otx.Slice[ox.PortRange](ctx, "allow") {
+				fmt.Println("allow:", r, slices.Collect(r.Ports()))
+			}
+		}),
+		ox.Args("--ports", "8080:8081", "--allow", "22,443-445"),
+	)
+	// Output:
+	// ports: 8080-8081 8080 8081 true
+	// allow: 22 [22]
+	// allow: 443-445 [443 444 445]
+}
+
 // ExampleTypeFor gives a flag the type slog.Level, which nothing registers.
 // The flag reads its value with the UnmarshalText of slog.Level, and help
 // writes its type in lower case.
@@ -944,6 +1005,24 @@ func ExampleFlagSet_Date() {
 	// since: 2026-11-01
 	// at: 2026-11-26 09:30:00
 	// until: 2026-12-01T00:00:00Z
+}
+
+// ExampleStrftime reads a time in a strftime layout.
+func ExampleStrftime() {
+	ox.Run(
+		ox.Usage("app", "an app"),
+		ox.Flags().
+			Var("since", "the first day", ox.Strftime("%d/%m/%Y"), ox.Default("01/11/2026")).
+			Var("at", "a date and time", ox.Strftime("%d %b %Y %I:%M %p")),
+		ox.Exec(func(ctx context.Context) {
+			fmt.Println("since:", otx.Get[time.Time](ctx, "since").Format(time.DateOnly))
+			fmt.Println("at:", otx.Time(ctx, "at"), "is", otx.TimeTime(ctx, "at").Format(time.DateTime))
+		}),
+		ox.Args("--at", "26 Nov 2026 09:30 PM"),
+	)
+	// Output:
+	// since: 2026-11-01
+	// at: 26 Nov 2026 09:30 PM is 2026-11-26 21:30:00
 }
 
 // ExampleFlagSet_Hook calls a func for each use of a flag, in the order of
@@ -1018,6 +1097,40 @@ func ExampleOptionalValue() {
 	//       --color=never   never use color
 	//   -q, --quiet         run quietly
 	//   -h, --help          show help, then exit
+}
+
+// ExampleHelpValue writes a help topic of its own for a value of the help
+// flag. Without a value, the help flag writes the help of the command.
+func ExampleHelpValue() {
+	commands := func(ctx *ox.Context) error {
+		fmt.Fprintln(ctx.Stdout, `\q  quit`)
+		fmt.Fprintln(ctx.Stdout, `\?  show the commands`)
+		return nil
+	}
+	run := func(args ...string) {
+		ox.Run(
+			ox.Usage("app", "an app"),
+			ox.Flags().
+				Bool("help", "show this help, then exit", ox.Special("hook:help"), ox.OptionalValue("TOPIC"),
+					ox.HelpValue("commands", "list the commands, then exit", commands),
+				),
+			ox.Help(),
+			ox.Args(args...),
+		)
+	}
+	run("--help=commands")
+	run("--help")
+	// Output:
+	// \q  quit
+	// \?  show the commands
+	// app an app
+	//
+	// Usage:
+	//   app [flags] [args]
+	//
+	// Flags:
+	//   --help[=TOPIC]   show this help, then exit
+	//   --help=commands  list the commands, then exit
 }
 
 // ExampleValid allows only some values for a flag.

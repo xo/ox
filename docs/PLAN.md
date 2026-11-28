@@ -17,7 +17,7 @@ reader can find a decision by its number.
 | [D9](#d9-help-version-and-completion-are-built-in-and-the-completion-scripts-come-from-cobra-decided) | Help, version and completion are built in, and the completion scripts come from cobra | Decided |
 | [D10](#d10-only-a-root-that-has-sub-commands-gets-a-help-command-and-a-version-command-decided) | Only a root that has sub commands gets a help command and a version command | Decided |
 | [D11](#d11-an-unknown-command-gets-a-suggestion-within-a-levenshtein-distance-of-2-decided) | An unknown command gets a suggestion within a Levenshtein distance of 2 | Decided |
-| [D12](#d12-golangci-lint-enables-every-linter-and-disables-a-list-decided) | golangci-lint enables every linter and disables a list | Decided |
+| [D12](#d12-golangci-lint-enables-every-linter-and-disables-a-list-decided-amended-by-d49) | golangci-lint enables every linter and disables a list | Decided. Amended by D49 |
 | [D13](#d13-the-examples-include-command-trees-generated-from-the-help-of-real-tools-decided-amended-by-d31) | The examples include command trees generated from the help of real tools | Decided. Amended by D31 |
 | [D14](#d14-a-default-value-is-expanded-with-bash-like-interpolation-decided) | A default value is expanded with bash-like interpolation | Decided |
 | [D15](#d15-an-unknown-key-expands-to-nothing-and-a-failed-lookup-writes-its-error-into-the-value-decided) | An unknown key expands to nothing, and a failed lookup writes its error into the value | Decided |
@@ -41,7 +41,7 @@ reader can find a decision by its number.
 | [D33](#d33-each-sub-package-with-a-dependency-is-a-module-of-its-own-and-test-is-a-module-decided-amended-by-d42) | Each sub package with a dependency is a module of its own, and test is a module | Decided. Amended by D42 |
 | [D34](#d34-a-flag-takes-its-value-from-the-command-line-the-environment-the-config-files-or-its-default-proposed-amended-by-d43) | A flag takes its value from the command line, the environment, the config files or its default | Proposed. Amended by D43 |
 | [D35](#d35-the-choices-that-the-agents-made-on-2026-11-26-proposed) | The choices that the agents made on 2026-11-26 | Proposed |
-| [D36](#d36-choices-that-the-backlog-agent-made-proposed-amended-by-d41) | Choices that the backlog agent made | Proposed. Amended by D41 |
+| [D36](#d36-choices-that-the-backlog-agent-made-proposed-amended-by-d41-amended-by-d49) | Choices that the backlog agent made | Proposed. Amended by D41. Amended by D49 |
 | [D37](#d37-required-flags-and-rules-between-flags-decided) | Required flags and rules between flags | Decided |
 | [D38](#d38-inherited-flags-stopping-at-an-argument-and-prefixes-decided) | Inherited flags, stopping at an argument, and prefixes | Decided |
 | [D39](#d39-before-and-after-funcs-typed-arguments-and-the-wrap-width-decided) | Before and after funcs, typed arguments, and the wrap width | Decided |
@@ -50,6 +50,11 @@ reader can find a decision by its number.
 | [D42](#d42-the-color-and-glob-modules-are-removed-decided-amends-d33) | The color and glob modules are removed | Decided. Amends D33 |
 | [D43](#d43-a-config-key-starts-with-the-path-of-its-command-and-ini-is-a-package-decided-amends-d34) | A config key starts with the path of its command, and INI is a package | Decided. Amends D34 |
 | [D44](#d44-ox-builds-the-shells-of-completion-on-first-use-decided) | ox builds the shells of completion on first use | Decided |
+| [D45](#d45-a-port-range-type-and-strftime-layouts-decided) | A port range type, and strftime layouts | Decided |
+| [D46](#d46-a-value-of-helpvalue-can-run-funcs-decided-amended-by-d49) | A value of HelpValue can run funcs | Decided. Amended by D49 |
+| [D47](#d47-a-bool-flag-can-have-a-negated-form-such-as---no-debug-decided) | A bool flag can have a negated form, such as --no-debug | Decided |
+| [D48](#d48-metadoc-writes-a-man-page-and-markdown-docs-proposed) | metadoc writes a man page and Markdown docs | Proposed |
+| [D49](#d49-answers-of-2026-11-28-lint-in-ci-completion-of-help-values-and-fuzz-tests-decided-amends-d12-amends-d36-amends-d46) | Answers of 2026-11-28, lint in CI, completion of help values, and fuzz tests | Decided. Amends D12. Amends D36. Amends D46 |
 
 ## Purpose
 
@@ -311,7 +316,7 @@ and the distance match. See B10.
 Reason, from the README: "Suggestions for command names, aliases, and
 suggested names".
 
-### D12. golangci-lint enables every linter and disables a list. Decided.
+### D12. golangci-lint enables every linter and disables a list. Decided. Amended by D49.
 
 Commits: `615436e` (2024-12-04), `cd71c50` (2024-12-07), `5ea04fb`
 (2025-05-08).
@@ -752,7 +757,7 @@ The importer, `_tools/oximport` (D31):
     directory as `/home/user`, and `TestTestdata` fails if a real home
     directory appears.
 
-### D36. Choices that the backlog agent made. Proposed. Amended by D41.
+### D36. Choices that the backlog agent made. Proposed. Amended by D41. Amended by D49.
 
 A maintainer asked on 2026-11-27 that one agent close each item of
 [BACKLOG.md](BACKLOG.md) in order. The agent followed the recommendation of
@@ -1500,6 +1505,433 @@ it.
    of `ox` with a struct about 18 µs, 29 KB and 586 allocations. cobra takes
    about 9.5 µs, 32 KB and 156 allocations.
 
+### D45. A port range type, and strftime layouts. Decided.
+
+A maintainer asked on 2026-11-28 for item 10 of B19: a strftime type, a
+semver type, and a port range type such as `100:200`. The maintainer asked
+an agent to consult flagship models and to build the best design. Two
+flagship models, GPT-6 Astra and Gemini 3.1 Pro, advised the design below,
+and an agent built it. A maintainer accepted it on 2026-11-28.
+
+1. `ox.PortRange` is a struct with the fields `Lo` and `Hi`, both of type
+   `uint16`. It is in the root package, because it needs only the standard
+   library (D1). Its type is `PortRangeT`, which help writes as
+   `portrange`. `FlagSet.PortRange` adds a flag of the type. It is
+   registered as `*url.URL` is, so a value of the type is a pointer (D41).
+2. `ParsePortRange` reads one port, such as `80`, or a range, such as
+   `100-200` or `100:200`. Each port is 1 to 65535, and the first port is not
+   greater than the last. It refuses port 0, a sign, a space, an empty port,
+   such as `100-`, and a port above 65535. Its error wraps the new
+   `ErrInvalidPortRange`.
+3. `-` is the canonical separator. `String` and `MarshalText` write
+   `100-200`, or `80` when `Lo` and `Hi` are the same. The zero `PortRange`
+   is not valid. It writes no text, and empty text reads back to it, as with
+   `netip.Addr`.
+4. `Contains` tells whether a valid range holds a port. `Ports` returns an
+   `iter.Seq[uint16]` that walks each port of a valid range. The loop stops
+   at `Hi` before it adds 1, so a range that ends at 65535 does not wrap to
+   0.
+5. A list of ranges is not a part of the type. A slice flag of port ranges
+   splits its value at each comma, as each slice flag does, such as
+   `22,80-90`.
+6. `ox` has no semver type. Since D41, a type that reads its own text needs
+   no registration. So a program uses the version type of its own semver
+   package. A type in `ox` would need a dependency or a copy of a parser,
+   and a program would then have two version types. "A type that nothing
+   registers" in `docs/EXAMPLES.md` says this.
+7. `ox` has no strftime type. The new flag option `Strftime(layout)`
+   converts a strftime layout to a Go layout, and sets the new field
+   `Flag.Layout`. A time flag reads and writes its value in that layout. A
+   flag of type `TimestampT`, `DateTimeT`, `DateT` or `TimeT` keeps its
+   type, and a flag of another type gets `TimestampT`. A slice, an array, a
+   map or a hook flag refuses the option with `ErrAppliedToInvalidType`.
+   Help writes the type, such as `timestamp`, and not the layout. A program
+   can show the layout with `Spec`.
+8. B19 said that a strftime type needs a module of its own (D33). That is
+   true only for a strftime package from outside the standard library. The
+   conversion uses only the standard library, so it is in the root.
+9. `Strftime` takes only the directives that Go writes and reads in the
+   same way: `%Y`, `%y`, `%m`, `%b`, `%B`, `%d`, `%e`, `%j`, `%a`, `%A`,
+   `%H`, `%I`, `%p`, `%M`, `%S`, `%f`, `%L`, `%z`, `%Z`, `%T`, `%R`, `%D`,
+   `%F` and `%%`. `%f` is 6 digits and `%L` is 3 digits of the second. Each
+   must follow a `.` or a `,`, because Go reads a fraction only there.
+10. `Strftime` refuses any other directive, such as `%c`, `%x`, `%l` or
+    `%-d`. Its error names the directive and wraps the new
+    `ErrInvalidLayout`. It never uses a Go layout that is only close to the
+    directive.
+11. A Go layout has no escape for text. So text such as `1`, `Jan` or `PM`,
+    or text that joins a directive, such as `day` after `%a`, reads as a
+    part of the time. `Strftime` refuses such a layout. It writes two times
+    that differ in each field with the whole layout, and with each part on
+    its own. The text must be the same for each time.
+12. The struct tags have no option for a time layout today, so `Strftime`
+    has no tag option.
+13. `As[time.Time]`, and so `otx.Get[time.Time]`, returned the zero time
+    for each time flag, because the conversion gave an `ox.FormattedTime`.
+    It now gives the `time.Time`. `ExampleStrftime` found the fault.
+14. The new field `Flag.Layout` made `Flag` 520 bytes, which moved each
+    flag into the next size class of the Go allocator and cost about 64
+    bytes for each flag of a program (D44). The fields `NoArg` and
+    `Required` now follow `Optional`, and `NotExist` follows `Home`, so
+    that the bool fields share their words. `Flag` is 496 bytes, and a run
+    of `BenchmarkCommandLine` uses the same memory as before.
+### D46. A value of HelpValue can run funcs. Decided. Amended by D49.
+
+Before, `HelpValue` wrote a line such as `--help=commands` in the help, but
+the help flag wrote the same help for every value. So `usql` replaced the
+default of its `hook:help` flag with a func that picked the topic (B52). A
+maintainer asked on 2026-11-28 to build B52. An agent made these choices,
+and a maintainer accepted them on 2026-11-28.
+
+1. `HelpValue(value, usage string, funcs ...func(*Context) error)` takes the
+   funcs as its last argument. A call with no funcs works as before. A
+   separate option would add a second name that writes the same line of
+   help.
+2. When the command line gives the flag the value, the funcs run in order,
+   in place of the flag. The flag does not take the value, and its hook
+   does not run. Then the run stops with `ErrExit`, as help does, so
+   `RunError` returns nil. The first error of a func stops the run with
+   that error, and the funcs after it do not run.
+3. The funcs run for any flag, and not only for the help flag. So
+   `--format=list` can list the formats of a string flag. A value from the
+   environment, a config file or a default does not run the funcs, because
+   only the command line asks for help.
+4. A value of the help flag without funcs, and a value that no `HelpValue`
+   names, write the help of the command, as before. `--help` without a
+   value writes the help of the command.
+5. `HelpLine` has a new field `Funcs`, which holds the funcs. `ArgUsage`
+   sets no funcs. The values stay in `Flag.HelpValues`, in one list with
+   their usage.
+6. Completion does not change. It does not offer the values of
+   `HelpValue`, as item 2 of D36 says. A completion parses the words before
+   the word that it completes, so a value with funcs on the command line
+   runs them, as a hook runs. The completion discards what they write to
+   `Context.Stdout`.
+### D47. A bool flag can have a negated form, such as --no-debug. Decided.
+
+B53 found that `--no-debug` fails with "unknown flag" for a bool flag named
+`debug`. `kong` and `kingpin` add the `--no-` form to each bool flag. A
+maintainer asked on 2026-11-28 for an option that a program adds when it
+wants the form, and that `Defaults` does not add. The maintainer asked two
+flagship models, GPT-6 Astra and Gemini 3.1 Pro, for the design. They
+advised the names and the rules below, and an agent built them. A
+maintainer accepted the choices on 2026-11-28.
+
+The API:
+
+1. `NegateBools(prefixes ...string)` is a root command option.
+   `Command.NegateBools` holds the prefixes. A sub command refuses it with
+   `ErrCanOnlyBeUsedWithRootCommand`. Without a prefix, the prefix is
+   `DefaultNegatePrefix`, which is `no`. Each prefix adds a form, so
+   `NegateBools("no", "without")` gives `--no-debug` and `--without-debug`.
+2. A prefix is a word of letters, digits and hyphens, with no hyphen at
+   either end, such as `no` or `do-not`. An empty prefix, a bad prefix and
+   a prefix that is given twice are errors that wrap `ErrInvalidValue`.
+3. `Negatable(false)` is a flag option that keeps one flag out of
+   `NegateBools`. `Negatable(true)` gives one flag the negated form without
+   `NegateBools`, with the prefix `DefaultNegatePrefix`. With `NegateBools`,
+   the flag takes the prefixes of the root. `Flag.Negatable` and
+   `Flag.NoNegate` hold the option. The tag options are `negatable` and
+   `negatable:false`.
+4. The name `NegateBools` was chosen over `NoBoolDefaults`. A name that
+   starts with `Defaults` reads as a part of `Defaults`, which adds the
+   standard flags and commands. `NegateBools` changes how the command line
+   parses, so a program adds it on purpose.
+
+The flags that get a negated form:
+
+5. Only a plain bool flag gets the form: a `BoolT` flag that the command
+   line sets to true without a value. A count flag, a hook flag such as
+   `--help`, and a bool flag with `OptionalValue` do not. A flag that is not
+   a plain bool flag refuses `Negatable(true)` with
+   `ErrAppliedToInvalidType`.
+6. The form comes from the long name of the flag. An alias and a short name
+   get none, and no short flag has a negated form.
+7. A flag whose name starts with a prefix and a hyphen gets no negated form,
+   so psql's `--no-psqlrc` never reads `--no-no-psqlrc`. This holds for each
+   prefix of the root. With `NegateBools("no", "without")`, `--no-psqlrc`
+   gets no `--without-no-psqlrc` either.
+
+Where the form is applied:
+
+8. The form is applied when `ox` reads a long name, and not when the
+   command tree is built. No flag is added to a `FlagSet`. The parse, the
+   completion and the help read the prefixes of the root and the options of
+   the flag when they need them. So a sub command or a flag that a program
+   adds after `NegateBools` gets the form too. The parse looks for a negated
+   form only after the exact name of a flag fails, so a program that does
+   not use `NegateBools` does no more work in the parse.
+9. A negated form with the long name of another flag, or of a long alias,
+   or of another negated form, is an error that wraps `ErrDuplicateFlag`.
+   `NewCommand` checks it when it builds each command, with the flags that
+   the command accepts, and the error says to use `Negatable(false)`. A
+   negated form never hides a flag. A root with `NegateBools` checks each
+   sub command again, because a sub command can be built before the root
+   gets the option. The check builds no shell of the completion command
+   (D44). A flag that a program adds to a `FlagSet` after `NewCommand` is
+   not checked. Then the exact name wins in the parse.
+
+The parse:
+
+10. The negated form sets the flag to false, and counts as a value from the
+    command line, as the flag does, so `Value.WasSet` is true. A later
+    `--debug` or `--no-debug` wins over an earlier one.
+11. The negated form takes no value. `--no-debug=true`, `--no-debug=false`
+    and `--no-debug=` are errors that wrap `ErrInvalidValue`. The negated
+    form does not take the next arg, so `--no-debug false` gives the
+    positional argument `false`.
+12. The negated form follows the flag. The form of a hidden flag works and
+    is hidden. The form of a local flag works only in its command. A sub
+    command takes the form of each flag that it inherits. A flag of a parent
+    that a nearer flag hides has no negated form in the sub command (D38).
+    The form of a deprecated flag writes the warning of the flag.
+13. With `Abbrev`, a prefix matches the negated forms as it matches the
+    other long names, so `--no-deb` gives `--no-debug` when it is unique. A
+    flag and its negated form are two matches, because they set different
+    values. So with a flag `nox`, the prefix `--no` is ambiguous between
+    `--nox` and `--no-nox`. An exact negated form wins over a prefix. A
+    prefix does not match the negated form of a hidden or a deprecated flag.
+14. The environment and the config files set the flag itself. No
+    environment variable or config key has the name of a negated form.
+
+Help and completion:
+
+15. Help writes a flag with a negated form on one line, as `--[no-]debug`,
+    with the first prefix. `text.FlagNegatedSpec` holds the text `[%s-]`.
+    In the layout of `HelpColumn`, the text goes before the name of the
+    flag, and the long aliases follow without it. The help of a program
+    without `NegateBools` and without `Negatable(true)` does not change, so
+    the files in `testdata/` do not change.
+16. Completion offers each negated form after the names of its flag, and
+    corrects a negated form as it corrects a name. It completes no value
+    after a negated form, and nothing after `--no-debug=`.
+### D48. metadoc writes a man page and Markdown docs. Proposed.
+
+B54 found that `ox` writes only help, and that `cobra/doc`, `urfave/cli`,
+`kong` and `kingpin` write a man page or Markdown docs. A maintainer chose
+this design on 2026-11-28. Two flagship models, GPT-6 Astra and Gemini 3.1
+Pro, advised on the design, and then critiqued it. The maintainer chose the
+output after a survey of these packages. The hidden `--help-man` flag of
+`kingpin`, `mango-kong` for `kong`, and `ToMan` and `ToMarkdown` of
+`urfave/cli` write the whole tree as one page. `cobra/doc` writes one file
+for each command with `GenManTree`, and one command with `GenMan`.
+
+The maintainer chose these:
+
+1. The package is `github.com/xo/ox/metadoc`. It uses only the standard
+   library, so it is a package of the root module, as `ini` is (D43). It
+   builds with TinyGo. It has no `init` func, so an import of it changes
+   nothing.
+2. A program adds it with a root option, such as
+   `ox.Run(..., metadoc.Command(metadoc.ManPage(), metadoc.Markdown()))`.
+   `Command` adds one hidden command, `__docs`, with a sub command for each
+   format: `__docs man` and `__docs markdown`. `ox.Defaults` does not add
+   it. When the program has a command named `__docs`, `Command` returns an
+   error that wraps `ErrExist`.
+3. Help and completion do not show `__docs` or its sub commands, as for
+   `__complete`.
+4. `app __docs man` writes the whole tree to standard out as one man page:
+   the root, then a COMMANDS section that holds each sub command with its
+   usage, flags and arguments. `app __docs markdown` writes the whole tree
+   as one Markdown document.
+5. With `--dir DIR`, each writes one file for each command, such as `app.1`,
+   `app-sub.1` and `app-sub-deep.1`, or `app.md` and `app-sub.md`. A man
+   page has SEE ALSO references, and a Markdown file has relative links, to
+   the parent and to the sub commands. The folder is created when it does
+   not exist. Each file has the mode 0o644. A file name that is not in the
+   folder is an error.
+6. A library API writes the whole tree to an `io.Writer`, one command to an
+   `io.Writer`, and the tree to a folder. A program calls it from a test or
+   from `go generate`, and then the program does not link the writer.
+7. The sections are NAME, SYNOPSIS, DESCRIPTION, OPTIONS, ARGUMENTS,
+   COMMANDS, EXAMPLES, the footer and SEE ALSO. The data comes from
+   `CommandHelp` and the command, and not from the text of help.
+8. The docs leave out hidden commands and flags, deprecated commands and
+   flags, `__complete` and `__docs`. They keep the `help`, `version` and
+   `completion` commands.
+9. The `.TH` line holds the name, the section, the date, the source and the
+   manual. The section is 1, and the source is the name and the version of
+   the root, by default. The date is the `Date` option, else
+   `$SOURCE_DATE_EPOCH` read as Unix seconds in UTC, else today in UTC. A
+   value of `$SOURCE_DATE_EPOCH` that is not a number is an error. The date
+   is written as `2006-01-02`.
+10. A man page escapes backslashes, a `.` or a `'` at the start of a line,
+    and the hyphens in flag names. Markdown escapes `<`, `>`, `*`, `_`,
+    backticks and `|`, and a flag spec is a code span.
+11. The name of the program is the name of the root command, and never
+    `os.Args[0]`.
+
+The agent that built it chose these. A maintainer must confirm them:
+
+12. `Command` with no format adds both formats, so that `metadoc.Command()`
+    is enough for most programs.
+13. `Format` is one type. `ManPage(opts ...ManOption)` and
+    `Markdown(opts ...MarkdownOption)` return it. Each format has its own
+    option func type, so an option of one format cannot go to the other. The
+    man options are `Section`, `Date`, `Source` and `Manual`. The Markdown
+    options are `FrontMatter` and `Link`. Each func gets the `*ox.Command`
+    of the page.
+14. The library API is three funcs that take a `Format`: `Write`,
+    `WriteCommand` and `WriteDir`. Six funcs, one set for each format, would
+    say the same thing twice.
+15. The type of an `ox` option is not exported, so a package outside `ox`
+    cannot write an option that changes the tree after the other options.
+    So `ox` has a new root option, `ox.Extend(name, f)`, which runs `f`
+    after each other option. `metadoc.Command` uses it. So `__docs` comes
+    after the help, version and completion of `Defaults`, in any order of
+    the options, and the help, version and completion do not change.
+16. `ox` knows the special value `docs` of the hidden command. Help does not
+    write `[command]` or the default footer for it, and a suggestion for an
+    unknown command does not name it. The funcs of `Before` and `After` do
+    not run for it, as for help. The flags are not checked for it, so a
+    required flag does not stop `app __docs man`.
+17. `CommandHelp` has two new methods, `SpecString` and `FlagUsage`, which
+    help also uses. So the usage spec and the text of a default are the same
+    in help and in the docs.
+18. The docs show each default as the program wrote it, such as
+    `$HOME/.apprc`. They do not expand it, so the docs are the same on each
+    computer, and they show the home folder of no user.
+19. The hidden command and its sub commands get a help flag when the root
+    has one.
+20. The source is the name of the root and its `Version`, from
+    `ox.VersionString`. It does not use the version of the build info,
+    which changes with each build, such as `v0.2.1+dirty`. The manual is empty by default, so `man` writes the title of
+    the section, such as "General Commands Manual". The section is an int.
+21. An empty `$SOURCE_DATE_EPOCH` counts as not set. An explicit date is
+    written as it is, without a change to UTC.
+22. A man page escapes each hyphen as `\-`, in all text and not only in flag
+    names, so that a reader can copy a flag or an example. A backslash
+    becomes `\e`, and a line that starts with `.` or `'` starts with `\&`.
+    An empty line in a description starts a new paragraph. An example is
+    written without fill, between `.nf` and `.fi`. The argument of a
+    request, such as `.SS`, is in double quotes, and a `"` in it becomes
+    `\(dq`.
+23. Markdown puts a backslash before each `\`, backtick, `*`, `_`, `<`, `>`,
+    `[`, `]`, `|` and `&` in text. It also puts one before a `#`, `-`, `+`
+    or `=` at the start of a line, and before the `.` or `)` of a number at
+    the start of a line, so that the line does not start a heading or a
+    list. A flag spec and the name of an argument are code spans. The
+    synopsis and the examples are fenced code blocks. The fence of a code
+    span or a block is longer than each run of backticks in its text.
+24. The whole Markdown document links each command to its heading, with the
+    anchor that GitHub makes, such as `#app-sub`. `Link` applies only to
+    the files of `WriteDir` and to the page of `WriteCommand`. `FrontMatter`
+    applies to each document.
+25. In the whole tree, a sub command lists only its own flags, because the
+    flags that it inherits are in the entry of its parent. The page of one
+    command has a GLOBAL OPTIONS section with the flags that it inherits.
+26. A man page always has a DESCRIPTION, with the banner, or with the usage
+    when the command has no banner. Markdown leaves out the description when
+    it is the same as the usage.
+27. The footer goes in a NOTES section, and only when the program sets it
+    with `ox.Footer`. The default footer of help names `--help`, which does
+    not apply to the docs.
+28. A flag with allowed values, such as from `ox.Valid`, gets
+    `(allowed: json, yaml)` after its usage. The text that `metadoc` writes
+    is in `text/text.go`, with the prefix `Doc` (D8). `metadoc.DefaultName`
+    holds the name `__docs`.
+29. The order of the flags and of the commands follows `Sort` and
+    `CommandSort` of each command, as help does. The docs do not keep the
+    sections of the flags and of the commands.
+30. A bool flag with a negated form (D47) shows it as help does, such as
+    `--[no-]debug`. `Command.NegatedNames(g)` gives the negated forms of a
+    flag in a command, so that `metadoc` reads them as help does. It was
+    added when D47 and D48 were merged.
+
+### D49. Answers of 2026-11-28, lint in CI, completion of help values, and fuzz tests. Decided. Amends D12. Amends D36. Amends D46.
+
+A maintainer answered these on 2026-11-28, and asked for the lint fixes,
+the completion of help values and the fuzz tests below.
+
+The answers:
+
+1. Open question 2: D24 means what was built. Code that needs a newer Go
+   release, such as the `uuid` type, is in a file with a build constraint
+   for that release, such as `//go:build go1.27`, and each `go.mod` declares
+   `go 1.25`.
+2. Open question 7: psql's layout of help, `HelpColumn(27)`, stays an
+   option. It is not the default, because it would change the help of each
+   program that does not ask for it.
+3. Open question 9: a change from a person outside the project arrives as a
+   GitHub discussion, and only so. A maintainer makes the change (D25).
+4. Open question 14: the tests in `repo_test.go` do not run under TinyGo.
+   They read files, and not the package.
+5. The environment variable of a flag of a sub command does not take the
+   path of the command. `--steps` of `app migrate` reads `APP_STEPS`, as
+   item 6 of D43 says.
+
+Lint, which answers open question 12:
+
+6. `.golangci.yml` keeps `default: all` (D12), and gives the reason beside
+   each linter that it disables, as in `github.com/xo/dbmeta`. It disables
+   the linters that make idiomatic Go worse here, such as `goconst`,
+   `paralleltest` (many tests change a `Default` variable), `dupword`, the
+   complexity metrics, `dupl`, `godox` (a copy from the Go source tree has a
+   TODO, by rule 2 of `AGENTS.md`) and `gomoddirectives` (the `replace` of
+   the test module, D33).
+7. `gosec` keeps its checks, except G304 (a program reads the files that it
+   names), G301 and G306 (the docs of `metadoc` and the code of `oxdoc` are
+   read by people and by the go command, so they are 0o644 in folders of
+   0o755, as a man page or a source file is), and G401, G501 and G505 (the
+   hash filters of interpolation are not for security). G115 is off only
+   for `size.go`, where each conversion checks the range first. A test, a
+   tool in `_tools/` and an example in `_examples/` are not the surface
+   that gosec looks for. The six findings of `metadoc` were G301, G306 and
+   G304, so they do not matter.
+8. The real findings got a code change: the results of the writes in `has`
+   and of a `Close` are discarded with `_ =`, as `AGENTS.md` asks; `Wrap`
+   builds its text with a `strings.Builder`; a condition of `opIndex` in
+   `interp.go` reads as what it means; two examples got a package comment;
+   and a few unused names and conversions went.
+9. A CI job, Lint, installs `golangci-lint` v2.15.0, the first release that
+   reads the export data of Go 1.27, and lints the root, the tools and each
+   example, then each module from its own folder. It also checks `gofmt`.
+   Each module has no finding.
+
+Completion:
+
+10. Completion of the value of a flag offers the values of `HelpValue`,
+    after the values of `Valid`, each with its usage. So `--help=<tab>`
+    offers the topics. Before, item 2 of D36 and item 6 of D46 kept them out.
+    B52 gave each value a meaning, so a maintainer asked for them.
+
+The README:
+
+11. The line "Fast" of the README says that `ox` is about as fast as cobra
+    when a program starts, with less memory, and links
+    `BenchmarkCommandLine` (D44).
+
+Fuzz tests, in `fuzz_test.go`:
+
+12. `FuzzCommandLine` parses, checks and runs any command line with a tree
+    that uses most features of the parse: short and long flags, a count, a
+    slice, a map, an optional value with a func, allowed values, a local
+    flag, `Abbrev`, `NegateBools`, sub commands with aliases, typed and
+    variadic arguments, `StopAtArg`, and help, version and completion. It
+    must never panic. A first run of 13.6 million command lines found no
+    fault.
+13. `FuzzTypeValue` sets any text on a value of each built-in type. When
+    `Set` takes the text, `Get` must not fail, and a new value must read the
+    text of `Get` back to the same text. It found that `1e20` gave a size of
+    the lowest `int64`, which help wrote as `--9223372036854775808 B`. The
+    float paths of `asSize` and `asDuration`, and the seconds of
+    `asDuration`, now refuse a value out of the range of an `int64`, and NaN.
+    `bestSize` takes the size as a `uint64`, so the lowest size has one sign.
+    `TestSizeOverflow` holds each case.
+14. `FuzzTypeValue` does not wait for `Get` of a `big.Float` with a huge
+    exponent, such as `8p97070970`. Its parse is fast, and `MarshalText` of
+    `math/big` takes about a minute to write it. ox has no fault there.
+15. `Base64T` and `HexT` decode their text, and `Get` gives the bytes, as
+    `TestTypeNew` holds. So their text does not read back, and the fuzz test
+    checks them only for a panic. Open question 15 asks if `Get` must give
+    the encoded text.
+16. `FuzzParseSize` holds that a size reads back from its exact form, with
+    the verbs `q` and `Q` (D40), and `FuzzParsePortRange` holds that a port
+    range reads back from its text. The inputs that failed are kept in
+    `testdata/fuzz`, so `go test` runs them each time. Run a fuzz test with
+    `go test -run '^$' -fuzz '^FuzzCommandLine$' -fuzztime 60s`. No CI job
+    fuzzes.
+
 ## Open questions for the maintainers
 
 An open question is not a decision. When a maintainer answers one, the
@@ -1510,10 +1942,7 @@ recommendation.
    [DESIGN.md](DESIGN.md), as two flagship models reviewed them. In
    particular, must `Value.WasSet` stay true only for the command line? D43
    answered the key of a flag.
-2. D24 says that `ox` uses the features of Go 1.27 and declares `go 1.25`.
-   This was built: code that needs a newer release, such as the `uuid` type,
-   is in a file with the build constraint `//go:build go1.27`. Is that what
-   "uses the features of Go 1.27" means?
+2. Answered on 2026-11-28: yes, D24 means what was built (D49).
 3. D35 lists 20 choices that the agents made, which hold D28 as built.
    Recommended: confirm them. Questions 1 to 6 of D28, about the path types,
    are still open. The path types were built on 2026-11-27 as they
@@ -1533,28 +1962,30 @@ recommendation.
    (B28)? Recommended: `ox.RunError(ctx, opts...) error`, and
    `Command.UsageString() string`. These names were built on 2026-11-27
    (D36).
-7. psql's layout of help was built as an option, `HelpColumn(27)`, so that
-   `dbtpl`, `iv` and `wallgrab` do not change. Recommended: keep it an option.
-   Must it become the default for every program?
+7. Answered on 2026-11-28: `HelpColumn(27)` stays an option, and is not the
+   default (D49).
 8. Answered on 2026-11-27: a maintainer tagged `v0.1.0`, then `color`,
    `glob`, `hcl`, `toml` and `yaml`, in the order in [DESIGN.md](DESIGN.md).
-9. Issues and pull requests are off (D25). How does a change from a person
-   outside the project arrive? Recommended: the person opens a discussion,
-   and a maintainer makes the change. `CONTRIBUTING.md` says so now.
+9. Answered on 2026-11-28: a change arrives only as a GitHub discussion, and
+   a maintainer makes it (D49).
 10. The substring operator takes an end index, and bash takes a length. Is the
    difference deliberate, or does `ox` follow bash? See D19.
 11. The README says that `ox` loads HCL, and imports `github.com/xo/ox/hcl`
     in its example. There is no such package. Does an `hcl` loader come, or
     does the README change? See B7. The `hcl` module was built on 2026-11-27
     (D36).
-12. No CI job runs `golangci-lint`, and main had 263 findings. Must CI run
-    it, and must the disabled list follow the renamed linters? See B16.
-    Since 2026-11-27, the disabled list names both the old and the new
-    names, and the root has 156 findings (D36). CI does not run it yet.
+12. Answered on 2026-11-28: CI runs `golangci-lint` on each module, and each
+    module has no finding (D49).
 13. No CI job builds the examples. Must CI build them, and the programs that
     the importer writes? See B14 and B39. Since 2026-11-27, CI runs `go vet`
     on each example, and `TestBuild` builds each style that the importer
     writes (D36).
-14. The repository tests in `repo_test.go` do not run under TinyGo, because a
-    build constraint keeps them out. Is that the right choice? See D2 and
-    D21.
+14. Answered on 2026-11-28: the tests in `repo_test.go` do not run under
+    TinyGo (D49).
+15. `Base64T` and `HexT` decode their text when it is set, and `Get` gives
+    the decoded bytes, as `TestTypeNew` holds. So help writes a default of
+    `aGVsbG8=` as `hello`, and that text does not read back. Must `Get` give
+    the encoded text? Recommended: yes, so that help and a config file write
+    what the command line takes. A program that reads the value with
+    `otx.Bytes` or `As[[]byte]` gets the bytes either way. See item 15 of
+    D49.

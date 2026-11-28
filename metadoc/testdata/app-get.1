@@ -1,0 +1,50 @@
+.TH "APP-GET" "1" "2026-11-28" "app v1.2.3"
+.SH "NAME"
+app\-get \- get a file
+.SH "SYNOPSIS"
+.PP
+\fBapp get\fR [flags] [command] path [dest]
+.SH "DESCRIPTION"
+.PP
+get a file
+.SH "OPTIONS"
+.TP
+\fB\-r\fR, \fB\-\-retries\fR int
+the number of retries (default: 3)
+.TP
+\fB\-\-force\fR
+overwrite a file (required)
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+show help, then exit
+.SH "GLOBAL OPTIONS"
+.TP
+\fB\-c\fR, \fB\-\-config\fR FILE
+the config file (default: $HOME/.apprc)
+.TP
+\fB\-d\fR, \fB\-\-debug\fR, \fB\-\-trace\fR
+write debug output
+.TP
+\fB\-\-format\fR string
+the output format (default: json) (allowed: json, yaml)
+.SH "ARGUMENTS"
+.TP
+\fIpath\fR
+the path of the file
+.TP
+\fIdest\fR
+where to write the file (default: .)
+.SH "COMMANDS"
+.TP
+\fBapp get all\fR
+get each file
+.SH "EXAMPLES"
+.PP
+.RS 4
+.nf
+  app get a.txt
+.fi
+.RE
+.SH "SEE ALSO"
+\fBapp\fR(1),
+\fBapp\-get\-all\fR(1)

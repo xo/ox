@@ -42,6 +42,7 @@ const (
 	Complex64T  Type = "complex64"
 	SizeT       Type = "size"
 	RateT       Type = "rate"
+	PortRangeT  Type = "portrange"
 
 	TimestampT Type = "timestamp"
 	DateTimeT  Type = "datetime"
@@ -248,6 +249,9 @@ func init() {
 	RegisterTextType(func() (*regexp.Regexp, error) {
 		return new(regexp.Regexp), nil
 	})
+	RegisterTextType(func() (*PortRange, error) {
+		return new(PortRange), nil
+	})
 	// register binary marshal types
 	RegisterBinaryType(func() (*url.URL, error) {
 		return new(url.URL), nil
@@ -375,6 +379,8 @@ func typeRef(val any) Type {
 		return RegexpT
 	case *url.URL:
 		return URLT
+	case *PortRange:
+		return PortRangeT
 	}
 	typ := reflect.TypeOf(val)
 	if typ != nil {
@@ -579,6 +585,8 @@ func reflectType(refType reflect.Type) Type {
 		return RegexpT
 	case "*url.URL":
 		return URLT
+	case "*ox.PortRange":
+		return PortRangeT
 	}
 	if typ, ok := typeLookup(reflectTypes, s); ok {
 		return typ

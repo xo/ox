@@ -78,7 +78,7 @@ func Example_argsTest() {
 		ox.Sub(
 			ox.Exec(func() error {
 				// return an error to show that this func is not called
-				return errors.New("oops!")
+				return errors.New("oops")
 			}),
 			ox.Usage("sub", "a sub command to test"),
 			ox.From(&subArgs),

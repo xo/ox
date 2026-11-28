@@ -15,8 +15,9 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
-	"github.com/xo/ox"
 	ctyjson "github.com/zclconf/go-cty/cty/json"
+
+	"github.com/xo/ox"
 )
 
 func init() {

@@ -54,10 +54,10 @@ type Command struct {
 	OnErr OnErr
 	// Help is the command's help emitter.
 	Help io.WriterTo
-	// Comp enables completion for the command.
-	Comp bool
 	// Section is the help section.
 	Section int
+	// Comp enables completion for the command.
+	Comp bool
 	// Hidden indicates the command is hidden from help output.
 	Hidden bool
 	// Deprecated indicates the command is deprecated.
@@ -83,6 +83,13 @@ type Command struct {
 	// FlagGroups are the rules between the flags of the command, from
 	// [OnlyOneOf], [AllOrNoneOf] and [AtLeastOneOf].
 	FlagGroups []FlagGroup
+	// NegateBools are the prefixes of the negated forms of the bool flags of
+	// the command tree, such as "no" for `--no-debug`. Only the root command
+	// reads them. See [NegateBools].
+	NegateBools []string
+	// Positional are the command's positional arguments, in order. See
+	// [Arg].
+	Positional []*Argument
 	// StopAtArg makes each argument after the first positional argument of
 	// the command a positional argument, even one that starts with `-`. See
 	// [StopAtArg].
@@ -90,14 +97,12 @@ type Command struct {
 	// Abbrev lets the command line give a long flag by a unique prefix of
 	// its name. A sub command inherits it. See [Abbrev].
 	Abbrev bool
-	// Positional are the command's positional arguments, in order. See
-	// [Arg].
-	Positional []*Argument
 
+	// noArgs is true when [ValidArgs] allows no argument. It follows the
+	// bools above, so that the bools share one word of memory.
+	noArgs bool
 	// maxArgs is the maximum of [ValidArgs]. A value < 0 means no maximum.
 	maxArgs int
-	// noArgs is true when [ValidArgs] allows no argument.
-	noArgs bool
 	// lazy builds the sub commands of the command when they are first read.
 	lazy *lazySubs
 }
@@ -124,6 +129,11 @@ func NewCommand(opts ...Option) (*Command, error) {
 	}
 	if err := cmd.checkArgNames(); err != nil {
 		return nil, fmt.Errorf("command %s: %w", cmd.Name, err)
+	}
+	// the root checks the whole tree, because a sub command can be built
+	// before the root gets NegateBools
+	if err := cmd.checkNegated(cmd.Parent == nil && len(cmd.NegateBools) != 0); err != nil {
+		return nil, err
 	}
 	return cmd, nil
 }
@@ -171,6 +181,9 @@ func (cmd *Command) Suggest(args ...string) error {
 	}
 	var suggested []suggest
 	for _, c := range cmd.subs() {
+		if c.Special == docsSpecial {
+			continue
+		}
 		for _, name := range append(prepend(c.Aliases, c.Name), c.Suggested...) {
 			if dist := Ldist(r, []rune(foldCase(name))); dist <= maxDist {
 				suggested = append(suggested, suggest{
@@ -388,14 +401,15 @@ loop:
 }
 
 // CompFlags returns flag completions for the command. It offers the name,
-// the aliases and the hidden aliases of each flag, and never a deprecated
-// alias.
+// the aliases, the hidden aliases and the negated forms of each flag (see
+// [NegateBools]), and never a deprecated alias.
 func (cmd *Command) CompFlags(name string, hidden, deprecated, short bool) ([]Completion, CompDirective) {
 	var comps []Completion
 	lower, m := foldCase(name), make(map[string]bool)
+	prefixes := cmd.negatePrefixes()
 	for g := range cmd.WalkFlags(hidden, deprecated) {
 		if !short || len(name) == 0 {
-			for _, s := range g.compNames(false) {
+			for _, s := range append(g.compNames(false), cmd.negatedNames(g, prefixes)...) {
 				switch long := "--" + s; {
 				case m[long]:
 					continue
@@ -421,7 +435,7 @@ func (cmd *Command) CompFlags(name string, hidden, deprecated, short bool) ([]Co
 	if maxDist := maxDist(cmd); 0 < maxDist && len(comps) == 0 && len(name) != 1 {
 		r := []rune(lower)
 		for g := range cmd.WalkFlags(hidden, deprecated) {
-			for _, s := range g.compNames(false) {
+			for _, s := range append(g.compNames(false), cmd.negatedNames(g, prefixes)...) {
 				long := "--" + s
 				if m[long] {
 					continue
@@ -448,6 +462,14 @@ func (cmd *Command) CompFlags(name string, hidden, deprecated, short bool) ([]Co
 	return nil, CompDefault
 }
 
+// NegatedNames returns the negated forms of the long name of the flag g in
+// the command, such as "no-debug" for --debug, without the leading dashes.
+// It returns nil when g has no negated form in the command. See
+// [NegateBools] and [Negatable].
+func (cmd *Command) NegatedNames(g *Flag) []string {
+	return cmd.negatedNames(g, cmd.negatePrefixes())
+}
+
 // lazySubs builds the sub commands of a command the first time that they
 // are read.
 type lazySubs struct {
@@ -468,6 +490,19 @@ func (cmd *Command) subs() []*Command {
 	return cmd.Commands
 }
 
+// docsSpecial is the special value of the hidden `__docs` command, which
+// [github.com/xo/ox/metadoc.Command] adds. Help, suggestions and completion
+// do not show it.
+const docsSpecial = "docs"
+
+// hasSubs returns true when the command has a sub command other than the
+// hidden `__docs` command.
+func (cmd *Command) hasSubs() bool {
+	return slices.ContainsFunc(cmd.subs(), func(c *Command) bool {
+		return c.Special != docsSpecial
+	})
+}
+
 // lazyErr returns the error of the build of the sub commands of cmd, or of a
 // parent of cmd, that waited for their first read.
 func (cmd *Command) lazyErr() error {
@@ -479,25 +514,42 @@ func (cmd *Command) lazyErr() error {
 	return nil
 }
 
-// longFlag returns the long flag of the command with the name. When no flag
-// has the name, and [Command.Abbrev] is on for the command, it returns the
-// one flag with a long name that starts with name. A prefix matches the long
-// names that completion offers: the name, the aliases and the hidden aliases
-// of each flag that is not hidden and not deprecated. The error wraps
-// [ErrUnknownFlag], or [ErrAmbiguousFlag] when the prefix matches more than
-// one flag.
-func (cmd *Command) longFlag(name string) (*Flag, error) {
+// longFlag returns the long flag of the command with the name. It returns
+// true when the name is a negated form of the flag, such as `no-debug` for a
+// bool flag `debug` (see [NegateBools]). When no flag has the name, and
+// [Command.Abbrev] is on for the command, it returns the one flag with a
+// long name that starts with name. A prefix matches the long names that
+// completion offers: the name, the aliases, the hidden aliases and the
+// negated forms of each flag that is not hidden and not deprecated. The
+// error wraps [ErrUnknownFlag], or [ErrAmbiguousFlag] when the prefix
+// matches more than one flag.
+func (cmd *Command) longFlag(name string) (*Flag, bool, error) {
 	if g := cmd.Flag(name, true, false); g != nil {
-		return g, nil
+		return g, false, nil
+	}
+	prefixes := cmd.negatePrefixes()
+	for g := range cmd.WalkFlags(true, true) {
+		if slices.Contains(cmd.negatedNames(g, prefixes), name) {
+			return g, true, nil
+		}
 	}
 	if name == "" || !cmd.abbrev() {
-		return nil, ErrUnknownFlag
+		return nil, false, ErrUnknownFlag
 	}
-	var flags []*Flag
+	// a flag and its negated form are two matches, because they set
+	// different values
+	type match struct {
+		g   *Flag
+		neg bool
+	}
+	var matches []match
 	var names []string
 	seen := make(map[string]bool)
 	for g := range cmd.WalkFlags(true, true) {
-		for _, s := range prepend(g.aliases(true), g.Name) {
+		longs := prepend(g.aliases(true), g.Name)
+		n := len(longs)
+		longs = append(longs, cmd.negatedNames(g, prefixes)...)
+		for i, s := range longs {
 			switch {
 			case len(s) == 1 && s != g.Name, seen[s]:
 				// a short alias, or the name of a nearer flag
@@ -509,19 +561,89 @@ func (cmd *Command) longFlag(name string) (*Flag, error) {
 				continue
 			}
 			names = append(names, "--"+s)
-			if !slices.Contains(flags, g) {
-				flags = append(flags, g)
+			if m := (match{g, n <= i}); !slices.Contains(matches, m) {
+				matches = append(matches, m)
 			}
 		}
 	}
-	switch len(flags) {
+	switch len(matches) {
 	case 0:
-		return nil, ErrUnknownFlag
+		return nil, false, ErrUnknownFlag
 	case 1:
-		return flags[0], nil
+		return matches[0].g, matches[0].neg, nil
 	}
 	slices.Sort(names)
-	return nil, fmt.Errorf("%w: %s", ErrAmbiguousFlag, strings.Join(names, ", "))
+	return nil, false, fmt.Errorf("%w: %s", ErrAmbiguousFlag, strings.Join(names, ", "))
+}
+
+// negatePrefixes returns the prefixes of the negated forms of the bool flags
+// of the command tree, from [Command.NegateBools] of the root command.
+func (cmd *Command) negatePrefixes() []string {
+	c := cmd
+	for c.Parent != nil {
+		c = c.Parent
+	}
+	return c.NegateBools
+}
+
+// negatedNames returns the negated forms of the long name of g in the
+// command, such as `no-debug` for `debug`, without the leading dashes.
+// prefixes are the prefixes of the command tree. A flag of a parent that a
+// nearer flag hides has no negated form in the command.
+func (cmd *Command) negatedNames(g *Flag, prefixes []string) []string {
+	negs := g.negations(prefixes)
+	if len(negs) == 0 || cmd.Flag(g.Name, true, false) != g {
+		return nil
+	}
+	names := make([]string, len(negs))
+	for i, p := range negs {
+		names[i] = p + "-" + g.Name
+	}
+	return names
+}
+
+// checkNegated returns an error when a negated form of a flag that the
+// command accepts, such as `--no-debug`, has the long name of a flag that
+// the command accepts, or of a long alias, or of another negated form. When
+// tree is true, it checks each sub command too. It does not check a sub
+// command that waits for its first read, so that it builds nothing (B55).
+func (cmd *Command) checkNegated(tree bool) error {
+	prefixes := cmd.negatePrefixes()
+	var names map[string]bool
+	for g := range cmd.WalkFlags(true, true) {
+		for _, s := range cmd.negatedNames(g, prefixes) {
+			if names == nil {
+				names = cmd.longNames()
+			}
+			if names[s] {
+				return fmt.Errorf("command %s: %w: --%s is the negated form of --%s and the name of another flag (use Negatable(false))", cmd.Name, ErrDuplicateFlag, s, g.Name)
+			}
+			names[s] = true
+		}
+	}
+	if tree {
+		for _, c := range cmd.Commands {
+			if err := c.checkNegated(true); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// longNames returns the long names and the long aliases of the flags that the
+// command accepts.
+func (cmd *Command) longNames() map[string]bool {
+	names := make(map[string]bool)
+	for g := range cmd.WalkFlags(true, true) {
+		names[g.Name] = true
+		for _, s := range g.aliases(true) {
+			if utf8.RuneCountInString(s) != 1 {
+				names[s] = true
+			}
+		}
+	}
+	return names
 }
 
 // abbrev returns true when [Command.Abbrev] is on for the command or for a
@@ -870,6 +992,11 @@ func (fs *FlagSet) URL(name, usage string, opts ...Option) *FlagSet {
 	return fs.Var(name, usage, prepend(opts, Option(URLT))...)
 }
 
+// PortRange adds a [PortRange] variable to the flag set.
+func (fs *FlagSet) PortRange(name, usage string, opts ...Option) *FlagSet {
+	return fs.Var(name, usage, prepend(opts, Option(PortRangeT))...)
+}
+
 // UUID adds a uuid variable to the flag set.
 func (fs *FlagSet) UUID(name, usage string, opts ...Option) *FlagSet {
 	return fs.Var(name, usage, prepend(opts, Option(UUIDT))...)
@@ -951,11 +1078,14 @@ type Flag struct {
 	// Optional shows the flag's spec in help as an optional value, such as
 	// `--help[=options]`. See [OptionalValue].
 	Optional bool
+	// NoArg when true, indicates that the flag does not require an argument.
+	NoArg bool
+	// Required makes the parse fail when the flag gets no value from the
+	// command line, the environment or a config file. See [Required].
+	Required bool
 	// HelpValues are the values of the flag that help writes on lines of
 	// their own, such as `--help=commands`. See [HelpValue].
 	HelpValues []HelpLine
-	// NoArg when true, indicates that the flag does not require an argument.
-	NoArg bool
 	// NoArgDef is the flag's default value when no argument was passed for the
 	// flag.
 	NoArgDef any
@@ -976,8 +1106,17 @@ type Flag struct {
 	// Local keeps the flag to its command. A sub command does not inherit
 	// it, so the command line of a sub command refuses it. See [Local].
 	Local bool
+	// Negatable gives a bool flag a negated form, such as `--no-debug`,
+	// without [NegateBools]. See [Negatable].
+	Negatable bool
+	// NoNegate keeps a bool flag out of [NegateBools]. See [Negatable].
+	NoNegate bool
 	// Split is a split separator, to split values for slices/arrays/maps.
 	Split string
+	// Layout is the Go layout of a [TimestampT], [DateTimeT], [DateT] or
+	// [TimeT] flag, such as the layout from [Strftime]. When it is empty, the
+	// flag uses the layout of its type.
+	Layout string
 	// Special is the flag's special value.
 	Special string
 	// Valid are the flag's validators.
@@ -1007,17 +1146,14 @@ type Flag struct {
 	// Home shows a path flag's default under the home directory as `~` in
 	// help. See [Home].
 	Home bool
-	// Exts are the file extensions that file completion offers for a path
-	// flag. See [Ext].
-	Exts []string
 	// NotExist makes the value of a path flag a path that must not exist.
 	// See [NotExist].
 	NotExist bool
+	// Exts are the file extensions that file completion offers for a path
+	// flag. See [Ext].
+	Exts []string
 	// CompFunc is the func that completes the flag's value. See [CompFunc].
 	CompFunc func(ctx *Context, toComplete string) ([]Completion, CompDirective, error)
-	// Required makes the parse fail when the flag gets no value from the
-	// command line, the environment or a config file. See [Required].
-	Required bool
 
 	// groups are the groups of the flag from its struct tag, such as
 	// `onlyoneof:format`.
@@ -1121,6 +1257,9 @@ type HelpLine struct {
 	Name string
 	// Usage is the usage of the name.
 	Usage string
+	// Funcs are the funcs that run when the command line gives a flag the
+	// value. See [HelpValue]. [ArgUsage] gives none.
+	Funcs []func(*Context) error
 }
 
 // NewFlag creates a new command-line flag.
@@ -1148,6 +1287,8 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 		return nil, fmt.Errorf("flag %s: %w: NoArgDef cannot be nil", g.Name, ErrInvalidValue)
 	case g.Type == HookT && g.Def == nil:
 		return nil, fmt.Errorf("flag %s: %w: Def cannot be nil", g.Name, ErrInvalidValue)
+	case g.Negatable && !g.isBool():
+		return nil, fmt.Errorf("flag %s: Negatable: %w: the flag is not a bool flag", g.Name, ErrAppliedToInvalidType)
 	}
 	return g, nil
 }
@@ -1269,6 +1410,7 @@ func (a *Argument) elem() Type {
 //	hidden - marks the flag as hidden
 //	deprecated - marks the flag as deprecated
 //	local - keeps the flag to its command, so that a sub command does not inherit it
+//	negatable - gives a bool flag a negated form, and `negatable:false` keeps it out of [NegateBools], see [Negatable]
 //	split - set a split separator for slice/array/map values
 //	set - binds the flag's set value to a bool field in the *struct of the name
 //	required - marks the flag as required, see [Required]
@@ -1306,6 +1448,10 @@ func (g *Flag) New(ctx *Context) (Value, error) {
 		return NewMap(g.MapKey, g.Elem)
 	case HookT:
 		return newHook(ctx, g.Def)
+	case TimestampT, DateTimeT, DateT, TimeT:
+		if g.Layout != "" {
+			return NewTime(g.Type, g.Layout)()
+		}
 	}
 	return g.Type.New()
 }
@@ -1339,6 +1485,17 @@ func (g *Flag) Formatter() string {
 	return g.Type.Formatter()
 }
 
+// helpFuncs returns the funcs of the first value of [Flag.HelpValues] that is
+// s and has funcs. See [HelpValue].
+func (g *Flag) helpFuncs(s string) []func(*Context) error {
+	for _, v := range g.HelpValues {
+		if v.Name == s && len(v.Funcs) != 0 {
+			return v.Funcs
+		}
+	}
+	return nil
+}
+
 // specArg returns the part of the spec string after the flag's name.
 func (g *Flag) specArg() string {
 	switch {
@@ -1370,6 +1527,44 @@ func (g *Flag) aliases(deprecated bool) []string {
 		v = append(v, g.DeprecatedAliases...)
 	}
 	return v
+}
+
+// isBool returns true when g is a bool flag that the command line sets to true
+// without a value, such as `--debug`. A count flag, a hook flag and a bool
+// flag with an optional value or a value without an argument that is not
+// true are not.
+func (g *Flag) isBool() bool {
+	if g.Type != BoolT || !g.NoArg || g.Optional {
+		return false
+	}
+	switch v := g.NoArgDef.(type) {
+	case bool:
+		return v
+	case string:
+		b, err := asBool(v)
+		return err == nil && b
+	}
+	return false
+}
+
+// negations returns the prefixes of the negated forms of g, such as "no" for
+// `--no-debug`. prefixes are the prefixes of the command tree, from
+// [NegateBools]. A flag with [Negatable] gets [DefaultNegatePrefix] when the
+// tree has none. A flag whose name starts with a prefix and a hyphen, such
+// as `no-psqlrc`, gets no negated form.
+func (g *Flag) negations(prefixes []string) []string {
+	switch {
+	case g.NoNegate, len(prefixes) == 0 && !g.Negatable, !g.isBool():
+		return nil
+	case len(prefixes) == 0:
+		prefixes = []string{DefaultNegatePrefix}
+	}
+	for _, p := range prefixes {
+		if strings.HasPrefix(g.Name, p+"-") {
+			return nil
+		}
+	}
+	return prefixes
 }
 
 // compNames returns the flag's long names, or its short names, that
@@ -1649,6 +1844,14 @@ func buildFlagOpts(parent, value reflect.Value, tags []string) ([]Option, error)
 			opts = append(opts, Deprecated(true))
 		case "local":
 			opts = append(opts, Local())
+		case "negatable":
+			negatable := true
+			if val != "" {
+				if negatable, err = strconv.ParseBool(val); err != nil {
+					return nil, fmt.Errorf("%w: negatable %s: %w", ErrInvalidConversion, val, err)
+				}
+			}
+			opts = append(opts, Negatable(negatable))
 		case "split":
 			opts = append(opts, Split(val))
 		case "abs":

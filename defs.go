@@ -398,38 +398,45 @@ func (help *CommandHelp) AddUsage(w StringWriter) {
 	if help.NoSpec {
 		return
 	}
-	spec := help.Spec
-	if spec == "" {
-		var v []string
-		if help.Command.Flags != nil && len(help.Command.Flags.Flags) > 0 {
-			v = append(v, text.CommandFlagsSpec)
-		}
-		if len(help.Command.subs()) != 0 {
-			v = append(v, text.CommandSubSpec)
-		}
-		switch cmd := help.Command; {
-		case len(cmd.Positional) != 0:
-			for _, a := range cmd.Positional {
-				v = append(v, a.SpecString())
-			}
-		case cmd.noArgs:
-			// ValidArgs(0, 0) allows no argument
-		case len(cmd.ValidArgs) != 0:
-			// the values of ValidArgs, with ... when more than one is allowed
-			arg := fmt.Sprintf(text.CommandArgValuesSpec, strings.Join(cmd.ValidArgs, "|"))
-			if cmd.maxArgs != 1 {
-				arg += text.CommandArgsMore
-			}
-			v = append(v, arg)
-		default:
-			v = append(v, text.CommandArgsSpec)
-		}
-		spec = strings.Join(v, " ")
-	}
-	if strings.TrimSpace(spec) != "" {
+	if spec := help.SpecString(); strings.TrimSpace(spec) != "" {
 		_, _ = w.WriteString(" ")
 		_, _ = w.WriteString(spec)
 	}
+}
+
+// SpecString returns the usage spec of the command, which help writes after
+// the names of the command and its parents, such as `[flags] [command]
+// [args]`. It is [CommandHelp.Spec], or the spec of the flags, the sub
+// commands and the arguments of the command.
+func (help *CommandHelp) SpecString() string {
+	if help.Spec != "" {
+		return help.Spec
+	}
+	var v []string
+	if help.Command.Flags != nil && len(help.Command.Flags.Flags) > 0 {
+		v = append(v, text.CommandFlagsSpec)
+	}
+	if help.Command.hasSubs() {
+		v = append(v, text.CommandSubSpec)
+	}
+	switch cmd := help.Command; {
+	case len(cmd.Positional) != 0:
+		for _, a := range cmd.Positional {
+			v = append(v, a.SpecString())
+		}
+	case cmd.noArgs:
+		// ValidArgs(0, 0) allows no argument
+	case len(cmd.ValidArgs) != 0:
+		// the values of ValidArgs, with ... when more than one is allowed
+		arg := fmt.Sprintf(text.CommandArgValuesSpec, strings.Join(cmd.ValidArgs, "|"))
+		if cmd.maxArgs != 1 {
+			arg += text.CommandArgsMore
+		}
+		v = append(v, arg)
+	default:
+		v = append(v, text.CommandArgsSpec)
+	}
+	return strings.Join(v, " ")
 }
 
 // AddArgs adds the usage of the command's positional arguments: each
@@ -438,7 +445,7 @@ func (help *CommandHelp) AddUsage(w StringWriter) {
 func (help *CommandHelp) AddArgs(w StringWriter) {
 	args := make([]HelpLine, 0, len(help.Command.Positional)+len(help.Args))
 	for _, a := range help.Command.Positional {
-		args = append(args, HelpLine{Name: a.name(), Usage: help.flagUsage(a.Flag)})
+		args = append(args, HelpLine{Name: a.name(), Usage: help.FlagUsage(a.Flag)})
 	}
 	args = append(args, help.Args...)
 	if len(args) == 0 {
@@ -566,7 +573,7 @@ func (help *CommandHelp) AddFooter(w StringWriter) {
 		return
 	}
 	footer := help.Footer
-	if footer == "" && len(help.Command.subs()) != 0 {
+	if footer == "" && help.Command.hasSubs() {
 		footer = fmt.Sprintf(text.Footer, strings.Join(help.Command.Tree(), " "))
 	}
 	if strings.TrimSpace(footer) == "" {
@@ -574,6 +581,33 @@ func (help *CommandHelp) AddFooter(w StringWriter) {
 	}
 	addBreak(w)
 	_, _ = w.WriteString(footer)
+}
+
+// FlagUsage returns the usage of the flag that help writes, with the text of
+// its default value unless [Flag.NoDefault] is set. A required flag gets the
+// text of [text.FlagRequired], and not its default, because a default does
+// not count as a value. [CommandHelp.Context] expands the default. Without a
+// context, the default is as the program wrote it, such as `$HOME/.apprc`.
+func (help *CommandHelp) FlagUsage(g *Flag) string {
+	if g.Required {
+		return g.Usage + " " + text.FlagRequired
+	}
+	if g.Def == nil || g.Type == HookT || g.NoArg || g.NoDefault {
+		return g.Usage
+	}
+	def, err := help.Context.Expand(g.Def)
+	if err != nil {
+		return g.Usage
+	}
+	// a default that is not a string, such as Default(3)
+	s, err := asString[string](def)
+	if err != nil {
+		s = fmt.Sprint(def)
+	}
+	if g.Home {
+		s = homePath(s)
+	}
+	return g.Usage + " " + fmt.Sprintf(text.FlagDefault, s)
 }
 
 // writeFlags writes the flags that help shows. When sections is true, each
@@ -601,14 +635,21 @@ func (help *CommandHelp) writeFlags(w StringWriter, all []*Flag, names []string,
 	for i, section := range names {
 		sectionNames[i] = section
 	}
-	var specs []string
+	var specs, negs []string
+	prefixes := help.Command.negatePrefixes()
 	i, width, indexes, hasShort := 0, DefaultFlagWidth, make(map[int][]int), false
 	for _, g := range flags {
 		section := 0
 		if sections {
 			section = g.Section
 		}
-		specs = append(specs, g.SpecString())
+		// a negated form shows before the name, such as --[no-]debug
+		var neg string
+		if v := g.negations(prefixes); len(v) != 0 {
+			neg = fmt.Sprintf(text.FlagNegatedSpec, v[0])
+		}
+		negs = append(negs, neg)
+		specs = append(specs, neg+g.SpecString())
 		indexes[section] = append(indexes[section], i)
 		width = max(width, len(specs[i]))
 		for _, v := range g.HelpValues {
@@ -636,7 +677,7 @@ func (help *CommandHelp) writeFlags(w StringWriter, all []*Flag, names []string,
 			_, _ = w.WriteString("\n  ")
 			g := flags[i]
 			if help.Column > 0 {
-				writeColumn(w, columnNames(g, hasShort), help.flagUsage(g), help.Column)
+				writeColumn(w, columnNames(g, negs[i], hasShort), help.FlagUsage(g), help.Column)
 			} else {
 				switch {
 				case hasShort && g.Short == "":
@@ -649,7 +690,7 @@ func (help *CommandHelp) writeFlags(w StringWriter, all []*Flag, names []string,
 				_, _ = w.WriteString("--")
 				_, _ = w.WriteString(specs[i])
 				_, _ = w.WriteString(strings.Repeat(" ", width-len(specs[i])+2))
-				DefaultWrapTo(w, help.flagUsage(g), DefaultWrapWidth, width+offset)
+				DefaultWrapTo(w, help.FlagUsage(g), DefaultWrapWidth, width+offset)
 			}
 			help.addValues(w, g, hasShort, width, offset)
 		}
@@ -678,43 +719,18 @@ func (help *CommandHelp) addValues(w StringWriter, g *Flag, hasShort bool, width
 	}
 }
 
-// flagUsage returns the usage of the flag, with the text of its default
-// value unless [Flag.NoDefault] is set. A required flag gets the text of
-// [text.FlagRequired], and not its default, because a default does not count
-// as a value.
-func (help *CommandHelp) flagUsage(g *Flag) string {
-	if g.Required {
-		return g.Usage + " " + text.FlagRequired
-	}
-	if g.Def == nil || g.Type == HookT || g.NoArg || g.NoDefault {
-		return g.Usage
-	}
-	def, err := help.Context.Expand(g.Def)
-	if err != nil {
-		return g.Usage
-	}
-	// a default that is not a string, such as Default(3)
-	s, err := asString[string](def)
-	if err != nil {
-		s = fmt.Sprint(def)
-	}
-	if g.Home {
-		s = homePath(s)
-	}
-	return g.Usage + " " + fmt.Sprintf(text.FlagDefault, s)
-}
-
 // columnNames returns the names of the flag for the layout of [HelpColumn],
 // such as `-v, --set=, --variable=NAME=VALUE`. The short names come first,
 // then the long name and the long aliases. Each long name but the last ends
 // with the spacer of [text.FlagSpecSpacer] without spaces, and the last one
-// ends with the spec.
-func columnNames(g *Flag, hasShort bool) string {
+// ends with the spec. neg is the spec of the negated form of the flag, such
+// as `[no-]`, which goes before the name.
+func columnNames(g *Flag, neg string, hasShort bool) string {
 	var shorts, longs []string
 	if g.Short != "" {
 		shorts = append(shorts, g.Short)
 	}
-	longs = append(longs, g.Name)
+	longs = append(longs, neg+g.Name)
 	for _, s := range g.Aliases {
 		if len(s) == 1 {
 			shorts = append(shorts, s)
@@ -818,14 +834,14 @@ func loadTemplates(tpls fs.FS) (map[string]string, map[string]string, error) {
 		}
 		buf, err := io.ReadAll(f)
 		if err != nil {
-			f.Close()
+			_ = f.Close()
 			return err
 		}
 		if err := f.Close(); err != nil {
 			return err
 		}
-		switch ext := filepath.Ext(name); {
-		case ext == ".txt":
+		switch ext := filepath.Ext(name); ext {
+		case ".txt":
 			txt[strings.TrimSuffix(filepath.Base(name), ".txt")] = string(buf)
 		default:
 			tpl[strings.TrimSuffix(filepath.Base(name), ext)] = string(buf)
@@ -989,9 +1005,9 @@ func (w *stringWriter) Len() int {
 func has[T inti | uinti](w StringWriter, a, b T, s string) {
 	if a&b != 0 {
 		if w.Len() != 0 {
-			w.WriteString("|")
+			_, _ = w.WriteString("|")
 		}
-		w.WriteString(s)
+		_, _ = w.WriteString(s)
 	}
 }
 

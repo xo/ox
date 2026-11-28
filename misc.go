@@ -10,7 +10,7 @@ import (
 //
 // Linux/BSD: $XDG_STATE_HOME or ~/.local/state
 // macOS:     $XDG_STATE_HOME, or ~/Library/Application Support
-// Windows:   %LOCALAPPDATA% or %USERPROFILE%\AppData\Local
+// Windows:   %LOCALAPPDATA% or %USERPROFILE%\AppData\Local.
 func UserStateDir() (string, error) {
 	if dir := os.Getenv("XDG_STATE_HOME"); dir != "" {
 		return dir, nil

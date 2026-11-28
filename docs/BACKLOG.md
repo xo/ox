@@ -35,8 +35,8 @@ On 2026-11-27 one agent took the open items in order, and closed B32, B28,
 B35, B36, B14, B42, B16, B1, B2, B7, B3, B4, B10, B11, B12, B17, B18, B21,
 B43, B46, B47, B48, B49, B50 and B51. D36 lists the choices that it made.
 A maintainer tagged `v0.1.0` the same day, which closed B22. B13 waits
-for the `go` line of D24, and B19 keeps one item that needs a design. B55 closed
-on 2026-11-28 (D44).
+for the `go` line of D24. B55 closed on 2026-11-28 (D44), and B19, B52, B53
+and B54 closed the same day (D45, D46, D47 and D48).
 
 ## Priority 1: needed before usql moves, or wrong today
 
@@ -101,58 +101,3 @@ No item is open.
   stand-ins stay until the `go` line moves to `go 1.26`, when Go 1.28 comes
   out. CI pins TinyGo 0.44.0 since 2026-11-27, so TinyGo does not block it.
 
-### B19. The types and features in `notes.txt`.
-
-- Plain description: `notes.txt` lists these, and the code does not have
-  them:
-  1. Cascading config levels for interpolation.
-  2. A `$ANY{}` key that returns the first value from any loader.
-  3. Interpolation of `NoArgDef` in `Parse`.
-  4. Reflection faults with `time.Duration`.
-  5. Global flags that turn propagation and display on or off.
-  6. An error when a flag is defined twice.
-  7. Any type whose pointer has `MarshalText` and `UnmarshalText`, or the
-     binary pair.
-  8. `--help` and `help <command path>` that work with completion.
-  9. `Dir`, `File`, `Realdir` and `Realfile` types, with `Homepath` and
-     `Abspath` forms.
-  10. A strftime type, a semver type, and a port range type such as
-      `100:200`.
-- Found: `notes.txt`. Some items can be partly done. Measure each one
-  before you start it.
-- On 2026-11-27 the backlog agent measured each item. Items 1, 2, 3, 6, 7,
-  8 and 9 are done (D36), and item 4 closed with B49. Item 5 is done with
-  `Local` and `InheritedFlags` (D38). Item 10 is still open: no strftime,
-  semver or port range type. Each is a new type and needs a design. A
-  strftime type needs a module of its own (D33).
-
-### B52. The help hook writes the same help for each value.
-
-- Plain description: `HelpValue` adds a line such as `--help=commands` to
-  the help, but the help hook writes the same help for every value of the
-  flag. So `usql` replaces the default of its `hook:help` flag with a
-  `func(*ox.Context, string) error` that picks the topic. `ox` can call a
-  func for each value that `HelpValue` names.
-- Found: the `usql` session, on 2026-11-27, when `usql` moved to
-  `v0.1.0`.
-
-### B53. A bool flag has no automatic `--no-` form.
-
-- Plain description: `--no-debug` fails with "unknown flag" for a bool flag
-  named `debug`. Only `--debug=false` turns it off. `kong` and `kingpin` add
-  the `--no-` form to each bool flag. `ox` can add it with an option or a
-  tag, and help can write it as `--[no-]debug`. A flag that is named
-  `no-something` already, such as psql's `--no-psqlrc`, must not get a
-  second form.
-- Found: Probe, on 2026-11-28, in a survey of the Go flag packages with
-  two flagship models.
-
-### B54. ox cannot write a man page or Markdown docs.
-
-- Plain description: `cobra/doc`, `urfave/cli`, `kong` and `kingpin` write
-  a man page or Markdown docs from the command tree. `ox` writes only help.
-  A hidden flag or a tool can walk the tree with `Command.Tree` and write
-  roff and Markdown. The root module requires nothing (D1), so the writer
-  uses only the standard library, or goes in a module of its own (D33).
-- Found: Read, on 2026-11-28, in a survey of the Go flag packages with two
-  flagship models.

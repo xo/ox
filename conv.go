@@ -137,7 +137,11 @@ func as[T any](val any, layout string) (any, error) {
 	case FormattedTime:
 		return asTime(val, layout)
 	case time.Time:
-		return asTime(val, layout)
+		v, err := asTime(val, layout)
+		if err != nil {
+			return nil, err
+		}
+		return v.Time(), nil
 	case time.Duration:
 		return asDuration(val)
 	case Size:
@@ -676,17 +680,26 @@ func asDuration(val any) (time.Duration, error) {
 			return d, nil
 		}
 	}
+	// a number is seconds, and seconds out of the range of a duration are
+	// an error
 	if v, err := asInt[int64](val); err == nil {
+		if v < math.MinInt64/int64(time.Second) || math.MaxInt64/int64(time.Second) < v {
+			return 0, fmt.Errorf("%w: %d seconds overflows a duration", ErrInvalidConversion, v)
+		}
 		return time.Duration(v) * time.Second, nil
 	}
 	if v, err := asUint[uint64](val); err == nil {
-		if v > math.MaxInt64 {
-			return 0, fmt.Errorf("%w: %d overflows a duration", ErrInvalidConversion, v)
+		if math.MaxInt64/uint64(time.Second) < v {
+			return 0, fmt.Errorf("%w: %d seconds overflows a duration", ErrInvalidConversion, v)
 		}
 		return time.Duration(v) * time.Second, nil
 	}
 	if v, err := asFloat[float64](val); err == nil {
-		return time.Duration(v * float64(time.Second)), nil
+		d := v * float64(time.Second)
+		if math.IsNaN(d) || d < math.MinInt64 || math.MaxInt64 <= d {
+			return 0, fmt.Errorf("%w: %v seconds overflows a duration", ErrInvalidConversion, v)
+		}
+		return time.Duration(d), nil
 	}
 	s, err := asString[string](val)
 	switch {
@@ -716,6 +729,10 @@ func asSize(val any) (Size, error) {
 		return Size(v), nil
 	}
 	if v, err := asFloat[float64](val); err == nil {
+		// a float out of the range of an int64 has no Size
+		if math.IsNaN(v) || v < math.MinInt64 || math.MaxInt64 <= v {
+			return 0, fmt.Errorf("%w: %v overflows a size", ErrInvalidConversion, v)
+		}
 		return Size(v), nil
 	}
 	s, err := asString[string](val)

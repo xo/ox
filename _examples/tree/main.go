@@ -1,3 +1,7 @@
+// Command tree is a small command tree for testing shell completion by hand.
+// Each run writes its environment and its args to tree.txt, so that a
+// completion script can be traced. gen.sh builds it and writes its
+// completion scripts.
 package main
 
 import (
