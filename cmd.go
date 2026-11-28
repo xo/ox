@@ -462,6 +462,32 @@ func (cmd *Command) CompFlags(name string, hidden, deprecated, short bool) ([]Co
 	return nil, CompDefault
 }
 
+// CompPlus returns the plus forms of the short flags of the command and of
+// its parents that start with name, such as `+e` and `+o`. Only a flag with
+// [AllowPlus] has a plus form.
+func (cmd *Command) CompPlus(name string, hidden, deprecated bool) ([]Completion, CompDirective) {
+	var comps []Completion
+	m := make(map[string]bool)
+	for g := range cmd.WalkFlags(hidden, deprecated) {
+		if !g.AllowPlus {
+			continue
+		}
+		for _, s := range g.compNames(true) {
+			switch plus := "+" + s; {
+			case m[plus]:
+				continue
+			case strings.HasPrefix(s, name):
+				comps = append(comps, NewCompletion(plus, g.Usage, 0))
+				m[plus] = true
+			}
+		}
+	}
+	if len(comps) == 0 {
+		return nil, CompNoFileComp
+	}
+	return comps, CompNoFileComp | CompKeepOrder
+}
+
 // NegatedNames returns the negated forms of the long name of the flag g in
 // the command, such as "no-debug" for --debug, without the leading dashes.
 // It returns nil when g has no negated form in the command. See
@@ -574,6 +600,32 @@ func (cmd *Command) longFlag(name string) (*Flag, bool, error) {
 	}
 	slices.Sort(names)
 	return nil, false, fmt.Errorf("%w: %s", ErrAmbiguousFlag, strings.Join(names, ", "))
+}
+
+// hasPlus returns true when the command, or a parent, has a flag with
+// [AllowPlus].
+func (cmd *Command) hasPlus() bool {
+	for g := range cmd.WalkFlags(true, true) {
+		if g.AllowPlus {
+			return true
+		}
+	}
+	return false
+}
+
+// plusFlag returns the flag of the command, or of a parent, whose short name
+// is the first letter of s and that has [AllowPlus], or nil. A word that
+// starts with `+` is read as flags only when plusFlag finds the flag of its
+// first letter.
+func (cmd *Command) plusFlag(s string) *Flag {
+	r, _ := utf8.DecodeRuneInString(s)
+	if r == utf8.RuneError {
+		return nil
+	}
+	if g := cmd.Flag(string(r), true, true); g != nil && g.AllowPlus {
+		return g
+	}
+	return nil
 }
 
 // negatePrefixes returns the prefixes of the negated forms of the bool flags
@@ -1111,6 +1163,9 @@ type Flag struct {
 	Negatable bool
 	// NoNegate keeps a bool flag out of [NegateBools]. See [Negatable].
 	NoNegate bool
+	// AllowPlus lets the short name of the flag take a `+`, as bash takes
+	// `+o name` and `+e`. See [AllowPlus].
+	AllowPlus bool
 	// Split is a split separator, to split values for slices/arrays/maps.
 	Split string
 	// Layout is the Go layout of a [TimestampT], [DateTimeT], [DateT] or
@@ -1289,6 +1344,10 @@ func NewFlag(name, usage string, opts ...Option) (*Flag, error) {
 		return nil, fmt.Errorf("flag %s: %w: Def cannot be nil", g.Name, ErrInvalidValue)
 	case g.Negatable && !g.isBool():
 		return nil, fmt.Errorf("flag %s: Negatable: %w: the flag is not a bool flag", g.Name, ErrAppliedToInvalidType)
+	case g.AllowPlus && g.Short == "":
+		return nil, fmt.Errorf("flag %s: AllowPlus: %w: the flag has no short name", g.Name, ErrInvalidValue)
+	case g.AllowPlus && g.Type == CountT:
+		return nil, fmt.Errorf("flag %s: AllowPlus: %w: a count has no plus form", g.Name, ErrAppliedToInvalidType)
 	}
 	return g, nil
 }
@@ -1844,6 +1903,8 @@ func buildFlagOpts(parent, value reflect.Value, tags []string) ([]Option, error)
 			opts = append(opts, Deprecated(true))
 		case "local":
 			opts = append(opts, Local())
+		case "plus":
+			opts = append(opts, AllowPlus())
 		case "negatable":
 			negatable := true
 			if val != "" {

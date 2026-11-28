@@ -49,6 +49,13 @@ func parse(ctx *Context, cmd *Command, args []string) (*Command, []string, bool,
 	var err error
 	for len(args) != 0 {
 		switch s, n, args = args[0], len(args[0]), args[1:]; {
+		case n > 1 && s[0] == '+' && cmd.plusFlag(s[1:]) != nil:
+			// the plus form of a flag, such as +o name and +ex (D52)
+			if args, err = ParseFlagPlus(ctx, cmd, s, args); err != nil {
+				if !ctx.Continue(cmd, err) {
+					return nil, nil, false, err
+				}
+			}
 		case n == 0, n == 1, s[0] != '-':
 			// lookup sub command
 			var c *Command
@@ -174,6 +181,60 @@ func ParseFlagShort(ctx *Context, cmd *Command, s string, args []string) ([]stri
 		default: // -a v
 			if err := ctx.Vars.Set(ctx, g, args[0], true); err != nil {
 				return args[1:], newFlagError("-"+arg, err)
+			}
+			return args[1:], nil
+		}
+	}
+	return args, nil
+}
+
+// ParseFlagPlus parses the plus form of short flags ('+a' '+a v' '+av'
+// '+abc'), as bash takes `+o name` and `+ex`. Each letter must name a flag
+// with [AllowPlus]. A plain bool flag gets false, and takes no value. Any other
+// flag takes its value as [ParseFlagShort] does, and its hook reads
+// [Context.IsPlus] as true.
+func ParseFlagPlus(ctx *Context, cmd *Command, s string, args []string) ([]string, error) {
+	ctx.plus = true
+	defer func() {
+		ctx.plus = false
+	}()
+	for v := []rune(s[1:]); len(v) != 0; v = v[1:] {
+		arg := string(v[0])
+		g, n := cmd.Flag(arg, true, true), len(v[1:])
+		switch {
+		case (g == nil || !g.AllowPlus) && ctx.Continue(cmd, newFlagError("+"+arg, ErrUnknownFlag)):
+			return args, nil
+		case g == nil || !g.AllowPlus:
+			return nil, newFlagError("+"+arg, ErrUnknownFlag)
+		}
+		warnDeprecated(ctx, g, "+"+arg)
+		switch {
+		case g.NoArg && slices.Index(v, '=') == 1: // +a=v
+			return args, newFlagError("+"+arg, fmt.Errorf("%w: the plus form of -%s takes no value", ErrInvalidValue, arg))
+		case g.NoArg: // +a
+			value := "false"
+			if !g.isBool() {
+				var err error
+				if value, err = noArgValue(ctx, g); err != nil {
+					return args, newFlagError("+"+arg, err)
+				}
+			}
+			if err := ctx.Vars.Set(ctx, g, value, true); err != nil {
+				return args, newFlagError("+"+arg, err)
+			}
+		case n == 0 && len(args) == 0: // missing argument to +a
+			return nil, newFlagError("+"+arg, ErrMissingArgument)
+		case n != 0: // +a=, +a=v, +av
+			if slices.Index(v, '=') == 1 {
+				v = v[1:]
+			}
+			if err := ctx.Vars.Set(ctx, g, string(v[1:]), true); err != nil {
+				return args, newFlagError("+"+arg, err)
+			}
+			return args, nil
+		default: // +a v
+			if err := ctx.Vars.Set(ctx, g, args[0], true); err != nil {
+				return args[1:], newFlagError("+"+arg, err)
 			}
 			return args[1:], nil
 		}

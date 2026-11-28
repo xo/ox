@@ -773,6 +773,55 @@ func ExampleNegateBools() {
 	//   -h, --help        show help, then exit
 }
 
+// ExampleAllowPlus takes the plus form of a short flag, as bash takes
+// `+o name` and `+ex`. Each hook reads the sign with ctx.IsPlus, and the
+// hooks run in the order of the command line.
+func ExampleAllowPlus() {
+	options := map[string]bool{}
+	var order []string
+	set := func(ctx *ox.Context, name string) {
+		options[name] = !ctx.IsPlus()
+		order = append(order, fmt.Sprintf("%s=%t", name, options[name]))
+	}
+	letter := func(name string) func(*ox.Context) {
+		return func(ctx *ox.Context) {
+			set(ctx, name)
+		}
+	}
+	run := func(args ...string) {
+		order = nil
+		ox.Run(
+			ox.Usage("sh", "a shell"),
+			ox.Help(),
+			ox.StopAtArg(),
+			ox.Flags().
+				Var("set-option", "set an option", ox.HookT, ox.Default(set), ox.Short("o"), ox.AllowPlus(), ox.Spec("NAME")).
+				Hook("errexit", "exit on an error", letter("errexit"), ox.Short("e"), ox.AllowPlus()).
+				Hook("xtrace", "trace each command", letter("xtrace"), ox.Short("x"), ox.AllowPlus()),
+			ox.Exec(func(_ context.Context, args []string) {
+				fmt.Println(order, args)
+			}),
+			ox.Args(args...),
+		)
+	}
+	run("-o", "errexit", "-x", "+o", "errexit", "script.sh", "+x")
+	run("-ex", "+ex", "+%Y")
+	run("--help")
+	// Output:
+	// [errexit=true xtrace=true errexit=false] [script.sh +x]
+	// [errexit=true xtrace=true errexit=false xtrace=false] [+%Y]
+	// sh a shell
+	//
+	// Usage:
+	//   sh [flags] [args]
+	//
+	// Flags:
+	//   -o, +o, --set-option NAME  set an option
+	//   -e, +e, --errexit          exit on an error
+	//   -x, +x, --xtrace           trace each command
+	//   -h,     --help             show help, then exit
+}
+
 // ExampleFlagSet_Slice reads a flag more than one time, or a list split by a
 // comma.
 func ExampleFlagSet_Slice() {

@@ -11,8 +11,9 @@ import (
 // fuzzOpts returns the options of the command tree of FuzzCommandLine. The
 // tree uses most features of the parse: short and long flags, a count, a
 // slice, a map, an optional value with a func, allowed values, a local flag,
-// prefixes, negated bools, sub commands with aliases, typed and variadic
-// arguments, a stop at the first argument, and help, version and completion.
+// plus forms, prefixes, negated bools, sub commands with aliases, typed and
+// variadic arguments, a stop at the first argument, and help, version and
+// completion.
 func fuzzOpts() []Option {
 	return []Option{
 		Usage("app", "an app"),
@@ -30,6 +31,8 @@ func fuzzOpts() []Option {
 			Size("size", "the size").
 			PortRange("ports", "the ports").
 			String("local", "a local flag", Local()).
+			Hook("errexit", "exit on an error", func(*Context) {}, Short("e"), AllowPlus()).
+			Var("set-option", "set an option", HookT, Default(func(*Context, string) error { return nil }), Short("o"), AllowPlus()).
 			Var("mode", "the mode", OptionalValue("MODE"), HelpValue("fast", "go fast", func(*Context) error {
 				return nil
 			})),
@@ -85,6 +88,17 @@ func FuzzCommandLine(f *testing.F) {
 		"-nvalue",
 		"--port=99999999999999999999",
 		"--loc=x",
+		"+e",
+		"-e\n+e\n+o\nerrexit\n-o\nerrexit",
+		"+eo\nnounset",
+		"+oerrexit",
+		"+o",
+		"+e=1",
+		"+ev",
+		"+%Y",
+		"+",
+		"__complete\n+",
+		"__complete\n+o\n",
 	} {
 		f.Add(s)
 	}

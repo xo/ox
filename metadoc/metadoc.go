@@ -428,6 +428,10 @@ func newFlags(help *ox.CommandHelp, all []*ox.Flag) []flagDoc {
 		var shorts, longs []string
 		if g.Short != "" {
 			shorts = append(shorts, "-"+g.Short)
+			// the plus form, as help writes it (D52)
+			if g.AllowPlus {
+				shorts = append(shorts, "+"+g.Short)
+			}
 		}
 		// a negated form shows before the name, as help writes it, such as
 		// --[no-]debug

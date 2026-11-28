@@ -637,7 +637,7 @@ func (help *CommandHelp) writeFlags(w StringWriter, all []*Flag, names []string,
 	}
 	var specs, negs []string
 	prefixes := help.Command.negatePrefixes()
-	i, width, indexes, hasShort := 0, DefaultFlagWidth, make(map[int][]int), false
+	i, width, indexes, hasShort, hasPlus := 0, DefaultFlagWidth, make(map[int][]int), false, false
 	for _, g := range flags {
 		section := 0
 		if sections {
@@ -659,11 +659,17 @@ func (help *CommandHelp) writeFlags(w StringWriter, all []*Flag, names []string,
 			sectionNames[section] = text.Flags
 		}
 		hasShort = hasShort || g.Short != ""
+		hasPlus = hasPlus || g.AllowPlus
 		i++
 	}
-	offset := 2
-	if hasShort {
-		offset = 10
+	// the short column holds `-x, `, and `-x, +x, ` when a flag has a plus
+	// form (D52)
+	offset, shortCol := 2, ""
+	switch {
+	case hasPlus:
+		offset, shortCol = 14, "        "
+	case hasShort:
+		offset, shortCol = 10, "    "
 	}
 	addBreak(w)
 	// write flags
@@ -680,31 +686,29 @@ func (help *CommandHelp) writeFlags(w StringWriter, all []*Flag, names []string,
 				writeColumn(w, columnNames(g, negs[i], hasShort), help.FlagUsage(g), help.Column)
 			} else {
 				switch {
-				case hasShort && g.Short == "":
-					_, _ = w.WriteString("    ")
-				case hasShort:
-					_, _ = w.WriteString("-")
-					_, _ = w.WriteString(g.Short)
-					_, _ = w.WriteString(", ")
+				case g.Short == "":
+					_, _ = w.WriteString(shortCol)
+				case g.AllowPlus:
+					_, _ = w.WriteString("-" + g.Short + ", +" + g.Short + ", ")
+				default:
+					_, _ = w.WriteString("-" + g.Short + ", ")
+					_, _ = w.WriteString(shortCol[4:])
 				}
 				_, _ = w.WriteString("--")
 				_, _ = w.WriteString(specs[i])
 				_, _ = w.WriteString(strings.Repeat(" ", width-len(specs[i])+2))
 				DefaultWrapTo(w, help.FlagUsage(g), DefaultWrapWidth, width+offset)
 			}
-			help.addValues(w, g, hasShort, width, offset)
+			help.addValues(w, g, shortCol, width, offset)
 		}
 	}
 }
 
 // addValues writes the values of [Flag.HelpValues] on lines of their own,
-// such as `--help=commands`, in the layout of the flag.
-func (help *CommandHelp) addValues(w StringWriter, g *Flag, hasShort bool, width, offset int) {
+// such as `--help=commands`, in the layout of the flag. indent is the blank
+// short column.
+func (help *CommandHelp) addValues(w StringWriter, g *Flag, indent string, width, offset int) {
 	for _, v := range g.HelpValues {
-		indent := ""
-		if hasShort {
-			indent = "    "
-		}
 		spec := g.Name + "=" + v.Name
 		_, _ = w.WriteString("\n  ")
 		if help.Column > 0 {
@@ -746,6 +750,11 @@ func columnNames(g *Flag, neg string, hasShort bool) string {
 		_, _ = sb.WriteString("-")
 		_, _ = sb.WriteString(s)
 		_, _ = sb.WriteString(", ")
+		if g.AllowPlus {
+			_, _ = sb.WriteString("+")
+			_, _ = sb.WriteString(s)
+			_, _ = sb.WriteString(", ")
+		}
 	}
 	arg := g.specArg()
 	for i, s := range longs {

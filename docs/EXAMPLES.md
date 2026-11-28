@@ -1193,6 +1193,67 @@ func ExampleNegateBools() {
 }
 ```
 
+### Take a plus form of a short flag
+
+`ox.AllowPlus()` lets the short name of a flag take a `+` as well as a `-`,
+as bash takes `+o name` to turn an option off and `+ex` to turn two letters
+off. The plus form of a plain bool flag sets it to false. The plus form of
+any other flag takes its value as the `-` form does, and its hook reads the
+sign with `ctx.IsPlus()`. The hooks run in the order of the command line, so
+a program that needs the order, as a shell does, gives each option a hook.
+A word that starts with `+` is read as flags only when its first letter names
+a flag with `ox.AllowPlus()`, so a word such as `+%Y` stays an argument. A
+lone `+`, and each word after `--` or after the first argument with
+`ox.StopAtArg()`, is an argument. The struct tag option is `plus` (D52).
+
+```go
+func ExampleAllowPlus() {
+	options := map[string]bool{}
+	var order []string
+	set := func(ctx *ox.Context, name string) {
+		options[name] = !ctx.IsPlus()
+		order = append(order, fmt.Sprintf("%s=%t", name, options[name]))
+	}
+	letter := func(name string) func(*ox.Context) {
+		return func(ctx *ox.Context) {
+			set(ctx, name)
+		}
+	}
+	run := func(args ...string) {
+		order = nil
+		ox.Run(
+			ox.Usage("sh", "a shell"),
+			ox.Help(),
+			ox.StopAtArg(),
+			ox.Flags().
+				Var("set-option", "set an option", ox.HookT, ox.Default(set), ox.Short("o"), ox.AllowPlus(), ox.Spec("NAME")).
+				Hook("errexit", "exit on an error", letter("errexit"), ox.Short("e"), ox.AllowPlus()).
+				Hook("xtrace", "trace each command", letter("xtrace"), ox.Short("x"), ox.AllowPlus()),
+			ox.Exec(func(_ context.Context, args []string) {
+				fmt.Println(order, args)
+			}),
+			ox.Args(args...),
+		)
+	}
+	run("-o", "errexit", "-x", "+o", "errexit", "script.sh", "+x")
+	run("-ex", "+ex", "+%Y")
+	run("--help")
+	// Output:
+	// [errexit=true xtrace=true errexit=false] [script.sh +x]
+	// [errexit=true xtrace=true errexit=false xtrace=false] [+%Y]
+	// sh a shell
+	//
+	// Usage:
+	//   sh [flags] [args]
+	//
+	// Flags:
+	//   -o, +o, --set-option NAME  set an option
+	//   -e, +e, --errexit          exit on an error
+	//   -x, +x, --xtrace           trace each command
+	//   -h,     --help             show help, then exit
+}
+```
+
 ### Write a man page or Markdown docs
 
 Import `github.com/xo/ox/metadoc`, and add the root option

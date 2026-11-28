@@ -400,6 +400,8 @@ type Context struct {
 	// filled are the names of the flags that the environment or a config
 	// file filled.
 	filled map[string]bool
+	// plus is true while the parse sets a flag from its plus form.
+	plus bool
 }
 
 // NewContext creates a new run context.
@@ -488,6 +490,18 @@ func (ctx *Context) Comps() ([]Completion, CompDirective, error) {
 	switch toComplete := ctx.Args[n]; {
 	case end:
 		comps, dir, err = c.compArgs(toComplete, false)
+	case strings.HasPrefix(toComplete, "+") && strings.Contains(toComplete, "=") && c.Exec.plusFlag(toComplete[1:]) != nil:
+		// +f=value
+		name, value, _ := strings.Cut(toComplete, "=")
+		r := []rune(name)
+		g := c.Exec.Flag(string(r[len(r)-1:]), true, true)
+		if g == nil || !g.AllowPlus {
+			return nil, CompDefault, nil
+		}
+		comps, dir, err = c.compFlagValue(g, value)
+	case strings.HasPrefix(toComplete, "+") && c.Exec.hasPlus():
+		// the plus forms of the short flags, such as +e and +o
+		comps, dir = c.Exec.CompPlus(toComplete[1:], false, false)
 	case strings.HasPrefix(toComplete, "-") && strings.Contains(toComplete, "="):
 		// --flag=value and -f=value
 		name, value, _ := strings.Cut(toComplete, "=")
@@ -605,6 +619,12 @@ func (ctx *Context) Expand(v any) (any, error) {
 		return ctx.Interpolate(ctx, v)
 	}
 	return v, nil
+}
+
+// IsPlus returns true while a hook runs for the plus form of its flag, such
+// as `+o name`, and false for the `-` form. See [AllowPlus].
+func (ctx *Context) IsPlus() bool {
+	return ctx.plus
 }
 
 // setArgs sets the value of each positional argument of cmd in the vars,
@@ -867,7 +887,10 @@ func compNearest(comps []Completion) []Completion {
 // holds the value, as in `--config=file` or `-cfile`.
 func compPrevFlag(cmd *Command, s string) *Flag {
 	switch {
-	case len(s) < 2, s[0] != '-', s == "--", strings.Contains(s, "="):
+	case len(s) < 2, s[0] != '-' && s[0] != '+', s == "--", strings.Contains(s, "="):
+		return nil
+	case s[0] == '+' && cmd.plusFlag(s[1:]) == nil:
+		// a word such as +%Y is an argument
 		return nil
 	case strings.HasPrefix(s, "--"):
 		if g, neg, _ := cmd.longFlag(s[2:]); g != nil && !neg && !g.NoArg {
@@ -878,7 +901,7 @@ func compPrevFlag(cmd *Command, s string) *Flag {
 	r := []rune(s[1:])
 	for i, c := range r {
 		switch g := cmd.Flag(string(c), true, true); {
-		case g == nil:
+		case g == nil, s[0] == '+' && !g.AllowPlus:
 			return nil
 		case g.NoArg:
 		case i == len(r)-1:

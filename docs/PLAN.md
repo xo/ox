@@ -57,6 +57,7 @@ reader can find a decision by its number.
 | [D49](#d49-answers-of-2026-11-28-lint-in-ci-completion-of-help-values-and-fuzz-tests-decided-amends-d12-amends-d36-amends-d46) | Answers of 2026-11-28, lint in CI, completion of help values, and fuzz tests | Decided. Amends D12. Amends D36. Amends D46 |
 | [D50](#d50-the-substring-operator-follows-bash-and-base64-and-hex-write-their-text-decided-supersedes-d19) | The substring operator follows bash, and base64 and hex write their text | Decided. Supersedes D19 |
 | [D51](#d51-a-hook-flag-checks-its-value-against-valid-decided-amends-d46) | A hook flag checks its value against Valid | Decided. Amends D46 |
+| [D52](#d52-a-short-flag-can-take-a-plus-form-as-bash-takes-o-name-decided) | A short flag can take a plus form, as bash takes +o name | Decided |
 
 ## Purpose
 
@@ -2010,6 +2011,69 @@ for each value that no `HelpValue` names.
 5. Completion leaves out an empty allowed value, such as the `""` of a bare
    `--help`, because it has nothing to complete.
    `TestHookValid` holds each case.
+
+### D52. A short flag can take a plus form, as bash takes +o name. Decided.
+
+The `hail` session, a shell that copies bash's command line, asked on
+2026-11-28 for bash's `+` options, with a maintainer's go-ahead for its
+item W27. `bash +o name` and `+O name` turn a `set` or a `shopt` option
+off, and `+e` and `+xv` turn single letters off. The order matters:
+`-o errexit +o errexit` ends with errexit off. `ox` read each word that
+starts with `+` as an argument. Two flagship models, GPT-6 Astra and
+Gemini 3.1 Pro, critiqued two shapes: one flag for both forms, or a pair of
+flags. Both chose one flag.
+
+The maintainer chose these:
+
+1. One flag takes both forms. The flag option `AllowPlus()` lets the short
+   name of the flag take a `+`, and the struct tag option is `plus`.
+2. A hook reads the sign with the method `Context.IsPlus()`, which is true
+   while a hook runs for a plus form. No new hook signature is added.
+   Hooks run in the order of the command line, so a program that needs the
+   order of each `-` and `+` gives each option a hook.
+3. A word that starts with `+` is read as flags only when its first letter
+   names a flag with `AllowPlus`. Then each letter must name such a flag.
+   Any other word, such as the `+%Y` of `date`, stays an argument, so a
+   program without `AllowPlus` sees no change.
+4. Help writes both forms in the short column, such as `-o, +o NAME` and
+   `-e, +e`.
+5. `OnSet`, a func that would run after each set of a flag that is not a
+   hook, is left out until a program needs it.
+
+An agent made these choices, and a maintainer accepted them on
+2026-11-28:
+
+6. A flag with `AllowPlus` needs a short name, and a count refuses it,
+   because a count has no off. Each is an error from `NewFlag`.
+7. The plus form of a plain bool flag sets it to false, as `--no-x` does
+   (D47). It takes no value, so `+e=1` is an error that wraps
+   `ErrInvalidValue`.
+8. The plus form of any other flag takes its value as the `-` form does:
+   `+o name`, `+oname` and `+o=name`. A cluster such as `+eo name` ends
+   with the letter that takes the value. `+o` with no value is an error
+   that wraps `ErrMissingArgument`. A `String` or a `Slice` flag keeps its
+   value and loses the sign, so a program that needs the sign uses a hook.
+9. A letter without `AllowPlus` in a cluster, such as the `c` of `+ec`, is
+   an error that wraps `ErrUnknownFlag`, as bash fails on `bash +z`.
+10. `ParseFlagPlus` parses a plus word, as `ParseFlagShort` parses a short
+    word, and `IsPlus` is false again after it returns.
+11. In the default layout, the short column grows from `-x, ` to
+    `-x, +x, ` only when a flag of the list has a plus form, so the help of
+    each other program does not change. A flag without a plus form then
+    writes `-x,     ` so that each name lines up. The layout of
+    `HelpColumn` writes the plus form after each short name.
+12. Completion offers the plus forms when the word starts with `+` and the
+    command has a flag with `AllowPlus`, with `Command.CompPlus`. It
+    completes the value after `+o` and in `+o=`, as after `-o`.
+13. `metadoc` writes the plus form beside the short name (D48).
+14. The plus form is for the command line only. The environment and the
+    config files set the flag as before, and there is no long form such as
+    `++name`. `NegateBools`, `Abbrev` and `StopAtArg` work as before. A lone
+    `+` is an argument, as a lone `-` is.
+15. `Flag.AllowPlus` fits in the padding of `Flag`, which stays 496 bytes,
+    and `BenchmarkCommandLine` shows no change (D44). `TestPlus`,
+    `TestPlusHelp`, `TestPlusComp`, `TestPlusTag` and `TestPlusErrors` hold
+    the cases, and `FuzzCommandLine` has flags with plus forms (D49).
 
 ## Open questions for the maintainers
 

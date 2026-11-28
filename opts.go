@@ -943,6 +943,29 @@ func Negatable(negatable bool) FlagOption {
 	}
 }
 
+// AllowPlus is a [Flag] option that lets the short name of the flag take a
+// `+` as well as a `-`, as bash takes `+o name` to turn an option off. The
+// flag needs a short name, and a count refuses it. The plus form of a plain
+// bool flag, such as `+e`, sets it to false, and takes no value. The plus form
+// of any other flag takes its value as the `-` form does, such as `+o name`,
+// and a hook of the flag reads the sign with [Context.IsPlus]. Hooks run in
+// the order of the command line, so a program that needs the order of each
+// `-` and `+`, as a shell does, gives each option a hook.
+//
+// A word such as `+ex` is read as flags only when its first letter names a
+// flag with AllowPlus. Each letter must then name such a flag. Any other word
+// that starts with `+`, such as the `+%Y` of `date`, stays an argument. The
+// struct tag option is `plus`.
+func AllowPlus() FlagOption {
+	return option{
+		name: "AllowPlus",
+		flag: func(g *Flag) error {
+			g.AllowPlus = true
+			return nil
+		},
+	}
+}
+
 // MapKey is a [Flag] option to set the flag's map key type.
 func MapKey(mapKey Type) FlagOption {
 	return option{
