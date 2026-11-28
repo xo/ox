@@ -1,4 +1,4 @@
 github.com/pelletier/go-toml/v2 v2.4.3 h1:GTRvJQutkOSftxIFD5xw9aepkYNuPWmVJpffdDPYVpY=
 github.com/pelletier/go-toml/v2 v2.4.3/go.mod h1:2gIqNv+qfxSVS7cM2xJQKtLSTLUE9V8t9Stt+h56mCY=
-github.com/xo/ox v0.1.0 h1:Q4ru+5PKC72Kk8k1/pDl0OxkdQOx3/9oQ4H7nyqBuO0=
-github.com/xo/ox v0.1.0/go.mod h1:wlOnzEIdFAQ2pMuDouyGrB+0anihcNQFzUVoWzTSRhg=
+github.com/xo/ox v0.2.0 h1:LqxXkCDQyydnZf2Sq+QQowBNqJNPQqNJK7YB6eAX0A0=
+github.com/xo/ox v0.2.0/go.mod h1:wlOnzEIdFAQ2pMuDouyGrB+0anihcNQFzUVoWzTSRhg=
